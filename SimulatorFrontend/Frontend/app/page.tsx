@@ -103,7 +103,7 @@ const socialLinks = [
 ];
 
 // ==================== MAIN DESIGN COMPONENT ====================
-export const Design = (): JSX.Element => {
+export const Design = (): React.JSX.Element => {
   const [isWhiteTheme, setIsWhiteTheme] = React.useState(false);
   const [sliderPosition, setSliderPosition] = React.useState(0);
   const [isDragging, setIsDragging] = React.useState(false);
