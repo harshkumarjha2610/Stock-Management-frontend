@@ -280,11 +280,11 @@ export const Design = (): React.JSX.Element => {
       </div>
 
       {/* Coming Soon Section - Responsive */}
-      <div className="w-full text-center px-4 mt-16 md:mt-24 lg:mt-32">
+      {/* <div className="w-full text-center px-4 mt-16 md:mt-24 lg:mt-32">
         <h2 className="[font-family:'Satoshi-Bold',Helvetica] font-bold text-[#ef6b23] text-4xl sm:text-5xl md:text-6xl lg:text-[70px] tracking-tight">
           COMING SOON
         </h2>
-      </div>
+      </div> */}
 
       {/* Community Section - Responsive */}
       <div className="w-full flex flex-col items-center justify-center gap-8 md:gap-12 px-4 mt-12 md:mt-16">
