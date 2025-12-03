@@ -292,7 +292,7 @@ export const Design = (): React.JSX.Element => {
           <h3 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-xl sm:text-2xl md:text-3xl lg:text-[35px] text-center leading-tight transition-colors duration-700 ${
             isWhiteTheme ? 'text-black' : 'text-white'
           }`}>
-            Join Our Community for the latest updates
+            Join Our Community for the latest updates.
           </h3>
 
           {/* Social Buttons - Responsive Grid */}
