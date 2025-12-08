@@ -210,11 +210,11 @@ export const Design = (): React.JSX.Element => {
         </div>
 
         <Button 
-  onClick={() => window.location.href = '/about'}
+  onClick={() => window.location.href = '/SimulatorDashboardF3'}
   className="w-auto sm:w-[137px] h-[40px] sm:h-[52px] gap-2 px-4 sm:px-8 py-1.5 bg-[#ef6b23] rounded-[15px] overflow-hidden hover:bg-[#ef6b23]/90"
 >
   <div className="relative w-fit text-white text-sm sm:text-lg font-semibold [font-family:'Manrope',Helvetica] text-center whitespace-nowrap">
-    Know More
+    Login
   </div>
 </Button>
       </header>
