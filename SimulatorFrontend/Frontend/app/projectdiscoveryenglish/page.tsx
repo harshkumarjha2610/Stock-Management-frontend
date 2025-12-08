@@ -205,7 +205,7 @@ export default function ProjectDiscovery() {
               className="text-white text-[20px]"
               style={{ fontFamily: 'Dubai, sans-serif' }}
             >
-              Wallet
+              Wallet.
             </span>
           </button>
 

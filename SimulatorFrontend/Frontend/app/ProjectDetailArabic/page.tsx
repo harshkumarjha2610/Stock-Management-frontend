@@ -1,10 +1,10 @@
 "use client";
 
-import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { Slot } from "@radix-ui/react-slot";
-import { type VariantProps, cva } from "class-variance-authority";
+import * as TabsPrimitive from "@radix-ui/react-tabs";
+import { cva, type VariantProps } from "class-variance-authority";
 import { clsx, type ClassValue } from "clsx";
-import { Bell, Settings, HelpCircle, Share2, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Bell, HelpCircle, Settings, Share2 } from "lucide-react";
 import * as React from "react";
 import { twMerge } from "tailwind-merge";
 
