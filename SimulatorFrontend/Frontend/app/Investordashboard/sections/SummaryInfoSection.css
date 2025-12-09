@@ -1,0 +1,700 @@
+/* Main Section */
+.summary-section {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 20px;
+  padding: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: #1a1a1a;
+}
+
+/* Header */
+.summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 20px 25px;
+  width: 100%;
+  border-bottom: 1px solid #e4e4e4;
+  background-color: #3a3a3a;
+}
+
+.header-title {
+  font-family: 'Dubai-Bold', Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 24px;
+  color: white;
+  margin: 0;
+  line-height: normal;
+}
+
+/* Wallet Info */
+.wallet-info-container {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 20px;
+  position: relative;
+}
+
+.wallet-info-left,
+.wallet-info-right {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px 10px 5px 15px;
+  background-color: #231f1f;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+}
+
+.wallet-info-left {
+  border-radius: 20px 0 0 20px;
+  padding-right: 10px;
+}
+
+.wallet-info-right {
+  border-radius: 0 20px 20px 0;
+  padding-left: 10px;
+  padding-right: 15px;
+}
+
+.wallet-label {
+  font-family: 'Dubai-Medium', Helvetica, sans-serif;
+  font-weight: 500;
+  color: white;
+  font-size: 23px;
+  line-height: 39.1px;
+  white-space: nowrap;
+}
+
+.wallet-colon {
+  font-family: 'Dubai-Regular', Helvetica, sans-serif;
+  font-weight: normal;
+  color: white;
+  font-size: 25px;
+  line-height: 42.5px;
+  white-space: nowrap;
+  margin-top: -0.5px;
+}
+
+.wallet-value {
+  font-family: 'Satoshi-Medium', Helvetica, sans-serif;
+  font-weight: 500;
+  color: white;
+  font-size: 25px;
+  line-height: normal;
+}
+
+/* Content Wrapper */
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 0 20px;
+  width: 100%;
+}
+
+/* NFT Chart Card */
+.nft-chart-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 25px;
+  padding: 15px 24px;
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  border: none;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.2) 100%),
+    linear-gradient(119deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.05) 100%);
+  position: relative;
+}
+
+.nft-chart-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: 20px;
+  background: linear-gradient(
+    133deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 43%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Cards */
+.card-content {
+  padding: 0;
+  width: 100%;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-family: 'Dubai-Medium', Helvetica, sans-serif;
+  font-weight: 500;
+  color: white;
+  font-size: 18px;
+  margin: 0;
+  line-height: normal;
+}
+
+.filter-button {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8.23px;
+  padding: 5px 15px;
+  height: auto;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 82.26px;
+  border: none;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  cursor: pointer;
+  position: relative;
+}
+
+.filter-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: 82.26px;
+  background: linear-gradient(
+    133deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 43%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.filter-button:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.button-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.button-text {
+  font-family: 'Satoshi-Medium', Helvetica, sans-serif;
+  font-weight: 500;
+  color: white;
+  font-size: 14px;
+  line-height: normal;
+  margin-top: -0.32px;
+}
+
+.chevron-icon {
+  width: 20px;
+  height: 20px;
+  color: white;
+}
+
+/* Chart Container */
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  margin-bottom: 20px;
+}
+
+.months-container {
+  width: 100%;
+  gap: 28px;
+  position: absolute;
+  top: 156px;
+  left: 0;
+  display: flex;
+  align-items: center;
+}
+
+.month-button {
+  height: 24px;
+  justify-content: center;
+  gap: 10px;
+  padding: 2px 10px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  position: relative;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.2) 100%),
+    linear-gradient(119deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.month-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: 25px;
+  background: linear-gradient(
+    133deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 43%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.month-button.active {
+  background: #ef6b23;
+}
+
+.month-button.active::before {
+  display: none;
+}
+
+.month-button span {
+  font-family: 'Satoshi-Regular', Helvetica, sans-serif;
+  font-weight: normal;
+  color: white;
+  font-size: 12px;
+  position: relative;
+  z-index: 2;
+  line-height: normal;
+}
+
+.month-button.active span {
+  font-family: 'Poppins', Helvetica, sans-serif;
+}
+
+.graphic-1 {
+  height: 77.78%;
+  top: 0;
+  position: absolute;
+  width: 100%;
+  left: 0;
+}
+
+.graphic-2 {
+  height: 49.44%;
+  top: 18.33%;
+  position: absolute;
+  width: 100%;
+  left: 0;
+}
+
+.line {
+  position: absolute;
+  width: 0;
+  height: 67.22%;
+  top: 19.44%;
+  left: 55.11%;
+}
+
+.chart-tooltip {
+  display: flex;
+  width: 77px;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 11px 10px;
+  position: absolute;
+  top: 6px;
+  left: calc(50% + 6px);
+}
+
+.tooltip-bg {
+  position: absolute;
+  width: 100%;
+  height: 100.28%;
+  top: -11.71%;
+  left: -8.92%;
+}
+
+.tooltip-text {
+  position: relative;
+  font-family: 'Satoshi-Regular', Helvetica, sans-serif;
+  font-weight: normal;
+  color: #121212;
+  font-size: 15px;
+  line-height: normal;
+  margin-top: -1px;
+}
+
+.chart-dot {
+  position: absolute;
+  width: 0;
+  height: 7.78%;
+  top: 52.17%;
+  left: 54.26%;
+  background: white;
+  border-radius: 7.51px / 7px;
+}
+
+.chart-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.summary-value {
+  font-family: 'Satoshi-Medium', Helvetica, sans-serif;
+  font-weight: 500;
+  color: white;
+  font-size: 20px;
+  line-height: normal;
+}
+
+.summary-description {
+  font-family: 'Satoshi-Regular', Helvetica, sans-serif;
+  font-weight: normal;
+  color: #f7f7f7;
+  font-size: 14px;
+  line-height: normal;
+}
+
+/* Cards Row */
+.cards-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 0 20px;
+  width: 100%;
+}
+
+/* NFT Performance Card */
+.nft-performance-card {
+  display: flex;
+  flex-direction: column;
+  width: 406px;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 20px;
+  align-self: stretch;
+  border-radius: 24px;
+  border: none;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.2) 100%),
+    linear-gradient(119deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.05) 100%);
+  position: relative;
+}
+
+.nft-performance-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: 24px;
+  background: linear-gradient(
+    133deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 43%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.performance-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+  width: 100%;
+}
+
+.performance-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.performance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.performance-info {
+  display: flex;
+  width: 245.5px;
+  gap: 5px;
+  align-items: center;
+}
+
+.performance-label {
+  font-family: 'Satoshi-Regular', Helvetica, sans-serif;
+  font-weight: normal;
+  color: white;
+  font-size: 14px;
+  line-height: normal;
+}
+
+.performance-value {
+  font-family: 'Satoshi-Medium', Helvetica, sans-serif;
+  font-weight: 500;
+  color: white;
+  font-size: 18px;
+  line-height: normal;
+  margin-top: -1px;
+}
+
+.performance-percentage {
+  font-family: 'Inter', Helvetica, sans-serif;
+  font-weight: 600;
+  color: #49ab3e;
+  font-size: 16px;
+  text-align: right;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.performance-chart {
+  width: 100%;
+  height: 62px;
+  margin-bottom: -1px;
+  margin-left: -1px;
+  margin-right: -1px;
+}
+
+/* Token Balance Card */
+.token-balance-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 15px 16px;
+  flex: 1;
+  align-self: stretch;
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.2) 100%),
+    linear-gradient(119deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border: none;
+  position: relative;
+}
+
+.token-balance-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: 20px;
+  background: linear-gradient(
+    133deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 43%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.token-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 17px;
+  width: 100%;
+}
+
+.donut-chart {
+  position: relative;
+  width: 317px;
+  height: 152px;
+}
+
+.donut-slice {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  width: 317px;
+  height: 148px;
+}
+
+.donut-slice-5 {
+  top: 14px;
+  height: 138px;
+}
+
+.donut-center {
+  display: inline-flex;
+  flex-direction: column;
+  height: 51px;
+  align-items: center;
+  gap: 10.23px;
+  position: absolute;
+  top: calc(50% + 20px);
+  left: calc(50% - 46px);
+}
+
+.donut-label {
+  font-family: 'Satoshi-Medium', Helvetica, sans-serif;
+  font-weight: 500;
+  color: white;
+  font-size: 17.9px;
+  line-height: 36.6px;
+  white-space: nowrap;
+  margin-top: -1.53px;
+}
+
+.donut-value {
+  font-family: 'Satoshi-Medium', Helvetica, sans-serif;
+  font-weight: 500;
+  color: white;
+  font-size: 25.6px;
+  line-height: 36.6px;
+  white-space: nowrap;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  object-fit: cover;
+}
+
+.token-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+  width: 100%;
+}
+
+.token-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 5px;
+  transform: rotate(0.07deg);
+}
+
+.token-info {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.token-color {
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+}
+
+.token-label {
+  font-family: 'Satoshi-Regular', Helvetica, sans-serif;
+  font-weight: normal;
+  color: white;
+  font-size: 16px;
+  text-align: center;
+  line-height: 24px;
+  white-space: nowrap;
+}
+
+.token-percentage {
+  font-family: 'Satoshi-Medium', Helvetica, sans-serif;
+  font-weight: 500;
+  color: white;
+  font-size: 16px;
+  text-align: center;
+  line-height: 24px;
+  white-space: nowrap;
+}
+
+.token-value {
+  font-family: 'Satoshi-Bold', Helvetica, sans-serif;
+  font-weight: bold;
+  color: white;
+  font-size: 19px;
+  text-align: center;
+  line-height: 24px;
+  white-space: nowrap;
+  margin-top: -0.5px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .cards-row {
+    flex-direction: column;
+  }
+
+  .nft-performance-card {
+    width: 100%;
+  }
+
+  .wallet-info-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .wallet-info-left,
+  .wallet-info-right {
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .summary-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .wallet-label,
+  .wallet-value {
+    font-size: 18px;
+  }
+
+  .wallet-colon {
+    font-size: 20px;
+  }
+
+  .months-container {
+    gap: 10px;
+  }
+
+  .month-button span {
+    font-size: 10px;
+  }
+}
