@@ -5,12 +5,10 @@ import { type VariantProps, cva } from "class-variance-authority";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-
 // ============ UTILITIES ============
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
 
 // ============ BUTTON COMPONENT ============
 const buttonVariants = cva(
@@ -43,13 +41,11 @@ const buttonVariants = cva(
   },
 );
 
-
 interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
-
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
@@ -64,7 +60,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   },
 );
 Button.displayName = "Button";
-
 
 // ============ CARD COMPONENTS ============
 const Card = React.forwardRef<
@@ -82,7 +77,6 @@ const Card = React.forwardRef<
 ));
 Card.displayName = "Card";
 
-
 const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -91,14 +85,12 @@ const CardContent = React.forwardRef<
 ));
 CardContent.displayName = "CardContent";
 
-
 // ============ NAVIGATION DATA ============
 const navigationItems = [
   { label: "Investor Dashboard", href: "#" },
   { label: "Wallet", href: "#" },
   { label: "Community", href: "#" },
 ];
-
 
 // ============ MAIN COMPONENT ============
 export default function SimulatorDashboardF3(): JSX.Element {
@@ -107,10 +99,10 @@ export default function SimulatorDashboardF3(): JSX.Element {
   React.useEffect(() => {
     const timer = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 100) return 0; // loop back to 0 after reaching 100
+        if (prev >= 100) return 0;
         return prev + 1;
       });
-    }, 50); // adjust speed here (lower = faster)
+    }, 50);
     return () => clearInterval(timer);
   }, []);
 
@@ -127,7 +119,6 @@ export default function SimulatorDashboardF3(): JSX.Element {
           />
         </div>
 
-
         {/* Navigation */}
         <nav className="flex flex-col md:flex-row items-center gap-2 md:gap-2.5 md:absolute md:top-[22px] md:left-1/2 md:transform md:-translate-x-1/2">
           {navigationItems.map((item, index) => (
@@ -143,7 +134,6 @@ export default function SimulatorDashboardF3(): JSX.Element {
           ))}
         </nav>
 
-
         {/* Right side image */}
         <div className="hidden md:flex md:absolute md:top-[22px] md:right-[15px] lg:right-[25px] items-center justify-center">
           <img
@@ -153,7 +143,6 @@ export default function SimulatorDashboardF3(): JSX.Element {
           />
         </div>
       </header>
-
 
       {/* Project title */}
       <div className="flex flex-row items-center gap-3 md:gap-5 mt-4 md:mt-[23px]">
@@ -167,19 +156,16 @@ export default function SimulatorDashboardF3(): JSX.Element {
         </h1>
       </div>
 
-
-      {/* Main card - Larger buildings */}
+      {/* Main card - Responsive buildings */}
       <Card className="w-full max-w-[1829px] min-h-[500px] sm:min-h-[600px] md:min-h-[700px] lg:h-[800px] xl:h-[846px] mt-6 md:mt-9 mb-6 rounded-[15px] bg-[#3D3D3D] border border-white/10 relative overflow-hidden">
         <CardContent className="p-0 h-full w-full relative">
 
-
-          {/* Buildings container with progress bar under first house */}
-          <div className="absolute bottom-[3%] sm:bottom-[4%] md:bottom-[5%] lg:bottom-[6%] xl:bottom-[8%] left-0 right-0 flex items-end justify-center gap-3 sm:gap-6 md:gap-8 lg:gap-12 xl:gap-20 px-2 sm:px-4 md:px-6 lg:px-8 z-[1]">
+          {/* DESKTOP VIEW: Horizontal Layout (md and up) */}
+          <div className="hidden md:flex absolute bottom-[3%] sm:bottom-[4%] md:bottom-[5%] lg:bottom-[6%] xl:bottom-[8%] left-0 right-0 items-end justify-center gap-3 sm:gap-6 md:gap-8 lg:gap-12 xl:gap-20 px-2 sm:px-4 md:px-6 lg:px-8 z-[1]">
             
             {/* LEFT: Phase 3 text + House + Progress bar */}
             <div className="flex flex-col items-center gap-2 sm:gap-3 md:gap-4 mb-[-20px] sm:mb-[-25px] md:mb-[-30px] lg:mb-[-40px] xl:mb-[-50px]">
               
-              {/* Phase 3 Complete text - positioned above house */}
               <div className="flex flex-col items-center gap-1 md:gap-2 mb-2 md:mb-3">
                 <div className="[font-family:'Satoshi-Bold',Helvetica] font-bold text-white text-sm md:text-lg lg:text-xl xl:text-[27px] text-center drop-shadow-lg">
                   Phase 3
@@ -189,14 +175,12 @@ export default function SimulatorDashboardF3(): JSX.Element {
                 </div>
               </div>
 
-              {/* Vector 11 - House building */}
               <img
                 className="w-[120px] sm:w-[150px] md:w-[200px] lg:w-[280px] xl:w-[380px] 2xl:w-[450px] h-auto object-contain object-bottom"
                 alt="House building"
                 src="/figmaAssets/vector-11.png"
               />
 
-              {/* Progress bar - dynamic */}
               <div className="w-[110px] sm:w-[140px] md:w-[180px] lg:w-[250px] xl:w-[320px] 2xl:w-[380px] h-[20px] sm:h-[24px] md:h-[28px] lg:h-[36px] xl:h-[42px] rounded-full bg-[#3D3D3D] border border-white/20 overflow-hidden shadow-lg">
                 <div
                   className="h-full bg-[#ef6b23] rounded-full flex items-center justify-end pr-1 sm:pr-2 md:pr-3 transition-all duration-300 ease-out"
@@ -209,7 +193,6 @@ export default function SimulatorDashboardF3(): JSX.Element {
               </div>
             </div>
 
-
             {/* CENTER: Medium building */}
             <img
               className="w-[180px] sm:w-[220px] md:w-[300px] lg:w-[400px] xl:w-[520px] 2xl:w-[620px] h-auto object-contain object-bottom"
@@ -217,15 +200,105 @@ export default function SimulatorDashboardF3(): JSX.Element {
               src="/figmaAssets/vector-10.png"
             />
 
-
-            {/* RIGHT: Tall building - Slightly reduced for larger screens */}
+            {/* RIGHT: Tall building */}
             <img
-              className="hidden sm:block w-[150px] sm:w-[200px] md:w-[260px] lg:w-[360px] xl:w-[460px] 2xl:w-[540px] 3xl:w-[620px] 4xl:w-[700px] h-auto max-h-[550px] xl:max-h-[680px] 2xl:max-h-[750px] 3xl:max-h-[800px] object-contain object-bottom"
+              className="w-[150px] sm:w-[200px] md:w-[260px] lg:w-[360px] xl:w-[460px] 2xl:w-[540px] 3xl:w-[620px] 4xl:w-[700px] h-auto max-h-[550px] xl:max-h-[680px] 2xl:max-h-[750px] 3xl:max-h-[800px] object-contain object-bottom"
               alt="Tall building"
               src="/figmaAssets/vector-8.png"
             />
           </div>
 
+          {/* MOBILE VIEW: Vertical Stack (below md) */}
+          <div className="md:hidden flex flex-col items-center justify-end gap-8 px-4 pb-8 pt-12 h-full overflow-y-auto">
+            
+            {/* Building 1: Tall building */}
+            <div className="flex flex-col items-center gap-4 w-full">
+              <div className="flex flex-col items-center gap-1">
+                <div className="[font-family:'Satoshi-Bold',Helvetica] font-bold text-white text-lg text-center drop-shadow-lg">
+                  Phase 1
+                </div>
+                <div className="[font-family:'Satoshi-Medium',Helvetica] font-medium text-white text-xl drop-shadow-lg">
+                  In Progress
+                </div>
+              </div>
+              
+              <img
+                className="w-[200px] h-auto object-contain"
+                alt="Tall building"
+                src="/figmaAssets/vector-8.png"
+              />
+
+              <div className="w-full max-w-[280px] h-[32px] rounded-full bg-[#3D3D3D] border border-white/20 overflow-hidden shadow-lg">
+                <div
+                  className="h-full bg-[#ef6b23] rounded-full flex items-center justify-end pr-3 transition-all duration-300 ease-out"
+                  style={{ width: `${progress}%` }}
+                >
+                  <span className="[font-family:'Satoshi-Bold',Helvetica] font-bold text-white text-sm whitespace-nowrap">
+                    {progress}%
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Building 2: Medium building */}
+            <div className="flex flex-col items-center gap-4 w-full">
+              <div className="flex flex-col items-center gap-1">
+                <div className="[font-family:'Satoshi-Bold',Helvetica] font-bold text-white text-lg text-center drop-shadow-lg">
+                  Phase 2
+                </div>
+                <div className="[font-family:'Satoshi-Medium',Helvetica] font-medium text-white text-xl drop-shadow-lg">
+                  Planned
+                </div>
+              </div>
+              
+              <img
+                className="w-[220px] h-auto object-contain"
+                alt="Medium building"
+                src="/figmaAssets/vector-10.png"
+              />
+
+              <div className="w-full max-w-[280px] h-[32px] rounded-full bg-[#3D3D3D] border border-white/20 overflow-hidden shadow-lg">
+                <div
+                  className="h-full bg-[#ef6b23] rounded-full flex items-center justify-end pr-3 transition-all duration-300 ease-out"
+                  style={{ width: `${Math.max(0, progress - 20)}%` }}
+                >
+                  <span className="[font-family:'Satoshi-Bold',Helvetica] font-bold text-white text-sm whitespace-nowrap">
+                    {Math.max(0, progress - 20)}%
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Building 3: House building */}
+            <div className="flex flex-col items-center gap-4 w-full">
+              <div className="flex flex-col items-center gap-1">
+                <div className="[font-family:'Satoshi-Bold',Helvetica] font-bold text-white text-lg text-center drop-shadow-lg">
+                  Phase 3
+                </div>
+                <div className="[font-family:'Satoshi-Medium',Helvetica] font-medium text-white text-xl drop-shadow-lg">
+                  Complete
+                </div>
+              </div>
+              
+              <img
+                className="w-[180px] h-auto object-contain"
+                alt="House building"
+                src="/figmaAssets/vector-11.png"
+              />
+
+              <div className="w-full max-w-[280px] h-[32px] rounded-full bg-[#3D3D3D] border border-white/20 overflow-hidden shadow-lg">
+                <div
+                  className="h-full bg-[#13AE85] rounded-full flex items-center justify-end pr-3 transition-all duration-300 ease-out"
+                  style={{ width: '100%' }}
+                >
+                  <span className="[font-family:'Satoshi-Bold',Helvetica] font-bold text-white text-sm whitespace-nowrap">
+                    100%
+                  </span>
+                </div>
+              </div>
+            </div>
+
+          </div>
 
         </CardContent>
       </Card>
