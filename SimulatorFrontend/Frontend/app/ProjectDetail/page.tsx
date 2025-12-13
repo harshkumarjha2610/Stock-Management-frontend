@@ -7,6 +7,8 @@ import { clsx, type ClassValue } from "clsx";
 import { Bell, Settings, HelpCircle, ArrowLeft, Share2 } from "lucide-react";
 import * as React from "react";
 import { twMerge } from "tailwind-merge";
+import { HeaderSection } from '@/app/Investordashboard/sections/HeaderSection';
+
 
 // Utility function
 function cn(...inputs: ClassValue[]) {
@@ -181,115 +183,17 @@ export default function DashboardProject() {
   return (
     <div className="bg-[#0a0a0a] w-full min-h-screen flex flex-col">
       {/* Header Section - Responsive */}
-      <div className="w-full px-3 md:px-6 pt-3 md:pt-6">
-       <header
-        className="flex items-center justify-between px-6 md:px-8"
-        style={{
-          width: '100%',
-          maxWidth: 1834,
-          height: 95,
-          marginInline: 'auto',
-          marginBottom: '24px',
-          borderRadius: 30,
-          backgroundColor: 'rgba(255, 255, 255, 0.2)',
-          border: '1px solid rgba(255,255,255,0.2)',
-        }}
-      >
-        {/* Left: Logo */}
-        <div className="flex items-center">
-          <div className="flex flex-col justify-start items-start pb-[5px]">
-            <img
-              src="/co-build-logo-01-1.png" // put your real logo path
-              alt="CoBuild Logo"
-              className="h-[50px] w-[237px]"
-            />
-          </div>
-        </div>
-
-        {/* Center: Menu */}
-        <nav className="flex items-center gap-3">
-          {/* Active tab – orange (#ef6b23) */}
-          <button
-            className="flex items-center justify-center px-4 py-3 rounded-[25px]"
-            style={{
-              backgroundColor: '#ef6b23',
-            }}
-          >
-            <span
-              className="text-white text-[20px]"
-              style={{ fontFamily: 'Dubai, sans-serif' }}
-            >
-              Investor Dashboard
-            </span>
-          </button>
-
-          {/* Middle tab – orange as in your CSS (text-3 uses same styles) */}
-          <button
-            className="flex items-center justify-center px-4 py-3 rounded-[25px]"
-            style={{
-              backgroundColor: '#ef6b23',
-            }}
-          >
-            <span
-              className="text-white text-[20px]"
-              style={{ fontFamily: 'Dubai, sans-serif' }}
-            >
-              Wallet
-            </span>
-          </button>
-
-          {/* Right tab – black background, white text */}
-          <button
-            className="flex items-center justify-center px-4 py-3 rounded-[25px]"
-            style={{
-              backgroundColor: '#000000',
-            }}
-          >
-            <span
-              className="text-white text-[20px]"
-              style={{ fontFamily: 'Dubai, sans-serif' }}
-            >
-              Community
-            </span>
-          </button>
-        </nav>
-
-        {/* Right: Icon buttons – same shape/colors as .icon-settings */}
-        <div className="flex items-center gap-2">
-          <button
-            className="flex items-center justify-center rounded-[25px]"
-            style={{
-              padding: 15,
-              backgroundColor: 'rgba(255,255,255,0.1)',
-              border: '0px solid transparent',
-            }}
-          >
-            <Bell size={18} className="text-white" />
-          </button>
-
-          <button
-            className="flex items-center justify-center rounded-[25px]"
-            style={{
-              padding: 15,
-              backgroundColor: 'rgba(255,255,255,0.1)',
-              border: '0px solid transparent',
-            }}
-          >
-            <HelpCircle size={18} className="text-white" />
-          </button>
-
-          <button
-            className="flex items-center justify-center rounded-[25px]"
-            style={{
-              padding: 15,
-              backgroundColor: 'rgba(255,255,255,0.1)',
-              border: '0px solid transparent',
-            }}
-          >
-            <Settings size={18} className="text-white" />
-          </button>
-        </div>
-      </header>
+     <div className="w-full px-3 md:px-8 lg:px-12 -mt-2 md:-mt-3">
+       <div className="w-full">
+  <div style={{ maxWidth: '2000px', margin: '0 auto' }}>
+    <HeaderSection 
+      showNavButtons={true}
+      onMobileMenuToggle={(isOpen: boolean) => console.log('Menu toggled:', isOpen)}
+    />
+  </div>
+</div>
+       
+      
  <div 
           className="flex items-center justify-between px-4 md:px-6 lg:px-8 py-3 md:py-4 mt-3 md:mt-4"
           style={{

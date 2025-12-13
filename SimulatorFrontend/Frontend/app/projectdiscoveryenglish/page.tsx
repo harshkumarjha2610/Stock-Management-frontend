@@ -1,26 +1,38 @@
 'use client';
 import React, { useState } from 'react';
 import { 
-  Bell, HelpCircle, Settings, ArrowLeft, ChevronDown, 
-  MapPin, Search, Home, Menu, X, Filter
+  ArrowLeft, ChevronDown, MapPin, Search, Home, Filter
 } from 'lucide-react';
 import Image from 'next/image';
+import { HeaderSection } from '@/app/Investordashboard/sections/HeaderSection';
+
+// --- TypeScript Interfaces ---
+interface ProjectData {
+  title: string;
+  location: string;
+  status: string;
+}
+
+interface ProjectCardProps {
+  data: ProjectData;
+  isFeatured?: boolean;
+}
 
 // --- Reusable Component: Project Card ---
-const ProjectCard = ({ data, isFeatured = false }: { data: any, isFeatured?: boolean }) => {
+const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
   return (
-    <div className={`rounded-2xl overflow-hidden backdrop-blur-[10px] hover:scale-[1.02] transition-transform duration-300 ${isFeatured ? 'h-full' : ''}`}
+    <div 
+      className={`rounded-2xl overflow-hidden backdrop-blur-[10px] hover:scale-[1.02] transition-transform duration-300 ${isFeatured ? 'h-full' : ''}`}
       style={{
         background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), linear-gradient(134.61deg, rgba(255, 255, 255, 0.3) -29.34%, rgba(255, 255, 255, 0.05) 131.55%)'
       }}
     >
-      
       {/* Card Header with glassmorphism */}
       <div className="p-3 sm:p-4 pb-3 rounded-t-2xl backdrop-blur-[10px]" style={{ background: 'rgba(0, 0, 0, 0.6)' }}>
         <div className="flex justify-between items-start mb-2 sm:mb-3">
           <div>
             <h3 className="text-white font-bold text-base sm:text-lg md:text-xl flex items-center gap-2" style={{ fontFamily: 'Dubai, sans-serif' }}>
-              Project Housing <Home size={16} className="text-white sm:w-5 sm:h-5"/>
+              {data.title} <Home size={16} className="text-white sm:w-5 sm:h-5"/>
             </h3>
             <p className="text-white text-xs sm:text-sm md:text-base flex items-center gap-1 mt-1" style={{ fontFamily: 'Satoshi, sans-serif', fontWeight: 500 }}>
               <MapPin size={14} className="sm:w-4 sm:h-4" /> {data.location}
@@ -31,7 +43,7 @@ const ProjectCard = ({ data, isFeatured = false }: { data: any, isFeatured?: boo
             color: '#231F1F',
             fontFamily: 'Satoshi, sans-serif'
           }}>
-            🕒 Planning
+            🕒 {data.status}
           </span>
         </div>
 
@@ -55,12 +67,13 @@ const ProjectCard = ({ data, isFeatured = false }: { data: any, isFeatured?: boo
           alt="Project Building"
           fill
           className="object-cover"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          priority={isFeatured}
         />
       </div>
 
       {/* Metrics Section */}
       <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
-        
         {/* Progress Bar */}
         <div>
           <div className="flex justify-between text-xs sm:text-sm text-white mb-2" style={{ fontFamily: 'Satoshi, sans-serif' }}>
@@ -143,10 +156,9 @@ const ProjectCard = ({ data, isFeatured = false }: { data: any, isFeatured?: boo
 
 // --- Main Page Component ---
 export default function ProjectDiscovery() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  const projects = Array(6).fill({
+  const projects: ProjectData[] = Array(6).fill({
     title: "Project Housing",
     location: "Dubai - Shoutbank (Residential)",
     status: "Planning",
@@ -154,141 +166,19 @@ export default function ProjectDiscovery() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* Container */}
+      <div className="max-w-[1920px] mx-auto px-3 sm:px-4 md:px-6 pt-1 pb-4 sm:pt-2 sm:pb-6">
       
-      {/* Container for consistent width */}
-      <div className="max-w-[1920px] mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6">
-      
-        {/* 1. Header Section - Mobile Responsive */}
-        <header
-          className="flex items-center justify-between px-3 sm:px-6 md:px-8 py-3 sm:py-4"
-          style={{
-            width: '100%',
-            maxWidth: 1834,
-            height: 'auto',
-            minHeight: 70,
-            marginInline: 'auto',
-            marginBottom: 16,
-            borderRadius: 20,
-            background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), linear-gradient(134.61deg, rgba(255, 255, 255, 0.3) -29.34%, rgba(255, 255, 255, 0.05) 131.55%)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            backdropFilter: 'blur(20px)',
-          }}
-        >
-          {/* Left: Logo */}
-          <div className="flex items-center flex-shrink-0">
-            <img
-              src="/co-build-logo-01-1.png"
-              alt="CoBuild Logo"
-              className="h-[35px] w-auto sm:h-[45px] md:h-[50px]"
-            />
-          </div>
+        {/* 1. Imported Header Section from Investor Dashboard */}
+        <div className="-mt-4 sm:-mt-5 md:-mt-6"> 
+          <HeaderSection 
+            showNavButtons={true}
+            onMobileMenuToggle={(isOpen: boolean) => console.log('Menu toggled:', isOpen)}
+          />
+        </div>
 
-          {/* Desktop Menu */}
-          <nav className="hidden lg:flex items-center gap-2.5">
-            <button
-              className="flex items-center justify-center px-4 py-2.5 rounded-[25px] transition-all hover:opacity-90"
-              style={{ backgroundColor: '#ef6b23' }}
-            >
-              <span className="text-white text-[18px] whitespace-nowrap" style={{ fontFamily: 'Dubai, sans-serif' }}>
-                Investor Dashboard
-              </span>
-            </button>
-
-            <button
-              className="flex items-center justify-center px-4 py-2.5 rounded-[25px] transition-all hover:opacity-90"
-              style={{ backgroundColor: '#ef6b23' }}
-            >
-              <span className="text-white text-[18px] whitespace-nowrap" style={{ fontFamily: 'Dubai, sans-serif' }}>
-                Wallet
-              </span>
-            </button>
-
-            <button
-              className="flex items-center justify-center px-4 py-2.5 rounded-[25px] transition-all hover:bg-white/10"
-              style={{ backgroundColor: '#000000' }}
-            >
-              <span className="text-white text-[18px] whitespace-nowrap" style={{ fontFamily: 'Dubai, sans-serif' }}>
-                Community
-              </span>
-            </button>
-          </nav>
-
-          {/* Right: Icons */}
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-            {/* Desktop Icons */}
-            <div className="hidden md:flex items-center gap-2">
-              <button
-                className="flex items-center justify-center rounded-[20px] transition-all hover:bg-white/20"
-                style={{ padding: 12, backgroundColor: 'rgba(255,255,255,0.1)' }}
-              >
-                <Bell size={16} className="text-white" />
-              </button>
-
-              <button
-                className="flex items-center justify-center rounded-[20px] transition-all hover:bg-white/20"
-                style={{ padding: 12, backgroundColor: 'rgba(255,255,255,0.1)' }}
-              >
-                <HelpCircle size={16} className="text-white" />
-              </button>
-
-              <button
-                className="flex items-center justify-center rounded-[20px] transition-all hover:bg-white/20"
-                style={{ padding: 12, backgroundColor: 'rgba(255,255,255,0.1)' }}
-              >
-                <Settings size={16} className="text-white" />
-              </button>
-            </div>
-
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden flex items-center justify-center rounded-[15px] transition-all hover:bg-white/20"
-              style={{ padding: 10, backgroundColor: 'rgba(255,255,255,0.1)' }}
-            >
-              {mobileMenuOpen ? <X size={20} className="text-white" /> : <Menu size={20} className="text-white" />}
-            </button>
-          </div>
-        </header>
-
-        {/* Mobile Menu Dropdown */}
-        {mobileMenuOpen && (
-          <div 
-            className="lg:hidden mb-4 p-4 rounded-2xl animate-slideDown"
-            style={{
-              background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), linear-gradient(134.61deg, rgba(255, 255, 255, 0.3) -29.34%, rgba(255, 255, 255, 0.05) 131.55%)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,0.2)'
-            }}
-          >
-            <div className="flex flex-col gap-2">
-              <button className="w-full py-3 px-4 rounded-xl text-left text-white text-base font-medium" style={{ background: '#ef6b23', fontFamily: 'Dubai, sans-serif' }}>
-                Investor Dashboard
-              </button>
-              <button className="w-full py-3 px-4 rounded-xl text-left text-white text-base font-medium" style={{ background: '#ef6b23', fontFamily: 'Dubai, sans-serif' }}>
-                Wallet
-              </button>
-              <button className="w-full py-3 px-4 rounded-xl text-left text-white text-base font-medium hover:bg-white/10" style={{ background: '#000000', fontFamily: 'Dubai, sans-serif' }}>
-                Community
-              </button>
-              
-              {/* Mobile Icons Row */}
-              <div className="flex items-center justify-center gap-3 mt-2 pt-3 border-t border-white/20">
-                <button className="flex items-center justify-center w-10 h-10 rounded-full" style={{ background: 'rgba(255,255,255,0.1)' }}>
-                  <Bell size={18} className="text-white" />
-                </button>
-                <button className="flex items-center justify-center w-10 h-10 rounded-full" style={{ background: 'rgba(255,255,255,0.1)' }}>
-                  <HelpCircle size={18} className="text-white" />
-                </button>
-                <button className="flex items-center justify-center w-10 h-10 rounded-full" style={{ background: 'rgba(255,255,255,0.1)' }}>
-                  <Settings size={18} className="text-white" />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 2. Controls & Filters Bar - Mobile Responsive */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
+        {/* 2. Controls & Filters Bar - SHIFTED DOWN WITH MORE MARGIN */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4 mt-4 sm:mt-6 md:mt-8">
           {/* Back Button & Title Row */}
           <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button 
@@ -462,7 +352,7 @@ export default function ProjectDiscovery() {
         
         .scrollbar-hide {
           -ms-overflow-style: none;
-          scrollbar-width: none;
+          scrollbar-width: none;  
         }
       `}</style>
     </div>

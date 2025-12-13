@@ -6,7 +6,7 @@ import * as React from "react";
 
 // Utility function for className merging
 function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
+  return inputs.filter(Boolean).join(" ");
 }
 
 // ==================== BUTTON COMPONENT ====================
@@ -15,8 +15,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+        default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
@@ -37,7 +36,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  },
+  }
 );
 
 export interface ButtonProps
@@ -56,7 +55,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       />
     );
-  },
+  }
 );
 Button.displayName = "Button";
 
@@ -68,13 +67,13 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
         type={type}
         className={cn(
           "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-          className,
+          className
         )}
         ref={ref}
         {...props}
       />
     );
-  },
+  }
 );
 Input.displayName = "Input";
 
@@ -83,34 +82,35 @@ export const Design = (): React.JSX.Element => {
   const [showModal, setShowModal] = React.useState(false);
   const [isWhiteTheme, setIsWhiteTheme] = React.useState(false);
   const [formData, setFormData] = React.useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    investorType: '',
-    interestedInCircle: '',
-    message: ''
+    fullName: "",
+    email: "",
+    phone: "",
+    investorType: "",
+    interestedInCircle: "",
+    message: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    alert('Expression of Interest submitted successfully!');
+    console.log("Form submitted:", formData);
+    alert("Expression of Interest submitted successfully!");
     setShowModal(false);
     setFormData({
-      fullName: '',
-      email: '',
-      phone: '',
-      investorType: '',
-      interestedInCircle: '',
-      message: ''
+      fullName: "",
+      email: "",
+      phone: "",
+      investorType: "",
+      interestedInCircle: "",
+      message: "",
     });
   };
 
   return (
-    <div className={`overflow-x-hidden w-full min-h-screen transition-colors duration-500 ${
-      isWhiteTheme ? 'bg-white' : 'bg-black'
-    }`}>
-      
+    <div
+      className={`overflow-x-hidden w-full min-h-screen transition-colors duration-500 ${
+        isWhiteTheme ? "bg-white" : "bg-black"
+      }`}
+    >
       {/* Header - Compact with Icon-Only Theme Toggle */}
       <header className="flex w-full max-w-[1363px] mx-auto items-center justify-between px-4 sm:px-6 md:px-10 py-4 md:py-6 relative z-10">
         <div className="flex flex-col w-[120px] sm:w-[160px] md:w-[220px] items-start">
@@ -119,7 +119,7 @@ export const Design = (): React.JSX.Element => {
             alt="Co build logo"
             src="/co-build-logo-01-1.png"
             style={{
-              filter: isWhiteTheme ? 'invert(1) brightness(0)' : 'invert(0)',
+              filter: isWhiteTheme ? "invert(1) brightness(0)" : "invert(0)",
             }}
           />
         </div>
@@ -130,40 +130,40 @@ export const Design = (): React.JSX.Element => {
           <button
             onClick={() => setIsWhiteTheme(!isWhiteTheme)}
             className={`w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
-              isWhiteTheme 
-                ? 'bg-gray-800 hover:bg-gray-700' 
-                : 'bg-white/10 hover:bg-white/20 border border-white/30'
+              isWhiteTheme
+                ? "bg-gray-800 hover:bg-gray-700"
+                : "bg-white/10 hover:bg-white/20 border border-white/30"
             }`}
             aria-label="Toggle theme"
           >
             {isWhiteTheme ? (
-              // Moon icon for dark theme
-              <svg 
-                className="w-5 h-5 md:w-6 md:h-6 text-yellow-300" 
-                fill="currentColor" 
+              // Moon icon
+              <svg
+                className="w-5 h-5 md:w-6 md:h-6 text-yellow-300"
+                fill="currentColor"
                 viewBox="0 0 20 20"
               >
                 <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
               </svg>
             ) : (
-              // Sun icon for light theme
-              <svg 
-                className="w-5 h-5 md:w-6 md:h-6 text-yellow-400" 
-                fill="currentColor" 
+              // Sun icon
+              <svg
+                className="w-5 h-5 md:w-6 md:h-6 text-yellow-400"
+                fill="currentColor"
                 viewBox="0 0 20 20"
               >
-                <path 
-                  fillRule="evenodd" 
-                  d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" 
-                  clipRule="evenodd" 
+                <path
+                  fillRule="evenodd"
+                  d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                  clipRule="evenodd"
                 />
               </svg>
             )}
           </button>
 
           {/* Login Button */}
-          <Button 
-            onClick={() => window.location.href = '/SimulatorDashboardF3'}
+          <Button
+            onClick={() => (window.location.href = "/OnboardingPage1")}
             className="w-auto sm:w-[110px] md:w-[120px] h-[36px] sm:h-[44px] md:h-[48px] gap-2 px-3 sm:px-6 md:px-7 py-1.5 bg-[#ef6b23] rounded-[10px] md:rounded-[12px] overflow-hidden hover:bg-[#ef6b23]/90"
           >
             <div className="relative w-fit text-white text-xs sm:text-base md:text-lg font-semibold [font-family:'Manrope',Helvetica] text-center whitespace-nowrap">
@@ -191,14 +191,30 @@ export const Design = (): React.JSX.Element => {
         />
 
         <div className="w-full max-w-[500px] lg:max-w-[600px] md:ml-[-30px] text-center md:text-left">
-          <h2 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-lg sm:text-2xl md:text-3xl lg:text-[40px] leading-tight transition-colors duration-500 ${
-            isWhiteTheme ? 'text-black' : 'text-white'
-          }`}>
+          {/* Mobile: 2-line short text */}
+          <h2
+            className={`block md:hidden [font-family:'Satoshi-Bold',Helvetica] font-bold text-xl leading-tight transition-colors duration-500 ${
+              isWhiteTheme ? "text-black" : "text-white"
+            }`}
+          >
+            Real Estate Investments
+            <span className="block text-[#ef6b23]">
+              Real Estate Democratized
+            </span>
+          </h2>
+
+          {/* Tablet & Desktop: original long text */}
+          <h2
+            className={`hidden md:block [font-family:'Satoshi-Bold',Helvetica] font-bold text-2xl md:text-3xl lg:text-[40px] leading-tight transition-colors duration-500 ${
+              isWhiteTheme ? "text-black" : "text-white"
+            }`}
+          >
             Real Estate Investments through Tokenization{" "}
             <span className="text-[#ef6b23]">Real Estate Democratized</span>
           </h2>
         </div>
       </div>
+
 
       {/* Expression of Interest Section */}
       <div className="w-full flex flex-col items-center justify-center gap-5 md:gap-6 px-4 mt-12 md:mt-16 pb-12 md:pb-16">

@@ -38,6 +38,7 @@
   align-items: center;
   border-radius: 20px;
   position: relative;
+    flex-wrap: wrap;
 }
 
 .wallet-info-left,
@@ -396,7 +397,8 @@
 .nft-performance-card {
   display: flex;
   flex-direction: column;
-  width: 406px;
+  max-width: 406px;
+  width: 100%;
   align-items: flex-start;
   gap: 20px;
   padding: 20px;
