@@ -4,6 +4,8 @@ import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { HeaderSection } from "@/app/Investordashboard/sections/HeaderSection";
+const HeaderSectionAny: any = HeaderSection;
 
 // ============ UTILITIES ============
 function cn(...inputs: ClassValue[]) {
@@ -85,13 +87,6 @@ const CardContent = React.forwardRef<
 ));
 CardContent.displayName = "CardContent";
 
-// ============ NAVIGATION DATA ============
-const navigationItems = [
-  { label: "Investor Dashboard", href: "#" },
-  { label: "Wallet", href: "#" },
-  { label: "Community", href: "#" },
-];
-
 // ============ MAIN COMPONENT ============
 export default function SimulatorDashboardF3(): JSX.Element {
   const [progress, setProgress] = React.useState(0);
@@ -107,45 +102,17 @@ export default function SimulatorDashboardF3(): JSX.Element {
   }, []);
 
   return (
-    <div className="bg-black w-full min-h-screen flex flex-col px-4 md:px-8 lg:px-12">
-      {/* Header */}
-      <header className="w-full max-w-[1836px] h-auto md:h-[97px] self-center mt-4 md:mt-[25px] bg-[#3D3D3D] rounded-[20px] md:rounded-[30px] border border-white/10 relative px-4 py-4 md:py-0">
-        {/* Logo */}
-        <div className="flex items-center justify-center md:absolute md:top-5 md:left-[25px] mb-4 md:mb-0">
-          <img
-            className="w-32 md:w-[180px] lg:w-[237px] h-auto object-contain"
-            alt="Co build logo"
-            src="/figmaAssets/co-build-logo-01-1.png"
-          />
-        </div>
+    <div className="bg-black w-full min-h-screen flex flex-col px-2 md:px-4 lg:px-6 xl:px-8">
 
-        {/* Navigation */}
-        <nav className="flex flex-col md:flex-row items-center gap-2 md:gap-2.5 md:absolute md:top-[22px] md:left-1/2 md:transform md:-translate-x-1/2">
-          {navigationItems.map((item, index) => (
-            <Button
-              key={index}
-              variant="ghost"
-              className="w-full md:w-auto h-[40px] md:h-[50px] items-center justify-center gap-2.5 px-4 py-3 rounded-[20px] md:rounded-[25px] hover:bg-white/10"
-            >
-              <span className="[font-family:'Dubai-Regular',Helvetica] font-normal text-white text-base md:text-xl tracking-[0] leading-[normal]">
-                {item.label}
-              </span>
-            </Button>
-          ))}
-        </nav>
-
-        {/* Right side image */}
-        <div className="hidden md:flex md:absolute md:top-[22px] md:right-[15px] lg:right-[25px] items-center justify-center">
-          <img
-            className="w-[100px] md:w-[120px] lg:w-[166px] h-auto object-contain"
-            alt="Right side"
-            src="/figmaAssets/right-side.svg"
-          />
-        </div>
-      </header>
+      <div className="w-full max-w-[1836px] mx-auto mt-3 md:mt-4">
+        <HeaderSectionAny
+          showNavButtons={true}
+          onMobileMenuToggle={(isOpen: boolean) => console.log('Menu toggled:', isOpen)}
+        />
+      </div>
 
       {/* Project title */}
-      <div className="flex flex-row items-center gap-3 md:gap-5 mt-4 md:mt-[23px]">
+      <div className="flex flex-row items-center gap-3 md:gap-5 mt-4 md:mt-[23px] max-w-[1836px] mx-auto w-full">
         <img
           className="w-[30px] h-[30px] sm:w-[35px] sm:h-[35px] md:w-[45px] md:h-[45px] lg:w-[50px] lg:h-[50px] object-contain flex-shrink-0"
           alt="Icon sun"
@@ -157,7 +124,7 @@ export default function SimulatorDashboardF3(): JSX.Element {
       </div>
 
       {/* Main card - Responsive buildings */}
-      <Card className="w-full max-w-[1829px] min-h-[500px] sm:min-h-[600px] md:min-h-[700px] lg:h-[800px] xl:h-[846px] mt-6 md:mt-9 mb-6 rounded-[15px] bg-[#3D3D3D] border border-white/10 relative overflow-hidden">
+      <Card className="w-full max-w-[1829px] mx-auto min-h-[500px] sm:min-h-[600px] md:min-h-[700px] lg:h-[800px] xl:h-[846px] mt-6 md:mt-9 mb-6 rounded-[15px] bg-[#3D3D3D] border border-white/10 relative overflow-hidden">
         <CardContent className="p-0 h-full w-full relative">
 
           {/* DESKTOP VIEW: Horizontal Layout (md and up) */}
