@@ -5,6 +5,7 @@ import { type VariantProps, cva } from "class-variance-authority";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { HeaderSection } from "@/app/Investordashboard/sections/HeaderSection";
+const HeaderSectionAny: any = HeaderSection;
 
 // ============ UTILITIES ============
 function cn(...inputs: ClassValue[]) {
@@ -103,9 +104,8 @@ export default function SimulatorDashboardF3(): JSX.Element {
   return (
     <div className="bg-black w-full min-h-screen flex flex-col px-2 md:px-4 lg:px-6 xl:px-8">
 
-      {/* IMPORTED HEADER FROM INVESTOR DASHBOARD */}
       <div className="w-full max-w-[1836px] mx-auto mt-3 md:mt-4">
-        <HeaderSection 
+        <HeaderSectionAny
           showNavButtons={true}
           onMobileMenuToggle={(isOpen: boolean) => console.log('Menu toggled:', isOpen)}
         />

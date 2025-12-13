@@ -186,10 +186,7 @@ export default function DashboardProject() {
      <div className="w-full px-3 md:px-8 lg:px-12 -mt-2 md:-mt-3">
        <div className="w-full">
   <div style={{ maxWidth: '2000px', margin: '0 auto' }}>
-    <HeaderSection 
-      showNavButtons={true}
-      onMobileMenuToggle={(isOpen: boolean) => console.log('Menu toggled:', isOpen)}
-    />
+    <HeaderSection />
   </div>
 </div>
        

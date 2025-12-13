@@ -171,10 +171,7 @@ export default function ProjectDiscovery() {
       
         {/* 1. Imported Header Section from Investor Dashboard */}
         <div className="-mt-4 sm:-mt-5 md:-mt-6"> 
-          <HeaderSection 
-            showNavButtons={true}
-            onMobileMenuToggle={(isOpen: boolean) => console.log('Menu toggled:', isOpen)}
-          />
+          <HeaderSection />
         </div>
 
         {/* 2. Controls & Filters Bar - SHIFTED DOWN WITH MORE MARGIN */}
