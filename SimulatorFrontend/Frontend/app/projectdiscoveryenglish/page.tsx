@@ -5,6 +5,8 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { HeaderSection } from '@/app/Investordashboard/sections/HeaderSection';
+import { useRouter } from 'next/navigation'; // ⭐ ADD THIS IMPORT
+
 
 // --- TypeScript Interfaces ---
 interface ProjectData {
@@ -13,13 +15,17 @@ interface ProjectData {
   status: string;
 }
 
+
 interface ProjectCardProps {
   data: ProjectData;
   isFeatured?: boolean;
 }
 
+
 // --- Reusable Component: Project Card ---
 const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
+  const router = useRouter(); // ⭐ ADD THIS HOOK
+
   return (
     <div 
       className={`rounded-2xl overflow-hidden backdrop-blur-[10px] hover:scale-[1.02] transition-transform duration-300 ${isFeatured ? 'h-full' : ''}`}
@@ -47,6 +53,7 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
           </span>
         </div>
 
+
         {/* Tags */}
         <div className="flex gap-1.5 sm:gap-2 text-xs">
           {['Eco', 'High-Yield', 'Tokenized'].map(tag => (
@@ -60,6 +67,7 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
         </div>
       </div>
 
+
       {/* Image Section */}
       <div className="w-full h-40 sm:h-48 md:h-60 relative">
         <Image 
@@ -71,6 +79,7 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
           priority={isFeatured}
         />
       </div>
+
 
       {/* Metrics Section */}
       <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
@@ -86,6 +95,7 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
             />
           </div>
         </div>
+
 
         {/* Stats Grid */}
         <div className="space-y-2 text-xs sm:text-sm md:text-base" style={{ fontFamily: 'Satoshi, sans-serif' }}>
@@ -106,6 +116,7 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
             </span>
           </div>
         </div>
+
 
         {/* Graph Visualization */}
         <div className="h-12 sm:h-16 w-full relative mt-3 sm:mt-4">
@@ -130,9 +141,11 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
         </div>
       </div>
 
+
       {/* Buttons */}
       <div className="grid grid-cols-2 gap-2 sm:gap-3 p-3 sm:p-4 pt-0">
-        <button className="py-2 sm:py-2.5 md:py-3 rounded-full text-xs sm:text-sm md:text-base font-medium text-white transition-all hover:bg-white/20" 
+        <button 
+          className="py-2 sm:py-2.5 md:py-3 rounded-full text-xs sm:text-sm md:text-base font-medium text-white transition-all hover:bg-white/20" 
           style={{
             background: 'rgba(255, 255, 255, 0.1)',
             border: '1px solid #FFFFFF',
@@ -141,7 +154,10 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
         >
           View Details
         </button>
-        <button className="py-2 sm:py-2.5 md:py-3 rounded-full text-xs sm:text-sm md:text-base font-medium text-white transition-all hover:opacity-90 shadow-lg" 
+        {/* ⭐ UPDATED INVEST NOW BUTTON */}
+        <button 
+          onClick={() => router.push('/SimulatorDashboardF3')}
+          className="py-2 sm:py-2.5 md:py-3 rounded-full text-xs sm:text-sm md:text-base font-medium text-white transition-all hover:opacity-90 shadow-lg" 
           style={{
             background: '#EF6B23',
             fontFamily: 'Satoshi, sans-serif'
@@ -154,15 +170,19 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
   );
 };
 
+
 // --- Main Page Component ---
 export default function ProjectDiscovery() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const router = useRouter(); // ⭐ ADD THIS HOOK (if you want to use it in the main component too)
+
 
   const projects: ProjectData[] = Array(6).fill({
     title: "Project Housing",
     location: "Dubai - Shoutbank (Residential)",
     status: "Planning",
   });
+
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -174,16 +194,19 @@ export default function ProjectDiscovery() {
           <HeaderSection />
         </div>
 
+
         {/* 2. Controls & Filters Bar - SHIFTED DOWN WITH MORE MARGIN */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4 mt-4 sm:mt-6 md:mt-8">
           {/* Back Button & Title Row */}
           <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button 
+              onClick={() => router.back()} // ⭐ UPDATED: Use router.back() for back navigation
               className="flex items-center justify-center w-[40px] h-[40px] sm:w-[46px] sm:h-[46px] rounded-full transition-all hover:opacity-90 flex-shrink-0"
               style={{ background: '#ef6b23' }}
             >
               <ArrowLeft size={18} className="text-white sm:w-5 sm:h-5" />
             </button>
+
 
             <h1 
               className="text-white text-[20px] sm:text-[24px] font-medium flex-1"
@@ -191,6 +214,7 @@ export default function ProjectDiscovery() {
             >
               Project Discovery
             </h1>
+
 
             {/* Mobile Filter Toggle */}
             <button
@@ -202,6 +226,7 @@ export default function ProjectDiscovery() {
               Filters
             </button>
           </div>
+
 
           {/* Desktop Filters */}
           <div className="hidden lg:flex items-center gap-2.5 flex-1 overflow-x-auto scrollbar-hide">
@@ -219,6 +244,7 @@ export default function ProjectDiscovery() {
               />
             </div>
 
+
             {['Map', 'Sort', 'Location', 'Project Status', 'Investment Type', 'Duration', 'Founding Progress'].map((label) => (
               <button 
                 key={label}
@@ -234,6 +260,7 @@ export default function ProjectDiscovery() {
             ))}
           </div>
         </div>
+
 
         {/* Mobile Filters Panel */}
         {mobileFiltersOpen && (
@@ -259,6 +286,7 @@ export default function ProjectDiscovery() {
               />
             </div>
 
+
             {/* Filter Buttons Grid */}
             <div className="grid grid-cols-2 gap-2">
               {['Map', 'Sort', 'Location', 'Project Status', 'Investment Type', 'Duration', 'Founding Progress'].map((label) => (
@@ -277,6 +305,7 @@ export default function ProjectDiscovery() {
             </div>
           </div>
         )}
+
 
         {/* 3. Main Layout Grid - Mobile Responsive */}
         <div 
@@ -307,6 +336,7 @@ export default function ProjectDiscovery() {
                 ))}
               </div>
 
+
               {/* Featured Project */}
               <div className="p-4 md:p-5 rounded-2xl backdrop-blur-[20px]" style={{ background: 'rgba(255, 255, 255, 0.15)' }}>
                 <h2 className="text-sm md:text-base font-semibold mb-4 text-white" style={{ fontFamily: 'Dubai, sans-serif' }}>
@@ -315,6 +345,7 @@ export default function ProjectDiscovery() {
                 <ProjectCard data={projects[0]} isFeatured={true} />
               </div>
             </div>
+
 
             {/* Right Content Grid - Full width on mobile */}
             <div className="lg:col-span-9 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
@@ -325,6 +356,7 @@ export default function ProjectDiscovery() {
           </div>
         </div>
       </div>
+
 
       {/* Add animation styles */}
       <style jsx global>{`
@@ -342,6 +374,7 @@ export default function ProjectDiscovery() {
         .animate-slideDown {
           animation: slideDown 0.3s ease-out;
         }
+
 
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
