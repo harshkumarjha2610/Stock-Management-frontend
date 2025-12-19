@@ -1,5 +1,7 @@
 'use client';
 import React, { JSX } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
 import { clsx, type ClassValue } from "clsx";
@@ -89,6 +91,7 @@ CardContent.displayName = "CardContent";
 
 // ============ MAIN COMPONENT ============
 export default function SimulatorDashboardF3(): JSX.Element {
+  const router = useRouter();
   const [progress, setProgress] = React.useState(0);
 
   React.useEffect(() => {
@@ -101,9 +104,15 @@ export default function SimulatorDashboardF3(): JSX.Element {
     return () => clearInterval(timer);
   }, []);
 
+  // Handle back navigation
+  const handleBackClick = () => {
+    router.back(); // Or use router.push('/project-details/project-1')
+  };
+
   return (
     <div className="bg-black w-full min-h-screen flex flex-col px-2 md:px-4 lg:px-6 xl:px-8">
 
+      {/* Header */}
       <div className="w-full max-w-[1836px] mx-auto mt-3 md:mt-4">
         <HeaderSectionAny
           showNavButtons={true}
@@ -111,13 +120,22 @@ export default function SimulatorDashboardF3(): JSX.Element {
         />
       </div>
 
-      {/* Project title */}
+      {/* Back Button & Project title */}
       <div className="flex flex-row items-center gap-3 md:gap-5 mt-4 md:mt-[23px] max-w-[1836px] mx-auto w-full">
-        <img
+        {/* Back Button - NOW FUNCTIONAL */}
+        <button
+          onClick={handleBackClick}
+          className="flex items-center justify-center w-[40px] h-[40px] sm:w-[45px] sm:h-[45px] md:w-[50px] md:h-[50px] lg:w-[55px] lg:h-[55px] rounded-full bg-[#3D3D3D] hover:bg-[#4D4D4D] transition-all duration-200 flex-shrink-0 border border-white/10 shadow-lg"
+          aria-label="Go back"
+        >
+          <ArrowLeft className="w-[20px] h-[20px] sm:w-[22px] sm:h-[22px] md:w-[24px] md:h-[24px] lg:w-[26px] lg:h-[26px] text-white" />
+        </button>
+
+        {/* <img
           className="w-[30px] h-[30px] sm:w-[35px] sm:h-[35px] md:w-[45px] md:h-[45px] lg:w-[50px] lg:h-[50px] object-contain flex-shrink-0"
           alt="Icon sun"
           src="/figmaAssets/icon-sun.svg"
-        />
+        /> */}
         <h1 className="[font-family:'Dubai-Bold',Helvetica] font-bold text-white text-lg sm:text-xl md:text-2xl lg:text-3xl tracking-[0] leading-tight">
           XYZ Project
         </h1>

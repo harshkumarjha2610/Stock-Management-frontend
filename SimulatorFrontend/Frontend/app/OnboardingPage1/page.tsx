@@ -75,9 +75,9 @@ export default function RetailInvestorStep2() {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content - REDUCED WIDTH FOR MOBILE */}
       <div className="px-4 sm:px-6 py-6 sm:py-8 flex items-start justify-center">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-[340px] sm:max-w-md">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
             Retail Investor
           </h2>
