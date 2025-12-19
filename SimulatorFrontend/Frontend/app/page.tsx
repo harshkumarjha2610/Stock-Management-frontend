@@ -191,7 +191,8 @@ export const Design = (): React.JSX.Element => {
         />
 
         <div className="w-full max-w-[500px] lg:max-w-[600px] md:ml-[-30px] text-center md:text-left">
-          {/* Mobile: 2-line short text */}
+          {/* ⭐ COMMENTED OUT - Original Text */}
+          {/* 
           <h2
             className={`block md:hidden [font-family:'Satoshi-Bold',Helvetica] font-bold text-xl leading-tight transition-colors duration-500 ${
               isWhiteTheme ? "text-black" : "text-white"
@@ -203,7 +204,6 @@ export const Design = (): React.JSX.Element => {
             </span>
           </h2>
 
-          {/* Tablet & Desktop: original long text */}
           <h2
             className={`hidden md:block [font-family:'Satoshi-Bold',Helvetica] font-bold text-2xl md:text-3xl lg:text-[40px] leading-tight transition-colors duration-500 ${
               isWhiteTheme ? "text-black" : "text-white"
@@ -212,16 +212,28 @@ export const Design = (): React.JSX.Element => {
             Real Estate Investments through Tokenization{" "}
             <span className="text-[#ef6b23]">Real Estate Democratized</span>
           </h2>
+          */}
+
+          {/* ⭐ NEW TEXT - Let's CoBuild the World */}
+          <h2
+            className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-2xl md:text-3xl lg:text-[40px] leading-tight transition-colors duration-500 ${
+              isWhiteTheme ? "text-black" : "text-white"
+            }`}
+          >
+            Let's{" "}
+            <span className="text-[#ef6b23]">Co</span>
+            <span className={isWhiteTheme ? "text-black" : "text-white"}>Build</span>
+            {" "}the World
+          </h2>
         </div>
       </div>
-
 
       {/* Expression of Interest Section */}
       <div className="w-full flex flex-col items-center justify-center gap-5 md:gap-6 px-4 mt-12 md:mt-16 pb-12 md:pb-16">
         <h3 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-xl sm:text-2xl md:text-3xl lg:text-[32px] text-center leading-tight transition-colors duration-500 ${
           isWhiteTheme ? 'text-black' : 'text-white'
         }`}>
-          Submit an Expression of Interest
+          Submit your EOI to be considered for early access
         </h3>
 
         <Button 

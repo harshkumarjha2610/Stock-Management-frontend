@@ -34,6 +34,10 @@ export default function RetailInvestorPage() {
     router.push('/Investordashboard');
   };
 
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -87,16 +91,16 @@ export default function RetailInvestorPage() {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content - REDUCED WIDTH FOR MOBILE */}
       <div className="px-4 sm:px-6 py-6 sm:py-8 flex items-start justify-center">
-        <div className="w-full max-w-3xl">
+        <div className="w-full max-w-[340px] sm:max-w-2xl md:max-w-3xl">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
             Retail Investor
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-x-8 md:gap-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 md:gap-x-8 md:gap-y-6">
             {/* Left Column */}
-            <div className="space-y-5 sm:space-y-6">
+            <div className="space-y-4 sm:space-y-5 md:space-y-6">
               {/* Wallet Number */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -218,7 +222,7 @@ export default function RetailInvestorPage() {
             </div>
 
             {/* Right Column */}
-            <div className="space-y-5 sm:space-y-6">
+            <div className="space-y-4 sm:space-y-5 md:space-y-6">
               {/* Upload Passport */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -226,7 +230,7 @@ export default function RetailInvestorPage() {
                 </label>
                 <label
                   htmlFor="passport-upload"
-                  className="flex flex-col items-center justify-center w-full h-32 sm:h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#ef6b23] transition-colors bg-white"
+                  className="flex flex-col items-center justify-center w-full h-32 sm:h-36 md:h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#ef6b23] transition-colors bg-white"
                 >
                   <div className="flex flex-col items-center justify-center gap-1.5 sm:gap-2">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#ef6b23] flex items-center justify-center">
@@ -256,7 +260,7 @@ export default function RetailInvestorPage() {
                 </label>
                 <label
                   htmlFor="selfie-upload"
-                  className="flex flex-col items-center justify-center w-full h-32 sm:h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#ef6b23] transition-colors bg-white"
+                  className="flex flex-col items-center justify-center w-full h-32 sm:h-36 md:h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#ef6b23] transition-colors bg-white"
                 >
                   <div className="flex flex-col items-center justify-center gap-1.5 sm:gap-2">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#ef6b23] flex items-center justify-center">
@@ -282,8 +286,11 @@ export default function RetailInvestorPage() {
           </div>
 
           {/* Buttons */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-8 sm:mt-10">
-            <button className="px-4 sm:px-6 py-2.5 sm:py-3 border-2 border-[#ef6b23] text-[#ef6b23] rounded-lg font-semibold hover:bg-[#ef6b23] hover:text-white transition-colors text-sm sm:text-base">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-6 sm:mt-8 md:mt-10">
+            <button 
+              onClick={handleBack}
+              className="px-4 sm:px-6 py-2.5 sm:py-3 border-2 border-[#ef6b23] text-[#ef6b23] rounded-lg font-semibold hover:bg-[#ef6b23] hover:text-white transition-colors text-sm sm:text-base"
+            >
               Back
             </button>
             <button
