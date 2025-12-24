@@ -12,7 +12,7 @@ const navigationItems = [
   },
   {
     icon: "/frame-1000003212-1.svg",
-    label: "Smart Contact (Log)",
+    label: "Smart Contract (Log)",
     href: "", // no navigation yet
   },
 ];
@@ -48,7 +48,19 @@ export const NavigationMenuSection = (): JSX.Element => {
       </div>
 
       {/* Navigation Buttons */}
-      <nav className="flex w-full justify-center gap-2 sm:gap-[15px] items-center flex-col sm:flex-row px-4 sm:px-0">
+      <nav
+        className="
+          flex
+          w-full sm:w-auto
+          justify-center sm:justify-end
+          gap-2 sm:gap-2 md:gap-2.5
+          items-center
+          flex-col sm:flex-row
+          px-4 sm:px-0
+          mt-6 sm:-mt-12 md:-mt-16 lg:-mt-20
+          sm:ml-auto
+        "
+      >
         {navigationItems.map((item, index) => (
           <Button
             key={index}
@@ -56,14 +68,31 @@ export const NavigationMenuSection = (): JSX.Element => {
             onClick={() => {
               if (item.href) router.push(item.href);
             }}
-            className="relative gap-2 sm:gap-[11px] p-3 sm:p-[15px] bg-[#ef6b23cc] rounded-[14px] backdrop-blur-[20px] backdrop-brightness-[100%] [-webkit-backdrop-filter:blur(20px)_brightness(100%)] flex items-center w-full sm:flex-1 border-[none] before:content-[''] before:absolute before:inset-0 before:p-px before:rounded-[14px] before:[background:linear-gradient(133deg,rgba(255,255,255,0.5)_0%,rgba(255,255,255,0)_43%,rgba(255,255,255,0.5)_100%)] before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] before:[-webkit-mask-composite:xor] before:[mask-composite:exclude] before:z-[1] before:pointer-events-none hover:bg-[#ef6b23cc] h-auto"
+            className="
+              relative 
+              gap-2 sm:gap-3 
+              px-5 sm:px-7 md:px-8 lg:px-9
+              py-3.5 sm:py-4.5 md:py-5 lg:py-5.5
+              bg-[#f46e24cc]
+              hover:bg-[#f46e24e6]
+              active:bg-[#f46e24]
+              rounded-lg sm:rounded-xl
+              flex items-center justify-center
+              w-full sm:w-auto
+              sm:min-w-[220px] sm:max-w-[300px] md:max-w-[340px]
+              border-none
+              shadow-none
+              transition-colors duration-300
+              h-auto
+              min-h-[56px] sm:min-h-[68px] md:min-h-[72px] lg:min-h-[76px]
+            "
           >
             <img
-              className="relative flex-[0_0_auto] w-5 h-5 sm:w-auto sm:h-auto"
+              className="relative flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8"
               alt={item.label}
               src={item.icon}
             />
-            <span className="relative flex items-center justify-center flex-1 [font-family:'Dubai-Medium',Helvetica] font-medium text-white text-base sm:text-xl tracking-[0] leading-[normal]">
+            <span className="relative [font-family:'Dubai-Medium',Helvetica] font-medium text-white text-sm sm:text-base md:text-lg tracking-[0] leading-[normal] whitespace-nowrap">
               {item.label}
             </span>
           </Button>

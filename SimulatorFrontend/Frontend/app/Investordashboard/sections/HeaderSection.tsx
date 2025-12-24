@@ -20,17 +20,18 @@ export const HeaderSection = (): JSX.Element => {
       <header
         className="
           w-full
-          max-w-[98vw]               /* mobile: almost full width */
-          sm:max-w-[97vw]         /* small screens */
-          md:max-w-[96vw]         /* tablets */
-          lg:max-w-[95vw]        /* laptops (~1408px) */
-          xl:max-w-[94vw]        /* big desktops (~1536px) */
+          max-w-[98vw]
+          sm:max-w-[97vw]
+          md:max-w-[96vw]
+          lg:max-w-[1400px]
+          xl:max-w-[1600px]
+          2xl:max-w-[1850px]
           mx-auto
           bg-[#3a3a3a]
           rounded-[15px] sm:rounded-[20px] lg:rounded-[30px]
           overflow-hidden
           relative
-          mt-1 sm:mt-2 lg:mt-2    /* slightly closer to black strip */
+          mt-1 sm:mt-2 lg:mt-2
         "
       >
         <div className="flex items-center justify-between px-4 sm:px-6 lg:px-[26px] py-3 sm:py-4 lg:py-5 gap-2 sm:gap-4">
@@ -44,16 +45,21 @@ export const HeaderSection = (): JSX.Element => {
           </div>
 
           {/* Desktop Navigation Section */}
-          <nav className="hidden lg:flex items-center gap-2.5">
+          <nav className="hidden lg:flex items-center gap-3 ml-4">
             {navigationItems.map((item, index) => (
               <Button
                 key={index}
                 variant="ghost"
-                className={`h-[50px] px-6 py-3 rounded-[25px] transition-colors ${
-                  item.active
+                className={`
+                  h-[60px]           /* taller */
+                  px-8 py-4          /* more padding */
+                  rounded-[22px]
+                  transition-colors
+                  ${item.active
                     ? "bg-[#ef6b23] hover:bg-[#d95e1f]"
                     : "hover:bg-[#4a4a4a]"
-                }`}
+                  }
+                `}
               >
                 <span className="font-normal text-white text-base whitespace-nowrap">
                   {item.label}

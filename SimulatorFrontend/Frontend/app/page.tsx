@@ -111,8 +111,8 @@ export const Design = (): React.JSX.Element => {
         isWhiteTheme ? "bg-white" : "bg-black"
       }`}
     >
-      {/* Header - Compact with Icon-Only Theme Toggle */}
-      <header className="flex w-full max-w-[1363px] mx-auto items-center justify-between px-4 sm:px-6 md:px-10 py-4 md:py-6 relative z-10">
+      {/* Header - ⭐ MUCH MORE DECREASED SPACING FOR DESKTOP ONLY */}
+      <header className="flex w-full max-w-[1363px] mx-auto items-center justify-between px-4 sm:px-4 md:px-6 lg:px-6 xl:px-2 2xl:px-1 py-4 md:py-6 relative z-10">
         <div className="flex flex-col w-[120px] sm:w-[160px] md:w-[220px] items-start">
           <img
             className="relative w-full h-auto object-contain transition-all duration-500"
@@ -182,7 +182,7 @@ export const Design = (): React.JSX.Element => {
         />
       </div>
 
-      {/* Tokenization Section - Compact */}
+      {/* Tokenization Section - Compact - ⭐ TWO LINES WITH BALANCED SIZES */}
       <div className="w-full flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0 px-4 mt-6 md:mt-10">
         <img
           className="w-full max-w-[280px] sm:max-w-[380px] md:max-w-[500px] lg:max-w-[650px] h-auto object-contain"
@@ -191,39 +191,20 @@ export const Design = (): React.JSX.Element => {
         />
 
         <div className="w-full max-w-[500px] lg:max-w-[600px] md:ml-[-30px] text-center md:text-left">
-          {/* ⭐ COMMENTED OUT - Original Text */}
-          {/* 
-          <h2
-            className={`block md:hidden [font-family:'Satoshi-Bold',Helvetica] font-bold text-xl leading-tight transition-colors duration-500 ${
-              isWhiteTheme ? "text-black" : "text-white"
-            }`}
-          >
-            Real Estate Investments
-            <span className="block text-[#ef6b23]">
-              Real Estate Democratized
+          {/* ⭐ TWO LINES - Let's CoBuild (smaller) / the World (larger) */}
+          <h2 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold leading-tight transition-colors duration-500 ${
+            isWhiteTheme ? "text-black" : "text-white"
+          }`}>
+            {/* Line 1: Let's CoBuild - Smaller Size */}
+            <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
+              Let's{" "}
+              <span className="text-[#ef6b23]">Co</span>
+              <span className={isWhiteTheme ? "text-black" : "text-white"}>Build</span>
             </span>
-          </h2>
-
-          <h2
-            className={`hidden md:block [font-family:'Satoshi-Bold',Helvetica] font-bold text-2xl md:text-3xl lg:text-[40px] leading-tight transition-colors duration-500 ${
-              isWhiteTheme ? "text-black" : "text-white"
-            }`}
-          >
-            Real Estate Investments through Tokenization{" "}
-            <span className="text-[#ef6b23]">Real Estate Democratized</span>
-          </h2>
-          */}
-
-          {/* ⭐ NEW TEXT - Let's CoBuild the World */}
-          <h2
-            className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-2xl md:text-3xl lg:text-[40px] leading-tight transition-colors duration-500 ${
-              isWhiteTheme ? "text-black" : "text-white"
-            }`}
-          >
-            Let's{" "}
-            <span className="text-[#ef6b23]">Co</span>
-            <span className={isWhiteTheme ? "text-black" : "text-white"}>Build</span>
-            {" "}the World
+            {/* Line 2: the World - Same Size */}
+            <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
+              the World
+            </span>
           </h2>
         </div>
       </div>

@@ -2,15 +2,19 @@
 .summary-section {
   display: flex;
   flex-direction: column;
-  width: 100%;
+   /* Reduces width by 100px from right */
+  /* OR */
+  margin-right: 60px; /* Adds space on right side */
   align-items: flex-start;
   justify-content: center;
   gap: 20px;
-  padding: 0;
+  padding: 0 0 24px 0;
   border-radius: 20px;
   overflow: hidden;
   background-color: #1a1a1a;
 }
+
+
 
 /* Header */
 .summary-header {
@@ -366,6 +370,7 @@
   display: inline-flex;
   align-items: center;
   gap: 9px;
+ 
 }
 
 .summary-value {
@@ -376,6 +381,11 @@
   line-height: normal;
 }
 
+.summary-dotted-line {
+  flex: 1;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.4);
+  margin: 0 6px;
+}
 .summary-description {
   font-family: 'Satoshi-Regular', Helvetica, sans-serif;
   font-weight: normal;
