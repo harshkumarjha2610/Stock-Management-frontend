@@ -5,8 +5,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { HeaderSection } from '@/app/Investordashboard/sections/HeaderSection';
-import { useRouter } from 'next/navigation'; // ⭐ ADD THIS IMPORT
-
+import { useRouter } from 'next/navigation';
 
 // --- TypeScript Interfaces ---
 interface ProjectData {
@@ -15,16 +14,14 @@ interface ProjectData {
   status: string;
 }
 
-
 interface ProjectCardProps {
   data: ProjectData;
   isFeatured?: boolean;
 }
 
-
 // --- Reusable Component: Project Card ---
 const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
-  const router = useRouter(); // ⭐ ADD THIS HOOK
+  const router = useRouter();
 
   return (
     <div 
@@ -33,7 +30,7 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
         background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), linear-gradient(134.61deg, rgba(255, 255, 255, 0.3) -29.34%, rgba(255, 255, 255, 0.05) 131.55%)'
       }}
     >
-      {/* Card Header with glassmorphism */}
+      {/* Card Header - Unified laptop/desktop styling */}
       <div className="p-3 sm:p-4 pb-3 rounded-t-2xl backdrop-blur-[10px]" style={{ background: 'rgba(0, 0, 0, 0.6)' }}>
         <div className="flex justify-between items-start mb-2 sm:mb-3">
           <div>
@@ -53,7 +50,6 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
           </span>
         </div>
 
-
         {/* Tags */}
         <div className="flex gap-1.5 sm:gap-2 text-xs">
           {['Eco', 'High-Yield', 'Tokenized'].map(tag => (
@@ -67,8 +63,7 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
         </div>
       </div>
 
-
-      {/* Image Section */}
+      {/* Image Section - Same height for laptop and desktop */}
       <div className="w-full h-40 sm:h-48 md:h-60 relative">
         <Image 
           src="/building.png"
@@ -79,7 +74,6 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
           priority={isFeatured}
         />
       </div>
-
 
       {/* Metrics Section */}
       <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
@@ -95,7 +89,6 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
             />
           </div>
         </div>
-
 
         {/* Stats Grid */}
         <div className="space-y-2 text-xs sm:text-sm md:text-base" style={{ fontFamily: 'Satoshi, sans-serif' }}>
@@ -116,7 +109,6 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
             </span>
           </div>
         </div>
-
 
         {/* Graph Visualization */}
         <div className="h-12 sm:h-16 w-full relative mt-3 sm:mt-4">
@@ -141,7 +133,6 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
         </div>
       </div>
 
-
       {/* Buttons */}
       <div className="grid grid-cols-2 gap-2 sm:gap-3 p-3 sm:p-4 pt-0">
         <button 
@@ -154,7 +145,6 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
         >
           View Details
         </button>
-        {/* ⭐ UPDATED INVEST NOW BUTTON */}
         <button 
           onClick={() => router.push('/SimulatorDashboardF3')}
           className="py-2 sm:py-2.5 md:py-3 rounded-full text-xs sm:text-sm md:text-base font-medium text-white transition-all hover:opacity-90 shadow-lg" 
@@ -170,12 +160,10 @@ const ProjectCard = ({ data, isFeatured = false }: ProjectCardProps) => {
   );
 };
 
-
 // --- Main Page Component ---
 export default function ProjectDiscovery() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const router = useRouter(); // ⭐ ADD THIS HOOK (if you want to use it in the main component too)
-
+  const router = useRouter();
 
   const projects: ProjectData[] = Array(6).fill({
     title: "Project Housing",
@@ -183,30 +171,27 @@ export default function ProjectDiscovery() {
     status: "Planning",
   });
 
-
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Container */}
+      {/* Container - Consistent padding from lg onwards */}
       <div className="max-w-[1920px] mx-auto px-3 sm:px-4 md:px-6 pt-1 pb-4 sm:pt-2 sm:pb-6">
       
-        {/* 1. Imported Header Section from Investor Dashboard */}
+        {/* 1. Header Section */}
         <div className="-mt-4 sm:-mt-5 md:-mt-6"> 
           <HeaderSection />
         </div>
 
-
-        {/* 2. Controls & Filters Bar - SHIFTED DOWN WITH MORE MARGIN */}
+        {/* 2. Controls & Filters Bar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4 mt-4 sm:mt-6 md:mt-8">
           {/* Back Button & Title Row */}
           <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button 
-              onClick={() => router.back()} // ⭐ UPDATED: Use router.back() for back navigation
+              onClick={() => router.back()}
               className="flex items-center justify-center w-[40px] h-[40px] sm:w-[46px] sm:h-[46px] rounded-full transition-all hover:opacity-90 flex-shrink-0"
               style={{ background: '#ef6b23' }}
             >
               <ArrowLeft size={18} className="text-white sm:w-5 sm:h-5" />
             </button>
-
 
             <h1 
               className="text-white text-[20px] sm:text-[24px] font-medium flex-1"
@@ -214,7 +199,6 @@ export default function ProjectDiscovery() {
             >
               Project Discovery
             </h1>
-
 
             {/* Mobile Filter Toggle */}
             <button
@@ -227,8 +211,7 @@ export default function ProjectDiscovery() {
             </button>
           </div>
 
-
-          {/* Desktop Filters */}
+          {/* Desktop Filters - Same styling for all desktop sizes */}
           <div className="hidden lg:flex items-center gap-2.5 flex-1 overflow-x-auto scrollbar-hide">
             {/* Search Input */}
             <div className="relative flex-shrink-0">
@@ -243,7 +226,6 @@ export default function ProjectDiscovery() {
                 }}
               />
             </div>
-
 
             {['Map', 'Sort', 'Location', 'Project Status', 'Investment Type', 'Duration', 'Founding Progress'].map((label) => (
               <button 
@@ -261,7 +243,6 @@ export default function ProjectDiscovery() {
           </div>
         </div>
 
-
         {/* Mobile Filters Panel */}
         {mobileFiltersOpen && (
           <div 
@@ -272,7 +253,6 @@ export default function ProjectDiscovery() {
               border: '1px solid rgba(255,255,255,0.2)'
             }}
           >
-            {/* Search */}
             <div className="relative mb-3">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60" size={16} />
               <input 
@@ -286,8 +266,6 @@ export default function ProjectDiscovery() {
               />
             </div>
 
-
-            {/* Filter Buttons Grid */}
             <div className="grid grid-cols-2 gap-2">
               {['Map', 'Sort', 'Location', 'Project Status', 'Investment Type', 'Duration', 'Founding Progress'].map((label) => (
                 <button 
@@ -306,8 +284,7 @@ export default function ProjectDiscovery() {
           </div>
         )}
 
-
-        {/* 3. Main Layout Grid - Mobile Responsive */}
+        {/* 3. Main Layout Grid - UNIFIED LAPTOP/DESKTOP LAYOUT */}
         <div 
           className="p-3 sm:p-4 md:p-6 rounded-2xl backdrop-blur-md border border-white/20"
           style={{
@@ -316,9 +293,10 @@ export default function ProjectDiscovery() {
             background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), linear-gradient(134.61deg, rgba(255, 255, 255, 0.3) -29.34%, rgba(255, 255, 255, 0.05) 131.55%)'
           }}
         >
+          {/* KEY CHANGE: Same grid structure from lg: onwards (no xl: variants) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 md:gap-6">
             
-            {/* Left Sidebar - Hidden on mobile, visible on desktop */}
+            {/* Left Sidebar - Same on all desktop sizes */}
             <div className="hidden lg:block lg:col-span-3 space-y-5 md:space-y-6">
               {/* Quick Tags */}
               <div className="flex flex-wrap gap-2">
@@ -336,7 +314,6 @@ export default function ProjectDiscovery() {
                 ))}
               </div>
 
-
               {/* Featured Project */}
               <div className="p-4 md:p-5 rounded-2xl backdrop-blur-[20px]" style={{ background: 'rgba(255, 255, 255, 0.15)' }}>
                 <h2 className="text-sm md:text-base font-semibold mb-4 text-white" style={{ fontFamily: 'Dubai, sans-serif' }}>
@@ -346,9 +323,8 @@ export default function ProjectDiscovery() {
               </div>
             </div>
 
-
-            {/* Right Content Grid - Full width on mobile */}
-            <div className="lg:col-span-9 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
+            {/* Right Content Grid - 3 columns consistently from lg: onwards */}
+            <div className="lg:col-span-9 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {projects.map((project, idx) => (
                 <ProjectCard key={idx} data={project} />
               ))}
@@ -357,8 +333,7 @@ export default function ProjectDiscovery() {
         </div>
       </div>
 
-
-      {/* Add animation styles */}
+      {/* Animations */}
       <style jsx global>{`
         @keyframes slideDown {
           from {
@@ -374,7 +349,6 @@ export default function ProjectDiscovery() {
         .animate-slideDown {
           animation: slideDown 0.3s ease-out;
         }
-
 
         .scrollbar-hide::-webkit-scrollbar {
           display: none;

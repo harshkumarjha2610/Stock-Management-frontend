@@ -38,6 +38,15 @@ export default function RetailInvestorPage() {
     router.back();
   };
 
+  const goToStep = (step: number) => {
+    if (step === 1) {
+      router.push('/OnboardingPage1');
+    }
+    if (step === 2) {
+      router.push('/OnboardingPage2');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -58,8 +67,9 @@ export default function RetailInvestorPage() {
         </div>
       </header>
 
-      {/* Progress Indicator */}
+      {/* Progress Indicator - ONLY 2 STEPS */}
       <div className="px-4 sm:px-6 py-4 sm:py-6 flex items-center justify-center gap-2 sm:gap-3">
+        {/* Step 1 – Completed */}
         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#ef6b23] flex items-center justify-center shadow-sm">
           <svg
             width="16"
@@ -73,6 +83,8 @@ export default function RetailInvestorPage() {
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
+
+        {/* Step 2 – Current (this page) - COMPLETED */}
         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#ef6b23] flex items-center justify-center shadow-sm">
           <svg
             width="16"
@@ -85,9 +97,6 @@ export default function RetailInvestorPage() {
           >
             <polyline points="20 6 9 17 4 12" />
           </svg>
-        </div>
-        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center text-gray-600 font-semibold text-sm sm:text-base shadow-sm">
-          3
         </div>
       </div>
 

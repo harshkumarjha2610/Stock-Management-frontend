@@ -137,14 +137,14 @@ const futurePlantData = [
 export const SummaryInfoWrapperSection: React.FC = () => {
   return (
     <section className="wrapper-section">
-      {/* Section Header - Digital Asset Performance Title */}
+      {/* Section Header */}
       <header className="wrapper-header">
         <h2 className="wrapper-title">
           Digital Asset Performance / Investment Performance
         </h2>
       </header>
 
-      {/* Performance Metrics Cards - Portfolio Value, Total ROI, and Unrealized P/L */}
+      {/* Performance Metrics */}
       <div className="metrics-container">
         {performanceMetrics.map((metric, index) => (
           <Card key={index} className="metric-card">
@@ -172,9 +172,9 @@ export const SummaryInfoWrapperSection: React.FC = () => {
         ))}
       </div>
 
-      {/* Two Column Layout - Portfolio Allocation and Token Balance Cards */}
+      {/* Two Card Row */}
       <div className="two-card-row">
-        {/* Portfolio Allocation Card - Shows NFT and Fungible Tokens distribution with donut chart */}
+        {/* Portfolio Allocation */}
         <Card className="portfolio-allocation-card">
           <CardContent className="allocation-content">
             <div className="allocation-header">
@@ -225,7 +225,7 @@ export const SummaryInfoWrapperSection: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Token Balance Card - Displays token holdings with donut chart and breakdown list */}
+        {/* Token Balance */}
         <Card className="token-balance-wrapper-card">
           <CardContent className="token-balance-wrapper-content">
             <div className="token-balance-wrapper-header">
@@ -294,7 +294,7 @@ export const SummaryInfoWrapperSection: React.FC = () => {
         </Card>
       </div>
 
-      {/* Portfolio Table Card - Displays asset details in tabular format with purchase/current prices and ROI */}
+      {/* Portfolio Table */}
       <Card className="portfolio-table-card">
         <CardContent className="portfolio-table-content">
           <div className="portfolio-table-header">
@@ -330,7 +330,9 @@ export const SummaryInfoWrapperSection: React.FC = () => {
 
                 <div className="table-data-cell">
                   <div className="table-cell-content">
-                    <div className="table-cell-text">{row.purchasePrice}</div>
+                    <div className="table-cell-text">
+                      {row.purchasePrice}
+                    </div>
                   </div>
                 </div>
 
@@ -359,7 +361,7 @@ export const SummaryInfoWrapperSection: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Future Plant Card - Shows estimated future opportunities and timeline */}
+      {/* Future Plant */}
       <div className="future-plant-wrapper">
         <Card className="future-plant-card">
           <CardContent className="future-plant-content">
@@ -398,7 +400,9 @@ export const SummaryInfoWrapperSection: React.FC = () => {
                         }`}
                       >
                         <div className="future-item-content">
-                          <div className="future-item-title">{item.title}</div>
+                          <div className="future-item-title">
+                            {item.title}
+                          </div>
                           <div className="future-item-description">
                             {item.description}
                           </div>

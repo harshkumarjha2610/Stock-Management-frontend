@@ -1,15 +1,30 @@
+/* CRITICAL: Prevent horizontal scroll globally */
+html,
+body {
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /* Main Section */
 .summary-section {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  margin-right: 60px;
   align-items: flex-start;
   justify-content: center;
   gap: 20px;
-  padding: 0;
+  padding: 0 0 24px 0;
   border-radius: 20px;
   overflow: hidden;
   background-color: #1a1a1a;
+  max-width: 100%;
 }
 
 /* Header */
@@ -21,6 +36,7 @@
   width: 100%;
   border-bottom: 1px solid #e4e4e4;
   background-color: #3a3a3a;
+  max-width: 100%;
 }
 
 .header-title {
@@ -38,7 +54,7 @@
   align-items: center;
   border-radius: 20px;
   position: relative;
-    flex-wrap: wrap;
+  flex-wrap: wrap;
 }
 
 .wallet-info-left,
@@ -99,6 +115,7 @@
   gap: 10px;
   padding: 0 20px;
   width: 100%;
+  max-width: 100%;
 }
 
 /* NFT Chart Card */
@@ -117,6 +134,7 @@
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.2) 100%),
     linear-gradient(119deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.05) 100%);
   position: relative;
+  max-width: 100%;
 }
 
 .nft-chart-card::before {
@@ -142,6 +160,7 @@
 .card-content {
   padding: 0;
   width: 100%;
+  max-width: 100%;
 }
 
 .card-header {
@@ -150,6 +169,8 @@
   align-items: center;
   width: 100%;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .card-title {
@@ -229,6 +250,7 @@
   width: 100%;
   height: 180px;
   margin-bottom: 20px;
+  max-width: 100%;
 }
 
 .months-container {
@@ -239,6 +261,7 @@
   left: 0;
   display: flex;
   align-items: center;
+  max-width: 100%;
 }
 
 .month-button {
@@ -256,6 +279,7 @@
   border-radius: 25px;
   cursor: pointer;
   transition: all 0.3s ease;
+  min-width: 0;
 }
 
 .month-button::before {
@@ -366,6 +390,8 @@
   display: inline-flex;
   align-items: center;
   gap: 9px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .summary-value {
@@ -374,6 +400,13 @@
   color: white;
   font-size: 20px;
   line-height: normal;
+}
+
+.summary-dotted-line {
+  flex: 1;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.4);
+  margin: 0 6px;
+  min-width: 0;
 }
 
 .summary-description {
@@ -391,6 +424,7 @@
   gap: 20px;
   padding: 0 20px;
   width: 100%;
+  max-width: 100%;
 }
 
 /* NFT Performance Card */
@@ -410,6 +444,7 @@
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.2) 100%),
     linear-gradient(119deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.05) 100%);
   position: relative;
+  min-width: 0;
 }
 
 .nft-performance-card::before {
@@ -452,6 +487,8 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .performance-info {
@@ -459,6 +496,8 @@
   width: 245.5px;
   gap: 5px;
   align-items: center;
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .performance-label {
@@ -494,6 +533,7 @@
   margin-bottom: -1px;
   margin-left: -1px;
   margin-right: -1px;
+  max-width: 100%;
 }
 
 /* Token Balance Card */
@@ -512,6 +552,9 @@
     linear-gradient(119deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.05) 100%);
   border: none;
   position: relative;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .token-balance-card::before {
@@ -539,11 +582,14 @@
   align-items: center;
   gap: 17px;
   width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .donut-chart {
   position: relative;
-  width: 317px;
+  width: 100%;
+  max-width: 317px;
   height: 152px;
 }
 
@@ -551,12 +597,17 @@
   position: absolute;
   top: 4px;
   left: 0;
-  width: 317px;
+  width: 100%;
+  max-width: 317px;
   height: 148px;
 }
 
 .donut-slice-5 {
+  position: absolute;
   top: 14px;
+  left: 0;
+  width: 100%;
+  max-width: 317px;
   height: 138px;
 }
 
@@ -610,6 +661,7 @@
   gap: 10px;
   padding: 0 5px;
   transform: rotate(0.07deg);
+  flex-wrap: wrap;
 }
 
 .token-info {
@@ -622,6 +674,7 @@
   width: 15px;
   height: 15px;
   border-radius: 3px;
+  flex-shrink: 0;
 }
 
 .token-label {
@@ -655,13 +708,249 @@
   margin-top: -0.5px;
 }
 
-/* Responsive Design */
+/* ==========================================
+   RESPONSIVE - MEDIUM LAPTOPS (1200px - 1699px)
+   SAME LAYOUT AS LARGER SCREENS, JUST SCALED DOWN
+   ========================================== */
+
+@media screen and (min-width: 1200px) and (max-width: 1699px) {
+  
+  /* Section - Reduced margins */
+  .summary-section {
+    margin-right: 40px !important;
+    gap: 17px !important;
+    padding: 0 0 20px 0 !important;
+  }
+
+  /* Header - Scaled down */
+  .summary-header {
+    padding: 17px 17px 17px 21px !important;
+  }
+
+  .header-title {
+    font-size: 21px !important;
+  }
+
+  /* Wallet Info - Scaled down */
+  .wallet-info-left,
+  .wallet-info-right {
+    padding: 4px 8px 4px 12px !important;
+  }
+
+  .wallet-info-left {
+    padding-right: 8px !important;
+  }
+
+  .wallet-info-right {
+    padding-left: 8px !important;
+    padding-right: 12px !important;
+  }
+
+  .wallet-label {
+    font-size: 20px !important;
+    line-height: 34px !important;
+  }
+
+  .wallet-colon {
+    font-size: 22px !important;
+    line-height: 37px !important;
+  }
+
+  .wallet-value {
+    font-size: 22px !important;
+  }
+
+  /* Content Wrapper */
+  .content-wrapper {
+    gap: 8px !important;
+    padding: 0 17px !important;
+  }
+
+  /* NFT Chart Card */
+  .nft-chart-card {
+    gap: 21px !important;
+    padding: 13px 20px !important;
+  }
+
+  .card-title {
+    font-size: 16px !important;
+  }
+
+  .filter-button {
+    padding: 4px 12px !important;
+  }
+
+  .button-text {
+    font-size: 12px !important;
+  }
+
+  .chevron-icon {
+    width: 17px !important;
+    height: 17px !important;
+  }
+
+  /* Chart Container */
+  .chart-container {
+    height: 153px !important;
+    margin-bottom: 17px !important;
+  }
+
+  .months-container {
+    gap: 15px !important;
+    top: 132px !important;
+  }
+
+  .month-button {
+    height: 20px !important;
+    padding: 2px 8px !important;
+  }
+
+  .month-button span {
+    font-size: 10px !important;
+  }
+
+  .tooltip-text {
+    font-size: 13px !important;
+  }
+
+  .summary-value {
+    font-size: 17px !important;
+  }
+
+  .summary-description {
+    font-size: 12px !important;
+  }
+
+  /* CARDS ROW - KEEP HORIZONTAL LAYOUT */
+  .cards-row {
+    flex-direction: row !important;
+    gap: 15px !important;
+    padding: 0 17px !important;
+    align-items: stretch !important;
+  }
+
+  /* NFT PERFORMANCE CARD - Scaled down but same proportions */
+  .nft-performance-card {
+    max-width: 340px !important;
+    width: 100% !important;
+    gap: 17px !important;
+    padding: 17px !important;
+    align-self: stretch !important;
+  }
+
+  /* TOKEN BALANCE CARD - Scaled down but maintains flex: 1 */
+  .token-balance-card {
+    gap: 13px !important;
+    padding: 13px 14px !important;
+    flex: 1 !important;
+    align-self: stretch !important;
+  }
+
+  /* NFT PERFORMANCE CONTENT - Proportionally scaled */
+  .performance-list {
+    gap: 13px !important;
+  }
+
+  .performance-item {
+    gap: 7px !important;
+  }
+
+  .performance-info {
+    width: 205px !important;
+    gap: 4px !important;
+  }
+
+  .performance-label {
+    font-size: 12px !important;
+  }
+
+  .performance-value {
+    font-size: 15px !important;
+  }
+
+  .performance-percentage {
+    font-size: 14px !important;
+  }
+
+  .performance-chart {
+    height: 52px !important;
+  }
+
+  /* TOKEN BALANCE CONTENT - Proportionally scaled */
+  .token-content {
+    gap: 14px !important;
+  }
+
+  .donut-chart {
+    max-width: 270px !important;
+    height: 129px !important;
+  }
+
+  .donut-slice {
+    max-width: 270px !important;
+    height: 126px !important;
+  }
+
+  .donut-slice-5 {
+    max-width: 270px !important;
+    height: 117px !important;
+  }
+
+  .donut-center {
+    gap: 8.5px !important;
+  }
+
+  .donut-label {
+    font-size: 15px !important;
+    line-height: 31px !important;
+  }
+
+  .donut-value {
+    font-size: 22px !important;
+    line-height: 31px !important;
+  }
+
+  .token-list {
+    gap: 13px !important;
+  }
+
+  .token-item {
+    gap: 8px !important;
+    padding: 0 4px !important;
+  }
+
+  .token-color {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  .token-label,
+  .token-percentage {
+    font-size: 14px !important;
+    line-height: 20px !important;
+  }
+
+  .token-value {
+    font-size: 16px !important;
+    line-height: 20px !important;
+  }
+
+  .divider {
+    margin: 0 !important;
+  }
+}
+
+/* ==========================================
+   TABLETS & BELOW
+   ========================================== */
+
 @media (max-width: 1024px) {
   .cards-row {
     flex-direction: column;
   }
 
   .nft-performance-card {
+    max-width: 100%;
     width: 100%;
   }
 
@@ -677,10 +966,19 @@
 }
 
 @media (max-width: 768px) {
+  .summary-section {
+    margin-right: 0;
+  }
+
   .summary-header {
     flex-direction: column;
     gap: 15px;
     align-items: flex-start;
+    padding: 15px;
+  }
+
+  .header-title {
+    font-size: 19px;
   }
 
   .wallet-label,
@@ -692,11 +990,210 @@
     font-size: 20px;
   }
 
+  .content-wrapper {
+    padding: 0 15px;
+  }
+
+  .nft-chart-card {
+    padding: 15px 18px;
+  }
+
+  .card-title {
+    font-size: 16px;
+  }
+
+  .chart-container {
+    height: 140px;
+  }
+
   .months-container {
-    gap: 10px;
+    gap: 8px;
+    top: 116px;
   }
 
   .month-button span {
-    font-size: 10px;
+    font-size: 9px;
+  }
+
+  .summary-value {
+    font-size: 17px;
+  }
+
+  .summary-description {
+    font-size: 12px;
+  }
+
+  .cards-row {
+    padding: 0 15px;
+  }
+
+  .nft-performance-card {
+    padding: 15px;
+  }
+
+  .performance-value {
+    font-size: 16px;
+  }
+
+  .performance-percentage {
+    font-size: 14px;
+  }
+
+  .performance-chart {
+    height: 50px;
+  }
+
+  .token-balance-card {
+    padding: 15px;
+  }
+
+  .donut-chart {
+    max-width: 240px;
+    height: 115px;
+  }
+
+  .donut-slice {
+    max-width: 240px;
+    height: 108px;
+  }
+
+  .donut-slice-5 {
+    max-width: 240px;
+    height: 98px;
+  }
+
+  .donut-label {
+    font-size: 15px;
+  }
+
+  .donut-value {
+    font-size: 21px;
+  }
+
+  .token-label,
+  .token-percentage {
+    font-size: 14px;
+  }
+
+  .token-value {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .summary-header {
+    padding: 12px;
+  }
+
+  .header-title {
+    font-size: 17px;
+  }
+
+  .wallet-label,
+  .wallet-value {
+    font-size: 16px;
+  }
+
+  .wallet-colon {
+    font-size: 18px;
+  }
+
+  .content-wrapper {
+    padding: 0 12px;
+  }
+
+  .nft-chart-card {
+    padding: 12px;
+  }
+
+  .card-title {
+    font-size: 15px;
+  }
+
+  .button-text {
+    font-size: 12px;
+  }
+
+  .chart-container {
+    height: 130px;
+  }
+
+  .months-container {
+    gap: 5px;
+    top: 106px;
+  }
+
+  .month-button span {
+    font-size: 8px;
+  }
+
+  .summary-value {
+    font-size: 16px;
+  }
+
+  .summary-description {
+    font-size: 11px;
+  }
+
+  .cards-row {
+    padding: 0 12px;
+  }
+
+  .nft-performance-card {
+    padding: 12px;
+  }
+
+  .performance-label {
+    font-size: 13px;
+  }
+
+  .performance-value {
+    font-size: 15px;
+  }
+
+  .performance-percentage {
+    font-size: 13px;
+  }
+
+  .performance-chart {
+    height: 45px;
+  }
+
+  .token-balance-card {
+    padding: 12px;
+  }
+
+  .donut-chart {
+    max-width: 220px;
+    height: 105px;
+  }
+
+  .donut-slice {
+    max-width: 220px;
+    height: 98px;
+  }
+
+  .donut-slice-5 {
+    max-width: 220px;
+    height: 88px;
+  }
+
+  .donut-label {
+    font-size: 14px;
+    line-height: 30px;
+  }
+
+  .donut-value {
+    font-size: 19px;
+    line-height: 30px;
+  }
+
+  .token-label,
+  .token-percentage {
+    font-size: 13px;
+  }
+
+  .token-value {
+    font-size: 15px;
   }
 }

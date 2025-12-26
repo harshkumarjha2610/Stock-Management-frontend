@@ -25,10 +25,12 @@ export default function RetailInvestorStep2() {
   };
 
   const goToStep = (step: number) => {
+    if (step === 1) {
+      router.push('/OnboardingPage1');
+    }
     if (step === 2) {
       router.push('/OnboardingPage2');
     }
-    // Add other step routes as needed
   };
 
   return (
@@ -49,8 +51,9 @@ export default function RetailInvestorStep2() {
         </div>
       </header>
 
-      {/* Progress Indicator */}
+      {/* Progress Indicator - ONLY 2 STEPS */}
       <div className="px-4 sm:px-6 py-4 sm:py-6 flex items-center justify-center gap-2 sm:gap-3">
+        {/* Step 1 – Completed */}
         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#ef6b23] flex items-center justify-center shadow-sm">
           <svg
             width="16"
@@ -64,18 +67,17 @@ export default function RetailInvestorStep2() {
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
+
+        {/* Step 2 – Current (this page) */}
         <button
           onClick={() => goToStep(2)}
           className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white border-2 border-[#ef6b23] flex items-center justify-center text-[#ef6b23] font-semibold shadow-sm text-sm sm:text-base hover:bg-[#ef6b23] hover:text-white transition-colors cursor-pointer"
         >
           2
         </button>
-        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center text-gray-600 font-semibold shadow-sm text-sm sm:text-base">
-          3
-        </div>
       </div>
 
-      {/* Main Content - REDUCED WIDTH FOR MOBILE */}
+      {/* Main Content */}
       <div className="px-4 sm:px-6 py-6 sm:py-8 flex items-start justify-center">
         <div className="w-full max-w-[340px] sm:max-w-md">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
