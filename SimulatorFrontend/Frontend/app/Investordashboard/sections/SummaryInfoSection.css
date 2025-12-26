@@ -709,32 +709,452 @@ body {
 }
 
 /* ==========================================
-   RESPONSIVE - MEDIUM LAPTOPS (1200px - 1699px)
-   SAME LAYOUT AS LARGER SCREENS, JUST SCALED DOWN
+   RESPONSIVE BREAKPOINTS (1100px - 1700px)
    ========================================== */
 
-@media screen and (min-width: 1200px) and (max-width: 1699px) {
-  
-  /* Section - Reduced margins */
+/* 1600px - 1699px: ~85% scaling */
+@media screen and (min-width: 1600px) and (max-width: 1699px) {
   .summary-section {
-    margin-right: 40px !important;
+    margin-right: 51px !important;
+    gap: 19px !important;
+    padding: 0 0 22px 0 !important;
+  }
+
+  .summary-header {
+    padding: 19px 19px 19px 24px !important;
+  }
+
+  .header-title {
+    font-size: 23px !important;
+  }
+
+  .wallet-info-left,
+  .wallet-info-right {
+    padding: 4.5px 9px 4.5px 13.5px !important;
+  }
+
+  .wallet-info-left {
+    padding-right: 9px !important;
+  }
+
+  .wallet-info-right {
+    padding-left: 9px !important;
+    padding-right: 13.5px !important;
+  }
+
+  .wallet-label {
+    font-size: 22px !important;
+    line-height: 37px !important;
+  }
+
+  .wallet-colon {
+    font-size: 24px !important;
+    line-height: 40.5px !important;
+  }
+
+  .wallet-value {
+    font-size: 24px !important;
+  }
+
+  .content-wrapper {
+    gap: 9px !important;
+    padding: 0 19px !important;
+  }
+
+  .nft-chart-card {
+    gap: 23px !important;
+    padding: 14px 22px !important;
+  }
+
+  .card-title {
+    font-size: 17px !important;
+  }
+
+  .filter-button {
+    padding: 4.5px 13.5px !important;
+  }
+
+  .button-text {
+    font-size: 13px !important;
+  }
+
+  .chevron-icon {
+    width: 19px !important;
+    height: 19px !important;
+  }
+
+  .chart-container {
+    height: 165px !important;
+    margin-bottom: 19px !important;
+  }
+
+  .months-container {
+    gap: 24px !important;
+    top: 143px !important;
+  }
+
+  .month-button {
+    height: 22px !important;
+    padding: 2px 9px !important;
+  }
+
+  .month-button span {
+    font-size: 11px !important;
+  }
+
+  .tooltip-text {
+    font-size: 14px !important;
+  }
+
+  .summary-value {
+    font-size: 19px !important;
+  }
+
+  .summary-description {
+    font-size: 13px !important;
+  }
+
+  .cards-row {
+    flex-direction: row !important;
+    gap: 18px !important;
+    padding: 0 19px !important;
+    align-items: stretch !important;
+  }
+
+  .nft-performance-card {
+    max-width: 375px !important;
+    width: 100% !important;
+    gap: 19px !important;
+    padding: 19px !important;
+    align-self: stretch !important;
+  }
+
+  .token-balance-card {
+    gap: 14px !important;
+    padding: 14px 15px !important;
+    flex: 1 !important;
+    align-self: stretch !important;
+  }
+
+  .performance-list {
+    gap: 14px !important;
+  }
+
+  .performance-item {
+    gap: 7.5px !important;
+  }
+
+  .performance-info {
+    width: 225px !important;
+    gap: 4.5px !important;
+  }
+
+  .performance-label {
+    font-size: 13px !important;
+  }
+
+  .performance-value {
+    font-size: 17px !important;
+  }
+
+  .performance-percentage {
+    font-size: 15px !important;
+  }
+
+  .performance-chart {
+    height: 57px !important;
+  }
+
+  .token-content {
+    gap: 15.5px !important;
+  }
+
+  .donut-chart {
+    max-width: 295px !important;
+    height: 142px !important;
+  }
+
+  .donut-slice {
+    max-width: 295px !important;
+    height: 138px !important;
+  }
+
+  .donut-slice-5 {
+    max-width: 295px !important;
+    height: 128px !important;
+  }
+
+  .donut-center {
+    gap: 9.5px !important;
+  }
+
+  .donut-label {
+    font-size: 16.5px !important;
+    line-height: 34px !important;
+  }
+
+  .donut-value {
+    font-size: 24px !important;
+    line-height: 34px !important;
+  }
+
+  .token-list {
+    gap: 14px !important;
+  }
+
+  .token-item {
+    gap: 9px !important;
+    padding: 0 4.5px !important;
+  }
+
+  .token-color {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  .token-label,
+  .token-percentage {
+    font-size: 15px !important;
+    line-height: 22px !important;
+  }
+
+  .token-value {
+    font-size: 17.5px !important;
+    line-height: 22px !important;
+  }
+}
+
+/* 1500px - 1599px: ~80% scaling */
+@media screen and (min-width: 1500px) and (max-width: 1599px) {
+  .summary-section {
+    margin-right: 48px !important;
+    gap: 18px !important;
+    padding: 0 0 21px 0 !important;
+  }
+
+  .summary-header {
+    padding: 18px 18px 18px 23px !important;
+  }
+
+  .header-title {
+    font-size: 22px !important;
+  }
+
+  .wallet-info-left,
+  .wallet-info-right {
+    padding: 4px 8.5px 4px 13px !important;
+  }
+
+  .wallet-info-left {
+    padding-right: 8.5px !important;
+  }
+
+  .wallet-info-right {
+    padding-left: 8.5px !important;
+    padding-right: 13px !important;
+  }
+
+  .wallet-label {
+    font-size: 21px !important;
+    line-height: 36px !important;
+  }
+
+  .wallet-colon {
+    font-size: 23px !important;
+    line-height: 39px !important;
+  }
+
+  .wallet-value {
+    font-size: 23px !important;
+  }
+
+  .content-wrapper {
+    gap: 8.5px !important;
+    padding: 0 18px !important;
+  }
+
+  .nft-chart-card {
+    gap: 22px !important;
+    padding: 13.5px 21px !important;
+  }
+
+  .card-title {
+    font-size: 16.5px !important;
+  }
+
+  .filter-button {
+    padding: 4.3px 13px !important;
+  }
+
+  .button-text {
+    font-size: 12.5px !important;
+  }
+
+  .chevron-icon {
+    width: 18.5px !important;
+    height: 18.5px !important;
+  }
+
+  .chart-container {
+    height: 158px !important;
+    margin-bottom: 18px !important;
+  }
+
+  .months-container {
+    gap: 22px !important;
+    top: 137px !important;
+  }
+
+  .month-button {
+    height: 21px !important;
+    padding: 2px 8.5px !important;
+  }
+
+  .month-button span {
+    font-size: 10.5px !important;
+  }
+
+  .tooltip-text {
+    font-size: 13.5px !important;
+  }
+
+  .summary-value {
+    font-size: 18.5px !important;
+  }
+
+  .summary-description {
+    font-size: 12.5px !important;
+  }
+
+  .cards-row {
+    flex-direction: row !important;
+    gap: 17px !important;
+    padding: 0 18px !important;
+    align-items: stretch !important;
+  }
+
+  .nft-performance-card {
+    max-width: 360px !important;
+    width: 100% !important;
+    gap: 18px !important;
+    padding: 18px !important;
+    align-self: stretch !important;
+  }
+
+  .token-balance-card {
+    gap: 13.5px !important;
+    padding: 13.5px 14.5px !important;
+    flex: 1 !important;
+    align-self: stretch !important;
+  }
+
+  .performance-list {
+    gap: 13.5px !important;
+  }
+
+  .performance-item {
+    gap: 7px !important;
+  }
+
+  .performance-info {
+    width: 215px !important;
+    gap: 4.3px !important;
+  }
+
+  .performance-label {
+    font-size: 12.5px !important;
+  }
+
+  .performance-value {
+    font-size: 16.5px !important;
+  }
+
+  .performance-percentage {
+    font-size: 14.5px !important;
+  }
+
+  .performance-chart {
+    height: 55px !important;
+  }
+
+  .token-content {
+    gap: 15px !important;
+  }
+
+  .donut-chart {
+    max-width: 283px !important;
+    height: 136px !important;
+  }
+
+  .donut-slice {
+    max-width: 283px !important;
+    height: 132px !important;
+  }
+
+  .donut-slice-5 {
+    max-width: 283px !important;
+    height: 123px !important;
+  }
+
+  .donut-center {
+    gap: 9px !important;
+  }
+
+  .donut-label {
+    font-size: 16px !important;
+    line-height: 32.5px !important;
+  }
+
+  .donut-value {
+    font-size: 23px !important;
+    line-height: 32.5px !important;
+  }
+
+  .token-list {
+    gap: 13.5px !important;
+  }
+
+  .token-item {
+    gap: 8.5px !important;
+    padding: 0 4.3px !important;
+  }
+
+  .token-color {
+    width: 13.5px !important;
+    height: 13.5px !important;
+  }
+
+  .token-label,
+  .token-percentage {
+    font-size: 14.5px !important;
+    line-height: 21px !important;
+  }
+
+  .token-value {
+    font-size: 17px !important;
+    line-height: 21px !important;
+  }
+}
+
+/* 1400px - 1499px: ~75% scaling */
+@media screen and (min-width: 1400px) and (max-width: 1499px) {
+  .summary-section {
+    margin-right: 45px !important;
     gap: 17px !important;
     padding: 0 0 20px 0 !important;
   }
 
-  /* Header - Scaled down */
   .summary-header {
-    padding: 17px 17px 17px 21px !important;
+    padding: 17px 17px 17px 22px !important;
   }
 
   .header-title {
     font-size: 21px !important;
   }
 
-  /* Wallet Info - Scaled down */
   .wallet-info-left,
   .wallet-info-right {
-    padding: 4px 8px 4px 12px !important;
+    padding: 4px 8px 4px 12.5px !important;
   }
 
   .wallet-info-left {
@@ -743,30 +1163,28 @@ body {
 
   .wallet-info-right {
     padding-left: 8px !important;
-    padding-right: 12px !important;
+    padding-right: 12.5px !important;
   }
 
   .wallet-label {
     font-size: 20px !important;
-    line-height: 34px !important;
+    line-height: 35px !important;
   }
 
   .wallet-colon {
     font-size: 22px !important;
-    line-height: 37px !important;
+    line-height: 38px !important;
   }
 
   .wallet-value {
     font-size: 22px !important;
   }
 
-  /* Content Wrapper */
   .content-wrapper {
     gap: 8px !important;
     padding: 0 17px !important;
   }
 
-  /* NFT Chart Card */
   .nft-chart-card {
     gap: 21px !important;
     padding: 13px 20px !important;
@@ -777,7 +1195,7 @@ body {
   }
 
   .filter-button {
-    padding: 4px 12px !important;
+    padding: 4px 12.5px !important;
   }
 
   .button-text {
@@ -785,18 +1203,17 @@ body {
   }
 
   .chevron-icon {
-    width: 17px !important;
-    height: 17px !important;
+    width: 18px !important;
+    height: 18px !important;
   }
 
-  /* Chart Container */
   .chart-container {
     height: 153px !important;
     margin-bottom: 17px !important;
   }
 
   .months-container {
-    gap: 15px !important;
+    gap: 20px !important;
     top: 132px !important;
   }
 
@@ -814,31 +1231,28 @@ body {
   }
 
   .summary-value {
-    font-size: 17px !important;
+    font-size: 18px !important;
   }
 
   .summary-description {
     font-size: 12px !important;
   }
 
-  /* CARDS ROW - KEEP HORIZONTAL LAYOUT */
   .cards-row {
     flex-direction: row !important;
-    gap: 15px !important;
+    gap: 16px !important;
     padding: 0 17px !important;
     align-items: stretch !important;
   }
 
-  /* NFT PERFORMANCE CARD - Scaled down but same proportions */
   .nft-performance-card {
-    max-width: 340px !important;
+    max-width: 345px !important;
     width: 100% !important;
     gap: 17px !important;
     padding: 17px !important;
     align-self: stretch !important;
   }
 
-  /* TOKEN BALANCE CARD - Scaled down but maintains flex: 1 */
   .token-balance-card {
     gap: 13px !important;
     padding: 13px 14px !important;
@@ -846,17 +1260,16 @@ body {
     align-self: stretch !important;
   }
 
-  /* NFT PERFORMANCE CONTENT - Proportionally scaled */
   .performance-list {
     gap: 13px !important;
   }
 
   .performance-item {
-    gap: 7px !important;
+    gap: 6.5px !important;
   }
 
   .performance-info {
-    width: 205px !important;
+    width: 208px !important;
     gap: 4px !important;
   }
 
@@ -865,7 +1278,7 @@ body {
   }
 
   .performance-value {
-    font-size: 15px !important;
+    font-size: 16px !important;
   }
 
   .performance-percentage {
@@ -873,27 +1286,26 @@ body {
   }
 
   .performance-chart {
-    height: 52px !important;
+    height: 53px !important;
   }
 
-  /* TOKEN BALANCE CONTENT - Proportionally scaled */
   .token-content {
-    gap: 14px !important;
+    gap: 14.5px !important;
   }
 
   .donut-chart {
-    max-width: 270px !important;
-    height: 129px !important;
+    max-width: 273px !important;
+    height: 131px !important;
   }
 
   .donut-slice {
-    max-width: 270px !important;
-    height: 126px !important;
+    max-width: 273px !important;
+    height: 127px !important;
   }
 
   .donut-slice-5 {
-    max-width: 270px !important;
-    height: 117px !important;
+    max-width: 273px !important;
+    height: 119px !important;
   }
 
   .donut-center {
@@ -901,13 +1313,13 @@ body {
   }
 
   .donut-label {
-    font-size: 15px !important;
-    line-height: 31px !important;
+    font-size: 15.5px !important;
+    line-height: 31.5px !important;
   }
 
   .donut-value {
     font-size: 22px !important;
-    line-height: 31px !important;
+    line-height: 31.5px !important;
   }
 
   .token-list {
@@ -931,12 +1343,660 @@ body {
   }
 
   .token-value {
-    font-size: 16px !important;
+    font-size: 16.5px !important;
     line-height: 20px !important;
   }
+}
 
-  .divider {
-    margin: 0 !important;
+/* 1300px - 1399px: ~70% scaling */
+@media screen and (min-width: 1300px) and (max-width: 1399px) {
+  .summary-section {
+    width: calc(100vw - 680px) !important;  /* Increased width (was 700px, now 650px = +50px wider) */
+    max-width: none !important;
+    margin-left: -5px !important;  /* Keep left margin */
+    margin-right: 0 !important;  /* Remove right margin */
+    position: relative !important;
+    left: auto !important;  /* Remove centering */
+    transform: none !important;  /* Remove transform */
+    gap: 16px !important;
+    padding: 0 0 19px 0 !important;
+  }
+
+  .summary-header {
+    padding: 16px 16px 16px 21px !important;
+  }
+
+  .header-title {
+    font-size: 20px !important;
+  }
+
+  .wallet-info-left,
+  .wallet-info-right {
+    padding: 3.8px 7.5px 3.8px 12px !important;
+  }
+
+  .wallet-info-left {
+    padding-right: 7.5px !important;
+  }
+
+  .wallet-info-right {
+    padding-left: 7.5px !important;
+    padding-right: 12px !important;
+  }
+
+  .wallet-label {
+    font-size: 19.5px !important;
+    line-height: 33.5px !important;
+  }
+
+  .wallet-colon {
+    font-size: 21px !important;
+    line-height: 36.5px !important;
+  }
+
+  .wallet-value {
+    font-size: 21px !important;
+  }
+
+  .content-wrapper {
+    gap: 7.5px !important;
+    padding: 0 16px !important;
+  }
+
+  .nft-chart-card {
+    gap: 20px !important;
+    padding: 12.5px 19px !important;
+  }
+
+  .card-title {
+    font-size: 15.5px !important;
+  }
+
+  .filter-button {
+    padding: 3.8px 12px !important;
+  }
+
+  .button-text {
+    font-size: 11.5px !important;
+  }
+
+  .chevron-icon {
+    width: 17px !important;
+    height: 17px !important;
+  }
+
+  .chart-container {
+    height: 148px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .months-container {
+    gap: 18px !important;
+    top: 128px !important;
+  }
+
+  .month-button {
+    height: 19px !important;
+    padding: 2px 7.5px !important;
+  }
+
+  .month-button span {
+    font-size: 9.5px !important;
+  }
+
+  .tooltip-text {
+    font-size: 12.5px !important;
+  }
+
+  .summary-value {
+    font-size: 17px !important;
+  }
+
+  .summary-description {
+    font-size: 11.5px !important;
+  }
+
+  .cards-row {
+    flex-direction: row !important;
+    gap: 15px !important;
+    padding: 0 16px !important;
+    align-items: stretch !important;
+  }
+
+  .nft-performance-card { 
+  max-width: 310px !important;  /* Decreased from 350px to 310px */
+  width: 100% !important;
+  gap: 14px !important;  /* Decreased from 16px to 14px */
+  padding: 14px !important;  /* Decreased from 16px to 14px */
+  min-height: 350px !important;  /* Decreased from 400px to 350px */
+  align-self: stretch !important;
+}
+
+  .token-balance-card {
+    gap: 12.5px !important;
+    padding: 12.5px 13.5px !important;
+    flex: 1 !important;
+    align-self: stretch !important;
+  }
+
+  .performance-list {
+    gap: 12.5px !important;
+  }
+
+  .performance-item {
+    gap: 6px !important;
+  }
+
+  .performance-info {
+    width: 210px !important;  /* Slightly increased */
+    gap: 3.8px !important;
+  }
+
+  .performance-label {
+    font-size: 11.5px !important;
+  }
+
+  .performance-value {
+    font-size: 15px !important;
+  }
+
+  .performance-percentage {
+    font-size: 13.5px !important;
+  }
+
+  .performance-chart {
+    height: 51px !important;
+  }
+
+  .token-content {
+    gap: 14px !important;
+  }
+
+  .donut-chart {
+    max-width: 270px !important;  /* Slightly increased */
+    height: 130px !important;  /* Slightly increased */
+  }
+
+  .donut-slice {
+    max-width: 270px !important;
+    height: 126px !important;
+  }
+
+  .donut-slice-5 {
+    max-width: 270px !important;
+    height: 118px !important;
+  }
+
+  .donut-center {
+    gap: 8px !important;
+  }
+
+  .donut-label {
+    font-size: 15px !important;
+    line-height: 30px !important;
+  }
+
+  .donut-value {
+    font-size: 21px !important;
+    line-height: 30px !important;
+  }
+
+  .token-list {
+    gap: 12.5px !important;
+  }
+
+  .token-item {
+    gap: 7.5px !important;
+    padding: 0 3.8px !important;
+  }
+
+  .token-color {
+    width: 12.5px !important;
+    height: 12.5px !important;
+  }
+
+  .token-label,
+  .token-percentage {
+    font-size: 13.5px !important;
+    line-height: 19px !important;
+  }
+
+  .token-value {
+    font-size: 16px !important;
+    line-height: 19px !important;
+  }
+}
+
+
+/* 1200px - 1299px: ~65% scaling */
+@media screen and (min-width: 1200px) and (max-width: 1299px) {
+  .summary-section {
+    width: calc(100vw - 630px) !important;  /* Proportionally adjusted from 680px */
+    max-width: none !important;
+    margin-left: -5px !important;
+    margin-right: 0 !important;
+    position: relative !important;
+    left: auto !important;
+    transform: none !important;
+    gap: 15px !important;
+    padding: 0 0 18px 0 !important;
+  }
+
+  .summary-header {
+    padding: 15px 15px 15px 20px !important;
+  }
+
+  .header-title {
+    font-size: 19px !important;
+  }
+
+  .wallet-info-left,
+  .wallet-info-right {
+    padding: 3.5px 7px 3.5px 11px !important;
+  }
+
+  .wallet-info-left {
+    padding-right: 7px !important;
+  }
+
+  .wallet-info-right {
+    padding-left: 7px !important;
+    padding-right: 11px !important;
+  }
+
+  .wallet-label {
+    font-size: 18.5px !important;
+    line-height: 32px !important;
+  }
+
+  .wallet-colon {
+    font-size: 20px !important;
+    line-height: 35px !important;
+  }
+
+  .wallet-value {
+    font-size: 20px !important;
+  }
+
+  .content-wrapper {
+    gap: 7px !important;
+    padding: 0 15px !important;
+  }
+
+  .nft-chart-card {
+    gap: 19px !important;
+    padding: 12px 18px !important;
+  }
+
+  .card-title {
+    font-size: 15px !important;
+  }
+
+  .filter-button {
+    padding: 3.5px 11px !important;
+  }
+
+  .button-text {
+    font-size: 11px !important;
+  }
+
+  .chevron-icon {
+    width: 16.5px !important;
+    height: 16.5px !important;
+  }
+
+  .chart-container {
+    height: 143px !important;
+    margin-bottom: 15px !important;
+  }
+
+  .months-container {
+    gap: 16px !important;
+    top: 124px !important;
+  }
+
+  .month-button {
+    height: 18px !important;
+    padding: 2px 7px !important;
+  }
+
+  .month-button span {
+    font-size: 9px !important;
+  }
+
+  .tooltip-text {
+    font-size: 12px !important;
+  }
+
+  .summary-value {
+    font-size: 16px !important;
+  }
+
+  .summary-description {
+    font-size: 11px !important;
+  }
+
+  .cards-row {
+    flex-direction: row !important;
+    gap: 14px !important;
+    padding: 0 15px !important;
+    align-items: stretch !important;
+  }
+
+  .nft-performance-card {
+    max-width: 290px !important;  /* Proportionally reduced from 310px */
+    width: 100% !important;
+    gap: 13px !important;  /* Proportionally reduced from 14px */
+    padding: 13px !important;  /* Proportionally reduced from 14px */
+    min-height: 320px !important;  /* Proportionally reduced from 350px */
+    align-self: stretch !important;
+  }
+
+  .token-balance-card {
+    gap: 12px !important;
+    padding: 12px 13px !important;
+    flex: 1 !important;
+    align-self: stretch !important;
+  }
+
+  .performance-list {
+    gap: 12px !important;
+  }
+
+  .performance-item {
+    gap: 5.5px !important;
+  }
+
+  .performance-info {
+    width: 190px !important;
+    gap: 3.5px !important;
+  }
+
+  .performance-label {
+    font-size: 11px !important;
+  }
+
+  .performance-value {
+    font-size: 14px !important;
+  }
+
+  .performance-percentage {
+    font-size: 13px !important;
+  }
+
+  .performance-chart {
+    height: 49px !important;
+  }
+
+  .token-content {
+    gap: 13px !important;
+  }
+
+  .donut-chart {
+    max-width: 248px !important;
+    height: 119px !important;
+  }
+
+  .donut-slice {
+    max-width: 248px !important;
+    height: 115px !important;
+  }
+
+  .donut-slice-5 {
+    max-width: 248px !important;
+    height: 107px !important;
+  }
+
+  .donut-center {
+    gap: 7.5px !important;
+  }
+
+  .donut-label {
+    font-size: 14px !important;
+    line-height: 28.5px !important;
+  }
+
+  .donut-value {
+    font-size: 20px !important;
+    line-height: 28.5px !important;
+  }
+
+  .token-list {
+    gap: 12px !important;
+  }
+
+  .token-item {
+    gap: 7px !important;
+    padding: 0 3.5px !important;
+  }
+
+  .token-color {
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  .token-label,
+  .token-percentage {
+    font-size: 13px !important;
+    line-height: 18px !important;
+  }
+
+  .token-value {
+    font-size: 15px !important;
+    line-height: 18px !important;
+  }
+}
+
+
+/* 1100px - 1199px: ~60% scaling */
+@media screen and (min-width: 1100px) and (max-width: 1199px) {
+  .summary-section {
+    margin-right: 36px !important;
+    gap: 14px !important;
+    padding: 0 0 17px 0 !important;
+  }
+
+  .summary-header {
+    padding: 14px 14px 14px 19px !important;
+  }
+
+  .header-title {
+    font-size: 18px !important;
+  }
+
+  .wallet-info-left,
+  .wallet-info-right {
+    padding: 3.3px 6.5px 3.3px 10.5px !important;
+  }
+
+  .wallet-info-left {
+    padding-right: 6.5px !important;
+  }
+
+  .wallet-info-right {
+    padding-left: 6.5px !important;
+    padding-right: 10.5px !important;
+  }
+
+  .wallet-label {
+    font-size: 17.5px !important;
+    line-height: 30.5px !important;
+  }
+
+  .wallet-colon {
+    font-size: 19px !important;
+    line-height: 33.5px !important;
+  }
+
+  .wallet-value {
+    font-size: 19px !important;
+  }
+
+  .content-wrapper {
+    gap: 6.5px !important;
+    padding: 0 14px !important;
+  }
+
+  .nft-chart-card {
+    gap: 18px !important;
+    padding: 11.5px 17px !important;
+  }
+
+  .card-title {
+    font-size: 14px !important;
+  }
+
+  .filter-button {
+    padding: 3.3px 10.5px !important;
+  }
+
+  .button-text {
+    font-size: 10.5px !important;
+  }
+
+  .chevron-icon {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .chart-container {
+    height: 138px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .months-container {
+    gap: 14px !important;
+    top: 120px !important;
+  }
+
+  .month-button {
+    height: 17px !important;
+    padding: 2px 6.5px !important;
+  }
+
+  .month-button span {
+    font-size: 8.5px !important;
+  }
+
+  .tooltip-text {
+    font-size: 11.5px !important;
+  }
+
+  .summary-value {
+    font-size: 15px !important;
+  }
+
+  .summary-description {
+    font-size: 10.5px !important;
+  }
+
+  .cards-row {
+    flex-direction: row !important;
+    gap: 13px !important;
+    padding: 0 14px !important;
+    align-items: stretch !important;
+  }
+
+  .nft-performance-card {
+    max-width: 300px !important;
+    width: 100% !important;
+    gap: 14px !important;
+    padding: 14px !important;
+    align-self: stretch !important;
+  }
+
+  .token-balance-card {
+    gap: 11.5px !important;
+    padding: 11.5px 12.5px !important;
+    flex: 1 !important;
+    align-self: stretch !important;
+  }
+
+  .performance-list {
+    gap: 11.5px !important;
+  }
+
+  .performance-item {
+    gap: 5px !important;
+  }
+
+  .performance-info {
+    width: 182px !important;
+    gap: 3.3px !important;
+  }
+
+  .performance-label {
+    font-size: 10.5px !important;
+  }
+
+  .performance-value {
+    font-size: 13.5px !important;
+  }
+
+  .performance-percentage {
+    font-size: 12.5px !important;
+  }
+
+  .performance-chart {
+    height: 47px !important;
+  }
+
+  .token-content {
+    gap: 12.5px !important;
+  }
+
+  .donut-chart {
+    max-width: 235px !important;
+    height: 113px !important;
+  }
+
+  .donut-slice {
+    max-width: 235px !important;
+    height: 109px !important;
+  }
+
+  .donut-slice-5 {
+    max-width: 235px !important;
+    height: 102px !important;
+  }
+
+  .donut-center {
+    gap: 7px !important;
+  }
+
+  .donut-label {
+    font-size: 13.5px !important;
+    line-height: 27px !important;
+  }
+
+  .donut-value {
+    font-size: 19px !important;
+    line-height: 27px !important;
+  }
+
+  .token-list {
+    gap: 11.5px !important;
+  }
+
+  .token-item {
+    gap: 6.5px !important;
+    padding: 0 3.3px !important;
+  }
+
+  .token-color {
+    width: 11.5px !important;
+    height: 11.5px !important;
+  }
+
+  .token-label,
+  .token-percentage {
+    font-size: 12.5px !important;
+    line-height: 17px !important;
+  }
+
+  .token-value {
+    font-size: 14.5px !important;
+    line-height: 17px !important;
   }
 }
 
