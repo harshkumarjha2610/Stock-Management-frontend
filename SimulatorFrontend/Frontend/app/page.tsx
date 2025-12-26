@@ -1,13 +1,16 @@
 "use client";
 
+
 import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
 import * as React from "react";
+
 
 // Utility function for className merging
 function cn(...inputs: any[]) {
   return inputs.filter(Boolean).join(" ");
 }
+
 
 // ==================== BUTTON COMPONENT ====================
 const buttonVariants = cva(
@@ -39,11 +42,13 @@ const buttonVariants = cva(
   }
 );
 
+
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
+
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
@@ -58,6 +63,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 Button.displayName = "Button";
+
 
 // ==================== INPUT COMPONENT ====================
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
@@ -77,6 +83,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
 );
 Input.displayName = "Input";
 
+
 // ==================== MAIN DESIGN COMPONENT ====================
 export const Design = (): React.JSX.Element => {
   const [showModal, setShowModal] = React.useState(false);
@@ -91,11 +98,13 @@ export const Design = (): React.JSX.Element => {
     message: "",
   });
 
+
   const handleLanguageSwitch = () => {
     setLanguage(language === 'en' ? 'ar' : 'en');
     // Add your language switching logic here
     console.log('Switching to:', language === 'en' ? 'Arabic' : 'English');
   };
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,6 +120,7 @@ export const Design = (): React.JSX.Element => {
       message: "",
     });
   };
+
 
   return (
     <div
@@ -130,6 +140,7 @@ export const Design = (): React.JSX.Element => {
             }}
           />
         </div>
+
 
         {/* Right side buttons */}
         <div className="flex items-center gap-2 sm:gap-3">
@@ -167,6 +178,7 @@ export const Design = (): React.JSX.Element => {
             </span>
           </button>
 
+
           {/* Theme Toggle Button */}
           <button
             onClick={() => setIsWhiteTheme(!isWhiteTheme)}
@@ -202,6 +214,7 @@ export const Design = (): React.JSX.Element => {
             )}
           </button>
 
+
           {/* Login Button */}
           <Button
             onClick={() => (window.location.href = "/OnboardingPage1")}
@@ -214,6 +227,7 @@ export const Design = (): React.JSX.Element => {
         </div>
       </header>
 
+
       {/* Building Image - Compact */}
       <div className="w-full flex justify-center px-4 mt-2 md:mt-4">
         <img
@@ -223,40 +237,34 @@ export const Design = (): React.JSX.Element => {
         />
       </div>
 
-      {/* Tokenization Section - Compact - ⭐ TWO LINES WITH BALANCED SIZES */}
-      {/* Tokenization Section - Compact - ⭐ TWO LINES WITH BALANCED SIZES */}
-{/* Tokenization Section - Compact - ⭐ TWO LINES WITH BALANCED SIZES */}
-{/* Tokenization Section - Compact - ⭐ TWO LINES WITH BALANCED SIZES */}
-{/* Tokenization Section - Compact - ⭐ TWO LINES WITH BALANCED SIZES */}
-{/* Tokenization Section - Compact - ⭐ TWO LINES WITH BALANCED SIZES */}
-<div className="w-full flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0 px-4 mt-6 md:mt-10">
-  <img
-    className="w-full max-w-[280px] sm:max-w-[380px] md:max-w-[500px] lg:max-w-[650px] h-auto object-contain"
-    alt="Many building"
-    src="/many-building-landscape-png-1.png"
-  />
 
-  <div className="w-full max-w-[500px] lg:max-w-[600px] md:ml-[-30px] text-center md:text-left">
-    {/* ⭐ TWO LINES - Let's CoBuild (smaller) / the World (larger) */}
-    <h2 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold leading-tight transition-colors duration-500 ${
-      isWhiteTheme ? "text-black" : "text-white"
-    }`}>
-      {/* Line 1: Let's CoBuild - Very Minor Decrease */}
-      <span className="block text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
-        Let's{" "}
-        <span className="text-[#ef6b23]">Co</span>
-        <span className={isWhiteTheme ? "text-black" : "text-white"}>Build</span>
-      </span>
-      {/* Line 2: the World - Larger Size */}
-      <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
-        the World
-      </span>
-    </h2>
-  </div>
-</div>
+      {/* Tokenization Section - Compact - ⭐ REDUCED FONT SIZE FOR LET'S COBUILD */}
+      <div className="w-full flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0 px-4 mt-6 md:mt-10">
+        <img
+          className="w-full max-w-[280px] sm:max-w-[380px] md:max-w-[500px] lg:max-w-[650px] h-auto object-contain"
+          alt="Many building"
+          src="/many-building-landscape-png-1.png"
+        />
 
 
-
+        <div className="w-full max-w-[500px] lg:max-w-[600px] md:ml-[-30px] text-center md:text-left">
+          {/* ⭐ TWO LINES - Let's CoBuild (REDUCED SIZE) / the World (larger) */}
+          <h2 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold leading-tight transition-colors duration-500 ${
+            isWhiteTheme ? "text-black" : "text-white"
+          }`}>
+            {/* Line 1: Let's CoBuild - REDUCED FONT SIZE */}
+            <span className="block text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl">
+              Let's{" "}
+              <span className="text-[#ef6b23]">Co</span>
+              <span className={isWhiteTheme ? "text-black" : "text-white"}>Build</span>
+            </span>
+            {/* Line 2: the World - Larger Size */}
+            <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
+              the World
+            </span>
+          </h2>
+        </div>
+      </div>
 
 
       {/* Expression of Interest Section */}
@@ -267,6 +275,7 @@ export const Design = (): React.JSX.Element => {
           Submit your EOI to be considered for early access
         </h3>
 
+
         <Button 
           onClick={() => setShowModal(true)}
           className="w-auto px-6 sm:px-8 md:px-10 py-3 md:py-3.5 h-auto bg-[#ef6b23] rounded-[12px] md:rounded-[15px] overflow-hidden hover:bg-[#ef6b23]/90 shadow-lg transition-all hover:scale-105"
@@ -276,6 +285,7 @@ export const Design = (): React.JSX.Element => {
           </div>
         </Button>
       </div>
+
 
       {/* Modal Popup */}
       {showModal && (
@@ -289,11 +299,13 @@ export const Design = (): React.JSX.Element => {
               ×
             </button>
 
+
             {/* Form */}
             <form onSubmit={handleSubmit} className="p-6 md:p-8">
               <h2 className="[font-family:'Satoshi-Bold',Helvetica] font-bold text-black text-2xl md:text-3xl mb-6 text-center">
                 Expression of Interest
               </h2>
+
 
               {/* Full Name */}
               <div className="mb-4">
@@ -310,6 +322,7 @@ export const Design = (): React.JSX.Element => {
                 />
               </div>
 
+
               {/* Email Address */}
               <div className="mb-4">
                 <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
@@ -325,6 +338,7 @@ export const Design = (): React.JSX.Element => {
                 />
               </div>
 
+
               {/* Phone Number */}
               <div className="mb-4">
                 <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
@@ -339,6 +353,7 @@ export const Design = (): React.JSX.Element => {
                   placeholder="Enter your phone number"
                 />
               </div>
+
 
               {/* Investor Type - Checkboxes */}
               <div className="mb-6">
@@ -364,6 +379,7 @@ export const Design = (): React.JSX.Element => {
                   ))}
                 </div>
               </div>
+
 
               {/* Founding Circle Question */}
               <div className="mb-6">
@@ -409,6 +425,7 @@ export const Design = (): React.JSX.Element => {
                 </div>
               </div>
 
+
               {/* Message Box - Shown only if "Yes" is selected */}
               {formData.interestedInCircle === 'yes' && (
                 <div className="mb-6">
@@ -423,6 +440,7 @@ export const Design = (): React.JSX.Element => {
                   />
                 </div>
               )}
+
 
               {/* Submit Button */}
               <div className="flex gap-3 mt-6">
@@ -447,5 +465,6 @@ export const Design = (): React.JSX.Element => {
     </div>
   );
 };
+
 
 export default Design;
