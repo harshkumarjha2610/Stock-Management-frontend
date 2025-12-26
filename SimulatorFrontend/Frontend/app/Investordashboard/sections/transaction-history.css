@@ -1,0 +1,54 @@
+/* transaction-history.css */
+.transaction-history-section {
+  width: calc(100% - 60px);
+}
+
+@media (min-width: 1300px) and (max-width: 1399px) {
+  .transaction-history-section {
+    width: calc(100% - 0px) !important;
+    max-width: none !important;
+    min-height: 450px !important;  /* Even shorter - reduced from 600px to 450px */
+    padding-top: 15px !important;  /* Reduced from 20px */
+    padding-bottom: 10px !important;  /* Reduced from 20px */
+  }
+  
+  /* Reduce gap between header and content */
+  .transaction-history-section > *:first-child {
+    margin-bottom: 30px !important;  /* Reduced gap after header */
+  }
+  
+  /* Reduce spacing between transaction items */
+  .transaction-history-section .flex.flex-col.items-start.gap-2\.5 {
+    gap: 8px !important;  /* Reduced from 10px */
+  }
+  
+  /* Reduce padding on transaction rows */
+  .transaction-history-section .border-b {
+    padding-bottom: 8px !important;  /* Reduced from 10px */
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1299px) {
+  .transaction-history-section {
+    width: calc(100% - 0px) !important;  /* Same as 1300-1399px */
+    max-width: none !important;
+    min-height: 420px !important;  /* Proportionally reduced from 450px */
+    padding-top: 14px !important;  /* Proportionally reduced from 15px */
+    padding-bottom: 9px !important;  /* Proportionally reduced from 10px */
+  }
+  
+  /* Reduce gap between header and content */
+  .transaction-history-section > *:first-child {
+    margin-bottom: 28px !important;  /* Proportionally reduced from 30px */
+  }
+  
+  /* Reduce spacing between transaction items */
+  .transaction-history-section .flex.flex-col.items-start.gap-2\.5 {
+    gap: 7.5px !important;  /* Proportionally reduced from 8px */
+  }
+  
+  /* Reduce padding on transaction rows */
+  .transaction-history-section .border-b {
+    padding-bottom: 7.5px !important;  /* Proportionally reduced from 8px */
+  }
+}

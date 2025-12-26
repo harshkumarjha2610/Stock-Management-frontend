@@ -1,5 +1,6 @@
 import React, { JSX } from "react";
 import { Button } from "../../components/button";
+import "./transaction-history.css";  // Import the CSS file
 
 const todayTransactions = [
   {
@@ -46,11 +47,13 @@ export const TransactionHistorySection = (): JSX.Element => {
   return (
     <section
       className="
-        flex flex-col w-[calc(100%-60px)] items-start gap-[58px] p-5
+        transaction-history-section
+        flex flex-col items-start gap-[58px] p-5
         relative rounded-[15px] overflow-hidden bg-[#3a3a3a]
         min-h-[600px]
       "
     >
+      {/* Rest of your component remains the same */}
       <header className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
         <h2 className="relative w-fit mt-[-1.00px] [font-family:'Dubai-Medium',Helvetica] font-medium text-white text-lg tracking-[0] leading-[normal]">
           Transaction History

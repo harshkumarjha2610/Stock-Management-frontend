@@ -23,7 +23,7 @@ export const HeaderSection = (): JSX.Element => {
           max-w-[98vw]
           sm:max-w-[97vw]
           md:max-w-[96vw]
-          lg:max-w-[1400px]
+          lg:max-w-[1230px]
           xl:max-w-[1600px]
           2xl:max-w-[1850px]
           mx-auto

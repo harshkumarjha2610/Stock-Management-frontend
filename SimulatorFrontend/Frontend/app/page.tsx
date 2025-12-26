@@ -81,6 +81,7 @@ Input.displayName = "Input";
 export const Design = (): React.JSX.Element => {
   const [showModal, setShowModal] = React.useState(false);
   const [isWhiteTheme, setIsWhiteTheme] = React.useState(false);
+  const [language, setLanguage] = React.useState<'en' | 'ar'>('en');
   const [formData, setFormData] = React.useState({
     fullName: "",
     email: "",
@@ -89,6 +90,12 @@ export const Design = (): React.JSX.Element => {
     interestedInCircle: "",
     message: "",
   });
+
+  const handleLanguageSwitch = () => {
+    setLanguage(language === 'en' ? 'ar' : 'en');
+    // Add your language switching logic here
+    console.log('Switching to:', language === 'en' ? 'Arabic' : 'English');
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,7 +133,41 @@ export const Design = (): React.JSX.Element => {
 
         {/* Right side buttons */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Minimal Icon-Only Theme Toggle Button */}
+          {/* Global Language Toggle Button */}
+          <button
+            onClick={handleLanguageSwitch}
+            className={`w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+              isWhiteTheme
+                ? "bg-gray-800 hover:bg-gray-700"
+                : "bg-white/10 hover:bg-white/20 border border-white/30"
+            }`}
+            aria-label="Switch language"
+          >
+            {/* Globe icon */}
+            <svg
+              className={`w-5 h-5 md:w-6 md:h-6 ${
+                isWhiteTheme ? "text-white" : "text-white"
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+              />
+            </svg>
+            {/* Small language indicator */}
+            <span className={`absolute bottom-0 right-0 text-[8px] sm:text-[9px] font-bold px-1 rounded ${
+              isWhiteTheme ? "bg-white text-gray-800" : "bg-white/90 text-gray-800"
+            }`}>
+              {language.toUpperCase()}
+            </span>
+          </button>
+
+          {/* Theme Toggle Button */}
           <button
             onClick={() => setIsWhiteTheme(!isWhiteTheme)}
             className={`w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
@@ -183,31 +224,40 @@ export const Design = (): React.JSX.Element => {
       </div>
 
       {/* Tokenization Section - Compact - ⭐ TWO LINES WITH BALANCED SIZES */}
-      <div className="w-full flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0 px-4 mt-6 md:mt-10">
-        <img
-          className="w-full max-w-[280px] sm:max-w-[380px] md:max-w-[500px] lg:max-w-[650px] h-auto object-contain"
-          alt="Many building"
-          src="/many-building-landscape-png-1.png"
-        />
+      {/* Tokenization Section - Compact - ⭐ TWO LINES WITH BALANCED SIZES */}
+{/* Tokenization Section - Compact - ⭐ TWO LINES WITH BALANCED SIZES */}
+{/* Tokenization Section - Compact - ⭐ TWO LINES WITH BALANCED SIZES */}
+{/* Tokenization Section - Compact - ⭐ TWO LINES WITH BALANCED SIZES */}
+{/* Tokenization Section - Compact - ⭐ TWO LINES WITH BALANCED SIZES */}
+<div className="w-full flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0 px-4 mt-6 md:mt-10">
+  <img
+    className="w-full max-w-[280px] sm:max-w-[380px] md:max-w-[500px] lg:max-w-[650px] h-auto object-contain"
+    alt="Many building"
+    src="/many-building-landscape-png-1.png"
+  />
 
-        <div className="w-full max-w-[500px] lg:max-w-[600px] md:ml-[-30px] text-center md:text-left">
-          {/* ⭐ TWO LINES - Let's CoBuild (smaller) / the World (larger) */}
-          <h2 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold leading-tight transition-colors duration-500 ${
-            isWhiteTheme ? "text-black" : "text-white"
-          }`}>
-            {/* Line 1: Let's CoBuild - Smaller Size */}
-            <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
-              Let's{" "}
-              <span className="text-[#ef6b23]">Co</span>
-              <span className={isWhiteTheme ? "text-black" : "text-white"}>Build</span>
-            </span>
-            {/* Line 2: the World - Same Size */}
-            <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
-              the World
-            </span>
-          </h2>
-        </div>
-      </div>
+  <div className="w-full max-w-[500px] lg:max-w-[600px] md:ml-[-30px] text-center md:text-left">
+    {/* ⭐ TWO LINES - Let's CoBuild (smaller) / the World (larger) */}
+    <h2 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold leading-tight transition-colors duration-500 ${
+      isWhiteTheme ? "text-black" : "text-white"
+    }`}>
+      {/* Line 1: Let's CoBuild - Very Minor Decrease */}
+      <span className="block text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
+        Let's{" "}
+        <span className="text-[#ef6b23]">Co</span>
+        <span className={isWhiteTheme ? "text-black" : "text-white"}>Build</span>
+      </span>
+      {/* Line 2: the World - Larger Size */}
+      <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
+        the World
+      </span>
+    </h2>
+  </div>
+</div>
+
+
+
+
 
       {/* Expression of Interest Section */}
       <div className="w-full flex flex-col items-center justify-center gap-5 md:gap-6 px-4 mt-12 md:mt-16 pb-12 md:pb-16">

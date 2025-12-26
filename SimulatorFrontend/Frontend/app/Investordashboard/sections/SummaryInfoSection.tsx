@@ -4,6 +4,7 @@ import { Button } from "../../components/button";
 import { Card, CardContent } from "../../components/card";
 import "./SummaryInfoSection.css";
 
+
 const monthsData = [
   { label: "Jan", active: false },
   { label: "Feb", active: false },
@@ -16,6 +17,7 @@ const monthsData = [
   { label: "Sep", active: false },
   { label: "Oct", active: false },
 ];
+
 
 const nftPerformanceData = [
   {
@@ -37,6 +39,7 @@ const nftPerformanceData = [
     image: "/group-10.png",
   },
 ];
+
 
 const tokenBalanceData = [
   {
@@ -71,11 +74,13 @@ const tokenBalanceData = [
   },
 ];
 
+
 export const SummaryInfoSection = (): React.ReactElement => {
   return (
     <section className="summary-section">
       <header className="summary-header">
         <h1 className="header-title">Total Invested</h1>
+
 
         <div className="wallet-info-container">
           <div className="wallet-info-left">
@@ -84,6 +89,7 @@ export const SummaryInfoSection = (): React.ReactElement => {
             <span className="wallet-value">$9,385.34</span>
           </div>
 
+
           <div className="wallet-info-right">
             <span className="wallet-label">Token Value</span>
             <span className="wallet-colon">:</span>
@@ -91,6 +97,7 @@ export const SummaryInfoSection = (): React.ReactElement => {
           </div>
         </div>
       </header>
+
 
       <div className="content-wrapper">
         <Card className="nft-chart-card">
@@ -105,6 +112,7 @@ export const SummaryInfoSection = (): React.ReactElement => {
               </Button>
             </div>
 
+
             <div className="chart-container">
               <div className="months-container">
                 {monthsData.map((month, index) => (
@@ -117,9 +125,11 @@ export const SummaryInfoSection = (): React.ReactElement => {
                 ))}
               </div>
 
+
               <img className="graphic-1" alt="Graphic" src="/graphic.svg" />
               <img className="graphic-2" alt="Graphic" src="/graphic-1.svg" />
               <img className="line" alt="Line" src="/line.svg" />
+
 
               <div className="chart-tooltip">
                 <img
@@ -130,8 +140,10 @@ export const SummaryInfoSection = (): React.ReactElement => {
                 <span className="tooltip-text">$4,892</span>
               </div>
 
+
               <div className="chart-dot" />
             </div>
+
 
             <div className="chart-summary">
               <span className="summary-value">$34,742.00</span>
@@ -142,6 +154,7 @@ export const SummaryInfoSection = (): React.ReactElement => {
           </CardContent>
         </Card>
       </div>
+
 
       <div className="cards-row">
         <Card className="nft-performance-card">
@@ -155,6 +168,7 @@ export const SummaryInfoSection = (): React.ReactElement => {
                 </div>
               </Button>
             </div>
+
 
             <div className="performance-list">
               {nftPerformanceData.map((item, index) => (
@@ -179,11 +193,13 @@ export const SummaryInfoSection = (): React.ReactElement => {
           </CardContent>
         </Card>
 
+
         <Card className="token-balance-card">
           <CardContent className="card-content">
             <div className="card-header">
               <h2 className="card-title">Token Balance</h2>
             </div>
+
 
             <div className="token-content">
               <div className="donut-chart">
@@ -213,13 +229,16 @@ export const SummaryInfoSection = (): React.ReactElement => {
                   src="/ellipse-3329.svg"
                 />
 
+
                 <div className="donut-center">
                   <span className="donut-label">Total</span>
                   <span className="donut-value">$15.250</span>
                 </div>
               </div>
 
+
               <img className="divider" alt="Vector" src="/vector-2.svg" />
+
 
               <div className="token-list">
                 {tokenBalanceData.map((item, index) => (

@@ -16,8 +16,8 @@ body {
 .wrapper-section {
   display: flex;
   flex-direction: column;
-  width: calc(100% + 60px);
-  margin-left: -60px;
+  width: calc(100% + 30px);
+  margin-left: -30px;
   align-items: center;
   gap: 20px;
   padding: 0 0 30px 0;
@@ -1076,12 +1076,14 @@ body {
 }
 
 /* ==========================================
-   FULLY RESPONSIVE DESIGN
+   AGGRESSIVE SCALING WITH WIDTH REDUCTION
    ========================================== */
 
-/* Large Screens (1700px+) - Keep original sizing */
+/* Large Screens (1700px+) - Original Size (100%) */
 @media (min-width: 1700px) {
   .wrapper-section {
+    width: calc(100% + 60px) !important;
+    margin-left: -60px !important;
     gap: 22px;
     padding: 0 0 35px 0;
   }
@@ -1152,94 +1154,660 @@ body {
     height: 220px;
   }
 
+  .donut-slice-1 {
+    height: 214px;
+  }
+
+  .donut-slice-2 {
+    height: 220px;
+  }
+
   .token-donut-chart {
     max-width: 340px;
     height: 165px;
   }
-}
 
-/* Medium-Large Laptops (1440px - 1699px) */
-@media (min-width: 1440px) and (max-width: 1699px) {
+  .token-donut-slice {
+    max-width: 340px;
+    height: 161px;
+  }
+
+  .token-donut-slice-5 {
+    max-width: 340px;
+    height: 150px;
+  }
+}
+/* 1600px - 1699px: Slightly reduce left margin */
+@media (min-width: 1600px) and (max-width: 1699px) {
   .wrapper-section {
-    gap: 20px;
+    width: calc(100% + 48px) !important;  /* Reduced from 52px */
+    margin-left: -48px !important;  /* Reduced from -52px */
+    gap: 20px !important;
   }
 
   .wrapper-header {
-    padding: 20px 25px 10px 70px;
-  }
-
-  .wrapper-title {
-    font-size: 25px;
+    padding: 20px 28px 11px 74px !important;  /* Reduced from 78px */
   }
 
   .metrics-container {
-    padding: 0 25px 0 70px;
-    gap: 16px;
-  }
-
-  .metric-card {
-    padding: 16px 20px;
+    padding: 0 28px 0 74px !important;  /* Reduced from 78px */
+    gap: 16px !important;
   }
 
   .two-card-row {
-    padding: 0 25px 0 70px;
-    gap: 22px;
-  }
-
-  .portfolio-allocation-card {
-    min-height: 400px;
-    padding: 16px 14px;
+    padding: 0 28px 0 74px !important;  /* Reduced from 78px */
+    gap: 23px !important;
   }
 
   .portfolio-table-card {
-    max-width: 850px;
-    margin: 0 25px 0 70px;
-    padding: 62px 26px 115px;
+    max-width: 830px !important;
+    margin: 0 28px 0 74px !important;  /* Reduced from 78px */
+    padding: 60px 28px 110px !important;
   }
 
   .future-plant-wrapper {
-    padding: 0 25px 0 70px;
-  }
-
-  .donut-container {
-    max-width: 210px;
-    height: 210px;
-  }
-
-  .token-donut-chart {
-    max-width: 325px;
-    height: 158px;
+    padding: 0 28px 0 74px !important;  /* Reduced from 78px */
   }
 }
 
-/* Medium Laptops (1200px - 1439px) - PROPORTIONAL SCALING */
-@media (min-width: 1200px) and (max-width: 1439px) {
+/* 1500px - 1599px */
+@media (min-width: 1500px) and (max-width: 1599px) {
   .wrapper-section {
-    width: calc(100% + 40px) !important;
-    margin-left: -40px !important;
+    width: calc(100% + 40px) !important;  /* Reduced from 44px */
+    margin-left: -40px !important;  /* Reduced from -44px */
+    gap: 18.5px !important;
+  }
+
+  .wrapper-header {
+    padding: 18.5px 25px 10px 67px !important;  /* Reduced from 71px */
+  }
+
+  .metrics-container {
+    padding: 0 25px 0 67px !important;  /* Reduced from 71px */
+    gap: 15px !important;
+  }
+
+  .two-card-row {
+    padding: 0 25px 0 67px !important;  /* Reduced from 71px */
+    gap: 21px !important;
+  }
+
+  .portfolio-table-card {
+    max-width: 755px !important;
+    margin: 0 25px 0 67px !important;  /* Reduced from 71px */
+    padding: 55px 25px 101px !important;
+  }
+
+  .future-plant-wrapper {
+    padding: 0 25px 0 67px !important;  /* Reduced from 71px */
+  }
+}
+
+/* 1400px - 1499px */
+@media (min-width: 1400px) and (max-width: 1499px) {
+  .wrapper-section {
+    width: calc(100% + 32px) !important;  /* Reduced from 36px */
+    margin-left: -32px !important;  /* Reduced from -36px */
     gap: 17px !important;
   }
 
   .wrapper-header {
-    padding: 17px 18px 9px 50px !important;
-  }
-
-  .wrapper-title {
-    font-size: 22px !important;
+    padding: 17px 23px 9.5px 61px !important;  /* Reduced from 65px */
   }
 
   .metrics-container {
-    padding: 0 18px 0 50px !important;
-    gap: 13px !important;
+    padding: 0 23px 0 61px !important;  /* Reduced from 65px */
+    gap: 13.7px !important;
+  }
+
+  .two-card-row {
+    padding: 0 23px 0 61px !important;  /* Reduced from 65px */
+    gap: 19px !important;
+  }
+
+  .portfolio-table-card {
+    max-width: 684px !important;
+    margin: 0 23px 0 61px !important;  /* Reduced from 65px */
+    padding: 49px 23px 91px !important;
+  }
+
+  .future-plant-wrapper {
+    padding: 0 23px 0 61px !important;  /* Reduced from 65px */
+  }
+}
+
+/* 1300px - 1399px */
+@media (min-width: 1300px) and (max-width: 1399px) {
+  .wrapper-section {
+    width: calc(100% - 0px) !important;  /* Reduced from calc(100% + 24px) */
+    margin-left: 2px !important;
+    margin-right: 0px !important;  /* Add right margin to pull in from right */
+    gap: 15px !important;
+    padding-left: 0 !important;
+  }
+
+  .wrapper-header {
+    padding: 15px 20px 8.5px 20px !important;
+  }
+
+  .metrics-container {
+    padding: 0 20px 0 20px !important;
+    gap: 12.3px !important;
+  }
+
+  .two-card-row {
+    padding: 0 20px 0 20px !important;
+    gap: 17px !important;
+  }
+
+  /* Reduce height of portfolio allocation card */
+  .portfolio-allocation-card {
+    min-height: 250px !important;
+    padding: 10px 10px !important;
+    gap: 8px !important;
+  }
+
+  /* Reduce height of token balance card */
+  .token-balance-wrapper-card {
+    padding: 10px 10px !important;
+    gap: 10px !important;
+  }
+
+  /* Adjust content spacing */
+  .allocation-content {
+    gap: 10px !important;
+  }
+
+  .token-balance-wrapper-body {
+    gap: 12px !important;
+  }
+
+  /* Reduce donut chart sizes */
+  .donut-container {
+    max-width: 135px !important;
+    height: 135px !important;
+  }
+
+  .donut-slice-1 {
+    height: 131px !important;
+  }
+
+  .donut-slice-2 {
+    height: 135px !important;
+  }
+
+  .token-donut-chart {
+    max-width: 210px !important;
+    height: 102px !important;
+  }
+
+  .token-donut-slice {
+    max-width: 210px !important;
+    height: 98px !important;
+  }
+
+  .token-donut-slice-5 {
+    max-width: 210px !important;
+    height: 92px !important;
+  }
+
+  /* Reduce spacing in allocation wrapper */
+  .donut-wrapper {
+    gap: 12px !important;
+  }
+
+  .allocation-legend {
+    gap: 18px !important;
+  }
+
+  .legend-item {
+    gap: 3px !important;
+  }
+
+  /* Reduce token balance list spacing */
+  .token-balance-list {
+    gap: 10px !important;
+  }
+
+  .token-balance-item {
+    gap: 8px !important;
+  }
+
+  .allocation-title,
+  .token-balance-wrapper-title,
+  .portfolio-table-title,
+  .future-plant-title {
+    font-size: 13.6px !important;
+  }
+
+  .allocation-total {
+    font-size: 18.5px !important;
+  }
+
+  .badge-text,
+  .date-text {
+    font-size: 9.5px !important;
+  }
+
+  .badge-icon,
+  .date-icon,
+  .date-chevron {
+    width: 13.6px !important;
+    height: 13.6px !important;
+  }
+
+  .legend-label,
+  .legend-value {
+    font-size: 10.9px !important;
+  }
+
+  .legend-color {
+    width: 10.2px !important;
+    height: 10.2px !important;
+  }
+
+  .token-donut-label {
+    font-size: 12.2px !important;
+    line-height: 24.9px !important;
+  }
+
+  .token-donut-value {
+    font-size: 17.5px !important;
+    line-height: 24.9px !important;
+  }
+
+  .token-balance-name,
+  .token-balance-percentage {
+    font-size: 10.9px !important;
+  }
+
+  .token-balance-value {
+    font-size: 13px !important;
+  }
+
+  .token-balance-color {
+    width: 10.2px !important;
+    height: 10.2px !important;
+  }
+
+  .portfolio-table-card {
+    max-width: 560px !important;
+    margin: 0 20px 0 20px !important;
+    padding: 44px 20px 82px !important;
+  }
+
+  .table-header-row {
+    height: 27.2px !important;
+    min-width: 400px !important;
+  }
+
+  .table-data-row {
+    min-width: 400px !important;
+  }
+
+  .table-header-text {
+    font-size: 10.2px !important;
+  }
+
+  .table-cell-text,
+  .table-cell-text-center {
+    font-size: 8.9px !important;
+  }
+
+  .future-plant-wrapper {
+    padding: 0 20px 0 20px !important;
+  }
+
+  .future-plant-card {
+    padding: 13.6px !important;
+    gap: 13.6px !important;
+  }
+
+  .future-category {
+    font-size: 10.2px !important;
+  }
+
+  .future-item-title,
+  .future-item-description {
+    font-size: 10.2px !important;
+  }
+
+  .future-item-time {
+    font-size: 9.5px !important;
+  }
+
+  .filter-icon {
+    width: 20.5px !important;
+    height: 20.5px !important;
+  }
+}
+
+
+
+
+/* 1200px - 1299px */
+@media (min-width: 1200px) and (max-width: 1299px) {
+  .wrapper-section {
+    width: calc(100% - 0px) !important;  /* Changed from calc(100% + 16px) */
+    margin-left: 2px !important;  /* Changed from -16px */
+    margin-right: 0px !important;  /* Added */
+    gap: 13.2px !important;
+    padding-left: 0 !important;  /* Added */
+  }
+
+  .wrapper-header {
+    padding: 13.2px 18px 7.5px 18px !important;  /* Changed left padding from 47px to 18px */
+  }
+
+  .metrics-container {
+    padding: 0 18px 0 18px !important;  /* Changed left padding from 47px to 18px */
+    gap: 10.8px !important;
+  }
+
+  .two-card-row {
+    padding: 0 18px 0 18px !important;  /* Changed left padding from 47px to 18px */
+    gap: 15px !important;
+  }
+
+  /* Reduce height of portfolio allocation card */
+  .portfolio-allocation-card {
+    min-height: 230px !important;  /* Proportionally reduced from 250px */
+    padding: 9px 9px !important;  /* Proportionally reduced from 10px */
+    gap: 7px !important;  /* Proportionally reduced from 8px */
+  }
+
+  /* Reduce height of token balance card */
+  .token-balance-wrapper-card {
+    padding: 9px 9px !important;  /* Proportionally reduced from 10px */
+    gap: 9px !important;  /* Proportionally reduced from 10px */
+  }
+
+  /* Adjust content spacing */
+  .allocation-content {
+    gap: 9px !important;  /* Proportionally reduced from 10px */
+  }
+
+  .token-balance-wrapper-body {
+    gap: 11px !important;  /* Proportionally reduced from 12px */
+  }
+
+  /* Reduce donut chart sizes */
+  .donut-container {
+    max-width: 125px !important;  /* Proportionally reduced from 135px */
+    height: 125px !important;
+  }
+
+  .donut-slice-1 {
+    height: 121px !important;  /* Proportionally reduced from 131px */
+  }
+
+  .donut-slice-2 {
+    height: 125px !important;
+  }
+
+  .token-donut-chart {
+    max-width: 195px !important;  /* Proportionally reduced from 210px */
+    height: 94px !important;  /* Proportionally reduced from 102px */
+  }
+
+  .token-donut-slice {
+    max-width: 195px !important;
+    height: 91px !important;  /* Proportionally reduced from 98px */
+  }
+
+  .token-donut-slice-5 {
+    max-width: 195px !important;
+    height: 85px !important;  /* Proportionally reduced from 92px */
+  }
+
+  /* Reduce spacing in allocation wrapper */
+  .donut-wrapper {
+    gap: 11px !important;  /* Proportionally reduced from 12px */
+  }
+
+  .allocation-legend {
+    gap: 16.5px !important;  /* Proportionally reduced from 18px */
+  }
+
+  .legend-item {
+    gap: 2.8px !important;  /* Proportionally reduced from 3px */
+  }
+
+  /* Reduce token balance list spacing */
+  .token-balance-list {
+    gap: 9px !important;  /* Proportionally reduced from 10px */
+  }
+
+  .token-balance-item {
+    gap: 7.5px !important;  /* Proportionally reduced from 8px */
+  }
+
+  .allocation-title,
+  .token-balance-wrapper-title,
+  .portfolio-table-title,
+  .future-plant-title {
+    font-size: 12.6px !important;  /* Proportionally reduced from 13.6px */
+  }
+
+  .allocation-total {
+    font-size: 17.2px !important;  /* Proportionally reduced from 18.5px */
+  }
+
+  .badge-text,
+  .date-text {
+    font-size: 8.8px !important;  /* Proportionally reduced from 9.5px */
+  }
+
+  .badge-icon,
+  .date-icon,
+  .date-chevron {
+    width: 12.6px !important;  /* Proportionally reduced from 13.6px */
+    height: 12.6px !important;
+  }
+
+  .legend-label,
+  .legend-value {
+    font-size: 10.1px !important;  /* Proportionally reduced from 10.9px */
+  }
+
+  .legend-color {
+    width: 9.5px !important;  /* Proportionally reduced from 10.2px */
+    height: 9.5px !important;
+  }
+
+  .token-donut-label {
+    font-size: 11.3px !important;  /* Proportionally reduced from 12.2px */
+    line-height: 23.1px !important;  /* Proportionally reduced from 24.9px */
+  }
+
+  .token-donut-value {
+    font-size: 16.2px !important;  /* Proportionally reduced from 17.5px */
+    line-height: 23.1px !important;
+  }
+
+  .token-balance-name,
+  .token-balance-percentage {
+    font-size: 10.1px !important;  /* Proportionally reduced from 10.9px */
+  }
+
+  .token-balance-value {
+    font-size: 12px !important;  /* Proportionally reduced from 13px */
+  }
+
+  .token-balance-color {
+    width: 9.5px !important;  /* Proportionally reduced from 10.2px */
+    height: 9.5px !important;
+  }
+
+  .portfolio-table-card {
+    max-width: 520px !important;  /* Proportionally reduced from 560px */
+    margin: 0 18px 0 18px !important;  /* Changed left margin from 47px to 18px */
+    padding: 39px 18px 72px !important;
+  }
+
+  .table-header-row {
+    height: 25.2px !important;  /* Proportionally reduced from 27.2px */
+    min-width: 380px !important;  /* Proportionally reduced from 400px */
+  }
+
+  .table-data-row {
+    min-width: 380px !important;  /* Proportionally reduced from 400px */
+  }
+
+  .table-header-text {
+    font-size: 9.5px !important;  /* Proportionally reduced from 10.2px */
+  }
+
+  .table-cell-text,
+  .table-cell-text-center {
+    font-size: 8.2px !important;  /* Proportionally reduced from 8.9px */
+  }
+
+  .future-plant-wrapper {
+    padding: 0 18px 0 18px !important;  /* Changed left padding from 47px to 18px */
+  }
+
+  .future-plant-card {
+    padding: 12.6px !important;  /* Proportionally reduced from 13.6px */
+    gap: 12.6px !important;
+  }
+
+  .future-category {
+    font-size: 9.5px !important;  /* Proportionally reduced from 10.2px */
+  }
+
+  .future-item-title,
+  .future-item-description {
+    font-size: 9.5px !important;  /* Proportionally reduced from 10.2px */
+  }
+
+  .future-item-time {
+    font-size: 8.8px !important;  /* Proportionally reduced from 9.5px */
+  }
+
+  .filter-icon {
+    width: 19px !important;  /* Proportionally reduced from 20.5px */
+    height: 19px !important;
+  }
+}
+
+/* ==========================================
+   TABLET VIEW (768px - 1199px)
+   ========================================== */
+@media (max-width: 1199px) and (min-width: 768px) {
+  .wrapper-section {
+    width: calc(100% - 10px) !important;
+    margin-left: 5px !important;
+    margin-right: 5px !important;
+    gap: 12px !important;
+    padding: 0 0 20px 0 !important;
+  }
+
+  .wrapper-header {
+    padding: 12px 15px 8px 15px !important;
+    flex-wrap: wrap;
+  }
+
+  .wrapper-title {
+    font-size: 20px !important;
+  }
+
+  .metrics-container {
+    padding: 0 15px !important;
+    gap: 10px !important;
+    flex-wrap: wrap;
   }
 
   .metric-card {
-    padding: 13px 17px !important;
-    gap: 13px !important;
+    flex: 1 1 calc(50% - 5px) !important;
+    min-width: calc(50% - 5px) !important;
+    padding: 12px 15px !important;
+    gap: 10px !important;
   }
 
   .metric-title {
-    font-size: 17px !important;
+    font-size: 16px !important;
+  }
+
+  .metric-value {
+    font-size: 18px !important;
+  }
+
+  .change-text {
+    font-size: 14px !important;
+  }
+
+  .two-card-row {
+    padding: 0 15px !important;
+    gap: 15px !important;
+    flex-direction: column !important;
+  }
+
+  .portfolio-allocation-card,
+  .token-balance-wrapper-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+  }
+
+  .portfolio-table-card {
+    margin: 0 15px !important;
+    padding: 30px 15px 50px !important;
+    max-width: 100% !important;
+  }
+
+  .table-header-row,
+  .table-data-row {
+    min-width: 400px !important;
+  }
+
+  .future-plant-wrapper {
+    padding: 0 15px !important;
+  }
+
+  .future-plant-card {
+    padding: 15px !important;
+  }
+}
+
+/* ==========================================
+   MOBILE LANDSCAPE (480px - 767px)
+   ========================================== */
+@media (max-width: 767px) and (min-width: 480px) {
+  .wrapper-section {
+    width: calc(100% - 10px) !important;
+    margin-left: 5px !important;
+    margin-right: 5px !important;
+    gap: 15px !important;
+    padding: 0 0 20px 0 !important;
+    margin-top: -10px !important;
+  }
+
+  .wrapper-header {
+    padding: 15px 12px 8px 12px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  .wrapper-title {
+    font-size: 18px !important;
+  }
+
+  .metrics-container {
+    padding: 0 12px !important;
+    gap: 10px !important;
+    flex-direction: column !important;
+  }
+
+  .metric-card {
+    width: 100% !important;
+    padding: 12px 15px !important;
+    gap: 10px !important;
+  }
+
+  .metric-title {
+    font-size: 15px !important;
   }
 
   .metric-value {
@@ -1247,7 +1815,7 @@ body {
   }
 
   .change-text {
-    font-size: 15px !important;
+    font-size: 13px !important;
   }
 
   .change-icon {
@@ -1258,29 +1826,34 @@ body {
   .chart-width-1,
   .chart-width-2,
   .chart-width-3 {
-    max-width: 160px !important;
+    max-width: 150px !important;
   }
 
   .chart-height-1,
   .chart-height-2,
   .chart-height-3 {
-    height: 39px !important;
+    height: 35px !important;
   }
 
   .two-card-row {
-    padding: 0 18px 0 50px !important;
-    gap: 17px !important;
+    padding: 0 12px !important;
+    gap: 15px !important;
+    flex-direction: column !important;
   }
 
   .portfolio-allocation-card {
-    min-height: 340px !important;
-    padding: 13px 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    padding: 15px 12px !important;
     gap: 12px !important;
   }
 
   .token-balance-wrapper-card {
-    padding: 13px 14px !important;
-    gap: 13px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 15px 12px !important;
+    gap: 12px !important;
   }
 
   .allocation-title,
@@ -1291,7 +1864,7 @@ body {
   }
 
   .allocation-total {
-    font-size: 22px !important;
+    font-size: 20px !important;
   }
 
   .badge-text,
@@ -1302,103 +1875,113 @@ body {
   .badge-icon,
   .date-icon,
   .date-chevron {
-    width: 17px !important;
-    height: 17px !important;
+    width: 16px !important;
+    height: 16px !important;
   }
 
   .donut-container {
-    max-width: 175px !important;
-    height: 175px !important;
+    max-width: 180px !important;
+    height: 180px !important;
   }
 
   .donut-slice-1 {
-    height: 170px !important;
+    height: 175px !important;
   }
 
   .donut-slice-2 {
-    height: 175px !important;
+    height: 180px !important;
   }
 
   .legend-label,
   .legend-value {
-    font-size: 14px !important;
+    font-size: 13px !important;
   }
 
   .legend-color {
-    width: 13px !important;
-    height: 13px !important;
+    width: 12px !important;
+    height: 12px !important;
   }
 
   .token-donut-chart {
-    max-width: 270px !important;
-    height: 130px !important;
+    max-width: 250px !important;
+    height: 120px !important;
   }
 
   .token-donut-slice {
-    max-width: 270px !important;
-    height: 126px !important;
+    max-width: 250px !important;
+    height: 116px !important;
   }
 
   .token-donut-slice-5 {
-    max-width: 270px !important;
-    height: 118px !important;
+    max-width: 250px !important;
+    height: 108px !important;
   }
 
   .token-donut-label {
-    font-size: 15px !important;
-    line-height: 31px !important;
+    font-size: 14px !important;
+    line-height: 28px !important;
   }
 
   .token-donut-value {
-    font-size: 22px !important;
-    line-height: 31px !important;
+    font-size: 19px !important;
+    line-height: 28px !important;
   }
 
   .token-balance-name,
   .token-balance-percentage {
-    font-size: 14px !important;
+    font-size: 13px !important;
   }
 
   .token-balance-value {
-    font-size: 16px !important;
+    font-size: 15px !important;
   }
 
   .token-balance-color {
-    width: 13px !important;
-    height: 13px !important;
+    width: 12px !important;
+    height: 12px !important;
   }
 
   .portfolio-table-card {
+    margin: 0 12px !important;
+    padding: 25px 12px 40px !important;
     max-width: 100% !important;
-    margin: 0 18px 0 50px !important;
-    padding: 45px 20px 90px !important;
+  }
+
+  .portfolio-table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .table-header-row,
+  .table-data-row {
+    min-width: 380px !important;
   }
 
   .table-header-row {
     height: 35px !important;
-    min-width: 450px !important;
-  }
-
-  .table-data-row {
-    min-width: 450px !important;
   }
 
   .table-header-text {
-    font-size: 13px !important;
+    font-size: 11px !important;
   }
 
   .table-cell-text,
   .table-cell-text-center {
-    font-size: 11px !important;
+    font-size: 10px !important;
   }
 
   .future-plant-wrapper {
-    padding: 0 18px 0 50px !important;
+    padding: 0 12px !important;
   }
 
   .future-plant-card {
-    padding: 17px !important;
-    gap: 17px !important;
+    padding: 15px !important;
+    gap: 15px !important;
+  }
+
+  .future-plant-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
   }
 
   .future-category {
@@ -1420,46 +2003,53 @@ body {
   }
 }
 
-/* Small Laptops (1024px - 1199px) - COMPACT RESPONSIVE */
-@media (min-width: 1024px) and (max-width: 1199px) {
+/* ==========================================
+   MOBILE PORTRAIT (below 480px)
+   ========================================== */
+@media (max-width: 479px) {
   .wrapper-section {
-    width: 100% !important;
-    margin-left: 0 !important;
-    padding: 0 0 25px 0 !important;
-    gap: 14px !important;
+    width: calc(100% - 10px) !important;
+    margin-left: 5px !important;
+    margin-right: 5px !important;
+    gap: 12px !important;
+    padding: 0 0 15px 0 !important;
+    margin-top: -10px !important;
+    border-radius: 15px !important;
   }
 
   .wrapper-header {
-    padding: 14px 15px 8px 15px !important;
+    padding: 12px 10px 6px 10px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
   }
 
   .wrapper-title {
-    font-size: 19px !important;
+    font-size: 16px !important;
   }
 
   .metrics-container {
-    padding: 0 15px !important;
-    gap: 10px !important;
-    flex-wrap: wrap !important;
+    padding: 0 10px !important;
+    gap: 8px !important;
+    flex-direction: column !important;
   }
 
   .metric-card {
-    flex: 1 1 calc(50% - 5px) !important;
-    min-width: 0 !important;
-    padding: 11px 14px !important;
-    gap: 10px !important;
+    width: 100% !important;
+    padding: 10px 12px !important;
+    gap: 8px !important;
   }
 
   .metric-title {
-    font-size: 15px !important;
+    font-size: 14px !important;
   }
 
   .metric-value {
-    font-size: 15px !important;
+    font-size: 16px !important;
   }
 
   .change-text {
-    font-size: 13px !important;
+    font-size: 12px !important;
   }
 
   .change-icon {
@@ -1470,43 +2060,57 @@ body {
   .chart-width-1,
   .chart-width-2,
   .chart-width-3 {
-    max-width: 140px !important;
+    max-width: 120px !important;
   }
 
   .chart-height-1,
   .chart-height-2,
   .chart-height-3 {
-    height: 34px !important;
+    height: 30px !important;
   }
 
   .two-card-row {
-    padding: 0 15px !important;
-    gap: 14px !important;
+    padding: 0 10px !important;
+    gap: 12px !important;
     flex-direction: column !important;
   }
 
   .portfolio-allocation-card {
-    min-height: 290px !important;
-    padding: 11px 10px !important;
-    gap: 10px !important;
     width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    padding: 12px 10px !important;
+    gap: 10px !important;
+    border-radius: 15px !important;
   }
 
   .token-balance-wrapper-card {
-    padding: 11px 12px !important;
-    gap: 11px !important;
     width: 100% !important;
+    max-width: 100% !important;
+    padding: 12px 10px !important;
+    gap: 10px !important;
+    border-radius: 15px !important;
+  }
+
+  .allocation-content {
+    gap: 10px !important;
+  }
+
+  .allocation-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
   }
 
   .allocation-title,
   .token-balance-wrapper-title,
   .portfolio-table-title,
   .future-plant-title {
-    font-size: 14px !important;
+    font-size: 15px !important;
   }
 
   .allocation-total {
-    font-size: 19px !important;
+    font-size: 18px !important;
   }
 
   .badge-text,
@@ -1517,21 +2121,38 @@ body {
   .badge-icon,
   .date-icon,
   .date-chevron {
-    width: 15px !important;
-    height: 15px !important;
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  .donut-wrapper {
+    flex-direction: column !important;
+    gap: 15px !important;
   }
 
   .donut-container {
-    max-width: 145px !important;
-    height: 145px !important;
+    max-width: 160px !important;
+    height: 160px !important;
   }
 
   .donut-slice-1 {
-    height: 140px !important;
+    height: 155px !important;
   }
 
   .donut-slice-2 {
-    height: 145px !important;
+    height: 160px !important;
+  }
+
+  .allocation-legend {
+    flex-direction: column !important;
+    gap: 10px !important;
+    align-items: flex-start !important;
+  }
+
+  .legend-item {
+    width: 100% !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
   }
 
   .legend-label,
@@ -1540,93 +2161,166 @@ body {
   }
 
   .legend-color {
-    width: 11px !important;
-    height: 11px !important;
+    width: 10px !important;
+    height: 10px !important;
+  }
+
+  .token-balance-wrapper-body {
+    gap: 10px !important;
   }
 
   .token-donut-chart {
-    max-width: 230px !important;
-    height: 110px !important;
+    max-width: 200px !important;
+    height: 96px !important;
   }
 
   .token-donut-slice {
-    max-width: 230px !important;
-    height: 106px !important;
+    max-width: 200px !important;
+    height: 93px !important;
   }
 
   .token-donut-slice-5 {
-    max-width: 230px !important;
-    height: 98px !important;
+    max-width: 200px !important;
+    height: 86px !important;
+  }
+
+  .token-donut-center {
+    left: calc(50% - 40px) !important;
   }
 
   .token-donut-label {
     font-size: 13px !important;
-    line-height: 26px !important;
+    line-height: 24px !important;
   }
 
   .token-donut-value {
-    font-size: 18px !important;
-    line-height: 26px !important;
+    font-size: 17px !important;
+    line-height: 24px !important;
+  }
+
+  .token-balance-list {
+    gap: 8px !important;
+  }
+
+  .token-balance-item {
+    gap: 6px !important;
+    padding: 0 2px !important;
+    flex-wrap: wrap !important;
   }
 
   .token-balance-name,
   .token-balance-percentage {
     font-size: 12px !important;
+    line-height: 18px !important;
   }
 
   .token-balance-value {
     font-size: 14px !important;
+    line-height: 18px !important;
   }
 
   .token-balance-color {
-    width: 11px !important;
-    height: 11px !important;
-  }
-
-  .token-balance-list {
-    gap: 11px !important;
+    width: 10px !important;
+    height: 10px !important;
   }
 
   .portfolio-table-card {
+    margin: 0 10px !important;
+    padding: 20px 10px 30px !important;
     max-width: 100% !important;
-    margin: 0 15px !important;
-    padding: 30px 15px 60px !important;
+    gap: 15px !important;
+    border-radius: 15px !important;
+  }
+
+  .portfolio-table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .table-header-row,
+  .table-data-row {
+    min-width: 350px !important;
   }
 
   .table-header-row {
     height: 32px !important;
-    min-width: 400px !important;
+    padding: 0 5px !important;
   }
 
   .table-data-row {
-    min-width: 400px !important;
+    padding: 0 5px !important;
+  }
+
+  .table-header-cell {
+    padding: 5px !important;
   }
 
   .table-header-text {
-    font-size: 11px !important;
-  }
-
-  .table-cell-text,
-  .table-cell-text-center {
     font-size: 10px !important;
   }
 
+  .table-cell-content,
+  .table-cell-content-center {
+    padding: 8px 5px !important;
+  }
+
+  .table-cell-text,
+  .table-cell-text-center {
+    font-size: 9px !important;
+  }
+
   .future-plant-wrapper {
-    padding: 0 15px !important;
+    padding: 0 10px !important;
   }
 
   .future-plant-card {
-    padding: 14px !important;
-    gap: 14px !important;
+    padding: 12px !important;
+    gap: 12px !important;
+    border-radius: 12px !important;
+  }
+
+  .future-plant-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  .future-plant-controls {
+    width: 100% !important;
+    justify-content: space-between !important;
   }
 
   .future-category {
     font-size: 12px !important;
   }
 
-  .future-item-title,
+  .future-item-wrapper {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .future-item {
+    width: 100% !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .future-item-content {
+    width: 100% !important;
+  }
+
+  .future-item-title {
+    font-size: 13px !important;
+  }
+
   .future-item-description {
     font-size: 12px !important;
+  }
+
+  .future-item-time-wrapper {
+    padding: 5px 0 !important;
   }
 
   .future-item-time {
@@ -1634,479 +2328,64 @@ body {
   }
 
   .filter-icon {
-    width: 22px !important;
-    height: 22px !important;
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .date-badge {
+    padding: 4px 10px !important;
   }
 }
 
-/* Tablets (769px - 1023px) */
-@media (min-width: 769px) and (max-width: 1023px) {
+/* ==========================================
+   EXTRA SMALL MOBILE (below 360px)
+   ========================================== */
+@media (max-width: 359px) {
   .wrapper-section {
-    width: 100% !important;
-    margin-left: 0 !important;
-    padding: 0 0 25px 0;
-    gap: 15px;
-  }
-
-  .wrapper-header {
-    padding: 15px 20px 10px 20px;
+    gap: 10px !important;
   }
 
   .wrapper-title {
-    font-size: 20px;
+    font-size: 15px !important;
   }
 
   .metrics-container {
-    flex-direction: column;
-    padding: 0 20px;
-    gap: 12px;
+    gap: 6px !important;
   }
 
   .metric-card {
-    width: 100%;
-    padding: 14px 18px;
+    padding: 8px 10px !important;
   }
 
   .metric-title {
-    font-size: 17px;
+    font-size: 13px !important;
   }
 
   .metric-value {
-    font-size: 17px;
-  }
-
-  .two-card-row {
-    flex-direction: column;
-    padding: 0 20px;
-    gap: 15px;
-  }
-
-  .portfolio-allocation-card {
-    padding: 13px 14px;
-    min-height: 280px;
-  }
-
-  .token-balance-wrapper-card {
-    padding: 13px 14px;
+    font-size: 15px !important;
   }
 
   .allocation-title,
   .token-balance-wrapper-title,
   .portfolio-table-title,
   .future-plant-title {
-    font-size: 16px;
-  }
-
-  .portfolio-table-card {
-    margin: 0 20px;
-    padding: 35px 18px 75px;
-  }
-
-  .table-header-row {
-    min-width: 450px;
-  }
-
-  .table-data-row {
-    min-width: 450px;
-  }
-
-  .future-plant-wrapper {
-    padding: 0 20px;
+    font-size: 14px !important;
   }
 
   .donut-container {
-    max-width: 160px;
-    height: 160px;
+    max-width: 140px !important;
+    height: 140px !important;
   }
 
   .token-donut-chart {
-    max-width: 250px;
-    height: 120px;
-  }
-
-  .token-donut-slice {
-    max-width: 250px;
-    height: 116px;
-  }
-
-  .token-donut-slice-5 {
-    max-width: 250px;
-    height: 108px;
-  }
-}
-
-/* Mobile & Small Tablets (max-width: 768px) */
-@media (max-width: 768px) {
-  .wrapper-section {
-    width: 100% !important;
-    margin-left: 0 !important;
-    padding: 0 0 20px 0;
-    gap: 12px;
-  }
-
-  .wrapper-header {
-    padding: 12px 15px 8px 15px;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .wrapper-title {
-    font-size: 18px;
-  }
-
-  .metrics-container {
-    flex-direction: column;
-    padding: 0 15px;
-    gap: 10px;
-  }
-
-  .metric-card {
-    width: 100%;
-    padding: 12px 16px;
-    gap: 10px;
-  }
-
-  .metric-title {
-    font-size: 16px;
-  }
-
-  .metric-value {
-    font-size: 16px;
-  }
-
-  .change-text {
-    font-size: 14px;
-  }
-
-  .chart-width-1,
-  .chart-width-2,
-  .chart-width-3 {
-    max-width: 150px;
-  }
-
-  .two-card-row {
-    padding: 0 15px;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .portfolio-allocation-card {
-    padding: 10px 12px;
-    min-height: 260px;
-  }
-
-  .token-balance-wrapper-card {
-    padding: 10px 12px;
-    gap: 10px;
-  }
-
-  .allocation-title,
-  .token-balance-wrapper-title,
-  .portfolio-table-title,
-  .future-plant-title {
-    font-size: 15px;
-  }
-
-  .allocation-total {
-    font-size: 20px;
-  }
-
-  .badge-text,
-  .date-text {
-    font-size: 12px;
-  }
-
-  .legend-label,
-  .legend-value {
-    font-size: 13px;
-  }
-
-  .donut-container {
-    max-width: 145px;
-    height: 145px;
-  }
-
-  .token-donut-chart {
-    max-width: 220px;
-    height: 105px;
-  }
-
-  .token-donut-slice {
-    max-width: 220px;
-    height: 101px;
-  }
-
-  .token-donut-slice-5 {
-    max-width: 220px;
-    height: 93px;
-  }
-
-  .token-donut-label {
-    font-size: 14px;
-    line-height: 28px;
-  }
-
-  .token-donut-value {
-    font-size: 19px;
-    line-height: 28px;
-  }
-
-  .token-balance-name,
-  .token-balance-percentage {
-    font-size: 13px;
-  }
-
-  .token-balance-value {
-    font-size: 15px;
-  }
-
-  .future-plant-wrapper {
-    padding: 0 15px;
+    max-width: 180px !important;
   }
 
   .portfolio-table-card {
-    margin: 0 15px;
-    padding: 25px 12px 50px;
-  }
-
-  .table-header-row,
-  .table-data-row {
-    min-width: 350px;
-  }
-
-  .table-header-text {
-    font-size: 11px;
-  }
-
-  .table-cell-text,
-  .table-cell-text-center {
-    font-size: 10px;
-  }
-
-  .future-plant-header {
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
+    padding: 15px 8px 25px !important;
   }
 
   .future-plant-card {
-    padding: 12px;
-    gap: 12px;
-  }
-
-  .future-category {
-    font-size: 13px;
-  }
-
-  .future-item-title,
-  .future-item-description {
-    font-size: 13px;
-  }
-}
-
-/* Small Mobile (max-width: 480px) */
-@media (max-width: 480px) {
-  .wrapper-section {
-    padding: 0 0 15px 0;
-    gap: 10px;
-  }
-
-  .wrapper-header {
-    padding: 10px 12px 6px 12px;
-  }
-
-  .wrapper-title {
-    font-size: 16px;
-  }
-
-  .metrics-container {
-    padding: 0 12px;
-    gap: 8px;
-  }
-
-  .metric-card {
-    padding: 10px 12px;
-    gap: 8px;
-  }
-
-  .metric-title {
-    font-size: 14px;
-  }
-
-  .metric-value {
-    font-size: 14px;
-  }
-
-  .change-text {
-    font-size: 12px;
-  }
-
-  .change-icon {
-    width: 18px;
-    height: 18px;
-  }
-
-  .chart-width-1,
-  .chart-width-2,
-  .chart-width-3 {
-    max-width: 130px;
-  }
-
-  .chart-height-1,
-  .chart-height-2,
-  .chart-height-3 {
-    height: 32px;
-  }
-
-  .two-card-row {
-    padding: 0 12px;
-    gap: 10px;
-  }
-
-  .portfolio-allocation-card {
-    padding: 8px 10px;
-    min-height: 240px;
-    gap: 8px;
-  }
-
-  .token-balance-wrapper-card {
-    padding: 8px 10px;
-    gap: 8px;
-  }
-
-  .allocation-title,
-  .token-balance-wrapper-title,
-  .portfolio-table-title,
-  .future-plant-title {
-    font-size: 14px;
-  }
-
-  .allocation-total {
-    font-size: 18px;
-  }
-
-  .badge-text,
-  .date-text {
-    font-size: 10px;
-  }
-
-  .badge-icon,
-  .date-icon,
-  .date-chevron {
-    width: 14px;
-    height: 14px;
-  }
-
-  .legend-label,
-  .legend-value {
-    font-size: 11px;
-  }
-
-  .legend-color {
-    width: 10px;
-    height: 10px;
-  }
-
-  .donut-container {
-    max-width: 125px;
-    height: 125px;
-  }
-
-  .donut-slice-1 {
-    height: 120px;
-  }
-
-  .donut-slice-2 {
-    height: 125px;
-  }
-
-  .token-donut-chart {
-    max-width: 190px;
-    height: 92px;
-  }
-
-  .token-donut-slice {
-    max-width: 190px;
-    height: 88px;
-  }
-
-  .token-donut-slice-5 {
-    max-width: 190px;
-    height: 81px;
-  }
-
-  .token-donut-label {
-    font-size: 12px;
-    line-height: 24px;
-  }
-
-  .token-donut-value {
-    font-size: 16px;
-    line-height: 24px;
-  }
-
-  .token-balance-name,
-  .token-balance-percentage {
-    font-size: 11px;
-  }
-
-  .token-balance-value {
-    font-size: 13px;
-  }
-
-  .token-balance-color {
-    width: 10px;
-    height: 10px;
-  }
-
-  .token-balance-list {
-    gap: 10px;
-  }
-
-  .portfolio-table-card {
-    max-width: 100%;
-    margin: 0 12px;
-    padding: 20px 10px 40px;
-  }
-
-  .table-header-row,
-  .table-data-row {
-    min-width: 320px;
-  }
-
-  .table-header-text {
-    font-size: 10px;
-  }
-
-  .table-cell-text,
-  .table-cell-text-center {
-    font-size: 9px;
-  }
-
-  .future-plant-wrapper {
-    padding: 0 12px;
-  }
-
-  .future-plant-card {
-    padding: 10px;
-    gap: 10px;
-  }
-
-  .future-category {
-    font-size: 12px;
-  }
-
-  .future-item-title,
-  .future-item-description {
-    font-size: 12px;
-  }
-
-  .future-item-time {
-    font-size: 10px;
-  }
-
-  .filter-icon {
-    width: 20px;
-    height: 20px;
+    padding: 10px !important;
   }
 }
