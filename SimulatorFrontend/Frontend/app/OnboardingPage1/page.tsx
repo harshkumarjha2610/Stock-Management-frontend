@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function RetailInvestorStep2() {
   const router = useRouter();
@@ -38,11 +39,14 @@ export default function RetailInvestorStep2() {
       {/* Header */}
       <header className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         <div className="flex items-center">
-          <h1 className="text-2xl sm:text-3xl font-bold">
-            <span className="text-black">Co</span>
-            <span className="text-[#ef6b23]">o</span>
-            <span className="text-black">Build.</span>
-          </h1>
+          <Image
+            src="/Co-build-logo-02-1.png"
+            alt="CoBuild Logo"
+            width={150}
+            height={40}
+            className="h-8 sm:h-10 w-auto"
+            priority
+          />
         </div>
 
         <div className="text-xs sm:text-sm text-gray-600">
@@ -51,6 +55,7 @@ export default function RetailInvestorStep2() {
         </div>
       </header>
 
+      {/* Rest of the component remains the same */}
       {/* Progress Indicator - ONLY 2 STEPS */}
       <div className="px-4 sm:px-6 py-4 sm:py-6 flex items-center justify-center gap-2 sm:gap-3">
         {/* Step 1 – Completed */}

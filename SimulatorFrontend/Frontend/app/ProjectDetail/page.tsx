@@ -183,8 +183,8 @@ export default function DashboardProject() {
   return (
     <div className="bg-[#0a0a0a] w-full min-h-screen flex flex-col">
       {/* Header Section - Responsive */}
-     <div className="w-full px-3 md:px-8 lg:px-12 -mt-2 md:-mt-3">
-       <div className="w-full">
+      <div className="w-full px-1.5 sm:px-3 md:px-5 lg:px-7 -mt-2 md:-mt-3">
+      <div className="w-full max-w-[2400px] mx-auto">
   <div style={{ maxWidth: '2000px', margin: '0 auto' }}>
     <HeaderSection />
   </div>

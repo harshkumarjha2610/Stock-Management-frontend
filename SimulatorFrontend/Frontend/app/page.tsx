@@ -1,16 +1,13 @@
 "use client";
 
-
 import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
 import * as React from "react";
-
 
 // Utility function for className merging
 function cn(...inputs: any[]) {
   return inputs.filter(Boolean).join(" ");
 }
-
 
 // ==================== BUTTON COMPONENT ====================
 const buttonVariants = cva(
@@ -42,13 +39,11 @@ const buttonVariants = cva(
   }
 );
 
-
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
-
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
@@ -63,7 +58,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 Button.displayName = "Button";
-
 
 // ==================== INPUT COMPONENT ====================
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
@@ -83,12 +77,12 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
 );
 Input.displayName = "Input";
 
-
 // ==================== MAIN DESIGN COMPONENT ====================
 export const Design = (): React.JSX.Element => {
   const [showModal, setShowModal] = React.useState(false);
   const [isWhiteTheme, setIsWhiteTheme] = React.useState(false);
   const [language, setLanguage] = React.useState<'en' | 'ar'>('en');
+  const [showLanguageMenu, setShowLanguageMenu] = React.useState(false);
   const [formData, setFormData] = React.useState({
     fullName: "",
     email: "",
@@ -98,13 +92,11 @@ export const Design = (): React.JSX.Element => {
     message: "",
   });
 
-
-  const handleLanguageSwitch = () => {
-    setLanguage(language === 'en' ? 'ar' : 'en');
-    // Add your language switching logic here
-    console.log('Switching to:', language === 'en' ? 'Arabic' : 'English');
+  const handleLanguageSwitch = (lang: 'en' | 'ar') => {
+    setLanguage(lang);
+    setShowLanguageMenu(false);
+    console.log('Switching to:', lang === 'en' ? 'English' : 'Arabic');
   };
-
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,63 +113,96 @@ export const Design = (): React.JSX.Element => {
     });
   };
 
-
   return (
     <div
       className={`overflow-x-hidden w-full min-h-screen transition-colors duration-500 ${
         isWhiteTheme ? "bg-white" : "bg-black"
       }`}
     >
-      {/* Header - ⭐ MUCH MORE DECREASED SPACING FOR DESKTOP ONLY */}
+      {/* Header */}
       <header className="flex w-full max-w-[1363px] mx-auto items-center justify-between px-4 sm:px-4 md:px-6 lg:px-6 xl:px-2 2xl:px-1 py-4 md:py-6 relative z-10">
         <div className="flex flex-col w-[120px] sm:w-[160px] md:w-[220px] items-start">
+          {/* ⭐ CONDITIONAL LOGO BASED ON THEME */}
           <img
             className="relative w-full h-auto object-contain transition-all duration-500"
             alt="Co build logo"
-            src="/co-build-logo-01-1.png"
-            style={{
-              filter: isWhiteTheme ? "invert(1) brightness(0)" : "invert(0)",
-            }}
+            src={isWhiteTheme ? "/Co-build-logo-02-1.png" : "/co-build-logo-01-1.png"}
           />
         </div>
 
-
         {/* Right side buttons */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Global Language Toggle Button */}
-          <button
-            onClick={handleLanguageSwitch}
-            className={`w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
-              isWhiteTheme
-                ? "bg-gray-800 hover:bg-gray-700"
-                : "bg-white/10 hover:bg-white/20 border border-white/30"
-            }`}
-            aria-label="Switch language"
-          >
-            {/* Globe icon */}
-            <svg
-              className={`w-5 h-5 md:w-6 md:h-6 ${
-                isWhiteTheme ? "text-white" : "text-white"
+          {/* Global Language Toggle Button with Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+              className={`w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+                isWhiteTheme
+                  ? "bg-gray-800 hover:bg-gray-700"
+                  : "bg-white/10 hover:bg-white/20 border border-white/30"
               }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+              aria-label="Switch language"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-              />
-            </svg>
-            {/* Small language indicator */}
-            <span className={`absolute bottom-0 right-0 text-[8px] sm:text-[9px] font-bold px-1 rounded ${
-              isWhiteTheme ? "bg-white text-gray-800" : "bg-white/90 text-gray-800"
-            }`}>
-              {language.toUpperCase()}
-            </span>
-          </button>
+              {/* Globe icon */}
+              <svg
+                className={`w-5 h-5 md:w-6 md:h-6 ${
+                  isWhiteTheme ? "text-white" : "text-white"
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+                />
+              </svg>
+              {/* Small language indicator */}
+              <span className={`absolute bottom-0 right-0 text-[8px] sm:text-[9px] font-bold px-1 rounded ${
+                isWhiteTheme ? "bg-white text-gray-800" : "bg-white/90 text-gray-800"
+              }`}>
+                {language.toUpperCase()}
+              </span>
+            </button>
 
+            {/* Language Dropdown Menu */}
+            {showLanguageMenu && (
+              <div className={`absolute top-full right-0 mt-2 w-32 rounded-lg shadow-lg overflow-hidden z-50 ${
+                isWhiteTheme ? "bg-white border border-gray-200" : "bg-gray-800 border border-white/20"
+              }`}>
+                <button
+                  onClick={() => handleLanguageSwitch('en')}
+                  className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${
+                    language === 'en'
+                      ? isWhiteTheme
+                        ? "bg-gray-100 text-gray-900 font-semibold"
+                        : "bg-white/10 text-white font-semibold"
+                      : isWhiteTheme
+                      ? "text-gray-700 hover:bg-gray-50"
+                      : "text-gray-300 hover:bg-white/5"
+                  }`}
+                >
+                  English
+                </button>
+                <button
+                  onClick={() => handleLanguageSwitch('ar')}
+                  className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${
+                    language === 'ar'
+                      ? isWhiteTheme
+                        ? "bg-gray-100 text-gray-900 font-semibold"
+                        : "bg-white/10 text-white font-semibold"
+                      : isWhiteTheme
+                      ? "text-gray-700 hover:bg-gray-50"
+                      : "text-gray-300 hover:bg-white/5"
+                  }`}
+                >
+                  Arabic
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Theme Toggle Button */}
           <button
@@ -194,7 +219,7 @@ export const Design = (): React.JSX.Element => {
               <svg
                 className="w-5 h-5 md:w-6 md:h-6 text-yellow-300"
                 fill="currentColor"
-                viewBox="0 0 20 20"
+                viewBox="0 0 24 24"
               >
                 <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
               </svg>
@@ -214,7 +239,6 @@ export const Design = (): React.JSX.Element => {
             )}
           </button>
 
-
           {/* Login Button */}
           <Button
             onClick={() => (window.location.href = "/OnboardingPage1")}
@@ -227,7 +251,6 @@ export const Design = (): React.JSX.Element => {
         </div>
       </header>
 
-
       {/* Building Image - Compact */}
       <div className="w-full flex justify-center px-4 mt-2 md:mt-4">
         <img
@@ -237,8 +260,7 @@ export const Design = (): React.JSX.Element => {
         />
       </div>
 
-
-      {/* Tokenization Section - Compact - ⭐ REDUCED FONT SIZE FOR LET'S COBUILD */}
+      {/* Tokenization Section */}
       <div className="w-full flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0 px-4 mt-6 md:mt-10">
         <img
           className="w-full max-w-[280px] sm:max-w-[380px] md:max-w-[500px] lg:max-w-[650px] h-auto object-contain"
@@ -246,35 +268,32 @@ export const Design = (): React.JSX.Element => {
           src="/many-building-landscape-png-1.png"
         />
 
-
         <div className="w-full max-w-[500px] lg:max-w-[600px] md:ml-[-30px] text-center md:text-left">
-          {/* ⭐ TWO LINES - Let's CoBuild (REDUCED SIZE) / the World (larger) */}
+          {/* ⭐ TWO LINES - Let's CoBuild / THE WORLD */}
           <h2 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold leading-tight transition-colors duration-500 ${
             isWhiteTheme ? "text-black" : "text-white"
           }`}>
-            {/* Line 1: Let's CoBuild - REDUCED FONT SIZE */}
+            {/* Line 1: Let's CoBuild */}
             <span className="block text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl">
               Let's{" "}
               <span className="text-[#ef6b23]">Co</span>
               <span className={isWhiteTheme ? "text-black" : "text-white"}>Build</span>
             </span>
-            {/* Line 2: the World - Larger Size */}
+            {/* Line 2: THE WORLD */}
             <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
-              the World
+              THE WORLD
             </span>
           </h2>
         </div>
       </div>
 
-
       {/* Expression of Interest Section */}
       <div className="w-full flex flex-col items-center justify-center gap-5 md:gap-6 px-4 mt-12 md:mt-16 pb-12 md:pb-16">
-        <h3 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-xl sm:text-2xl md:text-3xl lg:text-[32px] text-center leading-tight transition-colors duration-500 ${
+        <h3 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-lg sm:text-xl md:text-2xl lg:text-[28px] text-center leading-tight transition-colors duration-500 ${
           isWhiteTheme ? 'text-black' : 'text-white'
         }`}>
-          Submit your EOI to be considered for early access
+          Submit an EOI to be considered for early access
         </h3>
-
 
         <Button 
           onClick={() => setShowModal(true)}
@@ -285,7 +304,6 @@ export const Design = (): React.JSX.Element => {
           </div>
         </Button>
       </div>
-
 
       {/* Modal Popup */}
       {showModal && (
@@ -299,13 +317,11 @@ export const Design = (): React.JSX.Element => {
               ×
             </button>
 
-
             {/* Form */}
             <form onSubmit={handleSubmit} className="p-6 md:p-8">
               <h2 className="[font-family:'Satoshi-Bold',Helvetica] font-bold text-black text-2xl md:text-3xl mb-6 text-center">
                 Expression of Interest
               </h2>
-
 
               {/* Full Name */}
               <div className="mb-4">
@@ -322,7 +338,6 @@ export const Design = (): React.JSX.Element => {
                 />
               </div>
 
-
               {/* Email Address */}
               <div className="mb-4">
                 <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
@@ -338,7 +353,6 @@ export const Design = (): React.JSX.Element => {
                 />
               </div>
 
-
               {/* Phone Number */}
               <div className="mb-4">
                 <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
@@ -353,7 +367,6 @@ export const Design = (): React.JSX.Element => {
                   placeholder="Enter your phone number"
                 />
               </div>
-
 
               {/* Investor Type - Checkboxes */}
               <div className="mb-6">
@@ -379,7 +392,6 @@ export const Design = (): React.JSX.Element => {
                   ))}
                 </div>
               </div>
-
 
               {/* Founding Circle Question */}
               <div className="mb-6">
@@ -425,7 +437,6 @@ export const Design = (): React.JSX.Element => {
                 </div>
               </div>
 
-
               {/* Message Box - Shown only if "Yes" is selected */}
               {formData.interestedInCircle === 'yes' && (
                 <div className="mb-6">
@@ -440,7 +451,6 @@ export const Design = (): React.JSX.Element => {
                   />
                 </div>
               )}
-
 
               {/* Submit Button */}
               <div className="flex gap-3 mt-6">
@@ -465,6 +475,5 @@ export const Design = (): React.JSX.Element => {
     </div>
   );
 };
-
 
 export default Design;
