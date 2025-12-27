@@ -24,7 +24,7 @@
   
   /* Reduce padding on transaction rows */
   .transaction-history-section .border-b {
-    padding-bottom: 8px !important;  /* Reduced from 10px */
+    padding-bottom: 10px !important;  /* Reduced from 10px */
   }
 }
 
@@ -34,12 +34,12 @@
     max-width: none !important;
     min-height: 420px !important;  /* Proportionally reduced from 450px */
     padding-top: 14px !important;  /* Proportionally reduced from 15px */
-    padding-bottom: 9px !important;  /* Proportionally reduced from 10px */
+    padding-bottom: 25px !important;  /* Proportionally reduced from 10px */
   }
   
   /* Reduce gap between header and content */
   .transaction-history-section > *:first-child {
-    margin-bottom: 28px !important;  /* Proportionally reduced from 30px */
+    margin-bottom: 50px !important;  /* Proportionally reduced from 30px */
   }
   
   /* Reduce spacing between transaction items */
@@ -52,3 +52,304 @@
     padding-bottom: 7.5px !important;  /* Proportionally reduced from 8px */
   }
 }
+
+/* transaction-history.css */
+
+/* Base styles for all screens */
+.transaction-history-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  border-radius: 15px;
+  overflow: hidden;
+  background-color: #3a3a3a;
+}
+
+/* Desktop styles (default) */
+@media (min-width: 641px) {
+  .transaction-history-section {
+    gap: 58px;
+    padding: 1.25rem;
+    min-height: 600px;
+  }
+
+  .transaction-history-section header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .transaction-history-section header h2 {
+    font-size: 1.125rem;
+    line-height: 1.5;
+  }
+}
+
+/* Mobile styles (0-640px) */
+@media (max-width: 640px) {
+  
+  /* Section Container */
+  .transaction-history-section {
+    padding: 1rem;
+    gap: 2rem;
+    min-height: 500px;
+    width: 100%;
+  }
+
+  /* Header Styles */
+  .transaction-history-section header {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    align-items: flex-start;
+  }
+
+  .transaction-history-section header h2 {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  /* Filter and Date Button Container */
+  .transaction-history-section header > div {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  /* Filter Icon Button */
+  .transaction-history-section header button[size="icon"] img {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Date Range Button */
+  .transaction-history-section header button:not([size="icon"]) {
+    padding: 0.375rem 0.625rem;
+    gap: 0.375rem;
+  }
+
+  .transaction-history-section header button:not([size="icon"]) img {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .transaction-history-section header button:not([size="icon"]) span {
+    font-size: 0.75rem;
+  }
+
+  /* Transactions Container */
+  .transaction-history-section > div:last-child {
+    gap: 1rem;
+    width: 100%;
+  }
+
+  /* Section Headings (Today, Yesterday) */
+  .transaction-history-section h3 {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Transaction Items Container */
+  .transaction-history-section > div > div {
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  /* Individual Transaction Row */
+  .transaction-history-section > div > div > div {
+    gap: 0.625rem;
+    width: 100%;
+  }
+
+  /* Transaction Icon */
+  .transaction-history-section img[alt*="icon"] {
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+  }
+
+  /* Transaction Details Container */
+  .transaction-history-section > div > div > div > div:last-child {
+    padding-bottom: 0.5rem;
+    min-width: 0;
+  }
+
+  /* Transaction Title and Time Container */
+  .transaction-history-section > div > div > div > div:last-child > div:first-child {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+    padding-right: 0.5rem;
+    gap: 0.25rem;
+  }
+
+  /* Transaction Title */
+  .transaction-history-section > div > div > div > div:last-child > div:first-child > div:first-child {
+    font-size: 0.875rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+  }
+
+  /* Transaction Time */
+  .transaction-history-section > div > div > div > div:last-child > div:first-child > div:last-child {
+    font-size: 0.75rem;
+  }
+
+  /* Transaction Amount Container */
+  .transaction-history-section > div > div > div > div:last-child > div:last-child {
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  /* Transaction Amount */
+  .transaction-history-section > div > div > div > div:last-child > div:last-child > div {
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+
+  /* Border Bottom */
+  .transaction-history-section > div > div > div > div[class*="border"] {
+    border-bottom-width: 1px;
+    border-color: #c7c7c7;
+  }
+
+  /* Positive Amount (Green) */
+  .transaction-history-section .amount-positive,
+  .transaction-history-section [class*="text-[#4ade80]"] {
+    color: #4ade80 !important;
+  }
+
+  /* Negative Amount (Red) */
+  .transaction-history-section .amount-negative,
+  .transaction-history-section [class*="text-[#f87171]"] {
+    color: #f87171 !important;
+  }
+}
+
+/* Extra small phones (up to 375px) */
+@media (max-width: 375px) {
+  .transaction-history-section {
+    padding: 0.875rem;
+    gap: 1.5rem;
+  }
+
+  .transaction-history-section header h2 {
+    font-size: 0.9375rem;
+  }
+
+  .transaction-history-section header button:not([size="icon"]) span {
+    font-size: 0.6875rem;
+  }
+
+  .transaction-history-section > div > div > div > div:last-child > div:first-child > div:first-child {
+    font-size: 0.8125rem;
+  }
+
+  .transaction-history-section img[alt*="icon"] {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+}
+
+/* Larger phones (376px - 480px) */
+@media (min-width: 376px) and (max-width: 480px) {
+  .transaction-history-section {
+    padding: 0.9375rem;
+  }
+
+  .transaction-history-section header h2 {
+    font-size: 0.9375rem;
+  }
+}
+
+/* Small tablets and large phones (481px - 640px) */
+@media (min-width: 481px) and (max-width: 640px) {
+  .transaction-history-section {
+    padding: 1.125rem;
+    gap: 2.25rem;
+  }
+
+  .transaction-history-section header h2 {
+    font-size: 1.0625rem;
+  }
+
+  .transaction-history-section img[alt*="icon"] {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (max-width: 640px) and (orientation: landscape) {
+  .transaction-history-section {
+    min-height: 400px;
+    padding: 0.875rem;
+    gap: 1.5rem;
+  }
+
+  .transaction-history-section > div:last-child {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+  }
+}
+
+/* Scrollbar styling for mobile */
+@media (max-width: 640px) {
+  .transaction-history-section > div:last-child::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .transaction-history-section > div:last-child::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+
+  .transaction-history-section > div:last-child::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+  }
+
+  .transaction-history-section > div:last-child::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  /* Firefox scrollbar */
+  .transaction-history-section > div:last-child {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Tablet styles (641px - 1024px) */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .transaction-history-section {
+    gap: 3rem;
+    padding: 1.125rem;
+  }
+
+  .transaction-history-section header h2 {
+    font-size: 1.0625rem;
+  }
+
+  .transaction-history-section img[alt*="icon"] {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}
+
+/* Utility classes for color coding */
+.transaction-positive {
+  color: #4ade80;
+}
+
+.transaction-negative {
+  color: #f87171;
+}
+
+.transaction-neutral {
+  color: #ffffff;
+}
+
