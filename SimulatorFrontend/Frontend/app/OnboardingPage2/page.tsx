@@ -54,7 +54,7 @@ export default function RetailInvestorPage() {
       <header className="px-4 sm:px-6 py-4 flex items-center justify-between">
         <div className="flex items-center">
           <Image
-            src="/co-build-logo-02-1.png"
+            src="/Co-build-logo-02-1.png"
             alt="CoBuild Logo"
             width={150}
             height={40}

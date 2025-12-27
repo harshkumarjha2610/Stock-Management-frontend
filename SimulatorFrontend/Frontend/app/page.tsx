@@ -93,8 +93,15 @@ export const Design = (): React.JSX.Element => {
   });
 
   const handleLanguageSwitch = (lang: 'en' | 'ar') => {
-    setLanguage(lang);
     setShowLanguageMenu(false);
+    
+    if (lang === 'ar') {
+      // Navigate to Arabic page
+      window.location.href = "/LandingArabic";
+    } else {
+      setLanguage(lang);
+    }
+    
     console.log('Switching to:', lang === 'en' ? 'English' : 'Arabic');
   };
 
@@ -198,7 +205,7 @@ export const Design = (): React.JSX.Element => {
                       : "text-gray-300 hover:bg-white/5"
                   }`}
                 >
-                  Arabic
+                  العربية
                 </button>
               </div>
             )}

@@ -8,12 +8,12 @@ const navigationItems = [
   {
     icon: "/frame-1000003212.svg",
     label: "My Projects",
-    href: "/projectdiscoveryenglish", // target route
+    href: "/projectdiscoveryenglish",
   },
   {
     icon: "/frame-1000003212-1.svg",
     label: "Smart Contract (Log)",
-    href: "", // no navigation yet
+    href: "",
   },
 ];
 
@@ -22,9 +22,13 @@ export const NavigationMenuSection = (): JSX.Element => {
 
   return (
     <div className="flex flex-col w-full gap-4">
-      {/* Welcome Section - Only visible on mobile */}
+      {/* Welcome Section - Only visible on mobile, hidden on sm and above */}
       <div className="flex sm:hidden items-center gap-3 px-4">
-        <button className="w-10 h-10 rounded-full bg-[#1a1a1a] flex items-center justify-center">
+        <button 
+          onClick={() => router.back()}
+          className="w-10 h-10 rounded-full bg-[#1a1a1a] flex items-center justify-center hover:bg-[#2a2a2a] transition-colors"
+          aria-label="Go back"
+        >
           <svg
             className="w-5 h-5 text-white"
             fill="none"
@@ -35,7 +39,7 @@ export const NavigationMenuSection = (): JSX.Element => {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+              d="M15 19l-7-7 7-7"
             />
           </svg>
         </button>
