@@ -83,6 +83,7 @@ export const Design = (): React.JSX.Element => {
   const [isWhiteTheme, setIsWhiteTheme] = React.useState(false);
   const [language, setLanguage] = React.useState<'en' | 'ar'>('en');
   const [showLanguageMenu, setShowLanguageMenu] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [formData, setFormData] = React.useState({
     fullName: "",
     email: "",
@@ -92,11 +93,13 @@ export const Design = (): React.JSX.Element => {
     message: "",
   });
 
+  // ✅ Get API URL from environment variable
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
   const handleLanguageSwitch = (lang: 'en' | 'ar') => {
     setShowLanguageMenu(false);
     
     if (lang === 'ar') {
-      // Navigate to Arabic page
       window.location.href = "/LandingArabic";
     } else {
       setLanguage(lang);
@@ -105,19 +108,62 @@ export const Design = (): React.JSX.Element => {
     console.log('Switching to:', lang === 'en' ? 'English' : 'Arabic');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // ✅ UPDATED SUBMIT HANDLER WITH .ENV VARIABLE
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    alert("Expression of Interest submitted successfully!");
-    setShowModal(false);
-    setFormData({
-      fullName: "",
-      email: "",
-      phone: "",
-      investorType: "",
-      interestedInCircle: "",
-      message: "",
-    });
+    setIsSubmitting(true);
+    
+    try {
+      // Prepare data for API
+      const eoiData = {
+        fullName: formData.fullName,
+        email: formData.email,
+        phoneNumber: formData.phone,
+        investorType: formData.investorType,
+        foundingCircleOptIn: formData.interestedInCircle === 'yes',
+        interestReason: formData.interestedInCircle === 'yes' ? formData.message : null,
+        consentGiven: true,
+        consentVersion: "1.0"
+      };
+
+      console.log('Submitting EOI data:', eoiData);
+      console.log('API URL:', `${API_BASE_URL}/user/eoi/create`);
+
+      // ✅ Call API using environment variable
+      const response = await fetch(`${API_BASE_URL}/user/eoi/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eoiData)
+      });
+
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        alert("Expression of Interest submitted successfully! We'll be in touch soon.");
+        setShowModal(false);
+        // Reset form
+        setFormData({
+          fullName: "",
+          email: "",
+          phone: "",
+          investorType: "",
+          interestedInCircle: "",
+          message: "",
+        });
+      } else {
+        // Handle API error
+        const errorMessage = result.message || 'Failed to submit. Please try again.';
+        alert(errorMessage);
+        console.error('API Error:', result);
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      alert("Failed to submit. Please check your connection and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -129,7 +175,6 @@ export const Design = (): React.JSX.Element => {
       {/* Header */}
       <header className="flex w-full max-w-[1363px] mx-auto items-center justify-between px-4 sm:px-4 md:px-6 lg:px-6 xl:px-2 2xl:px-1 py-4 md:py-6 relative z-10">
         <div className="flex flex-col w-[120px] sm:w-[160px] md:w-[220px] items-start">
-          {/* ⭐ CONDITIONAL LOGO BASED ON THEME */}
           <img
             className="relative w-full h-auto object-contain transition-all duration-500"
             alt="Co build logo"
@@ -150,7 +195,6 @@ export const Design = (): React.JSX.Element => {
               }`}
               aria-label="Switch language"
             >
-              {/* Globe icon */}
               <svg
                 className={`w-5 h-5 md:w-6 md:h-6 ${
                   isWhiteTheme ? "text-white" : "text-white"
@@ -166,7 +210,6 @@ export const Design = (): React.JSX.Element => {
                   d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
                 />
               </svg>
-              {/* Small language indicator */}
               <span className={`absolute bottom-0 right-0 text-[8px] sm:text-[9px] font-bold px-1 rounded ${
                 isWhiteTheme ? "bg-white text-gray-800" : "bg-white/90 text-gray-800"
               }`}>
@@ -222,7 +265,6 @@ export const Design = (): React.JSX.Element => {
             aria-label="Toggle theme"
           >
             {isWhiteTheme ? (
-              // Moon icon
               <svg
                 className="w-5 h-5 md:w-6 md:h-6 text-yellow-300"
                 fill="currentColor"
@@ -231,7 +273,6 @@ export const Design = (): React.JSX.Element => {
                 <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
               </svg>
             ) : (
-              // Sun icon
               <svg
                 className="w-5 h-5 md:w-6 md:h-6 text-yellow-400"
                 fill="currentColor"
@@ -276,17 +317,14 @@ export const Design = (): React.JSX.Element => {
         />
 
         <div className="w-full max-w-[500px] lg:max-w-[600px] md:ml-[-30px] text-center md:text-left">
-          {/* ⭐ TWO LINES - Let's CoBuild / THE WORLD */}
           <h2 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold leading-tight transition-colors duration-500 ${
             isWhiteTheme ? "text-black" : "text-white"
           }`}>
-            {/* Line 1: Let's CoBuild */}
-            <span className="block text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl">
-              Let's{" "}
-              <span className="text-[#ef6b23]">Co</span>
-              <span className={isWhiteTheme ? "text-black" : "text-white"}>Build</span>
+            <span className="block text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl uppercase">
+              LET'S{" "}
+              <span className="text-[#ef6b23]">CO</span>
+              <span className={isWhiteTheme ? "text-black" : "text-white"}>BUILD</span>
             </span>
-            {/* Line 2: THE WORLD */}
             <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
               THE WORLD
             </span>
@@ -296,10 +334,10 @@ export const Design = (): React.JSX.Element => {
 
       {/* Expression of Interest Section */}
       <div className="w-full flex flex-col items-center justify-center gap-5 md:gap-6 px-4 mt-12 md:mt-16 pb-12 md:pb-16">
-        <h3 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-lg sm:text-xl md:text-2xl lg:text-[28px] text-center leading-tight transition-colors duration-500 ${
+        <h3 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-base sm:text-lg md:text-xl lg:text-[22px] text-center leading-tight transition-colors duration-500 ${
           isWhiteTheme ? 'text-black' : 'text-white'
         }`}>
-          Submit an EOI to be considered for early access
+          Submit an Expression of Interest to be considered for early access
         </h3>
 
         <Button 
@@ -316,15 +354,14 @@ export const Design = (): React.JSX.Element => {
       {showModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl w-full max-w-[600px] max-h-[90vh] overflow-y-auto relative">
-            {/* Close Button */}
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+              disabled={isSubmitting}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               ×
             </button>
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="p-6 md:p-8">
               <h2 className="[font-family:'Satoshi-Bold',Helvetica] font-bold text-black text-2xl md:text-3xl mb-6 text-center">
                 Expression of Interest
@@ -338,9 +375,10 @@ export const Design = (): React.JSX.Element => {
                 <input
                   type="text"
                   required
+                  disabled={isSubmitting}
                   value={formData.fullName}
                   onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                  className="w-full h-[48px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent"
+                  className="w-full h-[48px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -353,9 +391,10 @@ export const Design = (): React.JSX.Element => {
                 <input
                   type="email"
                   required
+                  disabled={isSubmitting}
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full h-[48px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent"
+                  className="w-full h-[48px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                   placeholder="Enter your email"
                 />
               </div>
@@ -368,32 +407,38 @@ export const Design = (): React.JSX.Element => {
                 <input
                   type="tel"
                   required
+                  disabled={isSubmitting}
                   value={formData.phone}
                   onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  className="w-full h-[48px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent"
+                  className="w-full h-[48px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                   placeholder="Enter your phone number"
                 />
               </div>
 
-              {/* Investor Type - Checkboxes */}
+              {/* Investor Type */}
               <div className="mb-6">
                 <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-3">
                   Investor Type <span className="text-red-500">*</span>
                 </label>
                 <div className="space-y-3">
-                  {['Organization', 'Investment Entity', 'Solo Investor'].map((type) => (
-                    <label key={type} className="flex items-center cursor-pointer">
+                  {[
+                    { label: 'Organization', value: 'ORGANIZATION' },
+                    { label: 'Investment Entity', value: 'INVESTMENTENTITY' },
+                    { label: 'Solo Investor', value: 'SOLOINVESTOR' }
+                  ].map((type) => (
+                    <label key={type.value} className="flex items-center cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={formData.investorType === type}
+                        disabled={isSubmitting}
+                        checked={formData.investorType === type.value}
                         onChange={(e) => setFormData({
                           ...formData, 
-                          investorType: e.target.checked ? type : ''
+                          investorType: e.target.checked ? type.value : ''
                         })}
-                        className="w-5 h-5 rounded border-gray-300 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer"
+                        className="w-5 h-5 rounded border-gray-300 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                       />
                       <span className="ml-3 [font-family:'Satoshi-Regular',Helvetica] text-black text-base">
-                        {type}
+                        {type.label}
                       </span>
                     </label>
                   ))}
@@ -411,12 +456,13 @@ export const Design = (): React.JSX.Element => {
                       type="radio"
                       name="foundingCircle"
                       value="yes"
+                      disabled={isSubmitting}
                       checked={formData.interestedInCircle === 'yes'}
                       onChange={(e) => setFormData({
                         ...formData, 
                         interestedInCircle: e.target.value
                       })}
-                      className="w-5 h-5 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer"
+                      className="w-5 h-5 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                       required
                     />
                     <span className="ml-3 [font-family:'Satoshi-Regular',Helvetica] text-black text-base">
@@ -428,13 +474,14 @@ export const Design = (): React.JSX.Element => {
                       type="radio"
                       name="foundingCircle"
                       value="no"
+                      disabled={isSubmitting}
                       checked={formData.interestedInCircle === 'no'}
                       onChange={(e) => setFormData({
                         ...formData, 
                         interestedInCircle: e.target.value,
                         message: ''
                       })}
-                      className="w-5 h-5 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer"
+                      className="w-5 h-5 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                       required
                     />
                     <span className="ml-3 [font-family:'Satoshi-Regular',Helvetica] text-black text-base">
@@ -444,7 +491,7 @@ export const Design = (): React.JSX.Element => {
                 </div>
               </div>
 
-              {/* Message Box - Shown only if "Yes" is selected */}
+              {/* Message Box */}
               {formData.interestedInCircle === 'yes' && (
                 <div className="mb-6">
                   <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
@@ -452,28 +499,41 @@ export const Design = (): React.JSX.Element => {
                   </label>
                   <textarea
                     value={formData.message}
+                    disabled={isSubmitting}
                     onChange={(e) => setFormData({...formData, message: e.target.value})}
-                    className="w-full h-[120px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent resize-none"
+                    className="w-full h-[120px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                     placeholder="Share your interest and relevant experience..."
                   />
                 </div>
               )}
 
-              {/* Submit Button */}
+              {/* Submit Buttons */}
               <div className="flex gap-3 mt-6">
-                <Button
+                <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 h-[50px] bg-gray-200 text-black hover:bg-gray-300 rounded-lg [font-family:'Satoshi-Bold',Helvetica] font-bold"
+                  disabled={isSubmitting}
+                  className="flex-1 h-[50px] bg-gray-200 text-black hover:bg-gray-300 rounded-lg [font-family:'Satoshi-Bold',Helvetica] font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   Cancel
-                </Button>
-                <Button
+                </button>
+                <button
                   type="submit"
-                  className="flex-1 h-[50px] bg-[#ef6b23] text-white hover:bg-[#ef6b23]/90 rounded-lg [font-family:'Satoshi-Bold',Helvetica] font-bold"
+                  disabled={isSubmitting}
+                  className="flex-1 h-[50px] bg-[#ef6b23] text-white hover:bg-[#ef6b23]/90 rounded-lg [font-family:'Satoshi-Bold',Helvetica] font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                 >
-                  Submit
-                </Button>
+                  {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Submitting...
+                    </>
+                  ) : (
+                    'Submit'
+                  )}
+                </button>
               </div>
             </form>
           </div>
