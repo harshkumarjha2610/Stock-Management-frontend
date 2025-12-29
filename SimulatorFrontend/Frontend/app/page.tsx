@@ -91,9 +91,10 @@ export const Design = (): React.JSX.Element => {
     investorType: "",
     interestedInCircle: "",
     message: "",
+    consentGiven: false, // ✅ Added consent state
   });
 
-  // ✅ Get API URL from environment variable
+  // Get API URL from environment variable
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const handleLanguageSwitch = (lang: 'en' | 'ar') => {
@@ -108,28 +109,117 @@ export const Design = (): React.JSX.Element => {
     console.log('Switching to:', lang === 'en' ? 'English' : 'Arabic');
   };
 
-  // ✅ UPDATED SUBMIT HANDLER WITH .ENV VARIABLE
+  // ✅ UPDATED SUBMIT HANDLER WITH CONSENT VALIDATION
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log("=== FORM SUBMISSION STARTED ===");
+    console.log("Current Form Data:", formData);
+    
+    // ✅ ENHANCED FORM VALIDATION
+    if (!formData.fullName || !formData.fullName.trim()) {
+      console.error("❌ Validation Failed: Full Name is empty");
+      alert("Please enter your full name.");
+      return;
+    }
+    console.log("✅ Full Name validated:", formData.fullName);
+
+    if (!formData.email || !formData.email.trim()) {
+      console.error("❌ Validation Failed: Email is empty");
+      alert("Please enter your email address.");
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      console.error("❌ Validation Failed: Invalid email format");
+      alert("Please enter a valid email address.");
+      return;
+    }
+    console.log("✅ Email validated:", formData.email);
+
+    if (!formData.phone || !formData.phone.trim()) {
+      console.error("❌ Validation Failed: Phone is empty");
+      alert("Please enter your phone number.");
+      return;
+    }
+    console.log("✅ Phone validated:", formData.phone);
+
+    if (!formData.investorType) {
+      console.error("❌ Validation Failed: Investor Type not selected");
+      console.log("Current investorType value:", formData.investorType);
+      alert("Please select an investor type.");
+      return;
+    }
+    console.log("✅ Investor Type validated:", formData.investorType);
+
+    if (!formData.interestedInCircle) {
+      console.error("❌ Validation Failed: Founding Circle option not selected");
+      alert("Please answer if you're interested in the Founding Circle.");
+      return;
+    }
+    console.log("✅ Founding Circle validated:", formData.interestedInCircle);
+
+    // Validate message when user selects 'yes'
+    if (formData.interestedInCircle === 'yes' && !formData.message.trim()) {
+      console.error("❌ Validation Failed: Message required for 'yes' selection");
+      alert("Please tell us why you're interested in the Founding Circle.");
+      return;
+    }
+
+    // ✅ NEW: Validate consent checkbox
+    if (!formData.consentGiven) {
+      console.error("❌ Validation Failed: Consent not given");
+      alert("Please provide your consent to proceed.");
+      return;
+    }
+    console.log("✅ Consent validated:", formData.consentGiven);
+
+    console.log("✅ All validations passed");
+
     setIsSubmitting(true);
     
     try {
-      // Prepare data for API
-      const eoiData = {
-        fullName: formData.fullName,
-        email: formData.email,
-        phoneNumber: formData.phone,
+      // ✅ Prepare data for API
+      const eoiData: any = {
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim(),
+        phoneNumber: formData.phone.trim(),
         investorType: formData.investorType,
         foundingCircleOptIn: formData.interestedInCircle === 'yes',
-        interestReason: formData.interestedInCircle === 'yes' ? formData.message : null,
         consentGiven: true,
         consentVersion: "1.0"
       };
 
-      console.log('Submitting EOI data:', eoiData);
-      console.log('API URL:', `${API_BASE_URL}/user/eoi/create`);
+      // Only add interestReason if user selected "yes" and provided a message
+      if (formData.interestedInCircle === 'yes' && formData.message.trim()) {
+        eoiData.interestReason = formData.message.trim();
+      }
 
-      // ✅ Call API using environment variable
+      console.log("📤 Prepared EOI Data for API:");
+      console.log("  - fullName:", eoiData.fullName);
+      console.log("  - email:", eoiData.email);
+      console.log("  - phoneNumber:", eoiData.phoneNumber);
+      console.log("  - investorType:", eoiData.investorType);
+      console.log("  - foundingCircleOptIn:", eoiData.foundingCircleOptIn);
+      console.log("  - interestReason:", eoiData.interestReason || "(not included)");
+      console.log("  - consentGiven:", eoiData.consentGiven);
+      console.log("  - consentVersion:", eoiData.consentVersion);
+      
+      console.log("📤 Full EOI Data Object:", JSON.stringify(eoiData, null, 2));
+      console.log("🌐 API URL:", `${API_BASE_URL}/user/eoi/create`);
+
+      // Validate API_BASE_URL exists
+      if (!API_BASE_URL) {
+        console.error("❌ API_BASE_URL is not defined in environment variables");
+        alert("Configuration error: API URL not found. Please check your environment variables.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Call API
+      console.log("🚀 Making API call...");
       const response = await fetch(`${API_BASE_URL}/user/eoi/create`, {
         method: 'POST',
         headers: {
@@ -138,9 +228,14 @@ export const Design = (): React.JSX.Element => {
         body: JSON.stringify(eoiData)
       });
 
+      console.log("📥 Response Status:", response.status);
+      console.log("📥 Response OK:", response.ok);
+
       const result = await response.json();
+      console.log("📥 Response Data:", JSON.stringify(result, null, 2));
       
       if (response.ok && result.success) {
+        console.log("✅ SUCCESS: Form submitted successfully");
         alert("Expression of Interest submitted successfully! We'll be in touch soon.");
         setShowModal(false);
         // Reset form
@@ -151,18 +246,29 @@ export const Design = (): React.JSX.Element => {
           investorType: "",
           interestedInCircle: "",
           message: "",
+          consentGiven: false, // ✅ Reset consent
         });
+        console.log("✅ Form reset completed");
       } else {
         // Handle API error
+        console.error("❌ API ERROR:");
+        console.error("  - Status:", response.status);
+        console.error("  - Success:", result.success);
+        console.error("  - Message:", result.message);
+        console.error("  - Full Response:", result);
+        
         const errorMessage = result.message || 'Failed to submit. Please try again.';
-        alert(errorMessage);
-        console.error('API Error:', result);
+        alert(`Error: ${errorMessage}`);
       }
-    } catch (error) {
-      console.error("Submission error:", error);
+    } catch (error: any) {
+      console.error("❌ SUBMISSION ERROR:");
+      console.error("  - Error Type:", error?.constructor?.name);
+      console.error("  - Error Message:", error?.message);
+      console.error("  - Full Error:", error);
       alert("Failed to submit. Please check your connection and try again.");
     } finally {
       setIsSubmitting(false);
+      console.log("=== FORM SUBMISSION ENDED ===");
     }
   };
 
@@ -422,20 +528,22 @@ export const Design = (): React.JSX.Element => {
                 </label>
                 <div className="space-y-3">
                   {[
-                    { label: 'Organization', value: 'ORGANIZATION' },
-                    { label: 'Investment Entity', value: 'INVESTMENTENTITY' },
-                    { label: 'Solo Investor', value: 'SOLOINVESTOR' }
+                    { label: 'Solo Investor', value: 'SOLO_INVESTOR' },
+                    { label: 'Investment Entity', value: 'INVESTMENT_ENTITY' }
                   ].map((type) => (
                     <label key={type.value} className="flex items-center cursor-pointer">
                       <input
-                        type="checkbox"
+                        type="radio"
+                        name="investorType"
+                        value={type.value}
                         disabled={isSubmitting}
                         checked={formData.investorType === type.value}
                         onChange={(e) => setFormData({
                           ...formData, 
-                          investorType: e.target.checked ? type.value : ''
+                          investorType: e.target.value
                         })}
-                        className="w-5 h-5 rounded border-gray-300 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                        className="w-5 h-5 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                        required
                       />
                       <span className="ml-3 [font-family:'Satoshi-Regular',Helvetica] text-black text-base">
                         {type.label}
@@ -491,13 +599,14 @@ export const Design = (): React.JSX.Element => {
                 </div>
               </div>
 
-              {/* Message Box */}
+              {/* Message Box - Only shows when "Yes" is selected */}
               {formData.interestedInCircle === 'yes' && (
                 <div className="mb-6">
                   <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
-                    Please tell us why you're interested
+                    Please tell us why you're interested <span className="text-red-500">*</span>
                   </label>
                   <textarea
+                    required
                     value={formData.message}
                     disabled={isSubmitting}
                     onChange={(e) => setFormData({...formData, message: e.target.value})}
@@ -506,6 +615,23 @@ export const Design = (): React.JSX.Element => {
                   />
                 </div>
               )}
+
+              {/* ✅ NEW: Consent Checkbox */}
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <label className="flex items-start cursor-pointer">
+                  <input
+                    type="checkbox"
+                    required
+                    disabled={isSubmitting}
+                    checked={formData.consentGiven}
+                    onChange={(e) => setFormData({...formData, consentGiven: e.target.checked})}
+                    className="w-5 h-5 mt-0.5 rounded border-gray-300 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                  <span className="ml-3 [font-family:'Satoshi-Regular',Helvetica] text-black text-sm leading-relaxed">
+                    I consent to the collection and processing of my personal data for the purpose of evaluating my interest as an investor. <span className="text-red-500">*</span>
+                  </span>
+                </label>
+              </div>
 
               {/* Submit Buttons */}
               <div className="flex gap-3 mt-6">
