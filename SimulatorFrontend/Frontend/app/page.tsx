@@ -91,7 +91,7 @@ export const Design = (): React.JSX.Element => {
     investorType: "",
     interestedInCircle: "",
     message: "",
-    consentGiven: false, // ✅ Added consent state
+    consentGiven: false,
   });
 
   // Get API URL from environment variable
@@ -109,14 +109,14 @@ export const Design = (): React.JSX.Element => {
     console.log('Switching to:', lang === 'en' ? 'English' : 'Arabic');
   };
 
-  // ✅ UPDATED SUBMIT HANDLER WITH CONSENT VALIDATION
+  // SUBMIT HANDLER WITH VALIDATION
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     console.log("=== FORM SUBMISSION STARTED ===");
     console.log("Current Form Data:", formData);
     
-    // ✅ ENHANCED FORM VALIDATION
+    // ENHANCED FORM VALIDATION
     if (!formData.fullName || !formData.fullName.trim()) {
       console.error("❌ Validation Failed: Full Name is empty");
       alert("Please enter your full name.");
@@ -168,7 +168,7 @@ export const Design = (): React.JSX.Element => {
       return;
     }
 
-    // ✅ NEW: Validate consent checkbox
+    // Validate consent checkbox
     if (!formData.consentGiven) {
       console.error("❌ Validation Failed: Consent not given");
       alert("Please provide your consent to proceed.");
@@ -181,7 +181,7 @@ export const Design = (): React.JSX.Element => {
     setIsSubmitting(true);
     
     try {
-      // ✅ Prepare data for API
+      // Prepare data for API
       const eoiData: any = {
         fullName: formData.fullName.trim(),
         email: formData.email.trim(),
@@ -246,7 +246,7 @@ export const Design = (): React.JSX.Element => {
           investorType: "",
           interestedInCircle: "",
           message: "",
-          consentGiven: false, // ✅ Reset consent
+          consentGiven: false,
         });
         console.log("✅ Form reset completed");
       } else {
@@ -521,7 +521,7 @@ export const Design = (): React.JSX.Element => {
                 />
               </div>
 
-              {/* Investor Type */}
+              {/* ✅ UPDATED: Investor Type with 3 options */}
               <div className="mb-6">
                 <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-3">
                   Investor Type <span className="text-red-500">*</span>
@@ -529,7 +529,8 @@ export const Design = (): React.JSX.Element => {
                 <div className="space-y-3">
                   {[
                     { label: 'Solo Investor', value: 'SOLO_INVESTOR' },
-                    { label: 'Investment Entity', value: 'INVESTMENT_ENTITY' }
+                    { label: 'Investment Entity', value: 'INVESTMENT_ENTITY' },
+                    { label: 'Organization', value: 'ORGANIZATION' }
                   ].map((type) => (
                     <label key={type.value} className="flex items-center cursor-pointer">
                       <input
@@ -616,7 +617,7 @@ export const Design = (): React.JSX.Element => {
                 </div>
               )}
 
-              {/* ✅ NEW: Consent Checkbox */}
+              {/* Consent Checkbox */}
               <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <label className="flex items-start cursor-pointer">
                   <input
