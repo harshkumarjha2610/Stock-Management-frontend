@@ -9,6 +9,67 @@ function cn(...inputs: any[]) {
   return inputs.filter(Boolean).join(" ");
 }
 
+// ==================== CUSTOM ALERT/TOAST COMPONENT ====================
+interface CustomAlertProps {
+  type: 'success' | 'error';
+  message: string;
+  description?: string;
+  onClose: () => void;
+}
+
+const CustomAlert: React.FC<CustomAlertProps> = ({ type, message, description, onClose }) => {
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-fadeIn">
+      <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl animate-slideUp">
+        <div className={`p-6 rounded-t-2xl ${type === 'success' ? 'bg-green-50' : 'bg-red-50'}`}>
+          <div className="flex items-center gap-4">
+            {type === 'success' ? (
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-green-500 flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            ) : (
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-500 flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+            )}
+            <div className="flex-1">
+              <h3 className={`text-lg font-bold ${type === 'success' ? 'text-green-900' : 'text-red-900'}`}>
+                {type === 'success' ? 'Success!' : 'Error'}
+              </h3>
+              <p className={`text-sm mt-1 ${type === 'success' ? 'text-green-700' : 'text-red-700'}`}>
+                {message}
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        {description && (
+          <div className="px-6 py-4 border-t border-gray-100">
+            <p className="text-sm text-gray-600">{description}</p>
+          </div>
+        )}
+        
+        <div className="p-4 bg-gray-50 rounded-b-2xl">
+          <button
+            onClick={onClose}
+            className={`w-full py-3 rounded-lg font-semibold transition-colors cursor-pointer ${
+              type === 'success'
+                ? 'bg-green-500 hover:bg-green-600 text-white'
+                : 'bg-red-500 hover:bg-red-600 text-white'
+            }`}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ==================== BUTTON COMPONENT ====================
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
@@ -84,6 +145,11 @@ export const Design = (): React.JSX.Element => {
   const [language, setLanguage] = React.useState<'en' | 'ar'>('en');
   const [showLanguageMenu, setShowLanguageMenu] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [alert, setAlert] = React.useState<{show: boolean; type: 'success' | 'error'; message: string; description?: string}>({
+    show: false,
+    type: 'success',
+    message: ''
+  });
   const [formData, setFormData] = React.useState({
     fullName: "",
     email: "",
@@ -109,7 +175,7 @@ export const Design = (): React.JSX.Element => {
     console.log('Switching to:', lang === 'en' ? 'English' : 'Arabic');
   };
 
-  // SUBMIT HANDLER WITH VALIDATION
+  // ✅ UPDATED SUBMIT HANDLER WITH BETTER ALERTS
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -119,14 +185,23 @@ export const Design = (): React.JSX.Element => {
     // ENHANCED FORM VALIDATION
     if (!formData.fullName || !formData.fullName.trim()) {
       console.error("❌ Validation Failed: Full Name is empty");
-      alert("Please enter your full name.");
+      setAlert({
+        show: true,
+        type: 'error',
+        message: 'Full Name Required',
+        description: 'Please enter your full name to continue.'
+      });
       return;
     }
-    console.log("✅ Full Name validated:", formData.fullName);
 
     if (!formData.email || !formData.email.trim()) {
       console.error("❌ Validation Failed: Email is empty");
-      alert("Please enter your email address.");
+      setAlert({
+        show: true,
+        type: 'error',
+        message: 'Email Required',
+        description: 'Please enter your email address to continue.'
+      });
       return;
     }
 
@@ -134,47 +209,71 @@ export const Design = (): React.JSX.Element => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       console.error("❌ Validation Failed: Invalid email format");
-      alert("Please enter a valid email address.");
+      setAlert({
+        show: true,
+        type: 'error',
+        message: 'Invalid Email',
+        description: 'Please enter a valid email address.'
+      });
       return;
     }
-    console.log("✅ Email validated:", formData.email);
 
     if (!formData.phone || !formData.phone.trim()) {
       console.error("❌ Validation Failed: Phone is empty");
-      alert("Please enter your phone number.");
+      setAlert({
+        show: true,
+        type: 'error',
+        message: 'Phone Number Required',
+        description: 'Please enter your phone number to continue.'
+      });
       return;
     }
-    console.log("✅ Phone validated:", formData.phone);
 
     if (!formData.investorType) {
       console.error("❌ Validation Failed: Investor Type not selected");
-      console.log("Current investorType value:", formData.investorType);
-      alert("Please select an investor type.");
+      setAlert({
+        show: true,
+        type: 'error',
+        message: 'Investor Type Required',
+        description: 'Please select an investor type to continue.'
+      });
       return;
     }
-    console.log("✅ Investor Type validated:", formData.investorType);
 
     if (!formData.interestedInCircle) {
       console.error("❌ Validation Failed: Founding Circle option not selected");
-      alert("Please answer if you're interested in the Founding Circle.");
+      setAlert({
+        show: true,
+        type: 'error',
+        message: 'Response Required',
+        description: "Please answer if you're interested in the Founding Circle."
+      });
       return;
     }
-    console.log("✅ Founding Circle validated:", formData.interestedInCircle);
 
     // Validate message when user selects 'yes'
     if (formData.interestedInCircle === 'yes' && !formData.message.trim()) {
       console.error("❌ Validation Failed: Message required for 'yes' selection");
-      alert("Please tell us why you're interested in the Founding Circle.");
+      setAlert({
+        show: true,
+        type: 'error',
+        message: 'Message Required',
+        description: "Please tell us why you're interested in the Founding Circle."
+      });
       return;
     }
 
     // Validate consent checkbox
     if (!formData.consentGiven) {
       console.error("❌ Validation Failed: Consent not given");
-      alert("Please provide your consent to proceed.");
+      setAlert({
+        show: true,
+        type: 'error',
+        message: 'Consent Required',
+        description: 'Please provide your consent to proceed with the submission.'
+      });
       return;
     }
-    console.log("✅ Consent validated:", formData.consentGiven);
 
     console.log("✅ All validations passed");
 
@@ -197,23 +296,17 @@ export const Design = (): React.JSX.Element => {
         eoiData.interestReason = formData.message.trim();
       }
 
-      console.log("📤 Prepared EOI Data for API:");
-      console.log("  - fullName:", eoiData.fullName);
-      console.log("  - email:", eoiData.email);
-      console.log("  - phoneNumber:", eoiData.phoneNumber);
-      console.log("  - investorType:", eoiData.investorType);
-      console.log("  - foundingCircleOptIn:", eoiData.foundingCircleOptIn);
-      console.log("  - interestReason:", eoiData.interestReason || "(not included)");
-      console.log("  - consentGiven:", eoiData.consentGiven);
-      console.log("  - consentVersion:", eoiData.consentVersion);
-      
       console.log("📤 Full EOI Data Object:", JSON.stringify(eoiData, null, 2));
-      console.log("🌐 API URL:", `${API_BASE_URL}/user/eoi/create`);
 
       // Validate API_BASE_URL exists
       if (!API_BASE_URL) {
         console.error("❌ API_BASE_URL is not defined in environment variables");
-        alert("Configuration error: API URL not found. Please check your environment variables.");
+        setAlert({
+          show: true,
+          type: 'error',
+          message: 'Configuration Error',
+          description: 'API URL not found. Please contact support.'
+        });
         setIsSubmitting(false);
         return;
       }
@@ -228,15 +321,17 @@ export const Design = (): React.JSX.Element => {
         body: JSON.stringify(eoiData)
       });
 
-      console.log("📥 Response Status:", response.status);
-      console.log("📥 Response OK:", response.ok);
-
       const result = await response.json();
       console.log("📥 Response Data:", JSON.stringify(result, null, 2));
       
       if (response.ok && result.success) {
         console.log("✅ SUCCESS: Form submitted successfully");
-        alert("Expression of Interest submitted successfully! We'll be in touch soon.");
+        setAlert({
+          show: true,
+          type: 'success',
+          message: 'Submitted Successfully!',
+          description: "We've received your Expression of Interest. Our team will be in touch soon."
+        });
         setShowModal(false);
         // Reset form
         setFormData({
@@ -251,21 +346,23 @@ export const Design = (): React.JSX.Element => {
         console.log("✅ Form reset completed");
       } else {
         // Handle API error
-        console.error("❌ API ERROR:");
-        console.error("  - Status:", response.status);
-        console.error("  - Success:", result.success);
-        console.error("  - Message:", result.message);
-        console.error("  - Full Response:", result);
-        
-        const errorMessage = result.message || 'Failed to submit. Please try again.';
-        alert(`Error: ${errorMessage}`);
+        console.error("❌ API ERROR:", result);
+        const errorMessage = result.message || 'Something went wrong. Please try again.';
+        setAlert({
+          show: true,
+          type: 'error',
+          message: 'Submission Failed',
+          description: errorMessage
+        });
       }
     } catch (error: any) {
-      console.error("❌ SUBMISSION ERROR:");
-      console.error("  - Error Type:", error?.constructor?.name);
-      console.error("  - Error Message:", error?.message);
-      console.error("  - Full Error:", error);
-      alert("Failed to submit. Please check your connection and try again.");
+      console.error("❌ SUBMISSION ERROR:", error);
+      setAlert({
+        show: true,
+        type: 'error',
+        message: 'Network Error',
+        description: 'Failed to submit. Please check your connection and try again.'
+      });
     } finally {
       setIsSubmitting(false);
       console.log("=== FORM SUBMISSION ENDED ===");
@@ -273,400 +370,435 @@ export const Design = (): React.JSX.Element => {
   };
 
   return (
-    <div
-      className={`overflow-x-hidden w-full min-h-screen transition-colors duration-500 ${
-        isWhiteTheme ? "bg-white" : "bg-black"
-      }`}
-    >
-      {/* Header */}
-      <header className="flex w-full max-w-[1363px] mx-auto items-center justify-between px-4 sm:px-4 md:px-6 lg:px-6 xl:px-2 2xl:px-1 py-4 md:py-6 relative z-10">
-        <div className="flex flex-col w-[120px] sm:w-[160px] md:w-[220px] items-start">
-          <img
-            className="relative w-full h-auto object-contain transition-all duration-500"
-            alt="Co build logo"
-            src={isWhiteTheme ? "/Co-build-logo-02-1.png" : "/co-build-logo-01-1.png"}
-          />
-        </div>
+    <>
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { 
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-out;
+        }
+        .animate-slideUp {
+          animation: slideUp 0.3s ease-out;
+        }
+      `}</style>
 
-        {/* Right side buttons */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Global Language Toggle Button with Dropdown */}
-          <div className="relative">
+      {/* Custom Alert */}
+      {alert.show && (
+        <CustomAlert
+          type={alert.type}
+          message={alert.message}
+          description={alert.description}
+          onClose={() => setAlert({ ...alert, show: false })}
+        />
+      )}
+
+      <div
+        className={`overflow-x-hidden w-full min-h-screen transition-colors duration-500 ${
+          isWhiteTheme ? "bg-white" : "bg-black"
+        }`}
+      >
+        {/* Header */}
+        <header className="flex w-full max-w-[1363px] mx-auto items-center justify-between px-4 sm:px-4 md:px-6 lg:px-6 xl:px-2 2xl:px-1 py-4 md:py-6 relative z-10">
+          <div className="flex flex-col w-[120px] sm:w-[160px] md:w-[220px] items-start">
+            <img
+              className="relative w-full h-auto object-contain transition-all duration-500"
+              alt="Co build logo"
+              src={isWhiteTheme ? "/Co-build-logo-02-1.png" : "/co-build-logo-01-1.png"}
+            />
+          </div>
+
+          {/* Right side buttons */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Global Language Toggle Button with Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+                className={`w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+                  isWhiteTheme
+                    ? "bg-gray-800 hover:bg-gray-700"
+                    : "bg-white/10 hover:bg-white/20 border border-white/30"
+                }`}
+                aria-label="Switch language"
+              >
+                <svg
+                  className={`w-5 h-5 md:w-6 md:h-6 ${
+                    isWhiteTheme ? "text-white" : "text-white"
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+                  />
+                </svg>
+                <span className={`absolute bottom-0 right-0 text-[8px] sm:text-[9px] font-bold px-1 rounded ${
+                  isWhiteTheme ? "bg-white text-gray-800" : "bg-white/90 text-gray-800"
+                }`}>
+                  {language.toUpperCase()}
+                </span>
+              </button>
+
+              {/* Language Dropdown Menu */}
+              {showLanguageMenu && (
+                <div className={`absolute top-full right-0 mt-2 w-32 rounded-lg shadow-lg overflow-hidden z-50 ${
+                  isWhiteTheme ? "bg-white border border-gray-200" : "bg-gray-800 border border-white/20"
+                }`}>
+                  <button
+                    onClick={() => handleLanguageSwitch('en')}
+                    className={`w-full px-4 py-2.5 text-left text-sm transition-colors cursor-pointer ${
+                      language === 'en'
+                        ? isWhiteTheme
+                          ? "bg-gray-100 text-gray-900 font-semibold"
+                          : "bg-white/10 text-white font-semibold"
+                        : isWhiteTheme
+                        ? "text-gray-700 hover:bg-gray-50"
+                        : "text-gray-300 hover:bg-white/5"
+                    }`}
+                  >
+                    English
+                  </button>
+                  <button
+                    onClick={() => handleLanguageSwitch('ar')}
+                    className={`w-full px-4 py-2.5 text-left text-sm transition-colors cursor-pointer ${
+                      language === 'ar'
+                        ? isWhiteTheme
+                          ? "bg-gray-100 text-gray-900 font-semibold"
+                          : "bg-white/10 text-white font-semibold"
+                        : isWhiteTheme
+                        ? "text-gray-700 hover:bg-gray-50"
+                        : "text-gray-300 hover:bg-white/5"
+                    }`}
+                  >
+                    العربية
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Theme Toggle Button */}
             <button
-              onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+              onClick={() => setIsWhiteTheme(!isWhiteTheme)}
               className={`w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
                 isWhiteTheme
                   ? "bg-gray-800 hover:bg-gray-700"
                   : "bg-white/10 hover:bg-white/20 border border-white/30"
               }`}
-              aria-label="Switch language"
+              aria-label="Toggle theme"
             >
-              <svg
-                className={`w-5 h-5 md:w-6 md:h-6 ${
-                  isWhiteTheme ? "text-white" : "text-white"
-                }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-                />
-              </svg>
-              <span className={`absolute bottom-0 right-0 text-[8px] sm:text-[9px] font-bold px-1 rounded ${
-                isWhiteTheme ? "bg-white text-gray-800" : "bg-white/90 text-gray-800"
-              }`}>
-                {language.toUpperCase()}
-              </span>
+              {isWhiteTheme ? (
+                <svg
+                  className="w-5 h-5 md:w-6 md:h-6 text-yellow-300"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                </svg>
+              ) : (
+                <svg
+                  className="w-5 h-5 md:w-6 md:h-6 text-yellow-400"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
             </button>
 
-            {/* Language Dropdown Menu */}
-            {showLanguageMenu && (
-              <div className={`absolute top-full right-0 mt-2 w-32 rounded-lg shadow-lg overflow-hidden z-50 ${
-                isWhiteTheme ? "bg-white border border-gray-200" : "bg-gray-800 border border-white/20"
-              }`}>
-                <button
-                  onClick={() => handleLanguageSwitch('en')}
-                  className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${
-                    language === 'en'
-                      ? isWhiteTheme
-                        ? "bg-gray-100 text-gray-900 font-semibold"
-                        : "bg-white/10 text-white font-semibold"
-                      : isWhiteTheme
-                      ? "text-gray-700 hover:bg-gray-50"
-                      : "text-gray-300 hover:bg-white/5"
-                  }`}
-                >
-                  English
-                </button>
-                <button
-                  onClick={() => handleLanguageSwitch('ar')}
-                  className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${
-                    language === 'ar'
-                      ? isWhiteTheme
-                        ? "bg-gray-100 text-gray-900 font-semibold"
-                        : "bg-white/10 text-white font-semibold"
-                      : isWhiteTheme
-                      ? "text-gray-700 hover:bg-gray-50"
-                      : "text-gray-300 hover:bg-white/5"
-                  }`}
-                >
-                  العربية
-                </button>
+            {/* Login Button */}
+            <Button
+              onClick={() => (window.location.href = "/OnboardingPage1")}
+              className="w-auto sm:w-[110px] md:w-[120px] h-[36px] sm:h-[44px] md:h-[48px] gap-2 px-3 sm:px-6 md:px-7 py-1.5 bg-[#ef6b23] rounded-[10px] md:rounded-[12px] overflow-hidden hover:bg-[#ef6b23]/90"
+            >
+              <div className="relative w-fit text-white text-xs sm:text-base md:text-lg font-semibold [font-family:'Manrope',Helvetica] text-center whitespace-nowrap">
+                Login
               </div>
-            )}
+            </Button>
           </div>
+        </header>
 
-          {/* Theme Toggle Button */}
-          <button
-            onClick={() => setIsWhiteTheme(!isWhiteTheme)}
-            className={`w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
-              isWhiteTheme
-                ? "bg-gray-800 hover:bg-gray-700"
-                : "bg-white/10 hover:bg-white/20 border border-white/30"
-            }`}
-            aria-label="Toggle theme"
-          >
-            {isWhiteTheme ? (
-              <svg
-                className="w-5 h-5 md:w-6 md:h-6 text-yellow-300"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-              </svg>
-            ) : (
-              <svg
-                className="w-5 h-5 md:w-6 md:h-6 text-yellow-400"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            )}
-          </button>
+        {/* Building Image - Compact */}
+        <div className="w-full flex justify-center px-4 mt-2 md:mt-4">
+          <img
+            className="w-full max-w-[280px] sm:max-w-[400px] md:max-w-[550px] lg:max-w-[650px] h-auto object-contain"
+            alt="Glass boss"
+            src="/glass-boss-111-2.png"
+          />
+        </div>
 
-          {/* Login Button */}
-          <Button
-            onClick={() => (window.location.href = "/OnboardingPage1")}
-            className="w-auto sm:w-[110px] md:w-[120px] h-[36px] sm:h-[44px] md:h-[48px] gap-2 px-3 sm:px-6 md:px-7 py-1.5 bg-[#ef6b23] rounded-[10px] md:rounded-[12px] overflow-hidden hover:bg-[#ef6b23]/90"
+        {/* Tokenization Section */}
+        <div className="w-full flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0 px-4 mt-6 md:mt-10">
+          <img
+            className="w-full max-w-[280px] sm:max-w-[380px] md:max-w-[500px] lg:max-w-[650px] h-auto object-contain"
+            alt="Many building"
+            src="/many-building-landscape-png-1.png"
+          />
+
+          <div className="w-full max-w-[500px] lg:max-w-[600px] md:ml-[-30px] text-center md:text-left">
+            <h2 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold leading-tight transition-colors duration-500 ${
+              isWhiteTheme ? "text-black" : "text-white"
+            }`}>
+              <span className="block text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl uppercase">
+                LET'S{" "}
+                <span className="text-[#ef6b23]">CO</span>
+                <span className={isWhiteTheme ? "text-black" : "text-white"}>BUILD</span>
+              </span>
+              <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
+                THE WORLD
+              </span>
+            </h2>
+          </div>
+        </div>
+
+        {/* Expression of Interest Section */}
+        <div className="w-full flex flex-col items-center justify-center gap-5 md:gap-6 px-4 mt-12 md:mt-16 pb-12 md:pb-16">
+          <h3 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-base sm:text-lg md:text-xl lg:text-[22px] text-center leading-tight transition-colors duration-500 ${
+            isWhiteTheme ? 'text-black' : 'text-white'
+          }`}>
+            Submit an Expression of Interest to be considered for early access
+          </h3>
+
+          <Button 
+            onClick={() => setShowModal(true)}
+            className="w-auto px-6 sm:px-8 md:px-10 py-3 md:py-3.5 h-auto bg-[#ef6b23] rounded-[12px] md:rounded-[15px] overflow-hidden hover:bg-[#ef6b23]/90 shadow-lg transition-all hover:scale-105 cursor-pointer"
           >
-            <div className="relative w-fit text-white text-xs sm:text-base md:text-lg font-semibold [font-family:'Manrope',Helvetica] text-center whitespace-nowrap">
-              Login
+            <div className="relative w-fit [font-family:'Satoshi-Bold',Helvetica] font-bold text-white text-base md:text-lg text-center whitespace-nowrap">
+              Submit Expression of Interest
             </div>
           </Button>
         </div>
-      </header>
 
-      {/* Building Image - Compact */}
-      <div className="w-full flex justify-center px-4 mt-2 md:mt-4">
-        <img
-          className="w-full max-w-[280px] sm:max-w-[400px] md:max-w-[550px] lg:max-w-[650px] h-auto object-contain"
-          alt="Glass boss"
-          src="/glass-boss-111-2.png"
-        />
-      </div>
+        {/* Modal Popup */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <div className="bg-white rounded-2xl w-full max-w-[600px] max-h-[90vh] overflow-y-auto relative">
+              <button
+                onClick={() => setShowModal(false)}
+                disabled={isSubmitting}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                ×
+              </button>
 
-      {/* Tokenization Section */}
-      <div className="w-full flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0 px-4 mt-6 md:mt-10">
-        <img
-          className="w-full max-w-[280px] sm:max-w-[380px] md:max-w-[500px] lg:max-w-[650px] h-auto object-contain"
-          alt="Many building"
-          src="/many-building-landscape-png-1.png"
-        />
+              <form onSubmit={handleSubmit} className="p-6 md:p-8">
+                <h2 className="[font-family:'Satoshi-Bold',Helvetica] font-bold text-black text-2xl md:text-3xl mb-6 text-center">
+                  Expression of Interest
+                </h2>
 
-        <div className="w-full max-w-[500px] lg:max-w-[600px] md:ml-[-30px] text-center md:text-left">
-          <h2 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold leading-tight transition-colors duration-500 ${
-            isWhiteTheme ? "text-black" : "text-white"
-          }`}>
-            <span className="block text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl uppercase">
-              LET'S{" "}
-              <span className="text-[#ef6b23]">CO</span>
-              <span className={isWhiteTheme ? "text-black" : "text-white"}>BUILD</span>
-            </span>
-            <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
-              THE WORLD
-            </span>
-          </h2>
-        </div>
-      </div>
+                {/* Full Name */}
+                <div className="mb-4">
+                  <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    disabled={isSubmitting}
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                    className="w-full h-[48px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    placeholder="Enter your full name"
+                  />
+                </div>
 
-      {/* Expression of Interest Section */}
-      <div className="w-full flex flex-col items-center justify-center gap-5 md:gap-6 px-4 mt-12 md:mt-16 pb-12 md:pb-16">
-        <h3 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-base sm:text-lg md:text-xl lg:text-[22px] text-center leading-tight transition-colors duration-500 ${
-          isWhiteTheme ? 'text-black' : 'text-white'
-        }`}>
-          Submit an Expression of Interest to be considered for early access
-        </h3>
+                {/* Email Address */}
+                <div className="mb-4">
+                  <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    disabled={isSubmitting}
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="w-full h-[48px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    placeholder="Enter your email"
+                  />
+                </div>
 
-        <Button 
-          onClick={() => setShowModal(true)}
-          className="w-auto px-6 sm:px-8 md:px-10 py-3 md:py-3.5 h-auto bg-[#ef6b23] rounded-[12px] md:rounded-[15px] overflow-hidden hover:bg-[#ef6b23]/90 shadow-lg transition-all hover:scale-105"
-        >
-          <div className="relative w-fit [font-family:'Satoshi-Bold',Helvetica] font-bold text-white text-base md:text-lg text-center whitespace-nowrap">
-            Submit Expression of Interest
-          </div>
-        </Button>
-      </div>
+                {/* Phone Number */}
+                <div className="mb-4">
+                  <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    disabled={isSubmitting}
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    className="w-full h-[48px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    placeholder="Enter your phone number"
+                  />
+                </div>
 
-      {/* Modal Popup */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl w-full max-w-[600px] max-h-[90vh] overflow-y-auto relative">
-            <button
-              onClick={() => setShowModal(false)}
-              disabled={isSubmitting}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ×
-            </button>
+                {/* Investor Type with 3 options */}
+                <div className="mb-6">
+                  <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-3">
+                    Investor Type <span className="text-red-500">*</span>
+                  </label>
+                  <div className="space-y-3">
+                    {[
+                      { label: 'Solo Investor', value: 'SOLO_INVESTOR' },
+                      { label: 'Investment Entity', value: 'INVESTMENT_ENTITY' },
+                      { label: 'Organization', value: 'ORGANIZATION' }
+                    ].map((type) => (
+                      <label key={type.value} className="flex items-center cursor-pointer">
+                        <input
+                          type="radio"
+                          name="investorType"
+                          value={type.value}
+                          disabled={isSubmitting}
+                          checked={formData.investorType === type.value}
+                          onChange={(e) => setFormData({
+                            ...formData, 
+                            investorType: e.target.value
+                          })}
+                          className="w-5 h-5 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                          required
+                        />
+                        <span className="ml-3 [font-family:'Satoshi-Regular',Helvetica] text-black text-base">
+                          {type.label}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
 
-            <form onSubmit={handleSubmit} className="p-6 md:p-8">
-              <h2 className="[font-family:'Satoshi-Bold',Helvetica] font-bold text-black text-2xl md:text-3xl mb-6 text-center">
-                Expression of Interest
-              </h2>
-
-              {/* Full Name */}
-              <div className="mb-4">
-                <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
-                  Full Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  disabled={isSubmitting}
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                  className="w-full h-[48px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  placeholder="Enter your full name"
-                />
-              </div>
-
-              {/* Email Address */}
-              <div className="mb-4">
-                <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
-                  Email Address <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="email"
-                  required
-                  disabled={isSubmitting}
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full h-[48px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  placeholder="Enter your email"
-                />
-              </div>
-
-              {/* Phone Number */}
-              <div className="mb-4">
-                <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
-                  Phone Number <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="tel"
-                  required
-                  disabled={isSubmitting}
-                  value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  className="w-full h-[48px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  placeholder="Enter your phone number"
-                />
-              </div>
-
-              {/* ✅ UPDATED: Investor Type with 3 options */}
-              <div className="mb-6">
-                <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-3">
-                  Investor Type <span className="text-red-500">*</span>
-                </label>
-                <div className="space-y-3">
-                  {[
-                    { label: 'Solo Investor', value: 'SOLO_INVESTOR' },
-                    { label: 'Investment Entity', value: 'INVESTMENT_ENTITY' },
-                    { label: 'Organization', value: 'ORGANIZATION' }
-                  ].map((type) => (
-                    <label key={type.value} className="flex items-center cursor-pointer">
+                {/* Founding Circle Question */}
+                <div className="mb-6">
+                  <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-3">
+                    Are you interested in being considered for CoBuild's Founding Circle of Investors? <span className="text-red-500">*</span>
+                  </label>
+                  <div className="space-y-3">
+                    <label className="flex items-center cursor-pointer">
                       <input
                         type="radio"
-                        name="investorType"
-                        value={type.value}
+                        name="foundingCircle"
+                        value="yes"
                         disabled={isSubmitting}
-                        checked={formData.investorType === type.value}
+                        checked={formData.interestedInCircle === 'yes'}
                         onChange={(e) => setFormData({
                           ...formData, 
-                          investorType: e.target.value
+                          interestedInCircle: e.target.value
                         })}
                         className="w-5 h-5 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                         required
                       />
                       <span className="ml-3 [font-family:'Satoshi-Regular',Helvetica] text-black text-base">
-                        {type.label}
+                        Yes, I would like to be considered
                       </span>
                     </label>
-                  ))}
+                    <label className="flex items-center cursor-pointer">
+                      <input
+                        type="radio"
+                        name="foundingCircle"
+                        value="no"
+                        disabled={isSubmitting}
+                        checked={formData.interestedInCircle === 'no'}
+                        onChange={(e) => setFormData({
+                          ...formData, 
+                          interestedInCircle: e.target.value,
+                          message: ''
+                        })}
+                        className="w-5 h-5 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                        required
+                      />
+                      <span className="ml-3 [font-family:'Satoshi-Regular',Helvetica] text-black text-base">
+                        No, thank you
+                      </span>
+                    </label>
+                  </div>
                 </div>
-              </div>
 
-              {/* Founding Circle Question */}
-              <div className="mb-6">
-                <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-3">
-                  Are you interested in being considered for CoBuild's Founding Circle of Investors? <span className="text-red-500">*</span>
-                </label>
-                <div className="space-y-3">
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="foundingCircle"
-                      value="yes"
-                      disabled={isSubmitting}
-                      checked={formData.interestedInCircle === 'yes'}
-                      onChange={(e) => setFormData({
-                        ...formData, 
-                        interestedInCircle: e.target.value
-                      })}
-                      className="w-5 h-5 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                {/* Message Box - Only shows when "Yes" is selected */}
+                {formData.interestedInCircle === 'yes' && (
+                  <div className="mb-6">
+                    <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
+                      Please tell us why you're interested <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
                       required
+                      value={formData.message}
+                      disabled={isSubmitting}
+                      onChange={(e) => setFormData({...formData, message: e.target.value})}
+                      className="w-full h-[120px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      placeholder="Share your interest and relevant experience..."
                     />
-                    <span className="ml-3 [font-family:'Satoshi-Regular',Helvetica] text-black text-base">
-                      Yes, I would like to be considered
+                  </div>
+                )}
+
+                {/* ✅ Consent Checkbox */}
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <label className="flex items-start cursor-pointer">
+                    <input
+                      type="checkbox"
+                      required
+                      disabled={isSubmitting}
+                      checked={formData.consentGiven}
+                      onChange={(e) => setFormData({...formData, consentGiven: e.target.checked})}
+                      className="w-5 h-5 mt-0.5 rounded border-gray-300 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                    <span className="ml-3 [font-family:'Satoshi-Regular',Helvetica] text-black text-sm leading-relaxed">
+                      I consent to the collection and processing of my personal data for the purpose of evaluating my interest as an investor. <span className="text-red-500">*</span>
                     </span>
                   </label>
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="foundingCircle"
-                      value="no"
-                      disabled={isSubmitting}
-                      checked={formData.interestedInCircle === 'no'}
-                      onChange={(e) => setFormData({
-                        ...formData, 
-                        interestedInCircle: e.target.value,
-                        message: ''
-                      })}
-                      className="w-5 h-5 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-                      required
-                    />
-                    <span className="ml-3 [font-family:'Satoshi-Regular',Helvetica] text-black text-base">
-                      No, thank you
-                    </span>
-                  </label>
                 </div>
-              </div>
 
-              {/* Message Box - Only shows when "Yes" is selected */}
-              {formData.interestedInCircle === 'yes' && (
-                <div className="mb-6">
-                  <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
-                    Please tell us why you're interested <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    required
-                    value={formData.message}
+                {/* ✅ Submit Buttons with cursor-pointer and disabled state */}
+                <div className="flex gap-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
                     disabled={isSubmitting}
-                    onChange={(e) => setFormData({...formData, message: e.target.value})}
-                    className="w-full h-[120px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    placeholder="Share your interest and relevant experience..."
-                  />
+                    className="flex-1 h-[50px] bg-gray-200 text-black hover:bg-gray-300 rounded-lg [font-family:'Satoshi-Bold',Helvetica] font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || !formData.consentGiven}
+                    className="flex-1 h-[50px] bg-[#ef6b23] text-white hover:bg-[#ef6b23]/90 rounded-lg [font-family:'Satoshi-Bold',Helvetica] font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Submitting...
+                      </>
+                    ) : (
+                      'Submit'
+                    )}
+                  </button>
                 </div>
-              )}
-
-              {/* Consent Checkbox */}
-              <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <label className="flex items-start cursor-pointer">
-                  <input
-                    type="checkbox"
-                    required
-                    disabled={isSubmitting}
-                    checked={formData.consentGiven}
-                    onChange={(e) => setFormData({...formData, consentGiven: e.target.checked})}
-                    className="w-5 h-5 mt-0.5 rounded border-gray-300 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                  <span className="ml-3 [font-family:'Satoshi-Regular',Helvetica] text-black text-sm leading-relaxed">
-                    I consent to the collection and processing of my personal data for the purpose of evaluating my interest as an investor. <span className="text-red-500">*</span>
-                  </span>
-                </label>
-              </div>
-
-              {/* Submit Buttons */}
-              <div className="flex gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  disabled={isSubmitting}
-                  className="flex-1 h-[50px] bg-gray-200 text-black hover:bg-gray-300 rounded-lg [font-family:'Satoshi-Bold',Helvetica] font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 h-[50px] bg-[#ef6b23] text-white hover:bg-[#ef6b23]/90 rounded-lg [font-family:'Satoshi-Bold',Helvetica] font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Submitting...
-                    </>
-                  ) : (
-                    'Submit'
-                  )}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 };
 
