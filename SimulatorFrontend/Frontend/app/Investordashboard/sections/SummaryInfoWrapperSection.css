@@ -1488,12 +1488,12 @@ body {
 /* 1200px - 1299px */
 @media (min-width: 1200px) and (max-width: 1299px) {
   .wrapper-section {
-    width: calc(100% - 0px) !important;  /* Changed from calc(100% + 16px) */
-    margin-left: 2px !important;  /* Changed from -16px */
-    margin-right: 0px !important;  /* Added */
+    width: calc(100% + 20px) !important;  /* Add 20px to full width */
+    margin-left: -10px !important;  /* Center it by offsetting half */
+    margin-right: -10px !important;
     gap: 13.2px !important;
-    padding-left: 0 !important;  /* Added */
-  }
+    padding-left: 0 !important;
+}
 
   .wrapper-header {
     padding: 13.2px 18px 7.5px 18px !important;  /* Changed left padding from 47px to 18px */
@@ -1699,7 +1699,7 @@ body {
     width: calc(100% - 10px) !important;
     margin-left: 5px !important;
     margin-right: 5px !important;
-    gap: 12px !important;
+    gap: 12px !important; 
     padding: 0 0 20px 0 !important;
   }
 

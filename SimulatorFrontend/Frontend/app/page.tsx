@@ -143,7 +143,6 @@ export const Design = (): React.JSX.Element => {
   const [showModal, setShowModal] = React.useState(false);
   const [isWhiteTheme, setIsWhiteTheme] = React.useState(false);
   const [language, setLanguage] = React.useState<'en' | 'ar'>('en');
-  const [showLanguageMenu, setShowLanguageMenu] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [alert, setAlert] = React.useState<{show: boolean; type: 'success' | 'error'; message: string; description?: string}>({
     show: false,
@@ -164,12 +163,10 @@ export const Design = (): React.JSX.Element => {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const handleLanguageSwitch = (lang: 'en' | 'ar') => {
-    setShowLanguageMenu(false);
+    setLanguage(lang);
     
     if (lang === 'ar') {
       window.location.href = "/LandingArabic";
-    } else {
-      setLanguage(lang);
     }
     
     console.log('Switching to:', lang === 'en' ? 'English' : 'Arabic');
@@ -409,9 +406,9 @@ export const Design = (): React.JSX.Element => {
           isWhiteTheme ? "bg-white" : "bg-black"
         }`}
       >
-        {/* Header */}
-        <header className="flex w-full max-w-[1363px] mx-auto items-center justify-between px-4 sm:px-4 md:px-6 lg:px-6 xl:px-2 2xl:px-1 py-4 md:py-6 relative z-10">
-          <div className="flex flex-col w-[120px] sm:w-[160px] md:w-[220px] items-start">
+        {/* Header - Reduced padding */}
+        <header className="flex w-full max-w-[1363px] mx-auto items-center justify-between px-4 sm:px-4 md:px-6 lg:px-6 xl:px-2 2xl:px-1 py-2 md:py-3 lg:py-4 relative z-10">
+          <div className="flex flex-col w-[120px] sm:w-[140px] md:w-[180px] lg:w-[200px] items-start">
             <img
               className="relative w-full h-auto object-contain transition-all duration-500"
               alt="Co build logo"
@@ -421,80 +418,50 @@ export const Design = (): React.JSX.Element => {
 
           {/* Right side buttons */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Global Language Toggle Button with Dropdown */}
-            <div className="relative">
+            {/* Language Toggle Switch */}
+            <div className={`relative flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-300 ${
+              isWhiteTheme 
+                ? "bg-gray-800" 
+                : "bg-white/10 border border-white/30"
+            }`}>
               <button
-                onClick={() => setShowLanguageMenu(!showLanguageMenu)}
-                className={`w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
-                  isWhiteTheme
-                    ? "bg-gray-800 hover:bg-gray-700"
-                    : "bg-white/10 hover:bg-white/20 border border-white/30"
+                onClick={() => handleLanguageSwitch('en')}
+                className={`relative z-10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 ${
+                  language === 'en'
+                    ? 'text-white'
+                    : isWhiteTheme
+                    ? 'text-gray-400 hover:text-gray-200'
+                    : 'text-gray-400 hover:text-gray-200'
                 }`}
-                aria-label="Switch language"
               >
-                <svg
-                  className={`w-5 h-5 md:w-6 md:h-6 ${
-                    isWhiteTheme ? "text-white" : "text-white"
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-                  />
-                </svg>
-                <span className={`absolute bottom-0 right-0 text-[8px] sm:text-[9px] font-bold px-1 rounded ${
-                  isWhiteTheme ? "bg-white text-gray-800" : "bg-white/90 text-gray-800"
-                }`}>
-                  {language.toUpperCase()}
-                </span>
+                EN
               </button>
-
-              {/* Language Dropdown Menu */}
-              {showLanguageMenu && (
-                <div className={`absolute top-full right-0 mt-2 w-32 rounded-lg shadow-lg overflow-hidden z-50 ${
-                  isWhiteTheme ? "bg-white border border-gray-200" : "bg-gray-800 border border-white/20"
-                }`}>
-                  <button
-                    onClick={() => handleLanguageSwitch('en')}
-                    className={`w-full px-4 py-2.5 text-left text-sm transition-colors cursor-pointer ${
-                      language === 'en'
-                        ? isWhiteTheme
-                          ? "bg-gray-100 text-gray-900 font-semibold"
-                          : "bg-white/10 text-white font-semibold"
-                        : isWhiteTheme
-                        ? "text-gray-700 hover:bg-gray-50"
-                        : "text-gray-300 hover:bg-white/5"
-                    }`}
-                  >
-                    English
-                  </button>
-                  <button
-                    onClick={() => handleLanguageSwitch('ar')}
-                    className={`w-full px-4 py-2.5 text-left text-sm transition-colors cursor-pointer ${
-                      language === 'ar'
-                        ? isWhiteTheme
-                          ? "bg-gray-100 text-gray-900 font-semibold"
-                          : "bg-white/10 text-white font-semibold"
-                        : isWhiteTheme
-                        ? "text-gray-700 hover:bg-gray-50"
-                        : "text-gray-300 hover:bg-white/5"
-                    }`}
-                  >
-                    العربية
-                  </button>
-                </div>
-              )}
+              <button
+                onClick={() => handleLanguageSwitch('ar')}
+                className={`relative z-10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 ${
+                  language === 'ar'
+                    ? 'text-white'
+                    : isWhiteTheme
+                    ? 'text-gray-400 hover:text-gray-200'
+                    : 'text-gray-400 hover:text-gray-200'
+                }`}
+              >
+                AR
+              </button>
+              {/* Active indicator */}
+              <div
+                className={`absolute top-1 bottom-1 bg-gradient-to-r from-[#EF6B23] to-[#E4782C] rounded-full transition-all duration-300 ${
+                  language === 'en' 
+                    ? 'left-1 w-[calc(50%-4px)]' 
+                    : 'right-1 w-[calc(50%-4px)]'
+                }`}
+              />
             </div>
 
             {/* Theme Toggle Button */}
             <button
               onClick={() => setIsWhiteTheme(!isWhiteTheme)}
-              className={`w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+              className={`w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
                 isWhiteTheme
                   ? "bg-gray-800 hover:bg-gray-700"
                   : "bg-white/10 hover:bg-white/20 border border-white/30"
@@ -503,7 +470,7 @@ export const Design = (): React.JSX.Element => {
             >
               {isWhiteTheme ? (
                 <svg
-                  className="w-5 h-5 md:w-6 md:h-6 text-yellow-300"
+                  className="w-5 h-5 md:w-5 md:h-5 text-yellow-300"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -511,7 +478,7 @@ export const Design = (): React.JSX.Element => {
                 </svg>
               ) : (
                 <svg
-                  className="w-5 h-5 md:w-6 md:h-6 text-yellow-400"
+                  className="w-5 h-5 md:w-5 md:h-5 text-yellow-400"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -527,51 +494,51 @@ export const Design = (): React.JSX.Element => {
             {/* Login Button */}
             <Button
               onClick={() => (window.location.href = "/OnboardingPage1")}
-              className="w-auto sm:w-[110px] md:w-[120px] h-[36px] sm:h-[44px] md:h-[48px] gap-2 px-3 sm:px-6 md:px-7 py-1.5 bg-[#ef6b23] rounded-[10px] md:rounded-[12px] overflow-hidden hover:bg-[#ef6b23]/90"
+              className="w-auto sm:w-[100px] md:w-[110px] h-[32px] sm:h-[40px] md:h-[44px] gap-2 px-3 sm:px-5 md:px-6 py-1.5 bg-[#ef6b23] rounded-[10px] md:rounded-[12px] overflow-hidden hover:bg-[#ef6b23]/90"
             >
-              <div className="relative w-fit text-white text-xs sm:text-base md:text-lg font-semibold [font-family:'Manrope',Helvetica] text-center whitespace-nowrap">
+              <div className="relative w-fit text-white text-xs sm:text-sm md:text-base font-semibold [font-family:'Manrope',Helvetica] text-center whitespace-nowrap">
                 Login
               </div>
             </Button>
           </div>
         </header>
 
-        {/* Building Image - Compact */}
-        <div className="w-full flex justify-center px-4 mt-2 md:mt-4">
+        {/* Building Image - More Compact for desktop */}
+        <div className="w-full flex justify-center px-4 mt-1 md:mt-2">
           <img
-            className="w-full max-w-[280px] sm:max-w-[400px] md:max-w-[550px] lg:max-w-[650px] h-auto object-contain"
+            className="w-full max-w-[280px] sm:max-w-[350px] md:max-w-[420px] lg:max-w-[480px] xl:max-w-[500px] h-auto object-contain"
             alt="Glass boss"
             src="/glass-boss-111-2.png"
           />
         </div>
 
-        {/* Tokenization Section */}
-        <div className="w-full flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0 px-4 mt-6 md:mt-10">
+        {/* Tokenization Section - Reduced gap */}
+        <div className="w-full flex flex-col md:flex-row items-center justify-center gap-3 md:gap-0 px-4 mt-3 md:mt-4 lg:mt-6">
           <img
-            className="w-full max-w-[280px] sm:max-w-[380px] md:max-w-[500px] lg:max-w-[650px] h-auto object-contain"
+            className="w-full max-w-[280px] sm:max-w-[350px] md:max-w-[420px] lg:max-w-[500px] xl:max-w-[550px] h-auto object-contain"
             alt="Many building"
             src="/many-building-landscape-png-1.png"
           />
 
-          <div className="w-full max-w-[500px] lg:max-w-[600px] md:ml-[-30px] text-center md:text-left">
+          <div className="w-full max-w-[500px] lg:max-w-[550px] md:ml-[-30px] lg:ml-[-20px] text-center md:text-left">
             <h2 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold leading-tight transition-colors duration-500 ${
               isWhiteTheme ? "text-black" : "text-white"
             }`}>
-              <span className="block text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl uppercase">
+              <span className="block text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl uppercase">
                 LET'S{" "}
                 <span className="text-[#ef6b23]">CO</span>
                 <span className={isWhiteTheme ? "text-black" : "text-white"}>BUILD</span>
               </span>
-              <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
+              <span className="block text-2xl sm:text-3xl md:text-3xl lg:text-4xl xl:text-5xl">
                 THE WORLD
               </span>
             </h2>
           </div>
         </div>
 
-        {/* Expression of Interest Section */}
-        <div className="w-full flex flex-col items-center justify-center gap-5 md:gap-6 px-4 mt-12 md:mt-16 pb-12 md:pb-16">
-          <h3 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-base sm:text-lg md:text-xl lg:text-[22px] text-center leading-tight transition-colors duration-500 ${
+        {/* Expression of Interest Section - Reduced spacing */}
+        <div className="w-full flex flex-col items-center justify-center gap-4 md:gap-5 px-4 mt-8 md:mt-10 lg:mt-12 pb-8 md:pb-10 lg:pb-12">
+          <h3 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-sm sm:text-base md:text-lg lg:text-xl text-center leading-tight transition-colors duration-500 max-w-[90%] md:max-w-[80%] lg:max-w-[70%] ${
             isWhiteTheme ? 'text-black' : 'text-white'
           }`}>
             Submit an Expression of Interest to be considered for early access
@@ -579,9 +546,9 @@ export const Design = (): React.JSX.Element => {
 
           <Button 
             onClick={() => setShowModal(true)}
-            className="w-auto px-6 sm:px-8 md:px-10 py-3 md:py-3.5 h-auto bg-[#ef6b23] rounded-[12px] md:rounded-[15px] overflow-hidden hover:bg-[#ef6b23]/90 shadow-lg transition-all hover:scale-105 cursor-pointer"
+            className="w-auto px-5 sm:px-7 md:px-8 py-2.5 md:py-3 h-auto bg-[#ef6b23] rounded-[12px] md:rounded-[14px] overflow-hidden hover:bg-[#ef6b23]/90 shadow-lg transition-all hover:scale-105 cursor-pointer"
           >
-            <div className="relative w-fit [font-family:'Satoshi-Bold',Helvetica] font-bold text-white text-base md:text-lg text-center whitespace-nowrap">
+            <div className="relative w-fit [font-family:'Satoshi-Bold',Helvetica] font-bold text-white text-sm md:text-base lg:text-lg text-center whitespace-nowrap">
               Submit Expression of Interest
             </div>
           </Button>
