@@ -162,11 +162,12 @@ export const Design = (): React.JSX.Element => {
   // Get API URL from environment variable
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+  // Direct language switch handler - no dropdown
   const handleLanguageSwitch = (lang: 'en' | 'ar') => {
-    setLanguage(lang);
-    
     if (lang === 'ar') {
       window.location.href = "/LandingArabic";
+    } else {
+      setLanguage(lang);
     }
     
     console.log('Switching to:', lang === 'en' ? 'English' : 'Arabic');
@@ -389,6 +390,25 @@ export const Design = (): React.JSX.Element => {
         .animate-slideUp {
           animation: slideUp 0.3s ease-out;
         }
+
+        /* ✅ Mobile Scroll Snap Styles */
+        @media (max-width: 768px) {
+          .mobile-snap-container {
+            height: 100vh;
+            height: 100dvh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+          }
+          
+          .mobile-snap-section {
+            min-height: 100vh;
+            min-height: 100dvh;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+          }
+        }
       `}</style>
 
       {/* Custom Alert */}
@@ -401,158 +421,165 @@ export const Design = (): React.JSX.Element => {
         />
       )}
 
+      {/* ✅ MAIN CONTAINER WITH SCROLL SNAP */}
       <div
-        className={`overflow-x-hidden w-full min-h-screen transition-colors duration-500 ${
+        className={`mobile-snap-container transition-colors duration-500 ${
           isWhiteTheme ? "bg-white" : "bg-black"
-        }`}
+        } md:overflow-x-hidden md:w-full md:min-h-screen`}
       >
-        {/* Header - Reduced padding */}
-        <header className="flex w-full max-w-[1363px] mx-auto items-center justify-between px-4 sm:px-4 md:px-6 lg:px-6 xl:px-2 2xl:px-1 py-2 md:py-3 lg:py-4 relative z-10">
-          <div className="flex flex-col w-[120px] sm:w-[140px] md:w-[180px] lg:w-[200px] items-start">
+        {/* ✅ SECTION 1: Header + Building ONLY (Mobile Full Screen) */}
+        <section className="mobile-snap-section md:min-h-0 md:h-auto flex flex-col">
+          {/* Header */}
+         <header className="flex w-full max-w-[1363px] mx-auto items-center justify-between px-4 sm:px-4 md:px-6 lg:px-6 xl:px-2 2xl:max-w-full 2xl:px-16 py-2 md:py-3 lg:py-4 relative z-10">
+  <div className="flex flex-col w-[120px] sm:w-[140px] md:w-[180px] lg:w-[200px] items-start">
+    <img
+      className="relative w-full h-auto object-contain transition-all duration-500"
+      alt="Co build logo"
+      src={isWhiteTheme ? "/Co-build-logo-02-1.png" : "/co-build-logo-01-1.png"}
+    />
+  </div>
+
+            {/* Right side buttons */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Direct Language Toggle Button */}
+             {/* Direct Language Toggle Button - AR/EN only visible on HOVER */}
+<button
+  onClick={() => handleLanguageSwitch(language === 'en' ? 'ar' : 'en')}
+  className={`relative w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 cursor-pointer group ${
+    isWhiteTheme
+      ? "bg-gray-800 hover:bg-gray-700"
+      : "bg-white/10 hover:bg-white/20 border border-white/30"
+  }`}
+  aria-label="Switch language"
+  title={language === 'en' ? 'Switch to Arabic' : 'Switch to English'}
+>
+  <svg
+    className={`w-5 h-5 md:w-5 md:h-5 ${
+      isWhiteTheme ? "text-white" : "text-white"
+    }`}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+    />
+  </svg>
+  {/* AR/EN badge - Only visible on HOVER */}
+  <span className={`absolute -bottom-1 -right-1 text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+    isWhiteTheme ? "bg-white text-gray-800" : "bg-white/90 text-gray-800"
+  }`}>
+    {language === 'en' ? 'AR' : 'EN'}
+  </span>
+</button>
+
+
+              {/* Theme Toggle Button */}
+              <button
+                onClick={() => setIsWhiteTheme(!isWhiteTheme)}
+                className={`w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 cursor-pointer ${
+                  isWhiteTheme
+                    ? "bg-gray-800 hover:bg-gray-700"
+                    : "bg-white/10 hover:bg-white/20 border border-white/30"
+                }`}
+                aria-label="Toggle theme"
+              >
+                {isWhiteTheme ? (
+                  <svg
+                    className="w-5 h-5 md:w-5 md:h-5 text-yellow-300"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-5 h-5 md:w-5 md:h-5 text-yellow-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
+              </button>
+
+              {/* Login Button */}
+              <Button
+                onClick={() => (window.location.href = "/OnboardingPage1")}
+                className="w-auto sm:w-[100px] md:w-[110px] h-[32px] sm:h-[40px] md:h-[44px] gap-2 px-3 sm:px-5 md:px-6 py-1.5 bg-[#ef6b23] rounded-[10px] md:rounded-[12px] overflow-hidden hover:bg-[#ef6b23]/90 cursor-pointer"
+              >
+                <div className="relative w-fit text-white text-xs sm:text-sm md:text-base font-semibold [font-family:'Manrope',Helvetica] text-center whitespace-nowrap">
+                  Login
+                </div>
+              </Button>
+            </div>
+          </header>
+
+          {/* ✅ Building Image 1 - MUCH LARGER on mobile only */}
+          <div className="flex-1 flex items-center justify-center px-4 min-h-[60vh] sm:min-h-[65vh] md:min-h-0"> 
             <img
-              className="relative w-full h-auto object-contain transition-all duration-500"
-              alt="Co build logo"
-              src={isWhiteTheme ? "/Co-build-logo-02-1.png" : "/co-build-logo-01-1.png"}
+              className="w-full h-full max-w-[440px] sm:max-w-[500px] md:max-w-[420px] lg:max-w-[480px] xl:max-w-[500px] object-cover md:h-auto md:object-contain"
+              alt="Glass boss"
+              src="/glass-boss-111-2.png"
             />
           </div>
+        </section>
 
-          {/* Right side buttons */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Language Toggle Switch */}
-            <div className={`relative flex items-center gap-1 px-1 py-1 rounded-full transition-all duration-300 ${
-              isWhiteTheme 
-                ? "bg-gray-800" 
-                : "bg-white/10 border border-white/30"
-            }`}>
-              <button
-                onClick={() => handleLanguageSwitch('en')}
-                className={`relative z-10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 ${
-                  language === 'en'
-                    ? 'text-white'
-                    : isWhiteTheme
-                    ? 'text-gray-400 hover:text-gray-200'
-                    : 'text-gray-400 hover:text-gray-200'
-                }`}
-              >
-                EN
-              </button>
-              <button
-                onClick={() => handleLanguageSwitch('ar')}
-                className={`relative z-10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 ${
-                  language === 'ar'
-                    ? 'text-white'
-                    : isWhiteTheme
-                    ? 'text-gray-400 hover:text-gray-200'
-                    : 'text-gray-400 hover:text-gray-200'
-                }`}
-              >
-                AR
-              </button>
-              {/* Active indicator */}
-              <div
-                className={`absolute top-1 bottom-1 bg-gradient-to-r from-[#EF6B23] to-[#E4782C] rounded-full transition-all duration-300 ${
-                  language === 'en' 
-                    ? 'left-1 w-[calc(50%-4px)]' 
-                    : 'right-1 w-[calc(50%-4px)]'
-                }`}
-              />
-            </div>
+        {/* ✅ SECTION 2: Content at BOTTOM (Mobile) */}
+       {/* ✅ SECTION 2: Content at BOTTOM (Mobile) */}
+<section className="mobile-snap-section md:min-h-0 md:h-auto flex flex-col justify-end md:justify-start pb-safe">
+  {/* ✅ Tokenization Section - Consistent layout on all screen sizes */}
+  <div className="w-full max-w-[1400px] mx-auto flex flex-col md:flex-row items-center justify-center gap-3 md:gap-0 px-4 mt-3 md:mt-4 lg:mt-6">
+    <img
+      className="w-full max-w-[350px] sm:max-w-[420px] md:max-w-[420px] lg:max-w-[500px] xl:max-w-[550px] 2xl:max-w-[600px] h-auto object-contain"
+      alt="Many building"
+      src="/many-building-landscape-png-1.png"
+    />
 
-            {/* Theme Toggle Button */}
-            <button
-              onClick={() => setIsWhiteTheme(!isWhiteTheme)}
-              className={`w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
-                isWhiteTheme
-                  ? "bg-gray-800 hover:bg-gray-700"
-                  : "bg-white/10 hover:bg-white/20 border border-white/30"
-              }`}
-              aria-label="Toggle theme"
-            >
-              {isWhiteTheme ? (
-                <svg
-                  className="w-5 h-5 md:w-5 md:h-5 text-yellow-300"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                </svg>
-              ) : (
-                <svg
-                  className="w-5 h-5 md:w-5 md:h-5 text-yellow-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              )}
-            </button>
+    {/* Text - Consistent spacing across all desktop sizes */}
+    <div className="w-full max-w-[500px] lg:max-w-[550px] xl:max-w-[600px] 2xl:max-w-[650px] text-center md:text-left md:ml-4 lg:ml-6 xl:ml-8 2xl:ml-10">
+      <h2 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold leading-tight transition-colors duration-500 ${
+        isWhiteTheme ? "text-black" : "text-white"
+      }`}>
+        <span className="block text-base sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl uppercase">
+          LET'S{" "}
+          <span className={isWhiteTheme ? "text-black" : "text-white"}>C</span>
+          <span className="text-[#ef6b23] lowercase">o</span>
+          <span className={isWhiteTheme ? "text-black" : "text-white"}>BUILD</span>
+        </span>
+        <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl">
+          THE WORLD
+        </span>
+      </h2>
+    </div>
+  </div>
 
-            {/* Login Button */}
-            <Button
-              onClick={() => (window.location.href = "/OnboardingPage1")}
-              className="w-auto sm:w-[100px] md:w-[110px] h-[32px] sm:h-[40px] md:h-[44px] gap-2 px-3 sm:px-5 md:px-6 py-1.5 bg-[#ef6b23] rounded-[10px] md:rounded-[12px] overflow-hidden hover:bg-[#ef6b23]/90"
-            >
-              <div className="relative w-fit text-white text-xs sm:text-sm md:text-base font-semibold [font-family:'Manrope',Helvetica] text-center whitespace-nowrap">
-                Login
-              </div>
-            </Button>
-          </div>
-        </header>
+  {/* Expression of Interest Section */}
+  <div className="w-full flex flex-col items-center justify-center gap-4 md:gap-5 px-4 mt-8 md:mt-10 lg:mt-12 pb-8 md:pb-10 lg:pb-12">
+    <h3 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-sm sm:text-base md:text-lg lg:text-xl text-center leading-tight transition-colors duration-500 max-w-[90%] md:max-w-[80%] lg:max-w-[70%] ${
+      isWhiteTheme ? 'text-black' : 'text-white'
+    }`}>
+      Submit an Expression of Interest to be considered for early access
+    </h3>
 
-        {/* Building Image - More Compact for desktop */}
-        <div className="w-full flex justify-center px-4 mt-1 md:mt-2">
-          <img
-            className="w-full max-w-[280px] sm:max-w-[350px] md:max-w-[420px] lg:max-w-[480px] xl:max-w-[500px] h-auto object-contain"
-            alt="Glass boss"
-            src="/glass-boss-111-2.png"
-          />
-        </div>
+    <Button 
+      onClick={() => setShowModal(true)}
+      className="w-auto px-5 sm:px-7 md:px-8 py-2.5 md:py-3 h-auto bg-[#ef6b23] rounded-[12px] md:rounded-[14px] overflow-hidden hover:bg-[#ef6b23]/90 shadow-lg transition-all hover:scale-105 cursor-pointer"
+    >
+      <div className="relative w-fit [font-family:'Satoshi-Bold',Helvetica] font-bold text-white text-sm md:text-base lg:text-lg text-center whitespace-nowrap">
+        Submit Expression of Interest
+      </div>
+    </Button>
+  </div>
+</section>
 
-        {/* Tokenization Section - Reduced gap */}
-        <div className="w-full flex flex-col md:flex-row items-center justify-center gap-3 md:gap-0 px-4 mt-3 md:mt-4 lg:mt-6">
-          <img
-            className="w-full max-w-[280px] sm:max-w-[350px] md:max-w-[420px] lg:max-w-[500px] xl:max-w-[550px] h-auto object-contain"
-            alt="Many building"
-            src="/many-building-landscape-png-1.png"
-          />
-
-          <div className="w-full max-w-[500px] lg:max-w-[550px] md:ml-[-30px] lg:ml-[-20px] text-center md:text-left">
-            <h2 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold leading-tight transition-colors duration-500 ${
-              isWhiteTheme ? "text-black" : "text-white"
-            }`}>
-              <span className="block text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl uppercase">
-                LET'S{" "}
-                <span className="text-[#ef6b23]">CO</span>
-                <span className={isWhiteTheme ? "text-black" : "text-white"}>BUILD</span>
-              </span>
-              <span className="block text-2xl sm:text-3xl md:text-3xl lg:text-4xl xl:text-5xl">
-                THE WORLD
-              </span>
-            </h2>
-          </div>
-        </div>
-
-        {/* Expression of Interest Section - Reduced spacing */}
-        <div className="w-full flex flex-col items-center justify-center gap-4 md:gap-5 px-4 mt-8 md:mt-10 lg:mt-12 pb-8 md:pb-10 lg:pb-12">
-          <h3 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-sm sm:text-base md:text-lg lg:text-xl text-center leading-tight transition-colors duration-500 max-w-[90%] md:max-w-[80%] lg:max-w-[70%] ${
-            isWhiteTheme ? 'text-black' : 'text-white'
-          }`}>
-            Submit an Expression of Interest to be considered for early access
-          </h3>
-
-          <Button 
-            onClick={() => setShowModal(true)}
-            className="w-auto px-5 sm:px-7 md:px-8 py-2.5 md:py-3 h-auto bg-[#ef6b23] rounded-[12px] md:rounded-[14px] overflow-hidden hover:bg-[#ef6b23]/90 shadow-lg transition-all hover:scale-105 cursor-pointer"
-          >
-            <div className="relative w-fit [font-family:'Satoshi-Bold',Helvetica] font-bold text-white text-sm md:text-base lg:text-lg text-center whitespace-nowrap">
-              Submit Expression of Interest
-            </div>
-          </Button>
-        </div>
 
         {/* Modal Popup */}
         {showModal && (
@@ -732,7 +759,7 @@ export const Design = (): React.JSX.Element => {
                   </label>
                 </div>
 
-                {/* ✅ Submit Buttons with cursor-pointer and disabled state */}
+                {/* ✅ Submit Buttons */}
                 <div className="flex gap-3 mt-6">
                   <button
                     type="button"
