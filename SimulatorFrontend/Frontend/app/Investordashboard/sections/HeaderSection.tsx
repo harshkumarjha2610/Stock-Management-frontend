@@ -1,6 +1,7 @@
 'use client';
 import { BellIcon, SettingsIcon, UserIcon, Menu, X } from "lucide-react";
 import React, { JSX, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "../../components/button";
 
 const navigationItems = [
@@ -11,6 +12,15 @@ const navigationItems = [
 
 export const HeaderSection = (): JSX.Element => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const router = useRouter();
+
+  const handleUserProfileClick = () => {
+    router.push('/profile');
+  };
+
+  const handleSettingsClick = () => {
+    router.push('/profile/edit');
+  };
 
   return (
     <>
@@ -81,6 +91,7 @@ export const HeaderSection = (): JSX.Element => {
               variant="ghost"
               size="icon"
               className="w-[40px] h-[40px] sm:w-[45px] sm:h-[45px] lg:w-[50px] lg:h-[50px] rounded-full hover:bg-[#4a4a4a]"
+              onClick={handleUserProfileClick}
             >
               <UserIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </Button>
@@ -88,6 +99,7 @@ export const HeaderSection = (): JSX.Element => {
               variant="ghost"
               size="icon"
               className="w-[40px] h-[40px] sm:w-[45px] sm:h-[45px] lg:w-[50px] lg:h-[50px] rounded-full hover:bg-[#4a4a4a]"
+              onClick={handleSettingsClick}
             >
               <SettingsIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </Button>
@@ -140,6 +152,7 @@ export const HeaderSection = (): JSX.Element => {
                 variant="ghost"
                 size="icon"
                 className="w-[45px] h-[45px] rounded-full hover:bg-[#4a4a4a]"
+                onClick={handleUserProfileClick}
               >
                 <UserIcon className="w-5 h-5 text-white" />
               </Button>
@@ -147,6 +160,7 @@ export const HeaderSection = (): JSX.Element => {
                 variant="ghost"
                 size="icon"
                 className="w-[45px] h-[45px] rounded-full hover:bg-[#4a4a4a]"
+                onClick={handleSettingsClick}
               >
                 <SettingsIcon className="w-5 h-5 text-white" />
               </Button>
