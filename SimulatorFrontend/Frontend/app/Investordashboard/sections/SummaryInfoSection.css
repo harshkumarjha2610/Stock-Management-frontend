@@ -1571,7 +1571,7 @@ body {
 /* 1200px - 1299px: ~65% scaling */
 @media screen and (min-width: 1200px) and (max-width: 1299px) {
   .summary-section {
-    width: calc(100vw - 630px) !important;  /* Proportionally adjusted from 680px */
+    width: calc(100vw - 650px) !important;  /* Proportionally adjusted from 680px */
     max-width: none !important;
     margin-left: -5px !important;
     margin-right: 0 !important;

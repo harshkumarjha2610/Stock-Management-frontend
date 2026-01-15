@@ -26,7 +26,7 @@ export default function EditProfilePage() {
   const [profileImage, setProfileImage] = useState('/harshimage.jpg');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
@@ -86,8 +86,8 @@ export default function EditProfilePage() {
       // Simulate API call with FormData
       const submitData = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
-        if (key === 'avatar' && value instanceof File) {
-          submitData.append('avatar', value);
+        if (key === 'avatar' && (value as any) instanceof File) {
+          submitData.append('avatar', value as unknown as File);
         } else if (key === 'isPoliticallyExposedPerson') {
           submitData.append(key, (value as boolean) ? 'true' : 'false');
         } else {
