@@ -1,11 +1,12 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://your-api-base-url.com';
 
-export default function ResetPasswordPage() {
+// Separate component for the form that uses useSearchParams
+function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
@@ -142,6 +143,134 @@ export default function ResetPasswordPage() {
   };
 
   return (
+    <div className="w-full max-w-[340px] sm:max-w-md">
+      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 text-center">
+        Reset Password
+      </h2>
+      <p className="text-xs sm:text-sm text-gray-600 mb-6 sm:mb-8 text-center">
+        Enter the OTP sent to your email and create a new password.
+      </p>
+
+      {successMessage && (
+        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+          <p className="text-green-700 text-sm text-center">{successMessage}</p>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit}>
+        <div className="space-y-4 sm:space-y-5">
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-2">
+              Email<span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter Your Email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border ${
+                errors.email ? 'border-red-500' : 'border-gray-300'
+              } rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 placeholder:text-gray-400 bg-white text-sm sm:text-base`}
+            />
+            {errors.email && (
+              <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.email}</p>
+            )}
+          </div>
+
+          {/* OTP */}
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-2">
+              OTP<span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="otp"
+              name="otp"
+              placeholder="Enter OTP"
+              value={formData.otp}
+              onChange={handleInputChange}
+              className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border ${
+                errors.otp ? 'border-red-500' : 'border-gray-300'
+              } rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 placeholder:text-gray-400 bg-white text-sm sm:text-base`}
+            />
+            {errors.otp && (
+              <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.otp}</p>
+            )}
+          </div>
+
+          {/* New Password */}
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-2">
+              New Password<span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              id="newPassword"
+              name="newPassword"
+              placeholder="Enter New Password"
+              value={formData.newPassword}
+              onChange={handleInputChange}
+              className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border ${
+                errors.newPassword ? 'border-red-500' : 'border-gray-300'
+              } rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 placeholder:text-gray-400 bg-white text-sm sm:text-base`}
+            />
+            {errors.newPassword && (
+              <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.newPassword}</p>
+            )}
+          </div>
+
+          {/* Confirm Password */}
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-2">
+              Confirm Password<span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              placeholder="Confirm New Password"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border ${
+                errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+              } rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 placeholder:text-gray-400 bg-white text-sm sm:text-base`}
+            />
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.confirmPassword}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full mt-8 sm:mt-10 px-4 sm:px-6 py-2.5 sm:py-3 bg-[#ef6b23] text-white rounded-lg font-semibold hover:bg-[#d85a1a] transition-colors shadow-sm text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoading ? 'Resetting...' : 'Reset Password'}
+        </button>
+
+        {/* Back to Login */}
+        <div className="text-center mt-6 sm:mt-8">
+          <button
+            type="button"
+            onClick={() => router.push('/LoginPage')}
+            className="text-xs sm:text-sm text-[#ef6b23] font-semibold hover:underline"
+          >
+            ← Back to Login
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function ResetPasswordPage() {
+  return (
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
@@ -162,130 +291,24 @@ export default function ResetPasswordPage() {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main Content wrapped in Suspense */}
       <div className="px-4 sm:px-6 py-6 sm:py-8 flex items-center justify-center">
-        <div className="w-full max-w-[340px] sm:max-w-md">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 text-center">
-            Reset Password
-          </h2>
-          <p className="text-xs sm:text-sm text-gray-600 mb-6 sm:mb-8 text-center">
-            Enter the OTP sent to your email and create a new password.
-          </p>
-
-          {successMessage && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-green-700 text-sm text-center">{successMessage}</p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-4 sm:space-y-5">
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Email<span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  placeholder="Enter Your Email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border ${
-                    errors.email ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 placeholder:text-gray-400 bg-white text-sm sm:text-base`}
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.email}</p>
-                )}
-              </div>
-
-              {/* OTP */}
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  OTP<span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="otp"
-                  name="otp"
-                  placeholder="Enter OTP"
-                  value={formData.otp}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border ${
-                    errors.otp ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 placeholder:text-gray-400 bg-white text-sm sm:text-base`}
-                />
-                {errors.otp && (
-                  <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.otp}</p>
-                )}
-              </div>
-
-              {/* New Password */}
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  New Password<span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="password"
-                  id="newPassword"
-                  name="newPassword"
-                  placeholder="Enter New Password"
-                  value={formData.newPassword}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border ${
-                    errors.newPassword ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 placeholder:text-gray-400 bg-white text-sm sm:text-base`}
-                />
-                {errors.newPassword && (
-                  <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.newPassword}</p>
-                )}
-              </div>
-
-              {/* Confirm Password */}
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Confirm Password<span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  placeholder="Confirm New Password"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border ${
-                    errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 placeholder:text-gray-400 bg-white text-sm sm:text-base`}
-                />
-                {errors.confirmPassword && (
-                  <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.confirmPassword}</p>
-                )}
+        <Suspense fallback={
+          <div className="w-full max-w-[340px] sm:max-w-md">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded mb-8"></div>
+              <div className="space-y-4">
+                <div className="h-12 bg-gray-200 rounded"></div>
+                <div className="h-12 bg-gray-200 rounded"></div>
+                <div className="h-12 bg-gray-200 rounded"></div>
+                <div className="h-12 bg-gray-200 rounded"></div>
               </div>
             </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full mt-8 sm:mt-10 px-4 sm:px-6 py-2.5 sm:py-3 bg-[#ef6b23] text-white rounded-lg font-semibold hover:bg-[#d85a1a] transition-colors shadow-sm text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Resetting...' : 'Reset Password'}
-            </button>
-
-            {/* Back to Login */}
-            <div className="text-center mt-6 sm:mt-8">
-              <button
-                type="button"
-                onClick={() => router.push('/LoginPage')}
-                className="text-xs sm:text-sm text-[#ef6b23] font-semibold hover:underline"
-              >
-                ← Back to Login
-              </button>
-            </div>
-          </form>
-        </div>
+          </div>
+        }>
+          <ResetPasswordForm />
+        </Suspense>
       </div>
     </div>
   );
