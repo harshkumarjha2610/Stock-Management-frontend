@@ -1488,8 +1488,8 @@ body {
 /* 1200px - 1299px */
 @media (min-width: 1200px) and (max-width: 1299px) {
   .wrapper-section {
-    width: calc(100% + 20px) !important;  /* Add 20px to full width */
-    margin-left: -10px !important;  /* Center it by offsetting half */
+    width: calc(100% + 5px) !important;  /* Add 20px to full width */
+    margin-left: -2.5px !important;  /* Center it by offsetting half */
     margin-right: -10px !important;
     gap: 13.2px !important;
     padding-left: 0 !important;

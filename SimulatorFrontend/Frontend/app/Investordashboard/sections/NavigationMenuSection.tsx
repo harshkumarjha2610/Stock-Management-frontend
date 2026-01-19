@@ -51,15 +51,15 @@ export const NavigationMenuSection = (): JSX.Element => {
         </div>
       </div>
 
-      {/* Navigation Buttons */}
+      {/* Navigation Buttons - Always horizontal with reduced width */}
       <nav
         className="
           flex
+          flex-row
           w-full sm:w-auto
           justify-center sm:justify-end
           gap-2 sm:gap-2 md:gap-2.5
           items-center
-          flex-col sm:flex-row
           px-4 sm:px-0
           mt-6 sm:-mt-12 md:-mt-16 lg:-mt-20
           sm:ml-auto
@@ -74,16 +74,16 @@ export const NavigationMenuSection = (): JSX.Element => {
             }}
             className="
               relative 
-              gap-2 sm:gap-3 
-              px-5 sm:px-7 md:px-8 lg:px-9
+              gap-1.5 sm:gap-2.5 
+              px-3 sm:px-5 md:px-6 lg:px-7
               py-3.5 sm:py-4.5 md:py-5 lg:py-5.5
               bg-[#f46e24cc]
               hover:bg-[#f46e24e6]
               active:bg-[#f46e24]
               rounded-lg sm:rounded-xl
               flex items-center justify-center
-              w-full sm:w-auto
-              sm:min-w-[220px] sm:max-w-[300px] md:max-w-[340px]
+              flex-1 sm:flex-initial
+              sm:min-w-[180px] sm:max-w-[240px] md:max-w-[280px]
               border-none
               shadow-none
               transition-colors duration-300
@@ -92,11 +92,11 @@ export const NavigationMenuSection = (): JSX.Element => {
             "
           >
             <img
-              className="relative flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8"
+              className="relative flex-shrink-0 w-4 h-4 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8"
               alt={item.label}
               src={item.icon}
             />
-            <span className="relative [font-family:'Dubai-Medium',Helvetica] font-medium text-white text-sm sm:text-base md:text-lg tracking-[0] leading-[normal] whitespace-nowrap">
+            <span className="relative [font-family:'Dubai-Medium',Helvetica] font-medium text-white text-xs sm:text-base md:text-lg tracking-[0] leading-[normal] whitespace-nowrap">
               {item.label}
             </span>
           </Button>

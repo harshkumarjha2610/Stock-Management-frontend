@@ -144,6 +144,8 @@ export const Design = (): React.JSX.Element => {
   const [isWhiteTheme, setIsWhiteTheme] = React.useState(false);
   const [language, setLanguage] = React.useState<'en' | 'ar'>('en');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isVideoPlaying, setIsVideoPlaying] = React.useState(false);
+  const [ripples, setRipples] = React.useState<Array<{x: number; y: number; id: number}>>([]);
   const [alert, setAlert] = React.useState<{show: boolean; type: 'success' | 'error'; message: string; description?: string}>({
     show: false,
     type: 'success',
@@ -159,10 +161,46 @@ export const Design = (): React.JSX.Element => {
     consentGiven: false,
   });
 
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+
   // Get API URL from environment variable
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  // Direct language switch handler - no dropdown
+  // Handle image click with ripple effect
+  const handleImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    console.log("🎬 Image clicked - Starting video...");
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const id = Date.now();
+    
+    setRipples(prev => [...prev, { x, y, id }]);
+    
+    // Remove ripple after animation
+    setTimeout(() => {
+      setRipples(prev => prev.filter(ripple => ripple.id !== id));
+    }, 600);
+    
+    // Show video and start playing
+    setIsVideoPlaying(true);
+    
+    // Play video
+    setTimeout(() => {
+      if (videoRef.current) {
+        console.log("▶️ Playing video...");
+        videoRef.current.play()
+          .then(() => {
+            console.log("✅ Video playing successfully");
+          })
+          .catch(err => {
+            console.error('❌ Video play failed:', err);
+          });
+      }
+    }, 50);
+  };
+
+  // Direct language switch handler
   const handleLanguageSwitch = (lang: 'en' | 'ar') => {
     if (lang === 'ar') {
       window.location.href = "/LandingArabic";
@@ -173,7 +211,7 @@ export const Design = (): React.JSX.Element => {
     console.log('Switching to:', lang === 'en' ? 'English' : 'Arabic');
   };
 
-  // ✅ UPDATED SUBMIT HANDLER WITH BETTER ALERTS
+  // ✅ SUBMIT HANDLER
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -384,11 +422,65 @@ export const Design = (): React.JSX.Element => {
             transform: translateY(0);
           }
         }
+        @keyframes ripple {
+          0% {
+            transform: scale(0);
+            opacity: 0.6;
+          }
+          100% {
+            transform: scale(4);
+            opacity: 0;
+          }
+        }
+        
+        /* ✅ Expanding circular tap ripples - ONLY CIRCLES */
+        @keyframes tapRippleExpand {
+          0% {
+            transform: translate(-50%, -50%) scale(0.4);
+            opacity: 1;
+          }
+          70% {
+            opacity: 0.3;
+          }
+          100% {
+            transform: translate(-50%, -50%) scale(1.8);
+            opacity: 0;
+          }
+        }
+        
         .animate-fadeIn {
           animation: fadeIn 0.2s ease-out;
         }
         .animate-slideUp {
           animation: slideUp 0.3s ease-out;
+        }
+        .ripple {
+          position: absolute;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.6);
+          width: 100px;
+          height: 100px;
+          margin-left: -50px;
+          margin-top: -50px;
+          animation: ripple 0.6s ease-out;
+          pointer-events: none;
+        }
+        
+        /* ✅ Tap ripple circles - staggered timing */
+        .tap-ripple {
+          animation: tapRippleExpand 2s ease-out infinite;
+        }
+        
+        .tap-ripple:nth-child(1) {
+          animation-delay: 0s;
+        }
+        
+        .tap-ripple:nth-child(2) {
+          animation-delay: 0.6s;
+        }
+        
+        .tap-ripple:nth-child(3) {
+          animation-delay: 1.2s;
         }
 
         /* ✅ Mobile Scroll Snap Styles */
@@ -430,52 +522,49 @@ export const Design = (): React.JSX.Element => {
         {/* ✅ SECTION 1: Header + Building ONLY (Mobile Full Screen) */}
         <section className="mobile-snap-section md:min-h-0 md:h-auto flex flex-col">
           {/* Header */}
-         <header className="flex w-full max-w-[1363px] mx-auto items-center justify-between px-4 sm:px-4 md:px-6 lg:px-6 xl:px-2 2xl:max-w-full 2xl:px-16 py-2 md:py-3 lg:py-4 relative z-10">
-  <div className="flex flex-col w-[120px] sm:w-[140px] md:w-[180px] lg:w-[200px] items-start">
-    <img
-      className="relative w-full h-auto object-contain transition-all duration-500"
-      alt="Co build logo"
-      src={isWhiteTheme ? "/Co-build-logo-02-1.png" : "/co-build-logo-01-1.png"}
-    />
-  </div>
+          <header className="flex w-full max-w-[1363px] mx-auto items-center justify-between px-4 sm:px-4 md:px-6 lg:px-6 xl:px-2 2xl:max-w-full 2xl:px-16 py-2 md:py-3 lg:py-4 relative z-10">
+            <div className="flex flex-col w-[120px] sm:w-[140px] md:w-[180px] lg:w-[200px] items-start">
+              <img
+                className="relative w-full h-auto object-contain transition-all duration-500"
+                alt="Co build logo"
+                src={isWhiteTheme ? "/Co-build-logo-02-1.png" : "/co-build-logo-01-1.png"}
+              />
+            </div>
 
             {/* Right side buttons */}
             <div className="flex items-center gap-2 sm:gap-3">
               {/* Direct Language Toggle Button */}
-             {/* Direct Language Toggle Button - AR/EN only visible on HOVER */}
-<button
-  onClick={() => handleLanguageSwitch(language === 'en' ? 'ar' : 'en')}
-  className={`relative w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 cursor-pointer group ${
-    isWhiteTheme
-      ? "bg-gray-800 hover:bg-gray-700"
-      : "bg-white/10 hover:bg-white/20 border border-white/30"
-  }`}
-  aria-label="Switch language"
-  title={language === 'en' ? 'Switch to Arabic' : 'Switch to English'}
->
-  <svg
-    className={`w-5 h-5 md:w-5 md:h-5 ${
-      isWhiteTheme ? "text-white" : "text-white"
-    }`}
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-    />
-  </svg>
-  {/* AR/EN badge - Only visible on HOVER */}
-  <span className={`absolute -bottom-1 -right-1 text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
-    isWhiteTheme ? "bg-white text-gray-800" : "bg-white/90 text-gray-800"
-  }`}>
-    {language === 'en' ? 'AR' : 'EN'}
-  </span>
-</button>
-
+              <button
+                onClick={() => handleLanguageSwitch(language === 'en' ? 'ar' : 'en')}
+                className={`relative w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 cursor-pointer group ${
+                  isWhiteTheme
+                    ? "bg-gray-800 hover:bg-gray-700"
+                    : "bg-white/10 hover:bg-white/20 border border-white/30"
+                }`}
+                aria-label="Switch language"
+                title={language === 'en' ? 'Switch to Arabic' : 'Switch to English'}
+              >
+                <svg
+                  className={`w-5 h-5 md:w-5 md:h-5 ${
+                    isWhiteTheme ? "text-white" : "text-white"
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+                  />
+                </svg>
+                <span className={`absolute -bottom-1 -right-1 text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                  isWhiteTheme ? "bg-white text-gray-800" : "bg-white/90 text-gray-800"
+                }`}>
+                  {language === 'en' ? 'AR' : 'EN'}
+                </span>
+              </button>
 
               {/* Theme Toggle Button */}
               <button
@@ -522,66 +611,130 @@ export const Design = (): React.JSX.Element => {
             </div>
           </header>
 
-          {/* ✅ Building Image 1 - MUCH LARGER on mobile only */}
-          <div className="flex-1 flex items-center justify-center px-4 min-h-[60vh] sm:min-h-[65vh] md:min-h-0"> 
-            <img
-              className="w-full h-full max-w-[440px] sm:max-w-[500px] md:max-w-[420px] lg:max-w-[480px] xl:max-w-[500px] object-cover md:h-auto md:object-contain"
-              alt="Glass boss"
-              src="/glass-boss-111-2.png"
-            />
+          {/* ✅ Building Image/Video with ONLY Expanding Circular Ripples (NO FINGER) */}
+          <div className="flex-1 flex items-center justify-center px-4 min-h-[60vh] sm:min-h-[65vh] md:min-h-0">
+            <div className="relative w-full max-w-[440px] sm:max-w-[500px] md:max-w-[420px] lg:max-w-[480px] xl:max-w-[500px]">
+              
+              {/* Image Layer - Always rendered with fade out */}
+              <div 
+                onClick={handleImageClick}
+                className={`relative w-full cursor-pointer transition-opacity duration-700 ${
+                  isVideoPlaying ? 'opacity-0' : 'opacity-100'
+                }`}
+                style={{ pointerEvents: isVideoPlaying ? 'none' : 'auto' }}
+              >
+                <img
+                  className="w-full h-auto object-contain hover:scale-105 transition-transform duration-300"
+                  alt="Glass boss"
+                  src="/glass-boss-111-2.png"
+                />
+                
+                {/* Ripple effects on click */}
+                {ripples.map(ripple => (
+                  <span
+                    key={ripple.id}
+                    className="ripple"
+                    style={{
+                      left: ripple.x,
+                      top: ripple.y,
+                    }}
+                  />
+                ))}
+                
+                {/* ✅ ONLY Expanding Circular Ripples - NO FINGER */}
+                {!isVideoPlaying && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    {/* Expanding circular ripples ONLY */}
+                    <div className="absolute">
+                      <div className="tap-ripple absolute w-16 h-16 rounded-full border-[3px] border-white -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2"></div>
+                      <div className="tap-ripple absolute w-16 h-16 rounded-full border-[3px] border-white -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2"></div>
+                      <div className="tap-ripple absolute w-16 h-16 rounded-full border-[3px] border-white -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2"></div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Video Layer - SMALLER SIZE (60% of image size) */}
+              <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ${
+                isVideoPlaying ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{ pointerEvents: isVideoPlaying ? 'auto' : 'none' }}
+              >
+                <video
+                  ref={videoRef}
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                  className="w-[60%] h-auto object-contain"
+                >
+                  <source src="/building1.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* ✅ SECTION 2: Content at BOTTOM (Mobile) */}
-       {/* ✅ SECTION 2: Content at BOTTOM (Mobile) */}
-<section className="mobile-snap-section md:min-h-0 md:h-auto flex flex-col justify-end md:justify-start pb-safe">
-  {/* ✅ Tokenization Section - Consistent layout on all screen sizes */}
-  <div className="w-full max-w-[1400px] mx-auto flex flex-col md:flex-row items-center justify-center gap-3 md:gap-0 px-4 mt-3 md:mt-4 lg:mt-6">
-    <img
-      className="w-full max-w-[350px] sm:max-w-[420px] md:max-w-[420px] lg:max-w-[500px] xl:max-w-[550px] 2xl:max-w-[600px] h-auto object-contain"
-      alt="Many building"
-      src="/many-building-landscape-png-1.png"
-    />
+        <section className="mobile-snap-section md:min-h-0 md:h-auto flex flex-col justify-end md:justify-start pb-safe">
+          {/* ✅ Tokenization Section */}
+          <div className="w-full max-w-[1400px] mx-auto flex flex-col md:flex-row items-center justify-center gap-3 md:gap-0 px-4 mt-3 md:mt-4 lg:mt-6">
+            {/* Replace img with video */}
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full max-w-[350px] sm:max-w-[420px] md:max-w-[420px] lg:max-w-[500px] xl:max-w-[550px] 2xl:max-w-[600px] h-auto object-contain"
+            >
+              <source src="/secondbuilding.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
 
-    {/* Text - Consistent spacing across all desktop sizes */}
-    <div className="w-full max-w-[500px] lg:max-w-[550px] xl:max-w-[600px] 2xl:max-w-[650px] text-center md:text-left md:ml-4 lg:ml-6 xl:ml-8 2xl:ml-10">
-      <h2 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold leading-tight transition-colors duration-500 ${
-        isWhiteTheme ? "text-black" : "text-white"
-      }`}>
-        <span className="block text-base sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl uppercase">
-          LET'S{" "}
-          <span className={isWhiteTheme ? "text-black" : "text-white"}>C</span>
-          <span className="text-[#ef6b23] lowercase">o</span>
-          <span className={isWhiteTheme ? "text-black" : "text-white"}>BUILD</span>
-        </span>
-        <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl">
-          THE WORLD
-        </span>
-      </h2>
-    </div>
-  </div>
-
-  {/* Expression of Interest Section */}
-  <div className="w-full flex flex-col items-center justify-center gap-4 md:gap-5 px-4 mt-8 md:mt-10 lg:mt-12 pb-8 md:pb-10 lg:pb-12">
-    <h3 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-sm sm:text-base md:text-lg lg:text-xl text-center leading-tight transition-colors duration-500 max-w-[90%] md:max-w-[80%] lg:max-w-[70%] ${
-      isWhiteTheme ? 'text-black' : 'text-white'
-    }`}>
-      Submit an Expression of Interest to be considered for early access
-    </h3>
-
-    <Button 
-      onClick={() => setShowModal(true)}
-      className="w-auto px-5 sm:px-7 md:px-8 py-2.5 md:py-3 h-auto bg-[#ef6b23] rounded-[12px] md:rounded-[14px] overflow-hidden hover:bg-[#ef6b23]/90 shadow-lg transition-all hover:scale-105 cursor-pointer"
-    >
-      <div className="relative w-fit [font-family:'Satoshi-Bold',Helvetica] font-bold text-white text-sm md:text-base lg:text-lg text-center whitespace-nowrap">
-        Submit Expression of Interest
-      </div>
-    </Button>
-  </div>
-</section>
+            {/* Text */}
+           {/* Text */}
+{/* Text */}
+{/* Text */}
+<div className="w-full max-w-[500px] lg:max-w-[550px] xl:max-w-[600px] 2xl:max-w-[650px] text-center md:text-left md:ml-4 lg:ml-6 xl:ml-8 2xl:ml-10">
+  <h2 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold leading-tight transition-colors duration-500 ${
+    isWhiteTheme ? "text-black" : "text-white"
+  }`}>
+    <span className="block text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl">
+      Let's{" "}
+      <span className="text-[#ef6b23]">Co</span>
+      <span className={isWhiteTheme ? "text-black" : "text-white"}>Build</span>
+    </span>
+    <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl uppercase">
+      THE WORLD
+    </span>
+  </h2>
+</div>
 
 
-        {/* Modal Popup */}
+
+          </div>
+
+          {/* Expression of Interest Section */}
+          <div className="w-full flex flex-col items-center justify-center gap-4 md:gap-5 px-4 mt-8 md:mt-10 lg:mt-12 pb-8 md:pb-10 lg:pb-12">
+            <h3 className={`[font-family:'Satoshi-Bold',Helvetica] font-bold text-sm sm:text-base md:text-lg lg:text-xl text-center leading-tight transition-colors duration-500 max-w-[90%] md:max-w-[80%] lg:max-w-[70%] ${
+              isWhiteTheme ? 'text-black' : 'text-white'
+            }`}>
+              Submit an Expression of Interest to be considered for early access
+            </h3>
+
+            <Button 
+              onClick={() => setShowModal(true)}
+              className="w-auto px-5 sm:px-7 md:px-8 py-2.5 md:py-3 h-auto bg-[#ef6b23] rounded-[12px] md:rounded-[14px] overflow-hidden hover:bg-[#ef6b23]/90 shadow-lg transition-all hover:scale-105 cursor-pointer"
+            >
+              <div className="relative w-fit [font-family:'Satoshi-Bold',Helvetica] font-bold text-white text-sm md:text-base lg:text-lg text-center whitespace-nowrap">
+                Submit Expression of Interest
+              </div>
+            </Button>
+          </div>
+        </section>
+
+        {/* Modal Popup - Form */}
         {showModal && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
             <div className="bg-white rounded-2xl w-full max-w-[600px] max-h-[90vh] overflow-y-auto relative">
