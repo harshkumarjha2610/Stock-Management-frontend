@@ -25,7 +25,7 @@ export default function UserProfilePage() {
   };
 
   const handleEdit = () => {
-    router.push('/edit-profile');
+    router.push('/Editprofile');
   };
 
   const handleLogout = () => {
