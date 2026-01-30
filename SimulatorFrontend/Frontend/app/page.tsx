@@ -668,7 +668,7 @@ export const Design = (): React.JSX.Element => {
                   preload="auto"
                   className="w-[60%] h-auto object-contain"
                 >
-                  <source src="/building1.mp4" type="video/mp4" />
+                  <source src="/building1white.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               </div>
@@ -681,16 +681,16 @@ export const Design = (): React.JSX.Element => {
           {/* ✅ Tokenization Section */}
           <div className="w-full max-w-[1400px] mx-auto flex flex-col md:flex-row items-center justify-center gap-3 md:gap-0 px-4 mt-3 md:mt-4 lg:mt-6">
             {/* Replace img with video */}
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full max-w-[350px] sm:max-w-[420px] md:max-w-[420px] lg:max-w-[500px] xl:max-w-[550px] 2xl:max-w-[600px] h-auto object-contain"
-            >
-              <source src="/secondbuilding.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
+           <video
+  autoPlay
+  loop
+  muted
+  playsInline
+  className="w-full max-w-[350px] sm:max-w-[420px] md:max-w-[420px] lg:max-w-[500px] xl:max-w-[550px] 2xl:max-w-[600px] h-auto object-cover"
+>
+  <source src="secondbuildingwhite.mp4" type="video/mp4" />
+  Your browser does not support the video tag.
+</video>
 
             {/* Text */}
            {/* Text */}
