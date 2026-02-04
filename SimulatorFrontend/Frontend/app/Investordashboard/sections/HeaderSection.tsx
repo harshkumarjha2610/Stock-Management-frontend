@@ -1,15 +1,17 @@
 'use client';
-import { BellIcon, SettingsIcon, UserIcon, Menu, X } from "lucide-react";
+import { BellIcon, SettingsIcon, UserIcon, Menu, X, Languages } from "lucide-react";
 import React, { JSX, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import { Button } from "../../components/button";
+
 
 const navigationItems = [
   { label: "Investor Dashboard", active: true },
   { label: "Wallet", active: false },
   { label: "Community", active: false },
 ];
+
 
 const dummyNotifications = [
   {
@@ -41,6 +43,94 @@ const dummyNotifications = [
     read: true,
   },
 ];
+
+
+const languages = [
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'es', name: 'Español', flag: '🇪🇸' },
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+  { code: 'fr', name: 'Français', flag: '🇫🇷' },
+  { code: 'zh', name: '中文', flag: '🇨🇳' },
+  { code: 'ja', name: '日本語', flag: '🇯🇵' },
+];
+
+
+// Language Dropdown Component
+const LanguageDropdown = ({ 
+  isOpen, 
+  position, 
+  currentLanguage,
+  onClose,
+  onLanguageChange 
+}: {
+  isOpen: boolean;
+  position: { top: number; left: number; width: number };
+  currentLanguage: string;
+  onClose: () => void;
+  onLanguageChange: (code: string) => void;
+}) => {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return createPortal(
+    <div
+      ref={dropdownRef}
+      style={{
+        position: 'fixed',
+        top: `${position.top}px`,
+        left: `${position.left}px`,
+        zIndex: 9999,
+      }}
+      className="w-[280px] bg-[#2a2a2a] rounded-lg shadow-lg border border-white/10 overflow-hidden"
+    >
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-white/10">
+        <h3 className="text-white font-semibold text-base">Select Language</h3>
+      </div>
+
+      {/* Language List */}
+      <div className="max-h-[350px] overflow-y-auto">
+        {languages.map((language) => (
+          <button
+            key={language.code}
+            onClick={() => {
+              onLanguageChange(language.code);
+              onClose();
+            }}
+            className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-[#3a3a3a] transition-colors ${
+              currentLanguage === language.code ? 'bg-[#3a3a3a]' : ''
+            }`}
+          >
+            <span className="text-2xl">{language.flag}</span>
+            <span className="text-white text-sm font-medium">{language.name}</span>
+            {currentLanguage === language.code && (
+              <span className="ml-auto text-[#ef6b23] text-xs">✓</span>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>,
+    document.body
+  );
+};
+
 
 // Notification Dropdown Component
 const NotificationDropdown = ({ 
@@ -135,11 +225,16 @@ const NotificationDropdown = ({
   );
 };
 
+
 export const HeaderSection = (): JSX.Element => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState('en');
   const [notificationPosition, setNotificationPosition] = useState({ top: 0, left: 0, width: 0 });
+  const [languagePosition, setLanguagePosition] = useState({ top: 0, left: 0, width: 0 });
   const bellButtonRef = useRef<HTMLButtonElement>(null);
+  const languageButtonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
 
   const handleUserProfileClick = () => {
@@ -155,14 +250,38 @@ export const HeaderSection = (): JSX.Element => {
       const rect = bellButtonRef.current.getBoundingClientRect();
       setNotificationPosition({
         top: rect.bottom + 8,
-        left: rect.right - 400, // Position dropdown to the right edge
+        left: rect.right - 400,
         width: rect.width,
       });
     }
     setIsNotificationOpen(!isNotificationOpen);
+    setIsLanguageOpen(false);
+  };
+
+  const handleLanguageClick = () => {
+    if (!isLanguageOpen && languageButtonRef.current) {
+      const rect = languageButtonRef.current.getBoundingClientRect();
+      setLanguagePosition({
+        top: rect.bottom + 8,
+        left: rect.right - 280,
+        width: rect.width,
+      });
+    }
+    setIsLanguageOpen(!isLanguageOpen);
+    setIsNotificationOpen(false);
+  };
+
+  const handleLanguageChange = (code: string) => {
+    setCurrentLanguage(code);
+    // Here you would typically:
+    // 1. Update app locale
+    // 2. Save to localStorage/cookies
+    // 3. Reload translations
+    console.log('Language changed to:', code);
   };
 
   const unreadCount = dummyNotifications.filter(n => !n.read).length;
+  const currentLang = languages.find(lang => lang.code === currentLanguage);
 
   return (
     <>
@@ -222,6 +341,20 @@ export const HeaderSection = (): JSX.Element => {
 
           {/* Desktop Icon Section */}
           <div className="hidden md:flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+            {/* Language Switcher Button */}
+            <Button
+              ref={languageButtonRef}
+              variant="ghost"
+              size="icon"
+              className="w-[40px] h-[40px] sm:w-[45px] sm:h-[45px] lg:w-[50px] lg:h-[50px] rounded-full hover:bg-[#4a4a4a] relative"
+              onClick={handleLanguageClick}
+            >
+              <Languages className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              <span className="absolute -bottom-1 -right-1 text-xs bg-[#ef6b23] text-white px-1.5 py-0.5 rounded-full font-semibold">
+                {currentLang?.code.toUpperCase()}
+              </span>
+            </Button>
+
             {/* Notification Button with Badge */}
             <Button
               ref={bellButtonRef}
@@ -296,6 +429,17 @@ export const HeaderSection = (): JSX.Element => {
                 variant="ghost"
                 size="icon"
                 className="w-[45px] h-[45px] rounded-full hover:bg-[#4a4a4a] relative"
+                onClick={handleLanguageClick}
+              >
+                <Languages className="w-5 h-5 text-white" />
+                <span className="absolute -bottom-1 -right-1 text-xs bg-[#ef6b23] text-white px-1.5 py-0.5 rounded-full font-semibold">
+                  {currentLang?.code.toUpperCase()}
+                </span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-[45px] h-[45px] rounded-full hover:bg-[#4a4a4a] relative"
                 onClick={handleNotificationClick}
               >
                 <BellIcon className="w-5 h-5 text-white" />
@@ -360,11 +504,46 @@ export const HeaderSection = (): JSX.Element => {
                 </div>
               </div>
             )}
+
+            {/* Mobile Language Dropdown */}
+            {isLanguageOpen && (
+              <div className="md:hidden bg-[#1a1a1a] border-t border-white/10 max-h-[350px] overflow-y-auto">
+                <div className="px-4 py-3">
+                  <h3 className="text-white font-semibold text-base mb-2">Select Language</h3>
+                </div>
+                {languages.map((language) => (
+                  <button
+                    key={language.code}
+                    onClick={() => {
+                      handleLanguageChange(language.code);
+                      setIsLanguageOpen(false);
+                    }}
+                    className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-[#3a3a3a] transition-colors ${
+                      currentLanguage === language.code ? 'bg-[#3a3a3a]' : ''
+                    }`}
+                  >
+                    <span className="text-2xl">{language.flag}</span>
+                    <span className="text-white text-sm font-medium">{language.name}</span>
+                    {currentLanguage === language.code && (
+                      <span className="ml-auto text-[#ef6b23] text-xs">✓</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </header>
 
-      {/* Portal Notification Dropdown for Desktop */}
+      {/* Portal Dropdowns for Desktop */}
+      <LanguageDropdown
+        isOpen={isLanguageOpen}
+        position={languagePosition}
+        currentLanguage={currentLanguage}
+        onClose={() => setIsLanguageOpen(false)}
+        onLanguageChange={handleLanguageChange}
+      />
+
       <NotificationDropdown
         isOpen={isNotificationOpen}
         position={notificationPosition}
