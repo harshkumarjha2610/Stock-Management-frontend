@@ -601,7 +601,7 @@ export const Design = (): React.JSX.Element => {
 
               {/* Login Button */}
               <Button
-                onClick={() => (window.location.href = "/OnboardingPage1")}
+                onClick={() => (window.location.href = "/LoginPage")}
                 className="w-auto sm:w-[100px] md:w-[110px] h-[32px] sm:h-[40px] md:h-[44px] gap-2 px-3 sm:px-5 md:px-6 py-1.5 bg-[#ef6b23] rounded-[10px] md:rounded-[12px] overflow-hidden hover:bg-[#ef6b23]/90 cursor-pointer"
               >
                 <div className="relative w-fit text-white text-xs sm:text-sm md:text-base font-semibold [font-family:'Manrope',Helvetica] text-center whitespace-nowrap">

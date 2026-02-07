@@ -106,8 +106,26 @@ export default function VerifyOtpPage() {
       );
 
       if (response.data.success) {
-        alert('Email verified successfully! You can now login.');
-        router.push('/login');
+        // Store tokens in localStorage
+        const { accessToken, refreshToken } = response.data.data;
+        
+        if (accessToken) {
+          localStorage.setItem('accessToken', accessToken);
+        }
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
+
+        // Store user email
+        if (response.data.data.user?.email) {
+          localStorage.setItem('userEmail', response.data.data.user.email);
+        }
+
+        // Show success message
+        alert('Email verified successfully! Please verify your invitation code.');
+        
+        // Redirect to verify invitation code page
+        router.push('/VerifyInvitation');
       }
     } catch (error) {
       console.error('OTP verification error:', error);
@@ -271,7 +289,7 @@ export default function VerifyOtpPage() {
           {/* Back to Login */}
           <div className="mt-8 text-center">
             <button
-              onClick={() => router.push('/login')}
+              onClick={() => router.push('/LoginPage')}
               className="text-sm text-gray-600 hover:text-[#ef6b23] transition-colors"
             >
               ← Back to Login

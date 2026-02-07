@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://your-api-base-url.com';
+const API_BASE_URL = 'https://cobuild-simulator-backend.onrender.com/api/v1';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,7 +23,6 @@ export default function LoginPage() {
       ...prev,
       [name]: value,
     }));
-    // Clear error when user starts typing
     if (errors[name as keyof typeof errors]) {
       setErrors((prev) => ({
         ...prev,
@@ -36,7 +35,6 @@ export default function LoginPage() {
     let isValid = true;
     const newErrors = { email: '', password: '' };
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
@@ -46,7 +44,6 @@ export default function LoginPage() {
       isValid = false;
     }
 
-    // Password validation
     if (!formData.password) {
       newErrors.password = 'Password is required';
       isValid = false;
@@ -57,6 +54,42 @@ export default function LoginPage() {
 
     setErrors(newErrors);
     return isValid;
+  };
+
+  // Function to check user verification status
+  const checkUserVerificationStatus = async (accessToken: string) => {
+    try {
+      // Try to verify invitation code with an empty/test code to check if already verified
+      // This will fail if not verified, succeed if already verified
+      const response = await fetch(`${API_BASE_URL}/user/auth/verify-invitation-code`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          invitationCode: 'CHECK_STATUS' // Dummy code to check status
+        }),
+      });
+
+      const data = await response.json();
+      
+      // If 400 and message contains "already verified" or similar
+      if (response.status === 400 && data.message?.toLowerCase().includes('already')) {
+        return true; // Already verified
+      }
+      
+      // If 401 or 403, token might be the issue
+      if (response.status === 401 || response.status === 403) {
+        return false; // Need to verify
+      }
+      
+      // Otherwise, assume not verified
+      return false;
+    } catch (error) {
+      console.error('Error checking verification status:', error);
+      return false; // Assume not verified on error
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -82,23 +115,80 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
+      console.log('Login response:', data);
 
       if (response.ok && data.success) {
         // Store tokens in localStorage
-        localStorage.setItem('access_token', data.data.accessToken);
-        localStorage.setItem('refresh_token', data.data.refreshToken);
+        const accessToken = data.data.accessToken;
+        const refreshToken = data.data.refreshToken;
+        
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
 
-        // Optional: Store user info if needed
-        // localStorage.setItem('user', JSON.stringify(data.data.user));
+        // Store user info
+        if (data.data.user) {
+          localStorage.setItem('userEmail', data.data.user.email);
+          localStorage.setItem('user', JSON.stringify(data.data.user));
+        }
 
-        // Redirect to dashboard
-        router.push('/dashboard');
+        const user = data.data.user;
+
+        // Check email verification first
+        if (user && user.isEmailVerified === false) {
+          console.log('Email not verified, redirecting to verify-otp');
+          router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}`);
+          return;
+        }
+
+        // Email is verified, now check invitation code status
+        console.log('Email verified, checking invitation code status...');
+        
+        // Check if user object has isInvitationCodeVerified field
+        if (user && typeof user.isInvitationCodeVerified === 'boolean') {
+          // If API provides the field
+          if (!user.isInvitationCodeVerified) {
+            console.log('Invitation code not verified (from API), redirecting...');
+            router.push('/VerifyInvitation');
+          } else {
+            console.log('User fully verified, redirecting to dashboard');
+            router.push('/investordashboard');
+          }
+        } else {
+          // If API doesn't provide the field, check manually
+          console.log('isInvitationCodeVerified field not found, checking manually...');
+          const isInvitationVerified = await checkUserVerificationStatus(accessToken);
+          
+          if (!isInvitationVerified) {
+            console.log('Invitation code not verified (manual check), redirecting...');
+            router.push('/VerifyInvitation');
+          } else {
+            console.log('User fully verified, redirecting to dashboard');
+            router.push('/investordashboard');
+          }
+        }
+
       } else {
         // Handle API error response
-        setErrors((prev) => ({
-          ...prev,
-          email: data.message || 'Invalid credentials. Please try again.',
-        }));
+        if (response.status === 403) {
+          setErrors((prev) => ({
+            ...prev,
+            email: 'Please verify your email first. Redirecting to verification...',
+          }));
+          
+          setTimeout(() => {
+            router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}`);
+          }, 2000);
+        } else if (response.status === 401) {
+          setErrors((prev) => ({
+            ...prev,
+            email: 'Invalid email or password. Please try again.',
+          }));
+        } else {
+          setErrors((prev) => ({
+            ...prev,
+            email: data.message || 'Login failed. Please try again.',
+          }));
+        }
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -216,7 +306,7 @@ export default function LoginPage() {
               Don't have an account?{' '}
               <button
                 type="button"
-                onClick={() => router.push('/signup')}
+                onClick={() => router.push('/OnboardingPage1')}
                 className="text-[#ef6b23] font-semibold hover:underline"
               >
                 Sign Up
