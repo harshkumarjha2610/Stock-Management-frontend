@@ -1,12 +1,14 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Upload, Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import axios from 'axios';
+
 
 export default function RetailInvestorPage() {
   const router = useRouter();
-
+  const [page1Data, setPage1Data] = useState<any>(null);
   const [showTIN, setShowTIN] = useState(false);
   const [isPEP, setIsPEP] = useState(false);
   const [formData, setFormData] = useState({
@@ -17,29 +19,216 @@ export default function RetailInvestorPage() {
     passport: null as File | null,
     selfie: null as File | null,
   });
+  const [errors, setErrors] = useState<any>({});
+  const [loading, setLoading] = useState(false);
+
+
+  useEffect(() => {
+    console.log('🔍 Component mounted - checking for Page 1 data');
+    
+    // Load Page 1 data from sessionStorage
+    const data = sessionStorage.getItem('onboardingPage1');
+    
+    if (!data) {
+      console.log('❌ No Page 1 data found - redirecting to OnboardingPage1');
+      router.push('/OnboardingPage1');
+      return;
+    }
+    
+    const parsedData = JSON.parse(data);
+    console.log('✅ Page 1 data loaded:', parsedData);
+    setPage1Data(parsedData);
+  }, [router]);
+
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     field: 'passport' | 'selfie'
   ) => {
     const file = e.target.files?.[0];
+    console.log(`📁 File selected for ${field}:`, file?.name, `(${(file?.size || 0) / 1024} KB)`);
+    
     if (file && file.size <= 2 * 1024 * 1024) {
+      console.log(`✅ ${field} file accepted`);
       setFormData({ ...formData, [field]: file });
+      setErrors({ ...errors, [field]: '' });
     } else {
+      console.log(`❌ ${field} file too large:`, file?.size);
       alert('Image cannot be greater than 2 MB');
     }
   };
 
-  const handleNext = () => {
-    // TODO: you can add validation here before navigating
-    router.push('/Investordashboard');
+
+  const validateForm = () => {
+    console.log('🔍 Validating form...');
+    const newErrors: any = {};
+
+    if (!formData.walletNumber.trim()) {
+      newErrors.walletNumber = 'Wallet number is required';
+    }
+    if (!formData.tinNumber.trim()) {
+      newErrors.tinNumber = 'TIN number is required';
+    }
+    if (!formData.sourceOfFund) {
+      newErrors.sourceOfFund = 'Source of fund is required';
+    }
+    if (!formData.nationalSecurityNumber.trim()) {
+      newErrors.nationalSecurityNumber = 'National Security Number is required';
+    }
+    if (!formData.passport) {
+      newErrors.passport = 'Passport upload is required';
+    }
+    if (!formData.selfie) {
+      newErrors.selfie = 'Selfie upload is required';
+    }
+
+    setErrors(newErrors);
+    
+    const isValid = Object.keys(newErrors).length === 0;
+    console.log(isValid ? '✅ Form validation passed' : '❌ Form validation failed:', newErrors);
+    
+    return isValid;
   };
 
+
+  const handleNext = async () => {
+    console.log('🚀 handleNext triggered');
+    
+    if (!validateForm() || !page1Data) {
+      console.log('❌ Validation failed or no page1Data');
+      return;
+    }
+
+    setLoading(true);
+    console.log('⏳ Loading started...');
+
+    try {
+      // Create FormData for multipart/form-data
+      const formDataToSend = new FormData();
+
+      console.log('📦 Building FormData...');
+      
+      // Add Page 1 data
+      formDataToSend.append('firstName', page1Data.firstName);
+      formDataToSend.append('lastName', page1Data.lastName);
+      formDataToSend.append('email', page1Data.email);
+      formDataToSend.append('phone', page1Data.phone);
+      formDataToSend.append('residency', page1Data.residency);
+      formDataToSend.append('nationality', page1Data.nationality);
+      formDataToSend.append('dob', page1Data.dob);
+      formDataToSend.append('password', page1Data.password);
+
+      console.log('✅ Page 1 data added to FormData');
+
+      // Add Page 2 data
+      formDataToSend.append('walletNumber', formData.walletNumber);
+      formDataToSend.append('tinNumber', formData.tinNumber);
+      formDataToSend.append('sourceOfFund', formData.sourceOfFund);
+      formDataToSend.append('isPoliticallyExposedPerson', isPEP.toString());
+
+      console.log('✅ Page 2 data added to FormData');
+
+      // Add files (API expects 'passport' and 'avatar')
+      if (formData.passport) {
+        formDataToSend.append('passport', formData.passport);
+        console.log('✅ Passport file added:', formData.passport.name);
+      }
+      if (formData.selfie) {
+        formDataToSend.append('avatar', formData.selfie);
+        console.log('✅ Avatar/Selfie file added:', formData.selfie.name);
+      }
+
+      // 🔍 DEBUG: Log environment variable and full URL
+      const baseUrl = "https://cobuild-simulator-backend.onrender.com/api/v1";
+      const fullUrl = `${baseUrl}/user/auth/register`;
+      
+      console.log('🌐 Environment Variable Check:');
+      console.log('   NEXT_PUBLIC_API_URL:', baseUrl);
+      console.log('   Full API URL:', fullUrl);
+      console.log('   Is undefined?', baseUrl === undefined);
+
+      // Log all FormData entries
+      console.log('📋 FormData contents:');
+      for (let [key, value] of formDataToSend.entries()) {
+        if (value instanceof File) {
+          console.log(`   ${key}: [File] ${value.name} (${value.size} bytes)`);
+        } else {
+          console.log(`   ${key}:`, value);
+        }
+      }
+
+      console.log('🌐 Making API request...');
+      
+      // API Call
+      const response = await axios.post(
+        fullUrl,
+        formDataToSend,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      console.log('✅ API Response received:', response.data);
+      console.log('   Status:', response.status);
+      console.log('   Success:', response.data.success);
+
+      if (response.data.success) {
+        console.log('✅ Registration successful!');
+        
+        // Clear session storage
+        sessionStorage.removeItem('onboardingPage1');
+        console.log('🗑️ Session storage cleared');
+
+        // Show success message
+        alert('Registration successful! Please check your email to verify your account.');
+
+        // Redirect to OTP verification
+        const otpUrl = `/VerifyOtp?email=${encodeURIComponent(page1Data.email)}`;
+        console.log('🔄 Redirecting to:', otpUrl);
+        router.push(otpUrl);
+      }
+    } catch (error: any) {
+      console.error('❌ Registration error:', error);
+      console.error('❌ Error name:', error.name);
+      console.error('❌ Error message:', error.message);
+      
+      if (error.response) {
+        // Server responded with error
+        console.error('❌ Response status:', error.response.status);
+        console.error('❌ Response data:', error.response.data);
+        console.error('❌ Response headers:', error.response.headers);
+      } else if (error.request) {
+        // Request made but no response
+        console.error('❌ No response received');
+        console.error('❌ Request:', error.request);
+      } else {
+        // Error in request setup
+        console.error('❌ Error setting up request:', error.message);
+      }
+      
+      console.error('❌ Request config:', error.config);
+      console.error('❌ Request URL:', error.config?.url);
+      
+      const errorMessage = error.response?.data?.message || 'Registration failed. Please try again.';
+      console.error('❌ Error message shown to user:', errorMessage);
+      alert(errorMessage);
+    } finally {
+      setLoading(false);
+      console.log('⏳ Loading stopped');
+    }
+  };
+
+
   const handleBack = () => {
+    console.log('⬅️ Back button clicked');
     router.back();
   };
 
+
   const goToStep = (step: number) => {
+    console.log('🔄 Navigation to step:', step);
     if (step === 1) {
       router.push('/OnboardingPage1');
     }
@@ -47,6 +236,14 @@ export default function RetailInvestorPage() {
       router.push('/OnboardingPage2');
     }
   };
+
+
+  if (!page1Data) {
+    console.log('⏸️ Waiting for page1Data...');
+    return null;
+  }
+
+  console.log('✅ Rendering RetailInvestorPage');
 
   return (
     <div className="min-h-screen bg-white">
@@ -128,6 +325,9 @@ export default function RetailInvestorPage() {
                   }
                   className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 placeholder:text-gray-400 bg-white text-sm sm:text-base"
                 />
+                {errors.walletNumber && (
+                  <p className="text-red-500 text-xs mt-1">{errors.walletNumber}</p>
+                )}
               </div>
 
               {/* TIN Number */}
@@ -157,6 +357,9 @@ export default function RetailInvestorPage() {
                     )}
                   </button>
                 </div>
+                {errors.tinNumber && (
+                  <p className="text-red-500 text-xs mt-1">{errors.tinNumber}</p>
+                )}
               </div>
 
               {/* Source of Fund */}
@@ -183,6 +386,9 @@ export default function RetailInvestorPage() {
                   <option value="savings">Savings</option>
                   <option value="investment">Investment Returns</option>
                 </select>
+                {errors.sourceOfFund && (
+                  <p className="text-red-500 text-xs mt-1">{errors.sourceOfFund}</p>
+                )}
               </div>
 
               {/* National Security Number */}
@@ -203,6 +409,9 @@ export default function RetailInvestorPage() {
                   }
                   className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 placeholder:text-gray-400 bg-white text-sm sm:text-base"
                 />
+                {errors.nationalSecurityNumber && (
+                  <p className="text-red-500 text-xs mt-1">{errors.nationalSecurityNumber}</p>
+                )}
               </div>
 
               {/* Add a Wallet Setup Link */}
@@ -239,7 +448,7 @@ export default function RetailInvestorPage() {
               {/* Upload Passport */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Upload Passport
+                  Upload Passport<span className="text-red-500">*</span>
                 </label>
                 <label
                   htmlFor="passport-upload"
@@ -264,12 +473,15 @@ export default function RetailInvestorPage() {
                 <p className="text-xs text-gray-500 mt-2">
                   Image cannot be greater than 2 MB
                 </p>
+                {errors.passport && (
+                  <p className="text-red-500 text-xs mt-1">{errors.passport}</p>
+                )}
               </div>
 
               {/* Upload Selfie */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Upload Your Selfie
+                  Upload Your Selfie<span className="text-red-500">*</span>
                 </label>
                 <label
                   htmlFor="selfie-upload"
@@ -294,24 +506,29 @@ export default function RetailInvestorPage() {
                 <p className="text-xs text-gray-500 mt-2">
                   Image cannot be greater than 2 MB
                 </p>
+                {errors.selfie && (
+                  <p className="text-red-500 text-xs mt-1">{errors.selfie}</p>
+                )}
               </div>
             </div>
           </div>
 
           {/* Buttons */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-6 sm:mt-8 md:mt-10">
-            <button 
+            <button
               onClick={handleBack}
-              className="px-4 sm:px-6 py-2.5 sm:py-3 border-2 border-[#ef6b23] text-[#ef6b23] rounded-lg font-semibold hover:bg-[#ef6b23] hover:text-white transition-colors text-sm sm:text-base"
+              disabled={loading}
+              className="px-4 sm:px-6 py-2.5 sm:py-3 border-2 border-[#ef6b23] text-[#ef6b23] rounded-lg font-semibold hover:bg-[#ef6b23] hover:text-white transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Back
             </button>
             <button
               type="button"
               onClick={handleNext}
-              className="px-4 sm:px-6 py-2.5 sm:py-3 bg-[#ef6b23] text-white rounded-lg font-semibold hover:bg-[#d85a1a] transition-colors shadow-sm text-sm sm:text-base"
+              disabled={loading}
+              className="px-4 sm:px-6 py-2.5 sm:py-3 bg-[#ef6b23] text-white rounded-lg font-semibold hover:bg-[#d85a1a] transition-colors shadow-sm text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Next
+              {loading ? 'Submitting...' : 'Next'}
             </button>
           </div>
         </div>

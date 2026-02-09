@@ -3,7 +3,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://your-api-base-url.com';
+const API_BASE_URL = 'https://cobuild-simulator-backend.onrender.com/api/v1';
 
 // Separate component for the form that uses useSearchParams
 function ResetPasswordForm() {
@@ -123,7 +123,7 @@ function ResetPasswordForm() {
 
         // Redirect to login after success
         setTimeout(() => {
-          router.push('/login');
+          router.push('/LoginPage');
         }, 2000);
       } else {
         setErrors((prev) => ({

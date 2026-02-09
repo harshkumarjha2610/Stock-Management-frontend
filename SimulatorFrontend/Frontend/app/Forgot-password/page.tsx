@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://your-api-base-url.com';
+const API_BASE_URL = 'https://cobuild-simulator-backend.onrender.com/api/v1';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -61,7 +61,7 @@ export default function ForgotPasswordPage() {
 
         // Optionally redirect to reset password page after a delay
         setTimeout(() => {
-          router.push(`/reset-password?email=${encodeURIComponent(email)}`);
+          router.push(`/ResetPassword?email=${encodeURIComponent(email)}`);
         }, 2000);
       } else {
         setError(data.message || 'Failed to send reset instructions. Please try again.');
@@ -147,7 +147,7 @@ export default function ForgotPasswordPage() {
             <div className="text-center mt-6 sm:mt-8">
               <button
                 type="button"
-                onClick={() => router.push('/login')}
+                onClick={() => router.push('/LoginPage')}
                 className="text-xs sm:text-sm text-[#ef6b23] font-semibold hover:underline"
               >
                 ← Back to Login

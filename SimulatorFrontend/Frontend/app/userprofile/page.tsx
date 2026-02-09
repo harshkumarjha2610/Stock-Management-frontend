@@ -107,18 +107,24 @@ export default function UserProfilePage() {
 
               {/* Action Buttons - SMALLER FONTS & VERTICAL */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                <button
-                  onClick={handleEdit}
-                  className="flex-1 sm:flex-none px-6 py-2.5 bg-[#ef6b23] text-white rounded-xl font-semibold text-base hover:bg-[#d85a1a] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                >
-                  Edit Profile
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="flex-1 sm:flex-none px-6 py-2.5 bg-gray-100 text-gray-800 border-2 border-gray-200 rounded-xl font-semibold text-base hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-all shadow-sm hover:shadow-md"
-                >
-                  Logout
-                </button>
+         <div className="flex gap-4 justify-start">
+ <div className="flex gap-3 -ml-4">
+  <button 
+    onClick={handleEdit}
+    className="pl-2 pr-2 py-2.5 bg-[#ef6b23] text-white rounded-xl font-semibold text-base hover:bg-[#d85a1a] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+  >
+    Edit Profile
+  </button>
+
+  <button
+    onClick={handleLogout}
+    className="px-4 py-2.5 bg-gray-100 text-gray-800 border-2 border-gray-200 rounded-xl font-semibold text-base hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-all shadow-sm hover:shadow-md"
+  >
+    Logout
+  </button>
+</div>
+</div>
+
               </div>
             </div>
 

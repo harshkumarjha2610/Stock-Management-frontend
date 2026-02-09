@@ -1,7 +1,7 @@
 // lib/apiClient.ts
 // Reusable API client with automatic token refresh for Cobuild API
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://your-api-base-url.com';
+const API_BASE_URL = 'https://cobuild-simulator-backend.onrender.com/api/v1';
 
 // Flag to prevent multiple simultaneous refresh attempts
 let isRefreshing = false;
