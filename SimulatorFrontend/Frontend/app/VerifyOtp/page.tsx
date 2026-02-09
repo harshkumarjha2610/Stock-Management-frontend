@@ -1,5 +1,6 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import axios from 'axios';
@@ -7,7 +8,7 @@ import axios from 'axios';
 // Define API URL at the top
 const API_URL = "https://cobuild-simulator-backend.onrender.com/api/v1";
 
-export default function VerifyOtpPage() {
+function VerifyOtpContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email');
@@ -20,7 +21,7 @@ export default function VerifyOtpPage() {
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
   
-  const inputRefs = useRef([]);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     if (!email) {
@@ -41,7 +42,7 @@ export default function VerifyOtpPage() {
     }
   }, [timer]);
 
-  const handleChange = (index, value) => {
+  const handleChange = (index: number, value: string) => {
     // Only allow numbers
     if (value && !/^\d$/.test(value)) return;
 
@@ -56,7 +57,7 @@ export default function VerifyOtpPage() {
     }
   };
 
-  const handleKeyDown = (index, e) => {
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace') {
       if (!otp[index] && index > 0) {
         // Move to previous input if current is empty
@@ -70,7 +71,7 @@ export default function VerifyOtpPage() {
     }
   };
 
-  const handlePaste = (e) => {
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData('text').trim();
     
@@ -127,9 +128,14 @@ export default function VerifyOtpPage() {
         // Redirect to verify invitation code page
         router.push('/VerifyInvitation');
       }
-    } catch (error) {
-      console.error('OTP verification error:', error);
-      const errorMessage = error.response?.data?.message || 'Invalid OTP. Please try again.';
+    } catch (err) {
+      console.error('OTP verification error:', err);
+      let errorMessage = 'Invalid OTP. Please try again.';
+      if (axios.isAxiosError(err)) {
+        errorMessage = err.response?.data?.message || errorMessage;
+      } else if (err instanceof Error) {
+        errorMessage = err.message || errorMessage;
+      }
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -137,7 +143,7 @@ export default function VerifyOtpPage() {
   };
 
   const handleResendOtp = async () => {
-    if (!canResend) return;
+    if (!canResend || !email) return;
 
     setResendLoading(true);
     setError('');
@@ -149,18 +155,25 @@ export default function VerifyOtpPage() {
         { email }
       );
 
-      if (response.data.success) {
+      if (response.data?.success) {
         setResendSuccess(true);
         setCanResend(false);
         setTimer(60);
+        // Clear OTP inputs
         setOtp(['', '', '', '', '', '']);
         inputRefs.current[0]?.focus();
-        
-        setTimeout(() => setResendSuccess(false), 3000);
+      } else {
+        const message = response.data?.message || 'Failed to resend OTP. Please try again.';
+        setError(message);
       }
-    } catch (error) {
-      console.error('Resend OTP error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to resend OTP. Please try again.';
+    } catch (err) {
+      console.error('Resend OTP error:', err);
+      let errorMessage = 'Failed to resend OTP. Please try again.';
+      if (axios.isAxiosError(err)) {
+        errorMessage = err.response?.data?.message || errorMessage;
+      } else if (err instanceof Error) {
+        errorMessage = err.message || errorMessage;
+      }
       setError(errorMessage);
     } finally {
       setResendLoading(false);
@@ -234,7 +247,7 @@ export default function VerifyOtpPage() {
               {otp.map((digit, index) => (
                 <input
                   key={index}
-                  ref={(el) => (inputRefs.current[index] = el)}
+                  ref={(el) => { inputRefs.current[index] = el; }}
                   type="text"
                   inputMode="numeric"
                   maxLength={1}
@@ -262,7 +275,17 @@ export default function VerifyOtpPage() {
             disabled={loading || otp.join('').length !== 6}
             className="w-full px-4 sm:px-6 py-3 sm:py-3.5 bg-[#ef6b23] text-white rounded-lg font-semibold hover:bg-[#d85a1a] transition-colors shadow-sm text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed mb-6"
           >
-            {loading ? 'Verifying...' : 'Verify Email'}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Verifying...
+              </span>
+            ) : (
+              'Verify Email'
+            )}
           </button>
 
           {/* Resend OTP */}
@@ -298,5 +321,20 @@ export default function VerifyOtpPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyOtpPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[#ef6b23] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 text-sm">Loading verification page...</p>
+        </div>
+      </div>
+    }>
+      <VerifyOtpContent />
+    </Suspense>
   );
 }

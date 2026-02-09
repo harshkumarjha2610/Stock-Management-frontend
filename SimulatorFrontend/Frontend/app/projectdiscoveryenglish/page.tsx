@@ -187,7 +187,6 @@ export default function ProjectDiscovery() {
     status: "Planning",
   });
 
-
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Container - Consistent padding from lg onwards */}

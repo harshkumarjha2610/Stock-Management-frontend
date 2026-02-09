@@ -164,7 +164,7 @@ export const Design = (): React.JSX.Element => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
   // Get API URL from environment variable
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const API_BASE_URL = "https://cobuild-simulator-backend.onrender.com/api/v1";
 
   // Handle image click with ripple effect
   const handleImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -454,17 +454,7 @@ export const Design = (): React.JSX.Element => {
         .animate-slideUp {
           animation: slideUp 0.3s ease-out;
         }
-        .ripple {
-          position: absolute;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.6);
-          width: 100px;
-          height: 100px;
-          margin-left: -50px;
-          margin-top: -50px;
-          animation: ripple 0.6s ease-out;
-          pointer-events: none;
-        }
+      
         
         /* ✅ Tap ripple circles - staggered timing */
         .tap-ripple {
@@ -630,7 +620,7 @@ export const Design = (): React.JSX.Element => {
                 />
                 
                 {/* Ripple effects on click */}
-                {ripples.map(ripple => (
+                {/* {ripples.map(ripple => (
                   <span
                     key={ripple.id}
                     className="ripple"
@@ -639,7 +629,7 @@ export const Design = (): React.JSX.Element => {
                       top: ripple.y,
                     }}
                   />
-                ))}
+                ))} */}
                 
                 {/* ✅ ONLY Expanding Circular Ripples - NO FINGER */}
                 {!isVideoPlaying && (
