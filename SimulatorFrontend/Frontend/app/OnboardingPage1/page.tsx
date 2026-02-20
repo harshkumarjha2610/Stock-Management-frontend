@@ -3,8 +3,24 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
+// Country codes data
+const countryCodes = [
+  { code: '+91', country: 'IN', flag: '🇮🇳', name: 'India', maxLength: 10 },
+  { code: '+1', country: 'US', flag: '🇺🇸', name: 'USA', maxLength: 10 },
+  { code: '+44', country: 'UK', flag: '🇬🇧', name: 'UK', maxLength: 10 },
+  { code: '+971', country: 'AE', flag: '🇦🇪', name: 'UAE', maxLength: 9 },
+  { code: '+61', country: 'AU', flag: '🇦🇺', name: 'Australia', maxLength: 9 },
+  { code: '+86', country: 'CN', flag: '🇨🇳', name: 'China', maxLength: 11 },
+  { code: '+81', country: 'JP', flag: '🇯🇵', name: 'Japan', maxLength: 10 },
+  { code: '+49', country: 'DE', flag: '🇩🇪', name: 'Germany', maxLength: 11 },
+  { code: '+33', country: 'FR', flag: '🇫🇷', name: 'France', maxLength: 9 },
+  { code: '+65', country: 'SG', flag: '🇸🇬', name: 'Singapore', maxLength: 8 },
+];
+
 export default function RetailInvestorStep1() {
   const router = useRouter();
+  const [countryCode, setCountryCode] = useState('+91'); // Default to India
+  
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -19,10 +35,31 @@ export default function RetailInvestorStep1() {
 
   const [errors, setErrors] = useState<any>({});
 
+  // Calculate minimum date for 18 years old
+  const getMinDate = () => {
+    const today = new Date();
+    const minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+    return minDate.toISOString().split('T')[0];
+  };
+
+  // Calculate age from date of birth
+  const calculateAge = (dob: string) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
+
   const validatePage1 = () => {
     const newErrors: any = {};
 
-    // Split full name into first and last
+    // Name validation
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
     
@@ -34,17 +71,28 @@ export default function RetailInvestorStep1() {
       newErrors.email = 'Please enter a valid email';
     }
 
-    // Phone validation (10 digits)
-    const phoneRegex = /^\d{10}$/;
+    // Phone validation with country-specific length
+    const selectedCountry = countryCodes.find(c => c.code === countryCode);
+    const expectedLength = selectedCountry?.maxLength || 10;
+    
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
-    } else if (!phoneRegex.test(formData.phone.replace(/\D/g, ''))) {
-      newErrors.phone = 'Please enter a valid 10-digit phone number';
+    } else if (formData.phone.length !== expectedLength) {
+      newErrors.phone = `Please enter a valid ${expectedLength}-digit phone number`;
     }
 
     if (!formData.residency) newErrors.residency = 'Residency is required';
     if (!formData.nationality) newErrors.nationality = 'Nationality is required';
-    if (!formData.dob) newErrors.dob = 'Date of birth is required';
+    
+    // Date of birth validation with age check
+    if (!formData.dob) {
+      newErrors.dob = 'Date of birth is required';
+    } else {
+      const age = calculateAge(formData.dob);
+      if (age < 18) {
+        newErrors.dob = 'You must be at least 18 years old to register';
+      }
+    }
     
     // Password validation
     if (!formData.password) {
@@ -63,8 +111,13 @@ export default function RetailInvestorStep1() {
 
   const handleNext = () => {
     if (validatePage1()) {
-      // Store Page 1 data in sessionStorage
-      sessionStorage.setItem('onboardingPage1', JSON.stringify(formData));
+      // Store Page 1 data with country code in sessionStorage
+      const dataToStore = {
+        ...formData,
+        countryCode,
+        fullPhoneNumber: `${countryCode}${formData.phone}`
+      };
+      sessionStorage.setItem('onboardingPage1', JSON.stringify(dataToStore));
       router.push('/OnboardingPage2');
     }
   };
@@ -156,19 +209,46 @@ export default function RetailInvestorStep1() {
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
 
-            {/* Phone Number */}
+            {/* Phone Number with Country Code */}
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-2">
                 Phone Number<span className="text-red-500">*</span>
               </label>
-              <input
-                type="tel"
-                placeholder="1234567890"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, '') })}
-                maxLength={10}
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 placeholder:text-gray-400 bg-white text-sm sm:text-base"
-              />
+              <div className="flex gap-2">
+                {/* Country Code Dropdown */}
+                <select
+                  value={countryCode}
+                  onChange={(e) => {
+                    setCountryCode(e.target.value);
+                    setFormData({ ...formData, phone: '' });
+                    setErrors({ ...errors, phone: '' });
+                  }}
+                  className="w-24 sm:w-28 px-2 sm:px-3 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 bg-white text-sm sm:text-base"
+                >
+                  {countryCodes.map((item) => (
+                    <option key={item.code} value={item.code}>
+                      {item.flag} {item.code}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Phone Number Input */}
+                <input
+                  type="tel"
+                  placeholder="1234567890"
+                  value={formData.phone}
+                  onChange={(e) => {
+                    const selectedCountry = countryCodes.find(c => c.code === countryCode);
+                    const maxLen = selectedCountry?.maxLength || 10;
+                    setFormData({ 
+                      ...formData, 
+                      phone: e.target.value.replace(/\D/g, '').slice(0, maxLen)
+                    });
+                  }}
+                  maxLength={countryCodes.find(c => c.code === countryCode)?.maxLength || 10}
+                  className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 placeholder:text-gray-400 bg-white text-sm sm:text-base"
+                />
+              </div>
               {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
             </div>
 
@@ -212,16 +292,17 @@ export default function RetailInvestorStep1() {
               {errors.nationality && <p className="text-red-500 text-xs mt-1">{errors.nationality}</p>}
             </div>
 
-            {/* Date of Birth */}
+            {/* Date of Birth with Age Validation */}
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-2">
                 Date of Birth<span className="text-red-500">*</span>
+                <span className="text-xs text-gray-500 ml-1">(Must be 18+)</span>
               </label>
               <input
                 type="date"
                 value={formData.dob}
                 onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
-                max={new Date().toISOString().split('T')[0]}
+                max={getMinDate()}
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 bg-white text-sm sm:text-base"
               />
               {errors.dob && <p className="text-red-500 text-xs mt-1">{errors.dob}</p>}
