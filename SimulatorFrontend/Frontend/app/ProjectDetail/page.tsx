@@ -8,7 +8,7 @@ import { Bell, Settings, HelpCircle, ArrowLeft, Share2 } from "lucide-react";
 import * as React from "react";
 import { twMerge } from "tailwind-merge";
 import { HeaderSection } from '@/app/Investordashboard/sections/HeaderSection';
-
+import { FooterSection } from "@/app/Investordashboard/sections/FooterSection";
 
 // Utility function
 function cn(...inputs: ClassValue[]) {
@@ -666,7 +666,9 @@ export default function DashboardProject() {
           </div>
         </div>
       </div>
-      </div>  
-    </div>
+      </div> 
+         <FooterSection />
+    </div> 
+   
   );
 }

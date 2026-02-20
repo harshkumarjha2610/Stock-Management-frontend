@@ -56,42 +56,6 @@ export default function LoginPage() {
     return isValid;
   };
 
-  // Function to check user verification status
-  const checkUserVerificationStatus = async (accessToken: string) => {
-    try {
-      // Try to verify invitation code with an empty/test code to check if already verified
-      // This will fail if not verified, succeed if already verified
-      const response = await fetch(`${API_BASE_URL}/user/auth/verify-invitation-code`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          invitationCode: 'CHECK_STATUS' // Dummy code to check status
-        }),
-      });
-
-      const data = await response.json();
-      
-      // If 400 and message contains "already verified" or similar
-      if (response.status === 400 && data.message?.toLowerCase().includes('already')) {
-        return true; // Already verified
-      }
-      
-      // If 401 or 403, token might be the issue
-      if (response.status === 401 || response.status === 403) {
-        return false; // Need to verify
-      }
-      
-      // Otherwise, assume not verified
-      return false;
-    } catch (error) {
-      console.error('Error checking verification status:', error);
-      return false; // Assume not verified on error
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -115,7 +79,7 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
-      console.log('Login response:', data);
+      console.log('📥 Login response:', data);
 
       if (response.ok && data.success) {
         // Store tokens in localStorage
@@ -133,55 +97,87 @@ export default function LoginPage() {
 
         const user = data.data.user;
 
-        // Check email verification first
-        if (user && user.isEmailVerified === false) {
-          console.log('Email not verified, redirecting to verify-otp');
-          router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}`);
+        // ✅ Log user verification status for debugging
+        console.log('🔍 User verification status:');
+        console.log('  - emailVerified:', user?.emailVerified);
+        console.log('  - isActive:', user?.isActive);
+
+        // ✅ STEP 1: Check if email is verified
+        // Your API uses "emailVerified" (not "isEmailVerified")
+        const isEmailVerified = user?.emailVerified === true;
+        
+        if (!isEmailVerified) {
+          console.log('❌ Email not verified, redirecting to OTP verification');
+          setErrors((prev) => ({
+            ...prev,
+            email: 'Please verify your email first. Redirecting...',
+          }));
+          setTimeout(() => {
+            router.push(`/VerifyOtp?email=${encodeURIComponent(formData.email)}`);
+          }, 1500);
           return;
         }
 
-        // Email is verified, now check invitation code status
-        console.log('Email verified, checking invitation code status...');
-        
-        // Check if user object has isInvitationCodeVerified field
-        if (user && typeof user.isInvitationCodeVerified === 'boolean') {
-          // If API provides the field
-          if (!user.isInvitationCodeVerified) {
-            console.log('Invitation code not verified (from API), redirecting...');
-            router.push('/VerifyInvitation');
-          } else {
-            console.log('User fully verified, redirecting to dashboard');
-            router.push('/investordashboard');
-          }
-        } else {
-          // If API doesn't provide the field, check manually
-          console.log('isInvitationCodeVerified field not found, checking manually...');
-          const isInvitationVerified = await checkUserVerificationStatus(accessToken);
-          
-          if (!isInvitationVerified) {
-            console.log('Invitation code not verified (manual check), redirecting...');
-            router.push('/VerifyInvitation');
-          } else {
-            console.log('User fully verified, redirecting to dashboard');
-            router.push('/investordashboard');
-          }
-        }
+        console.log('✅ Email is verified');
 
-      } else {
-        // Handle API error response
-        if (response.status === 403) {
+        // ✅ STEP 2: Check if user is activated (invitation code verified)
+        // Your API uses "isActive" (not "isActivated")
+        const isActivated = user?.isActive === true;
+
+        if (!isActivated) {
+          console.log('❌ Account not activated, redirecting to invitation code verification');
           setErrors((prev) => ({
             ...prev,
-            email: 'Please verify your email first. Redirecting to verification...',
+            email: 'Please verify your invitation code. Redirecting...',
           }));
-          
           setTimeout(() => {
-            router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}`);
-          }, 2000);
+            router.push('/VerifyInvitation');
+          }, 1500);
+          return;
+        }
+
+        // ✅ STEP 3: Both verified - redirect to dashboard
+        console.log('✅✅ User fully verified, redirecting to dashboard');
+        router.push('/Investordashboard');
+
+      } else {
+        // Handle API error responses
+        console.error('❌ Login failed:', data);
+
+        if (response.status === 403) {
+          const message = data.message?.toLowerCase() || '';
+          
+          if (message.includes('email') || message.includes('verify')) {
+            setErrors((prev) => ({
+              ...prev,
+              email: 'Please verify your email first. Redirecting...',
+            }));
+            setTimeout(() => {
+              router.push(`/VerifyOtp?email=${encodeURIComponent(formData.email)}`);
+            }, 2000);
+          } else if (message.includes('invitation') || message.includes('code') || message.includes('active')) {
+            setErrors((prev) => ({
+              ...prev,
+              email: 'Please verify your invitation code. Redirecting...',
+            }));
+            setTimeout(() => {
+              router.push('/VerifyInvitation');
+            }, 2000);
+          } else {
+            setErrors((prev) => ({
+              ...prev,
+              email: data.message || 'Access denied. Please complete verification.',
+            }));
+          }
         } else if (response.status === 401) {
           setErrors((prev) => ({
             ...prev,
             email: 'Invalid email or password. Please try again.',
+          }));
+        } else if (response.status === 404) {
+          setErrors((prev) => ({
+            ...prev,
+            email: 'No account found with this email. Please sign up first.',
           }));
         } else {
           setErrors((prev) => ({
@@ -190,12 +186,20 @@ export default function LoginPage() {
           }));
         }
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      setErrors((prev) => ({
-        ...prev,
-        email: 'An error occurred. Please check your connection and try again.',
-      }));
+    } catch (error: any) {
+      console.error('❌ Login error:', error);
+      
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        setErrors((prev) => ({
+          ...prev,
+          email: 'Network error. Please check your internet connection.',
+        }));
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          email: 'An unexpected error occurred. Please try again.',
+        }));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -289,9 +293,19 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-8 sm:mt-10 px-4 sm:px-6 py-2.5 sm:py-3 bg-[#ef6b23] text-white rounded-lg font-semibold hover:bg-[#d85a1a] transition-colors shadow-sm text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full mt-8 sm:mt-10 px-4 sm:px-6 py-2.5 sm:py-3 bg-[#ef6b23] text-white rounded-lg font-semibold hover:bg-[#d85a1a] transition-colors shadow-sm text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {isLoading ? 'Logging in...' : 'Login'}
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Logging in...
+                </>
+              ) : (
+                'Login'
+              )}
             </button>
 
             {/* Divider */}

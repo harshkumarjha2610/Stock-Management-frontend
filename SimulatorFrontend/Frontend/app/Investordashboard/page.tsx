@@ -7,6 +7,7 @@ import { NavigationMenuSection } from "./sections/NavigationMenuSection";
 import { SummaryInfoSection } from "./sections/SummaryInfoSection";
 import { SummaryInfoWrapperSection } from "./sections/SummaryInfoWrapperSection";
 import { TransactionHistorySection } from "./sections/TransactionHistorySection";
+import { FooterSection } from "./sections/FooterSection";
 
 export default function InvestorDashboard() {
   const router = useRouter();
@@ -16,11 +17,11 @@ export default function InvestorDashboard() {
   };
 
   return (
-    <div className="bg-black w-full min-h-screen relative">
+    <div className="bg-black w-full min-h-screen relative flex flex-col">
       <HeaderSection />
 
       {/* Mobile: Navigation first via order, Desktop: same row layout */}
-      <div className="flex flex-col md:flex-row gap-4 px-4 md:px-[22px] pt-6">
+      <div className="flex flex-col md:flex-row gap-4 px-4 md:px-[22px] pt-6 flex-1">
         {/* Left column (Back Button + Summary + Transactions) - stays left on desktop */}
         <div className="flex flex-col flex-1 mt-2 md:mt-8 md:order-1 order-2">
           {/* Back button - hidden on mobile, visible on desktop */}
@@ -64,6 +65,9 @@ export default function InvestorDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <FooterSection />
     </div>
   );
 }

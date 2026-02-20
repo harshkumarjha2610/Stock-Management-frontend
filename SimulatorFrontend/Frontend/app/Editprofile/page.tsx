@@ -3,16 +3,46 @@ import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
+// Country codes data
+const countryCodes = [
+  { code: '+91', country: 'IN', flag: '🇮🇳', name: 'India', maxLength: 10 },
+  { code: '+1', country: 'US', flag: '🇺🇸', name: 'USA', maxLength: 10 },
+  { code: '+44', country: 'UK', flag: '🇬🇧', name: 'UK', maxLength: 10 },
+  { code: '+971', country: 'AE', flag: '🇦🇪', name: 'UAE', maxLength: 9 },
+  { code: '+61', country: 'AU', flag: '🇦🇺', name: 'Australia', maxLength: 9 },
+  { code: '+86', country: 'CN', flag: '🇨🇳', name: 'China', maxLength: 11 },
+  { code: '+81', country: 'JP', flag: '🇯🇵', name: 'Japan', maxLength: 10 },
+  { code: '+49', country: 'DE', flag: '🇩🇪', name: 'Germany', maxLength: 11 },
+  { code: '+33', country: 'FR', flag: '🇫🇷', name: 'France', maxLength: 9 },
+  { code: '+65', country: 'SG', flag: '🇸🇬', name: 'Singapore', maxLength: 8 },
+];
+
 export default function EditProfilePage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Extract country code and phone number from existing format
+  const extractPhoneDetails = (fullPhone: string) => {
+    // Try to match country code at the start
+    const match = fullPhone.match(/^(\+\d{1,4})/);
+    if (match) {
+      const code = match[1];
+      const phone = fullPhone.replace(code, '').replace(/\D/g, '');
+      return { code, phone };
+    }
+    // Default to +1 if no country code found
+    return { code: '+1', phone: fullPhone.replace(/\D/g, '') };
+  };
+
+  const initialPhone = extractPhoneDetails('+1 (555) 123-4567');
+  const [countryCode, setCountryCode] = useState(initialPhone.code);
 
   // Initial form data
   const [formData, setFormData] = useState({
     firstName: 'John',
     lastName: 'Doe',
     email: 'john.doe@example.com',
-    phone: '+1 (555) 123-4567',
+    phone: initialPhone.phone,
     nationality: 'usa',
     residency: 'resident',
     dob: '1990-07-25',
@@ -27,6 +57,27 @@ export default function EditProfilePage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Calculate minimum date for 18 years old
+  const getMinDate = () => {
+    const today = new Date();
+    const minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+    return minDate.toISOString().split('T')[0];
+  };
+
+  // Calculate age from date of birth
+  const calculateAge = (dob: string) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
@@ -43,7 +94,7 @@ export default function EditProfilePage() {
       setFormData(prev => ({
         ...prev,
         avatar: file
-      }));
+      } as any));
       
       // Clean up previous URL
       if (imagePreview) {
@@ -68,11 +119,31 @@ export default function EditProfilePage() {
 
   const validateForm = () => {
     const newErrors: any = {};
+    
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
     if (!formData.email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/)) newErrors.email = 'Valid email is required';
-    if (!formData.phone.match(/^\+?[\d\s\-\(\)]{10,}$/)) newErrors.phone = 'Valid phone is required';
-    if (!formData.dob) newErrors.dob = 'Date of birth is required';
+    
+    // Phone validation with country-specific length
+    const selectedCountry = countryCodes.find(c => c.code === countryCode);
+    const expectedLength = selectedCountry?.maxLength || 10;
+    
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (formData.phone.length !== expectedLength) {
+      newErrors.phone = `Please enter a valid ${expectedLength}-digit phone number`;
+    }
+    
+    // Date of birth validation with age check
+    if (!formData.dob) {
+      newErrors.dob = 'Date of birth is required';
+    } else {
+      const age = calculateAge(formData.dob);
+      if (age < 18) {
+        newErrors.dob = 'You must be at least 18 years old';
+      }
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -85,7 +156,13 @@ export default function EditProfilePage() {
     try {
       // Simulate API call with FormData
       const submitData = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
+      const dataToSubmit = {
+        ...formData,
+        countryCode,
+        fullPhoneNumber: `${countryCode}${formData.phone}`
+      };
+      
+      Object.entries(dataToSubmit).forEach(([key, value]) => {
         if (key === 'avatar' && (value as any) instanceof File) {
           submitData.append('avatar', value as unknown as File);
         } else if (key === 'isPoliticallyExposedPerson') {
@@ -96,7 +173,7 @@ export default function EditProfilePage() {
       });
 
       await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log('Profile updated with image:', submitData);
+      console.log('Profile updated with data:', dataToSubmit);
       router.push('/profile');
     } catch (error) {
       console.error('Update failed:', error);
@@ -147,7 +224,7 @@ export default function EditProfilePage() {
               {/* Profile Image Upload */}
               <div className="text-center mb-8">
                 <div 
-                  className="mx-auto w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-[#ef6b23] to-[#d85a1a] p-1 cursor-pointer hover:shadow-xl transition-all mx-auto overflow-hidden relative group"
+                  className="mx-auto w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-[#ef6b23] to-[#d85a1a] p-1 cursor-pointer hover:shadow-xl transition-all overflow-hidden relative group"
                   onClick={handleImageClick}
                 >
                   <Image
@@ -211,25 +288,63 @@ export default function EditProfilePage() {
                   {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
                 </div>
 
+                {/* International Phone Number */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent transition-all ${errors.phone ? 'border-red-300 ring-1 ring-red-200' : ''}`}
-                  />
+                  <div className="flex gap-2">
+                    {/* Country Code Dropdown */}
+                    <select
+                      value={countryCode}
+                      onChange={(e) => {
+                        setCountryCode(e.target.value);
+                        setFormData({ ...formData, phone: '' });
+                        setErrors({ ...errors, phone: '' });
+                      }}
+                      className="w-28 px-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent transition-all text-sm"
+                    >
+                      {countryCodes.map((item) => (
+                        <option key={item.code} value={item.code}>
+                          {item.flag} {item.code}
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* Phone Number Input */}
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={(e) => {
+                        const selectedCountry = countryCodes.find(c => c.code === countryCode);
+                        const maxLen = selectedCountry?.maxLength || 10;
+                        setFormData({ 
+                          ...formData, 
+                          phone: e.target.value.replace(/\D/g, '').slice(0, maxLen)
+                        });
+                        if (errors.phone) {
+                          setErrors({ ...errors, phone: '' });
+                        }
+                      }}
+                      maxLength={countryCodes.find(c => c.code === countryCode)?.maxLength || 10}
+                      placeholder="1234567890"
+                      className={`flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent transition-all ${errors.phone ? 'border-red-300 ring-1 ring-red-200' : ''}`}
+                    />
+                  </div>
                   {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
                 </div>
 
+                {/* Date of Birth with Age Validation */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Date of Birth
+                    <span className="text-xs text-gray-500 ml-2">(Must be 18+)</span>
+                  </label>
                   <input
                     type="date"
                     name="dob"
                     value={formData.dob}
                     onChange={handleInputChange}
+                    max={getMinDate()}
                     className={`w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent transition-all ${errors.dob ? 'border-red-300 ring-1 ring-red-200' : ''}`}
                   />
                   {errors.dob && <p className="mt-1 text-sm text-red-600">{errors.dob}</p>}
@@ -237,7 +352,7 @@ export default function EditProfilePage() {
               </div>
             </div>
 
-            {/* Account Info Section - SAME AS BEFORE */}
+            {/* Account Info Section */}
             <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
               <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center">
                 <svg className="w-7 h-7 text-[#ef6b23] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -300,7 +415,7 @@ export default function EditProfilePage() {
               </div>
             </div>
 
-            {/* Action Buttons - SAME AS BEFORE */}
+            {/* Action Buttons */}
             <div className="lg:col-span-2 flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-100">
               <button type="button" onClick={handleBack} className="flex-1 px-8 py-3 bg-gray-100 text-gray-800 border-2 border-gray-200 rounded-xl font-semibold text-lg hover:bg-gray-200 transition-all">
                 Cancel
