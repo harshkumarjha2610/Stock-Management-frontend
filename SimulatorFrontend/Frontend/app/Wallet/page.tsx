@@ -1,22 +1,22 @@
 "use client";
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 import { 
   ArrowDown, 
   ArrowUp, 
   Send, 
   CreditCard, 
   Search, 
-  Bell, 
-  Settings, 
-  Menu,
-  X,
   ChevronDown,
-  ArrowLeftRight
+  ArrowLeftRight,
+  Settings
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Link, useLocation } from "wouter";
+
+// Import Header and Footer from Investor Dashboard sections
+import { HeaderSection } from '@/app/Investordashboard/sections/HeaderSection';
+import { FooterSection } from "@/app/Investordashboard/sections/FooterSection";
 
 // --- Utils ---
 function cn(...inputs: ClassValue[]) {
@@ -27,7 +27,6 @@ function cn(...inputs: ClassValue[]) {
 const imgBitcoin = "/assets/bitcoin.png";
 const imgEthereum = "/assets/ethereum.png";
 const imgDesign = "/assets/card-design.png";
-const imgCoBuildLogo = "/assets/cobuild-logo.png";
 const imgSolana = "/assets/solana.png";
 const imgUsdc = "/assets/usdc.png";
 const imgVector1 = "/assets/vector1.png";
@@ -101,12 +100,12 @@ function TransactionsTable() {
 
       <div className="bg-white/10 h-10 lg:h-12 flex items-center px-4 lg:px-6 shadow-sm">
         <div className="grid grid-cols-6 w-full text-[10px] lg:text-xs font-bold text-white uppercase tracking-wider gap-1">
-          <span>Date</span>
+          <span>Date BUY</span>
           <span>Type</span>
           <span className="text-center">Amount</span>
           <span className="text-center">Status</span>
           <span className="text-center">Fee</span>
-          <span className="text-right">ID</span>
+          <span className="text-right">Transaction ID</span>
         </div>
       </div>
 
@@ -235,55 +234,55 @@ function SwapInterface() {
 
 function AllocationChart() {
   return (
-    <div className="backdrop-blur-[20px] bg-white/10 border border-white/20 rounded-[15px] lg:rounded-[20px] p-4 lg:p-5 h-full relative overflow-hidden" 
-         style={{ backgroundImage: "linear-gradient(133deg, rgba(255, 255, 255, 0.3) 29%, rgba(255, 255, 255, 0.05) 131%)" }}>
-      <h3 className="text-sm lg:text-base font-medium text-white mb-2">Allocation Funds</h3>
-      
-      <div className="relative w-full h-[150px] lg:h-[180px] mt-2">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={allocationData}
-              innerRadius={45}
-              outerRadius={60}
-              startAngle={90}
-              endAngle={450}
-              dataKey="value"
-              stroke="none"
-              cornerRadius={5}
-            >
-              {allocationData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-          </PieChart>
-        </ResponsiveContainer>
-        
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="bg-[#ef6b23] px-2 py-0.5 rounded-full text-[10px] font-bold text-white uppercase mb-1">
-            Funds
-          </div>
-          <div className="text-xl lg:text-2xl font-bold text-white">$35,450</div>
-          <div className="text-white/60 text-[10px] lg:text-xs">Divided Wallet</div>
-        </div>
-      </div>
-
-      <div className="absolute bottom-4 lg:bottom-5 left-0 w-full px-4 lg:px-6">
-        <div className="h-px bg-white/20 w-full mb-2 lg:mb-3" />
-        <div className="flex justify-between items-center px-1">
-          {[
-            { label: "Phantom", color: "bg-white" },
-            { label: "Connects", color: "bg-white" },
-            { label: "Coinbase", color: "bg-white" }
-          ].map((item, i) => (
-            <div key={i} className="flex items-center gap-1">
-              <div className={`w-1.5 h-1.5 rounded-full ${item.color}`} />
-              <span className="text-[10px] lg:text-xs text-white font-medium">{item.label}</span>
-            </div>
+   <div className="backdrop-blur-[20px] bg-white/10 border border-white/20 rounded-[15px] lg:rounded-[20px] p-4 lg:p-5 h-full relative overflow-hidden" 
+     style={{ backgroundImage: "linear-gradient(133deg, rgba(255, 255, 255, 0.3) 29%, rgba(255, 255, 255, 0.05) 131%)" }}>
+  <h3 className="text-sm lg:text-base font-medium text-white mb-2">Allocation Funds</h3>
+  
+  <div className="relative w-full h-[150px] lg:h-[180px] mt-2">
+    <ResponsiveContainer width="100%" height="100%">
+      <PieChart>
+        <Pie
+          data={allocationData}
+          innerRadius={65}
+          outerRadius={75}
+          startAngle={90}
+          endAngle={450}
+          dataKey="value"
+          stroke="none"
+          cornerRadius={5}
+        >
+          {allocationData.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
-        </div>
+        </Pie>
+      </PieChart>
+    </ResponsiveContainer>
+    
+    <div className="absolute inset-0 flex flex-col items-center justify-center">
+      <div className="bg-[#ef6b23] px-2 py-0.5 rounded-full text-[10px] font-bold text-white uppercase mb-1">
+        Funds
       </div>
+      <div className="text-xl lg:text-2xl font-bold text-white">$35,450</div>
+      <div className="text-white/60 text-[10px] lg:text-xs">Divided Wallet</div>
     </div>
+  </div>
+
+  <div className="absolute bottom-4 lg:bottom-5 left-0 w-full px-4 lg:px-6">
+    <div className="h-px bg-white/20 w-full mb-2 lg:mb-3" />
+    <div className="flex justify-between items-center px-1">
+      {[
+        { label: "Phantom", color: "bg-white" },
+        { label: "Connects", color: "bg-white" },
+        { label: "Coinbase", color: "bg-white" }
+      ].map((item, i) => (
+        <div key={i} className="flex items-center gap-1">
+          <div className={`w-1.5 h-1.5 rounded-full ${item.color}`} />
+          <span className="text-[10px] lg:text-xs text-white font-medium">{item.label}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
   );
 }
 
@@ -332,16 +331,9 @@ function WalletCard() {
   );
 }
 
-function DashboardLayout({ children }: { children: ReactNode }) {
-  const [location] = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+// --- Main Wallet Page ---
 
-  const navItems = [
-    { label: "Dashboard", href: "/" },
-    { label: "Wallet", href: "/wallet" },
-    { label: "Community", href: "/community" },
-  ];
-
+export default function Wallet() {
   return (
     <div className="min-h-screen bg-black text-foreground font-sans overflow-x-hidden">
       {/* Background Ambience */}
@@ -350,194 +342,101 @@ function DashboardLayout({ children }: { children: ReactNode }) {
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#2c3a7c]/20 rounded-full blur-[120px]" />
       </div>
 
-      {/* Header */}
-      <header className="fixed top-3 lg:top-4 left-1/2 -translate-x-1/2 w-[calc(100%-16px)] lg:w-[calc(100%-24px)] max-w-[1866px] z-50">
-        <nav className="backdrop-blur-[20px] bg-white/10 border border-white/20 rounded-[15px] lg:rounded-[25px] h-14 lg:h-16 px-3 lg:px-6 flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <img src={imgCoBuildLogo} alt="CoBuild" className="h-8 lg:h-10 w-auto" />
-          </div>
+      {/* Imported Header */}
+      <HeaderSection />
 
-          {/* Desktop Navigation - Shows at 1024px and up */}
-          <div className="hidden lg:flex items-center gap-3">
-            {navItems.map((item) => {
-              const isActive = location === item.href;
-              return (
-                <Link key={item.href} href={item.href}>
-                  <div className={cn(
-                    "px-4 py-2 rounded-[20px] flex items-center gap-2 transition-all duration-300 cursor-pointer h-10",
-                    isActive 
-                      ? "bg-[#ef6b23] text-white" 
-                      : "text-white/80 hover:text-white"
-                  )}>
-                    <span className="font-medium text-sm">{item.label}</span>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-2">
-            <div className="hidden md:flex items-center gap-2">
-              {[Bell, Search, Settings].map((Icon, i) => (
-                <button 
-                  key={i}
-                  className="w-9 h-9 flex items-center justify-center text-white/80 hover:text-white transition-all duration-300"
-                >
-                  <Icon className="w-5 h-5" />
-                </button>
-              ))}
-            </div>
-            
-            {/* Mobile Menu Button */}
-            <button 
-              className="lg:hidden w-9 h-9 flex items-center justify-center text-white"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
-        </nav>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden absolute top-full left-0 right-0 mt-2 backdrop-blur-[20px] bg-white/10 border border-white/20 rounded-[15px] p-3">
-            {navItems.map((item) => {
-              const isActive = location === item.href;
-              return (
-                <Link key={item.href} href={item.href}>
-                  <div 
-                    className={cn(
-                      "px-4 py-2.5 rounded-[12px] flex items-center gap-2 transition-all duration-300 cursor-pointer mb-2",
-                      isActive 
-                        ? "bg-[#ef6b23] text-white" 
-                        : "text-white/80 hover:text-white hover:bg-white/5"
-                    )}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <span className="font-medium text-sm">{item.label}</span>
-                  </div>
-                </Link>
-              );
-            })}
-            <div className="flex items-center justify-around pt-2 border-t border-white/10">
-              {[Bell, Search, Settings].map((Icon, i) => (
-                <button 
-                  key={i}
-                  className="w-10 h-10 flex items-center justify-center text-white/80 hover:text-white"
-                >
-                  <Icon className="w-5 h-5" />
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </header>
-
-      <main className="relative z-10 pt-20 lg:pt-24 pb-4 lg:pb-8 px-3 lg:px-6 max-w-[1920px] mx-auto">
-        {children}
-      </main>
-    </div>
-  );
-}
-
-// --- Main Wallet Page ---
-
-export default function Wallet() {
-  return (
-    <DashboardLayout>
-      {/* 
-        Layout uses CSS Grid for precise column alignment
-        Left sidebar: fixed width
-        Right area: 3 equal columns where AllocationChart and WalletCard share the same column width
-      */}
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-5 w-full">
-        {/* LEFT COLUMN */}
-        <div className="w-full lg:w-[300px] xl:w-[340px] 2xl:w-[380px] shrink-0 backdrop-blur-[20px] bg-white/10 border border-white/20 rounded-[15px] lg:rounded-[20px] flex flex-col overflow-hidden">
-          {/* Header */}
-          <div className="h-[70px] lg:h-[80px] border-b border-white/10 px-4 flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <span className="text-white/80 text-sm lg:text-base font-medium">Total Invested</span>
-              <span className="text-white/80 text-sm lg:text-base">:</span>
-              <span className="text-white text-xl lg:text-2xl font-bold ml-1">$9,385.34</span>
-            </div>
-            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center cursor-pointer">
-              <Search className="w-4 h-4 text-white" />
-            </div>
-          </div>
-
-          <div className="flex-1 p-4 space-y-4 overflow-y-auto">
-            <ActionButtons />
-
-            <div className="backdrop-blur-[20px] bg-white/5 border border-white/10 rounded-[15px] p-4">
-              <p className="text-white/80 text-xs mb-3">Spending in November</p>
-              <SpendingChart />
-              <div className="flex flex-col gap-1 mt-3">
-                <span className="text-white text-lg font-bold">$274.00</span>
-                <span className="text-white/60 text-[10px]">This is $54.00 less than last month</span>
+      {/* Main Content - Added pt-4 lg:pt-4 for small gap */}
+      <main className="relative z-10 pt-6 lg:pt-6 pb-4 lg:pb-8 px-3 lg:px-6 max-w-[1920px] mx-auto">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-5 w-full">
+          {/* LEFT COLUMN */}
+          <div className="w-full lg:w-[300px] xl:w-[340px] 2xl:w-[380px] shrink-0 backdrop-blur-[20px] bg-white/10 border border-white/20 rounded-[15px] lg:rounded-[20px] flex flex-col overflow-hidden">
+            {/* Header */}
+            <div className="h-[70px] lg:h-[80px] border-b border-white/10 px-4 flex items-center justify-between">
+              <div className="flex items-center gap-1">
+                <span className="text-white/80 text-sm lg:text-base font-medium">Total Invested</span>
+                <span className="text-white/80 text-sm lg:text-base">:</span>
+                <span className="text-white text-xl lg:text-2xl font-bold ml-1">$9,385.34</span>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center cursor-pointer">
+                <Search className="w-4 h-4 text-white" />
               </div>
             </div>
 
-            <div className="space-y-3">
-              {[
-                { ticker: "BTC", amount: "0.00040", usd: "$3,000", icon: imgBitcoin },
-                { ticker: "ETH", amount: "0.00095", usd: "$3,000", icon: imgEthereum }
-              ].map((asset, i) => (
-                <div key={i} className="bg-[#303030] rounded-[12px] h-[55px] flex items-center px-4 justify-between">
-                  <div className="flex items-center gap-2">
-                    <img src={asset.icon} className="w-7 h-7 rounded-full" alt={asset.ticker} />
-                    <span className="text-white font-medium text-sm">{asset.ticker}</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-white font-medium text-sm">{asset.amount}</div>
-                    <div className="text-white/40 text-xs">({asset.usd})</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+              <ActionButtons />
 
-            <div className="relative h-[140px] w-full rounded-[15px] overflow-hidden">
-              <img src={imgDesign} alt="Design" className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-0 p-4 flex flex-col justify-between">
-                <div className="text-right text-white text-lg font-medium">$9,385.34</div>
-                <div className="flex justify-between items-end">
-                  <div className="space-y-1">
-                    <div className="text-white text-xs tracking-widest">**** **** **** 9865</div>
-                    <div className="flex items-center gap-1">
-                      <div className="text-[4px] text-white/60 leading-none">VALID<br/>THRU</div>
-                      <div className="text-white text-[10px]">08/25</div>
+              <div className="backdrop-blur-[20px] bg-white/5 border border-white/10 rounded-[15px] p-4">
+                <p className="text-white/80 text-xs mb-3">Spending in November</p>
+                <SpendingChart />
+                <div className="flex flex-col gap-1 mt-3">
+                  <span className="text-white text-lg font-bold">$274.00</span>
+                  <span className="text-white/60 text-[10px]">This is $54.00 less than last month</span>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {[
+                  { ticker: "BTC", amount: "0.00040", usd: "$3,000", icon: imgBitcoin },
+                  { ticker: "ETH", amount: "0.00095", usd: "$3,000", icon: imgEthereum }
+                ].map((asset, i) => (
+                  <div key={i} className="bg-[#303030] rounded-[12px] h-[55px] flex items-center px-4 justify-between">
+                    <div className="flex items-center gap-2">
+                      <img src={asset.icon} className="w-7 h-7 rounded-full" alt={asset.ticker} />
+                      <span className="text-white font-medium text-sm">{asset.ticker}</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-white font-medium text-sm">{asset.amount}</div>
+                      <div className="text-white/40 text-xs">({asset.usd})</div>
                     </div>
                   </div>
-                  <div className="text-white font-bold italic text-lg">VIZA</div>
+                ))}
+              </div>
+
+              <div className="relative h-[140px] w-full rounded-[15px] overflow-hidden">
+                <img src={imgDesign} alt="Design" className="absolute inset-0 w-full h-full object-cover" />
+                <div className="absolute inset-0 p-4 flex flex-col justify-between">
+                  <div className="text-right text-white text-lg font-medium">$9,385.34</div>
+                  <div className="flex justify-between items-end">
+                    <div className="space-y-1">
+                      <div className="text-white text-xs tracking-widest">**** **** **** 9865</div>
+                      <div className="flex items-center gap-1">
+                        <div className="text-[4px] text-white/60 leading-none">VALID<br/>THRU</div>
+                        <div className="text-white text-[10px]">08/25</div>
+                      </div>
+                    </div>
+                    <div className="text-white font-bold italic text-lg">VIZA</div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* RIGHT COLUMN: CSS Grid for consistent column widths */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-5 min-w-0 content-start">
-          {/* Row 1: AllocationChart | WalletConnect | SwapInterface */}
-          <div className="h-[260px] lg:h-[320px]">
-            <AllocationChart />
-          </div>
-          <div className="h-[280px] lg:h-[320px]">
-            <WalletConnect />
-          </div>
-          <div className="h-[280px] lg:h-[320px]">
-            <SwapInterface />
-          </div>
+          {/* RIGHT COLUMN: CSS Grid for consistent column widths */}
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-5 min-w-0 content-start">
+            {/* Row 1: AllocationChart | WalletConnect | SwapInterface */}
+            <div className="h-[260px] lg:h-[320px]">
+              <AllocationChart />
+            </div>
+            <div className="h-[280px] lg:h-[320px]">
+              <WalletConnect />
+            </div>
+            <div className="h-[280px] lg:h-[320px]">
+              <SwapInterface />
+            </div>
 
-          {/* Row 2: WalletCard (same column as AllocationChart) | TransactionsTable (spans 2 columns) */}
-          <div className="h-[260px] lg:h-[320px]">
-            <WalletCard />
-          </div>
-          <div className="h-[300px] lg:h-[320px] lg:col-span-2">
-            <TransactionsTable />
+            {/* Row 2: WalletCard (same column as AllocationChart) | TransactionsTable (spans 2 columns) */}
+            <div className="h-[260px] lg:h-[320px]">
+              <WalletCard />
+            </div>
+            <div className="h-[300px] lg:h-[320px] lg:col-span-2">
+              <TransactionsTable />
+            </div>
           </div>
         </div>
-      </div>
-    </DashboardLayout>
+      </main>
+
+      {/* Imported Footer */}
+      <FooterSection />
+    </div>
   );
 }
