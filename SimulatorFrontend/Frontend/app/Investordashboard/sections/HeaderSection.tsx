@@ -1,17 +1,16 @@
 'use client';
 import { BellIcon, SettingsIcon, UserIcon, Menu, X, Languages } from "lucide-react";
 import React, { JSX, useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
 import { Button } from "../../components/button";
 
-
+// Define navigation items with their routes
 const navigationItems = [
-  { label: "Investor Dashboard", active: true },
-  { label: "Wallet", active: false },
-  { label: "Community", active: false },
+  { label: "Investor Dashboard", route: "/Investordashboard" },
+  { label: "Wallet", route: "/Wallet" },
+  { label: "Community", route: "/community" },
 ];
-
 
 const dummyNotifications = [
   {
@@ -44,7 +43,6 @@ const dummyNotifications = [
   },
 ];
 
-
 const languages = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
   { code: 'es', name: 'Español', flag: '🇪🇸' },
@@ -53,7 +51,6 @@ const languages = [
   { code: 'zh', name: '中文', flag: '🇨🇳' },
   { code: 'ja', name: '日本語', flag: '🇯🇵' },
 ];
-
 
 // Language Dropdown Component
 const LanguageDropdown = ({ 
@@ -130,7 +127,6 @@ const LanguageDropdown = ({
     document.body
   );
 };
-
 
 // Notification Dropdown Component
 const NotificationDropdown = ({ 
@@ -225,7 +221,6 @@ const NotificationDropdown = ({
   );
 };
 
-
 export const HeaderSection = (): JSX.Element => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -236,6 +231,15 @@ export const HeaderSection = (): JSX.Element => {
   const bellButtonRef = useRef<HTMLButtonElement>(null);
   const languageButtonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Determine active route based on current pathname
+  const isActiveRoute = (route: string) => {
+    if (route === '/Investordashboard') {
+      return pathname === '/Investordashboard' || pathname?.startsWith('/Investordashboard/');
+    }
+    return pathname === route || pathname?.startsWith(`${route}/`);
+  };
 
   const handleUserProfileClick = () => {
     router.push('/userprofile');
@@ -243,6 +247,11 @@ export const HeaderSection = (): JSX.Element => {
 
   const handleSettingsClick = () => {
     router.push('/Editprofile');
+  };
+
+  const handleNavigationClick = (route: string) => {
+    router.push(route);
+    setIsMobileMenuOpen(false); // Close mobile menu if open
   };
 
   const handleNotificationClick = () => {
@@ -273,10 +282,6 @@ export const HeaderSection = (): JSX.Element => {
 
   const handleLanguageChange = (code: string) => {
     setCurrentLanguage(code);
-    // Here you would typically:
-    // 1. Update app locale
-    // 2. Save to localStorage/cookies
-    // 3. Reload translations
     console.log('Language changed to:', code);
   };
 
@@ -317,26 +322,30 @@ export const HeaderSection = (): JSX.Element => {
 
           {/* Desktop Navigation Section */}
           <nav className="hidden lg:flex items-center gap-3 ml-4">
-            {navigationItems.map((item, index) => (
-              <Button
-                key={index}
-                variant="ghost"
-                className={`
-                  h-[60px]
-                  px-8 py-4
-                  rounded-[22px]
-                  transition-colors
-                  ${item.active
-                    ? "bg-[#ef6b23] hover:bg-[#d95e1f]"
-                    : "hover:bg-[#4a4a4a]"
-                  }
-                `}
-              >
-                <span className="font-normal text-white text-base whitespace-nowrap">
-                  {item.label}
-                </span>
-              </Button>
-            ))}
+            {navigationItems.map((item, index) => {
+              const isActive = isActiveRoute(item.route);
+              return (
+                <Button
+                  key={index}
+                  variant="ghost"
+                  onClick={() => handleNavigationClick(item.route)}
+                  className={`
+                    h-[60px]
+                    px-8 py-4
+                    rounded-[22px]
+                    transition-all duration-300
+                    ${isActive
+                      ? "bg-[#ef6b23] hover:bg-[#d95e1f] text-white"
+                      : "bg-transparent hover:bg-[#4a4a4a] text-white/80 hover:text-white"
+                    }
+                  `}
+                >
+                  <span className="font-normal text-base whitespace-nowrap">
+                    {item.label}
+                  </span>
+                </Button>
+              );
+            })}
           </nav>
 
           {/* Desktop Icon Section */}
@@ -408,20 +417,24 @@ export const HeaderSection = (): JSX.Element => {
         {isMobileMenuOpen && (
           <div className="lg:hidden bg-[#2a2a2a] border-t border-white/10">
             <div className="px-4 py-3 space-y-2">
-              {navigationItems.map((item, index) => (
-                <button
-                  key={index}
-                  className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                    item.active
-                      ? "bg-[#ef6b23] hover:bg-[#d95e1f]"
-                      : "hover:bg-[#4a4a4a]"
-                  }`}
-                >
-                  <span className="font-normal text-white text-sm sm:text-base">
-                    {item.label}
-                  </span>
-                </button>
-              ))}
+              {navigationItems.map((item, index) => {
+                const isActive = isActiveRoute(item.route);
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleNavigationClick(item.route)}
+                    className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-300 ${
+                      isActive
+                        ? "bg-[#ef6b23] hover:bg-[#d95e1f] text-white"
+                        : "bg-transparent hover:bg-[#4a4a4a] text-white/80 hover:text-white"
+                    }`}
+                  >
+                    <span className="font-normal text-sm sm:text-base">
+                      {item.label}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
 
             <div className="md:hidden flex items-center justify-center gap-3 px-4 py-3 border-t border-white/10">
