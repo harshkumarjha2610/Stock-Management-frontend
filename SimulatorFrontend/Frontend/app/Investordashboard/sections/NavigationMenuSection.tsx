@@ -7,8 +7,8 @@ import { Button } from "../../components/button";
 const navigationItems = [
   {
     icon: "/frame-1000003212.svg",
-    label: "My Projects",
-    href: "/projectdiscoveryenglish",
+    label: "My Investments",
+    href: "/Investments",
   },
   {
     icon: "/frame-1000003212-1.svg",

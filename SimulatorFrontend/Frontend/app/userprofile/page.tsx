@@ -1,59 +1,190 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+
+
+// ─── Base URL ─────────────────────────────────────────────
+const BASE_URL = 'https://cobuild-simulator-backend.onrender.com/api/v1';
+
+
+// ─── Types ────────────────────────────────────────────────
+interface UserProfile {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  nationality: string;
+  residency: string;
+  dob: string;
+  avatar: string;
+  walletNumber: string;
+  tinNumber: string;
+  sourceOfFund: string;
+  isPoliticallyExposedPerson: boolean;
+  lastLoginAt: string;
+}
+
+
+// ─── Skeleton Loader ──────────────────────────────────────
+const SkeletonBlock = ({ className }: { className?: string }) => (
+  <div className={`animate-pulse bg-gray-200 rounded-lg ${className}`} />
+);
+
 
 export default function UserProfilePage() {
   const router = useRouter();
 
-  // Dummy user data
-  const user = {
-    id: '01a8a5f1-fa20-476b-b8a6-71d73450aeb3',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    phone: '+1 (555) 123-4567',
-    nationality: 'usa',
-    residency: 'resident',
-    dob: '1990-07-25',
-    avatar: '/default-avatar.png',
-    walletNumber: 'W123456789',
-    tinNumber: '123-45-6789',
-    sourceOfFund: 'Employment',
-    isPoliticallyExposedPerson: false,
-    createdAt: '2025-12-15T10:30:00Z'
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+
+  // ─── Fetch User Profile ──────────────────────────────────
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const accessToken = localStorage.getItem('accessToken');
+
+        if (!accessToken) {
+          setError('Token not found. Please login again.');
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(`${BASE_URL}/user/profile`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (response.status === 401) {
+          localStorage.removeItem('accessToken');
+          router.push('/LoginPage');
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch profile (${response.status})`);
+        }
+
+        const data = await response.json();
+
+        const root = data.data;
+        const profile = root.profile;
+
+        setUser({
+          id: root.id,
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          email: root.email,
+          phone: profile.phone ?? '-',
+          nationality: profile.nationality ?? '-',
+          residency: profile.residency ?? '-',
+          dob: profile.dob ?? '',
+          avatar: profile.avatarUrl ?? '',  // ✅ Already a full Cloudinary URL — no prefix needed
+          walletNumber: profile.walletNumber ?? '-',
+          tinNumber: profile.tinNumber ?? '-',
+          sourceOfFund: profile.sourceOfFund ?? '-',
+          isPoliticallyExposedPerson: profile.isPoliticallyExposedPerson ?? false,
+          lastLoginAt: root.lastLoginAt ?? '',
+        });
+
+        // ✅ Debug avatar URL
+        console.log('Avatar URL being used:', profile.avatarUrl ?? 'No avatar found');
+
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Something went wrong');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [router]);
+
+
+  // ─── Handlers ────────────────────────────────────────────
+  const handleEdit = () => router.push('/Editprofile');
+
+  const handleLogout = async () => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (accessToken) {
+        await fetch(`${BASE_URL}/user/auth/logout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+      }
+    } catch (_) {
+      // ignore logout errors
+    } finally {
+      localStorage.removeItem('accessToken');
+      router.push('/login');
+    }
   };
 
-  const handleEdit = () => {
-    router.push('/Editprofile');
-  };
+  const handleBack = () => router.back();
 
-  const handleLogout = () => {
-    // POST /user/auth/logout
-    router.push('/login');
-  };
-
-  const handleBack = () => {
-    router.back();
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
-  };
 
+
+  // ─── Error State ─────────────────────────────────────────
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center max-w-md w-full">
+          <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Failed to load profile</h2>
+          <p className="text-gray-500 text-sm mb-6">{error}</p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-2.5 bg-[#ef6b23] text-white rounded-xl font-semibold text-sm hover:bg-[#d85a1a] transition-all"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => router.push('/login')}
+              className="px-6 py-2.5 bg-gray-100 text-gray-800 border border-gray-200 rounded-xl font-semibold text-sm hover:bg-gray-200 transition-all"
+            >
+              Go to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+
+  // ─── Render ───────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Single container for Header + Content */}
       <div className="bg-white shadow-sm border-b">
+
         {/* Header */}
         <header className="px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <button 
+              <button
                 onClick={handleBack}
                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
@@ -69,69 +200,83 @@ export default function UserProfilePage() {
                 className="h-8 w-auto"
               />
             </div>
-            <div className="text-sm text-gray-600">
-              <span className="text-[#ef6b23] font-semibold hover:underline cursor-pointer">
-                Get Help
-              </span>
-            </div>
+            <span className="text-[#ef6b23] font-semibold text-sm hover:underline cursor-pointer">
+              Get Help
+            </span>
           </div>
         </header>
 
         {/* Profile Content */}
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 lg:py-16">
           <div className="flex flex-col lg:flex-row lg:items-start lg:gap-12">
-            
-            {/* Left Column */}
+
+            {/* ── Left Column ── */}
             <div className="lg:w-1/3 lg:shrink-0 mb-12 lg:mb-0 text-center lg:text-left">
-              {/* Profile Image */}
-              {/* Profile Image - Using harshimage.jpg */}
-<div className="mx-auto w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full bg-gradient-to-br from-[#ef6b23] to-[#d85a1a] p-1 mb-6 lg:mb-8 mx-auto lg:mx-0 overflow-hidden">
-  <Image
-    src="/harshimage.jpg"
-    alt="Profile Picture"
-    width={200}
-    height={200}
-    className="w-full h-full object-cover rounded-full"
-  />
-</div>
 
-              
-              {/* User basic info - SMALLER FONTS */}
+              {/* Avatar */}
+              <div className="mx-auto lg:mx-0 w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full bg-gradient-to-br from-[#ef6b23] to-[#d85a1a] p-1 mb-6 lg:mb-8 overflow-hidden">
+                {loading ? (
+                  <div className="w-full h-full rounded-full bg-gray-200 animate-pulse" />
+                ) : user?.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt="Profile Picture"
+                    className="w-full h-full object-cover rounded-full"
+                    onLoad={() => console.log('✅ Avatar loaded successfully')}
+                    onError={() => console.log('❌ Avatar failed to load:', user.avatar)}
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-full bg-gradient-to-br from-[#ef6b23] to-[#d85a1a] flex items-center justify-center">
+                    <span className="text-white text-4xl font-bold select-none">
+                      {user?.firstName?.charAt(0).toUpperCase() ?? '?'}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Name / Email / Phone */}
               <div className="mb-10 lg:mb-12">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3">
-                  {user.firstName} {user.lastName}
-                </h1>
-                <p className="text-lg lg:text-xl text-gray-600 mb-2">{user.email}</p>
-                <p className="text-base lg:text-lg text-gray-500">{user.phone}</p>
+                {loading ? (
+                  <>
+                    <SkeletonBlock className="h-8 w-48 mx-auto lg:mx-0 mb-3" />
+                    <SkeletonBlock className="h-5 w-56 mx-auto lg:mx-0 mb-2" />
+                    <SkeletonBlock className="h-5 w-36 mx-auto lg:mx-0" />
+                  </>
+                ) : (
+                  <>
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 capitalize">
+                      {user?.firstName} {user?.lastName}
+                    </h1>
+                    <p className="text-lg lg:text-xl text-gray-600 mb-2">{user?.email}</p>
+                    <p className="text-base lg:text-lg text-gray-500">{user?.phone}</p>
+                  </>
+                )}
               </div>
 
-              {/* Action Buttons - SMALLER FONTS & VERTICAL */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-         <div className="flex gap-4 justify-start">
- <div className="flex gap-3 -ml-4">
-  <button 
-    onClick={handleEdit}
-    className="pl-2 pr-2 py-2.5 bg-[#ef6b23] text-white rounded-xl font-semibold text-base hover:bg-[#d85a1a] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-  >
-    Edit Profile
-  </button>
-
-  <button
-    onClick={handleLogout}
-    className="px-4 py-2.5 bg-gray-100 text-gray-800 border-2 border-gray-200 rounded-xl font-semibold text-base hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-all shadow-sm hover:shadow-md"
-  >
-    Logout
-  </button>
-</div>
-</div>
-
-              </div>
+              {/* Action Buttons */}
+              {!loading && (
+                <div className="flex gap-3 justify-center lg:justify-start">
+                  <button
+                    onClick={handleEdit}
+                    className="px-4 py-2.5 bg-[#ef6b23] text-white rounded-xl font-semibold text-base hover:bg-[#d85a1a] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    Edit Profile
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="px-4 py-2.5 bg-gray-100 text-gray-800 border-2 border-gray-200 rounded-xl font-semibold text-base hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-all shadow-sm hover:shadow-md"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Right Column */}
+            {/* ── Right Column ── */}
             <div className="lg:w-2/3">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-                {/* Personal Info */}
+
+                {/* Personal Info Card */}
                 <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                     <svg className="w-6 h-6 text-[#ef6b23] mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,67 +284,103 @@ export default function UserProfilePage() {
                     </svg>
                     Personal Info
                   </h3>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-gray-600">Email</span>
-                      <span className="font-medium text-gray-900">{user.email}</span>
+                  {loading ? (
+                    <div className="space-y-4">
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className="flex justify-between items-center py-2">
+                          <SkeletonBlock className="h-4 w-24" />
+                          <SkeletonBlock className="h-4 w-32" />
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-gray-600">Phone</span>
-                      <span className="font-medium text-gray-900">{user.phone}</span>
+                  ) : (
+                    <div className="space-y-4">
+                      {[
+                        { label: 'Email', value: user?.email },
+                        { label: 'Phone', value: user?.phone },
+                        { label: 'Nationality', value: user?.nationality },
+                        {
+                          label: 'Residency',
+                          value: user?.residency
+                            ? user.residency.charAt(0).toUpperCase() + user.residency.slice(1)
+                            : '-',
+                        },
+                        {
+                          label: 'Date of Birth',
+                          value: user?.dob ? formatDate(user.dob) : '-',
+                        },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+                          <span className="text-gray-500 text-sm">{label}</span>
+                          <span className="font-medium text-gray-900 text-sm">{value ?? '-'}</span>
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-gray-600">Nationality</span>
-                      <span className="font-medium text-gray-900">United States</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-gray-600">Residency</span>
-                      <span className="font-medium text-gray-900 capitalize">Resident</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-gray-600">Date of Birth</span>
-                      <span className="font-medium text-gray-900">{formatDate(user.dob)}</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
-                {/* Account Details */}
+                {/* Account Details Card */}
                 <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                     <svg className="w-6 h-6 text-[#ef6b23] mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                     Account Details
                   </h3>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-gray-600">Member Since</span>
-                      <span className="font-medium text-gray-900">
-                        {new Date(user.createdAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                        })}
-                      </span>
+                  {loading ? (
+                    <div className="space-y-4">
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className="flex justify-between items-center py-2">
+                          <SkeletonBlock className="h-4 w-24" />
+                          <SkeletonBlock className="h-4 w-32" />
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-gray-600">Wallet</span>
-                      <span className="font-mono text-sm bg-gray-100 px-3 py-1 rounded-lg">{user.walletNumber}</span>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span className="text-gray-500 text-sm">Last Login</span>
+                        <span className="font-medium text-gray-900 text-sm">
+                          {user?.lastLoginAt ?? '-'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span className="text-gray-500 text-sm">Wallet</span>
+                        <span className="font-mono text-sm bg-gray-100 px-3 py-1 rounded-lg truncate max-w-[160px]">
+                          {user?.walletNumber ?? '-'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span className="text-gray-500 text-sm">TIN</span>
+                        <span className="font-medium text-gray-900 text-sm">{user?.tinNumber ?? '-'}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span className="text-gray-500 text-sm">Source of Funds</span>
+                        <span className="font-medium text-gray-900 text-sm capitalize">
+                          {user?.sourceOfFund ?? '-'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-gray-500 text-sm">Politically Exposed</span>
+                        <span
+                          className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                            user?.isPoliticallyExposedPerson
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-green-100 text-green-700'
+                          }`}
+                        >
+                          {user?.isPoliticallyExposedPerson ? 'Yes' : 'No'}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-gray-600">TIN</span>
-                      <span className="font-medium text-gray-900">{user.tinNumber}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-gray-600">Source of Funds</span>
-                      <span className="font-medium text-gray-900 capitalize">{user.sourceOfFund}</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
+
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div> 
+    </div>
   );
 }
