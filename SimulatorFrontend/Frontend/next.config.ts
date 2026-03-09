@@ -1,7 +1,11 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+// next.config.js
+const nextConfig = {
+  images: {
+    domains: [
+      'res.cloudinary.com',                          // ✅ Cloudinary
+      'cobuild-simulator-backend.onrender.com',      // ✅ Backend local uploads
+    ],
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
