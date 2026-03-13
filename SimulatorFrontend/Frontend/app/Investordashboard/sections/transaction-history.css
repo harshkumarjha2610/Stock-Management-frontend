@@ -7,7 +7,7 @@
   .transaction-history-section {
     width: calc(100% - 0px) !important;
     max-width: none !important;
-    min-height: 450px !important;  /* Even shorter - reduced from 600px to 450px */
+    min-height: 518px !important;  /* Even shorter - reduced from 600px to 450px */
     padding-top: 15px !important;  /* Reduced from 20px */
     padding-bottom: 10px !important;  /* Reduced from 20px */
   }
@@ -32,7 +32,7 @@
   .transaction-history-section {
     width: calc(100% - 0px) !important;  /* Same as 1300-1399px */
     max-width: none !important;
-    min-height: 420px !important;  /* Proportionally reduced from 450px */
+    min-height: 518px !important;  /* Proportionally reduced from 450px */
     padding-top: 14px !important;  /* Proportionally reduced from 15px */
     padding-bottom: 25px !important;  /* Proportionally reduced from 10px */
   }

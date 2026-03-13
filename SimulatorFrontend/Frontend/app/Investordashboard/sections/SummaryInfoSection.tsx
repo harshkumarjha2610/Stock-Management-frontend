@@ -4,7 +4,7 @@ import { Button } from "../../components/button";
 import { Card, CardContent } from "../../components/card";
 import "./SummaryInfoSection.css";
 
-
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 const monthsData = [
   { label: "Jan", active: false },
   { label: "Feb", active: false },
@@ -202,39 +202,46 @@ export const SummaryInfoSection = (): React.ReactElement => {
 
 
             <div className="token-content">
-              <div className="donut-chart">
-                <img
-                  className="donut-slice"
-                  alt="Ellipse"
-                  src="/ellipse-3328.svg"
-                />
-                <img
-                  className="donut-slice"
-                  alt="Ellipse"
-                  src="/ellipse-3331.svg"
-                />
-                <img
-                  className="donut-slice"
-                  alt="Ellipse"
-                  src="/ellipse-3330.svg"
-                />
-                <img
-                  className="donut-slice"
-                  alt="Ellipse"
-                  src="/ellipse-3332.svg"
-                />
-                <img
-                  className="donut-slice donut-slice-5"
-                  alt="Ellipse"
-                  src="/ellipse-3329.svg"
-                />
+             
+<div className="donut-chart" style={{ position: "relative", width: 160, height: 160 }}>
 
+  <PieChart width={160} height={160}>
+    <Pie
+      data={[{ value: 100 }]} 
+      dataKey="value"
+      cx={80}
+      cy={60}                 
+      innerRadius={55}
+      outerRadius={65}
+      startAngle={90}
+      endAngle={450}
+      stroke="none"
+    >
+      <Cell fill="#ef6b23" />
+    </Pie>
+  </PieChart>
 
-                <div className="donut-center">
-                  <span className="donut-label">Total</span>
-                  <span className="donut-value">$15.250</span>
-                </div>
-              </div>
+  {/* Center label — manually aligned to match cy={65} */}
+  <div
+    style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: 160,
+      height: 130,              
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      pointerEvents: "none",
+    }}
+  >
+    <span className="donut-label">Total</span>
+    <span className="donut-value">$15.250</span>
+  </div>
+
+</div>
+
 
 
               <img className="divider" alt="Vector" src="/vector-2.svg" />

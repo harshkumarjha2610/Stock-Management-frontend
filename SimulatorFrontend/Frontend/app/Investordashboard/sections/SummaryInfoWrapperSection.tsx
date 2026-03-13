@@ -3,7 +3,7 @@ import React from "react";
 import { Badge } from "../../components/badge";
 import { Card, CardContent } from "../../components/card";
 import "./SummaryInfoWrapperSection.css";
-
+import { PieChart, Pie, Cell } from "recharts";
 const performanceMetrics = [
   {
     title: "Portfolio Value",
@@ -233,38 +233,44 @@ export const SummaryInfoWrapperSection: React.FC = () => {
             </div>
 
             <div className="token-balance-wrapper-body">
-              <div className="token-donut-chart">
-                <img
-                  className="token-donut-slice"
-                  alt="Ellipse"
-                  src="/ellipse-3328.svg"
-                />
-                <img
-                  className="token-donut-slice"
-                  alt="Ellipse"
-                  src="/ellipse-3331.svg"
-                />
-                <img
-                  className="token-donut-slice"
-                  alt="Ellipse"
-                  src="/ellipse-3330.svg"
-                />
-                <img
-                  className="token-donut-slice"
-                  alt="Ellipse"
-                  src="/ellipse-3332.svg"
-                />
-                <img
-                  className="token-donut-slice-5"
-                  alt="Ellipse"
-                  src="/ellipse-3329.svg"
-                />
-
-                <div className="token-donut-center">
-                  <div className="token-donut-label">Total</div>
-                  <div className="token-donut-value">$15.250</div>
-                </div>
-              </div>
+             <div className="donut-chart" style={{ position: "relative", width: 160, height: 160 }}>
+             
+               <PieChart width={160} height={160}>
+                 <Pie
+                   data={[{ value: 100 }]} 
+                   dataKey="value"
+                   cx={80}
+                   cy={60}                 
+                   innerRadius={55}
+                   outerRadius={65}
+                   startAngle={90}
+                   endAngle={450}
+                   stroke="none"
+                 >
+                   <Cell fill="#ef6b23" />
+                 </Pie>
+               </PieChart>
+             
+               {/* Center label — manually aligned to match cy={65} */}
+               <div
+                 style={{
+                   position: "absolute",
+                   top: 0,
+                   left: 0,
+                   width: 160,
+                   height: 130,              
+                   display: "flex",
+                   flexDirection: "column",
+                   alignItems: "center",
+                   justifyContent: "center",
+                   pointerEvents: "none",
+                 }}
+               >
+                 <span className="donut-label">Total</span>
+                 <span className="donut-value">$15.250</span>
+               </div>
+             
+             </div>
 
               <img
                 className="token-divider"

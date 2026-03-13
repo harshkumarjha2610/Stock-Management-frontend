@@ -109,7 +109,7 @@ async function fetchWithAuth(
       res = await makeRequest(newToken);
     } else {
       clearTokens();
-      if (typeof window !== "undefined") window.location.href = "/login";
+      if (typeof window !== "undefined") window.location.href = "/LoginPage";
     }
   }
 

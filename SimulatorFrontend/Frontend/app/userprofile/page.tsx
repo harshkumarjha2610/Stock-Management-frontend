@@ -3,10 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-
 // ─── Base URL ─────────────────────────────────────────────
 const BASE_URL = 'https://cobuild-simulator-backend.onrender.com/api/v1';
-
 
 // ─── Types ────────────────────────────────────────────────
 interface UserProfile {
@@ -15,6 +13,7 @@ interface UserProfile {
   lastName: string;
   email: string;
   phone: string;
+  phoneCode: string;
   nationality: string;
   residency: string;
   dob: string;
@@ -26,12 +25,10 @@ interface UserProfile {
   lastLoginAt: string;
 }
 
-
 // ─── Skeleton Loader ──────────────────────────────────────
 const SkeletonBlock = ({ className }: { className?: string }) => (
   <div className={`animate-pulse bg-gray-200 rounded-lg ${className}`} />
 );
-
 
 export default function UserProfilePage() {
   const router = useRouter();
@@ -39,7 +36,6 @@ export default function UserProfilePage() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
 
   // ─── Fetch User Profile ──────────────────────────────────
   useEffect(() => {
@@ -75,7 +71,6 @@ export default function UserProfilePage() {
         }
 
         const data = await response.json();
-
         const root = data.data;
         const profile = root.profile;
 
@@ -85,10 +80,11 @@ export default function UserProfilePage() {
           lastName: profile.lastName,
           email: root.email,
           phone: profile.phone ?? '-',
+          phoneCode: profile.phoneCode ?? profile.dialCode ?? profile.countryCode ?? '',
           nationality: profile.nationality ?? '-',
           residency: profile.residency ?? '-',
           dob: profile.dob ?? '',
-          avatar: profile.avatarUrl ?? '',  // ✅ Already a full Cloudinary URL — no prefix needed
+          avatar: profile.avatarUrl ?? '',
           walletNumber: profile.walletNumber ?? '-',
           tinNumber: profile.tinNumber ?? '-',
           sourceOfFund: profile.sourceOfFund ?? '-',
@@ -96,7 +92,6 @@ export default function UserProfilePage() {
           lastLoginAt: root.lastLoginAt ?? '',
         });
 
-        // ✅ Debug avatar URL
         console.log('Avatar URL being used:', profile.avatarUrl ?? 'No avatar found');
 
       } catch (err: unknown) {
@@ -108,7 +103,6 @@ export default function UserProfilePage() {
 
     fetchUserProfile();
   }, [router]);
-
 
   // ─── Handlers ────────────────────────────────────────────
   const handleEdit = () => router.push('/Editprofile');
@@ -129,7 +123,7 @@ export default function UserProfilePage() {
       // ignore logout errors
     } finally {
       localStorage.removeItem('accessToken');
-      router.push('/login');
+      router.push('/LoginPage');
     }
   };
 
@@ -141,7 +135,6 @@ export default function UserProfilePage() {
       month: 'long',
       day: 'numeric',
     });
-
 
   // ─── Error State ─────────────────────────────────────────
   if (error) {
@@ -173,7 +166,6 @@ export default function UserProfilePage() {
       </div>
     );
   }
-
 
   // ─── Render ───────────────────────────────────────────────
   return (
@@ -248,7 +240,16 @@ export default function UserProfilePage() {
                       {user?.firstName} {user?.lastName}
                     </h1>
                     <p className="text-lg lg:text-xl text-gray-600 mb-2">{user?.email}</p>
-                    <p className="text-base lg:text-lg text-gray-500">{user?.phone}</p>
+
+                    {/* Phone with country code */}
+                    <div className="flex items-center justify-center lg:justify-start gap-2">
+                      {user?.phoneCode && (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-orange-50 border border-orange-200 text-[#ef6b23] font-semibold text-sm">
+                          {user.phoneCode}
+                        </span>
+                      )}
+                      <p className="text-base lg:text-lg text-gray-500">{user?.phone}</p>
+                    </div>
                   </>
                 )}
               </div>
@@ -295,26 +296,50 @@ export default function UserProfilePage() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {[
-                        { label: 'Email', value: user?.email },
-                        { label: 'Phone', value: user?.phone },
-                        { label: 'Nationality', value: user?.nationality },
-                        {
-                          label: 'Residency',
-                          value: user?.residency
-                            ? user.residency.charAt(0).toUpperCase() + user.residency.slice(1)
-                            : '-',
-                        },
-                        {
-                          label: 'Date of Birth',
-                          value: user?.dob ? formatDate(user.dob) : '-',
-                        },
-                      ].map(({ label, value }) => (
-                        <div key={label} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
-                          <span className="text-gray-500 text-sm">{label}</span>
-                          <span className="font-medium text-gray-900 text-sm">{value ?? '-'}</span>
+
+                      {/* Email row */}
+                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span className="text-gray-500 text-sm">Email</span>
+                        <span className="font-medium text-gray-900 text-sm">{user?.email ?? '-'}</span>
+                      </div>
+
+                      {/* Phone row — country code badge + number */}
+                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span className="text-gray-500 text-sm">Phone</span>
+                        <div className="flex items-center gap-2">
+                          {user?.phoneCode ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-orange-50 border border-orange-200 text-[#ef6b23] font-semibold text-xs">
+                              {user.phoneCode}
+                            </span>
+                          ) : null}
+                          <span className="font-medium text-gray-900 text-sm">{user?.phone ?? '-'}</span>
                         </div>
-                      ))}
+                      </div>
+
+                      {/* Nationality row */}
+                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span className="text-gray-500 text-sm">Nationality</span>
+                        <span className="font-medium text-gray-900 text-sm">{user?.nationality ?? '-'}</span>
+                      </div>
+
+                      {/* Residency row */}
+                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span className="text-gray-500 text-sm">Residency</span>
+                        <span className="font-medium text-gray-900 text-sm capitalize">
+                          {user?.residency
+                            ? user.residency.charAt(0).toUpperCase() + user.residency.slice(1)
+                            : '-'}
+                        </span>
+                      </div>
+
+                      {/* Date of Birth row */}
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-gray-500 text-sm">Date of Birth</span>
+                        <span className="font-medium text-gray-900 text-sm">
+                          {user?.dob ? formatDate(user.dob) : '-'}
+                        </span>
+                      </div>
+
                     </div>
                   )}
                 </div>

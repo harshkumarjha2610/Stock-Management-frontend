@@ -380,7 +380,7 @@ function SimulatorDashboardF3Content(): JSX.Element {
               </div>
 
               {/* Progress bar */}
-              <div className="w-full max-w-[clamp(280px,70vw,700px)] flex flex-col gap-2">
+              <div className="w-full max-w-[clamp(200px,45vw,510px)] flex flex-col gap-2">
                 <div className="flex items-center justify-between px-1">
                   <span
                     className="text-white/50 text-xs sm:text-sm"

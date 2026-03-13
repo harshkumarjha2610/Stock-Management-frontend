@@ -137,7 +137,7 @@ async function fetchWithAuth(
     if (!newToken) {
       console.error('❌ Could not refresh token — redirecting to login');
       clearTokens();
-      window.location.href = '/login';
+      window.location.href = '/LoginPage';
       return response;
     }
 
@@ -413,7 +413,7 @@ function AllocationChart() {
     { asset: string; fundSource: string; amount: number }[]
   >([]);
   const [loading, setLoading] = useState(true);
-  const [fetched, setFetched] = useState(false);
+  const [fetched,  setFetched]  = useState(false);
 
   useEffect(() => {
     const fetchWalletBalance = async () => {
@@ -426,7 +426,6 @@ function AllocationChart() {
 
         console.log('📡 Calling wallet balance API...');
 
-        // ✅ Uses fetchWithAuth — auto refreshes if 401
         const response = await fetchWithAuth(`${BASE_URL}/user/simulation/wallet/balance`);
 
         console.log('📶 Response status:', response.status);
@@ -442,7 +441,11 @@ function AllocationChart() {
         console.log('💰 Balances object:', data.data?.balances);
 
         const balances = data.data?.balances ?? {};
-        const entries = Object.values(balances) as { asset: string; fundSource: string; amount: number }[];
+        const entries = Object.values(balances) as {
+          asset: string;
+          fundSource: string;
+          amount: number;
+        }[];
 
         console.log('📊 Balance entries array:', entries);
         console.log('💵 Total amount:', entries.reduce((sum, b) => sum + b.amount, 0));
@@ -463,39 +466,62 @@ function AllocationChart() {
 
   const totalAmount = balanceEntries.reduce((sum, b) => sum + b.amount, 0);
 
-  const chartData = fetched && balanceEntries.length > 0
-    ? balanceEntries.map((b) => ({
-        name: b.asset,
-        value: b.amount > 0 ? b.amount : 1,
-        color: ASSET_COLORS[b.asset] ?? ASSET_COLORS.DEFAULT,
-      }))
-    : [
-        { name: 'Divided', value: 65, color: '#ef6b23' },
-        { name: 'Remaining', value: 35, color: 'rgba(255, 255, 255, 0.1)' },
-      ];
+  // ─── Dynamic radius ────────────────────────────────────────
+  const MIN_INNER  = 45;
+  const BASE_INNER = 64;
+  const BASE_OUTER = 70;
+  const MAX_GROWTH = 22;
+  const SCALE_CAP  = 500_000;
 
-  const legendItems = fetched && balanceEntries.length > 0
-    ? balanceEntries.map((b) => ({
-        label: b.asset,
-        color: ASSET_COLORS[b.asset] ?? ASSET_COLORS.DEFAULT,
-        amount: `$${b.amount.toLocaleString()}`,
-      }))
-    : [
-        { label: 'Phantom', color: '#ffffff', amount: null },
-        { label: 'Connects', color: '#ffffff', amount: null },
-        { label: 'Coinbase', color: '#ffffff', amount: null },
-      ];
+  const growthFactor = fetched && totalAmount > 0
+    ? Math.min(totalAmount / SCALE_CAP, 1)
+    : 0;
+
+  const dynamicInner = Math.max(
+    BASE_INNER + Math.round(growthFactor * MAX_GROWTH),
+    MIN_INNER
+  );
+  const dynamicOuter = BASE_OUTER + Math.round(growthFactor * MAX_GROWTH);
+  // ──────────────────────────────────────────────────────────
+
+  const chartData =
+    fetched && balanceEntries.length > 0
+      ? balanceEntries.map((b) => ({
+          name:  b.asset,
+          value: b.amount > 0 ? b.amount : 1,
+          color: ASSET_COLORS[b.asset] ?? ASSET_COLORS.DEFAULT,
+        }))
+      : [
+          { name: 'Divided',   value: 65, color: '#ef6b23' },
+          { name: 'Remaining', value: 35, color: 'rgba(255, 255, 255, 0.1)' },
+        ];
+
+  const legendItems =
+    fetched && balanceEntries.length > 0
+      ? balanceEntries.map((b) => ({
+          label:  b.asset,
+          color:  ASSET_COLORS[b.asset] ?? ASSET_COLORS.DEFAULT,
+          amount: `$${b.amount.toLocaleString()}`,
+        }))
+      : [
+          { label: 'Phantom',  color: '#ffffff', amount: null },
+          { label: 'Connects', color: '#ffffff', amount: null },
+          { label: 'Coinbase', color: '#ffffff', amount: null },
+        ];
 
   const formattedTotal = totalAmount.toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
+    style:                 'currency',
+    currency:              'USD',
     maximumFractionDigits: 2,
   });
 
   return (
     <div
       className="backdrop-blur-[20px] bg-white/10 border border-white/20 rounded-[15px] lg:rounded-[20px] p-4 lg:p-5 h-full relative overflow-hidden"
-      style={{ backgroundImage: "linear-gradient(133deg, rgba(255, 255, 255, 0.3) 29%, rgba(255, 255, 255, 0.05) 131%)" }}
+      style={{
+        backgroundImage:
+          'linear-gradient(133deg, rgba(255, 255, 255, 0.3) 29%, rgba(255, 255, 255, 0.05) 131%)',
+      }}
     >
       <h3 className="text-sm lg:text-base font-medium text-white mb-2">Allocation Funds</h3>
 
@@ -504,13 +530,16 @@ function AllocationChart() {
           <PieChart>
             <Pie
               data={chartData}
-              innerRadius={65}
-              outerRadius={75}
+              innerRadius={dynamicInner}
+              outerRadius={dynamicOuter}
               startAngle={90}
               endAngle={450}
               dataKey="value"
               stroke="none"
               cornerRadius={5}
+              isAnimationActive={true}
+              animationDuration={700}
+              animationEasing="ease-out"
             >
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
@@ -553,9 +582,16 @@ function AllocationChart() {
           <div className="flex justify-between items-center px-1 flex-wrap gap-y-1">
             {legendItems.map((item, i) => (
               <div key={i} className="flex items-center gap-1">
-                <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
-                <span className="text-[10px] lg:text-xs text-white font-medium">{item.label}</span>
-                {item.amount && <span className="text-[10px] text-white/60">{item.amount}</span>}
+                <div
+                  className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="text-[10px] lg:text-xs text-white font-medium">
+                  {item.label}
+                </span>
+                {item.amount && (
+                  <span className="text-[10px] text-white/60">{item.amount}</span>
+                )}
               </div>
             ))}
           </div>
@@ -564,6 +600,8 @@ function AllocationChart() {
     </div>
   );
 }
+
+
 
 function WalletCard() {
   return (

@@ -78,7 +78,7 @@ async function fetchWithRefresh(
     const newToken = await refreshAccessToken();
     if (!newToken) {
       clearTokens();
-      router.push('/login');
+      router.push('/LoginPage');
       throw new Error('Session expired. Please login again.');
     }
 
