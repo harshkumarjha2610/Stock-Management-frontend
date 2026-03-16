@@ -1,11 +1,22 @@
-// next.config.js
-const nextConfig = {
+// next.config.ts
+import createNextIntlPlugin from 'next-intl/plugin';
+import type { NextConfig } from 'next';
+
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
+
+const nextConfig: NextConfig = {
   images: {
-    domains: [
-      'res.cloudinary.com',                          // ✅ Cloudinary
-      'cobuild-simulator-backend.onrender.com',      // ✅ Backend local uploads
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cobuild-simulator-backend.onrender.com',
+      },
     ],
   },
 };
 
-module.exports = nextConfig;
+export default withNextIntl(nextConfig);
