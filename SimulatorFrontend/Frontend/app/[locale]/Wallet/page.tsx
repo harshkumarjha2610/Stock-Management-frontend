@@ -2,26 +2,22 @@
 import { useState, useEffect } from "react";
 import {
   ArrowDown, ArrowUp, Send, CreditCard,
-  Search, ChevronDown, ArrowLeftRight, Settings
+  Search, ChevronDown, ArrowLeftRight, Settings, Filter, X
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useLocale } from "next-intl";
-import { getTranslations } from "next-intl/server";
 
 import { HeaderSection } from '@/app/[locale]/Investordashboard/sections/HeaderSection';
 import { FooterSection } from "@/app/[locale]/Investordashboard/sections/FooterSection";
 
-// --- Utils ---
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// --- Base URL ---
 const BASE_URL = 'https://cobuild-simulator-backend.onrender.com/api/v1';
 
-// --- Assets ---
 const imgBitcoin  = "/assets/bitcoin.png";
 const imgEthereum = "/assets/ethereum.png";
 const imgDesign   = "/assets/card-design.png";
@@ -45,151 +41,89 @@ const ASSET_COLORS: Record<string, string> = {
   DEFAULT: '#ffffff',
 };
 
-// ─── Arabic Translations ───────────────────────────────────
-// English is written directly in JSX below.
-// Arabic is loaded from ar.json only when locale === 'ar'.
 const AR = {
   totalInvested:   "إجمالي الاستثمار",
   spendingTitle:   "الإنفاق في نوفمبر",
   spendingAmount:  "$274.00",
   spendingSubtext: "هذا أقل بـ $54.00 من الشهر الماضي",
   actions: {
-    recharge: "شحن",
-    withdraw: "سحب",
-    send:     "إرسال",
-    cards:    "البطاقات",
-    settings: "الإعدادات",
+    recharge: "شحن", withdraw: "سحب", send: "إرسال",
+    cards: "البطاقات", settings: "الإعدادات",
   },
   allocation: {
-    title:            "توزيع الأموال",
-    fundsLabel:       "الأموال",
-    simulationWallet: "محفظة المحاكاة",
-    dividedWallet:    "المحفظة المقسمة",
-    defaultAmount:    "$35,450",
-    phantom:          "فانتوم",
-    connects:         "كونيكتس",
-    coinbase:         "كوين بيس",
+    title: "توزيع الأموال", fundsLabel: "الأموال",
+    simulationWallet: "محفظة المحاكاة", dividedWallet: "المحفظة المقسمة",
+    defaultAmount: "$35,450", phantom: "فانتوم",
+    connects: "كونيكتس", coinbase: "كوين بيس",
   },
-  walletConnect: {
-    title:   "ربط المحفظة",
-    connect: "ربط",
-  },
+  walletConnect: { title: "ربط المحفظة", connect: "ربط" },
   swap: {
-    title:      "تبادل العملات",
-    slippage:   "الانزلاق",
-    youPay:     "تدفع",
-    youReceive: "تستلم",
-    swapBtn:    "تبادل العملة",
+    title: "تبادل العملات", slippage: "الانزلاق",
+    youPay: "تدفع", youReceive: "تستلم", swapBtn: "تبادل العملة",
   },
-  card: {
-    title:     "بطاقة المحفظة",
-    addCard:   "إضافة بطاقة",
-    validThru: "صالح\nحتى",
-  },
+  card: { title: "بطاقة المحفظة", addCard: "إضافة بطاقة", validThru: "صالح\nحتى" },
   transactions: {
-    title: "المعاملات الأخيرة",
-    date:  "التاريخ",
-    type:  "النوع",
-    amount:"المبلغ",
-    status:"الحالة",
-    fee:   "الرسوم",
-    txnId: "معرّف المعاملة",
-    noTxn: "لا توجد معاملات بعد",
+    title: "المعاملات الأخيرة", date: "التاريخ", type: "النوع",
+    amount: "المبلغ", status: "الحالة", fee: "الرسوم",
+    txnId: "معرّف المعاملة", noTxn: "لا توجد معاملات بعد",
+    filterByDate: "تصفية بالتاريخ", from: "من", to: "إلى",
+    clearFilter: "مسح الفلتر", noResults: "لا توجد معاملات في هذا النطاق",
   },
 };
 
-// ─── Hook: returns Arabic strings or falls back to English default ─────────
 function useT() {
   const locale = useLocale();
   const isArabic = locale === 'ar';
   return { AR, isArabic };
 }
 
-// ─── Token Helpers ─────────────────────────────────────────
-function getToken() {
-  return localStorage.getItem('accessToken') ?? '';
-}
-
-function getRefreshToken() {
-  return localStorage.getItem('refreshToken') ?? '';
-}
-
+function getToken()        { return localStorage.getItem('accessToken')  ?? ''; }
+function getRefreshToken() { return localStorage.getItem('refreshToken') ?? ''; }
 function setTokens(accessToken: string, refreshToken?: string) {
   localStorage.setItem('accessToken', accessToken);
   if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
 }
-
 function clearTokens() {
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
 }
 
-// ─── Refresh Access Token ──────────────────────────────────
 async function refreshAccessToken(): Promise<string | null> {
   try {
     const refreshToken = getRefreshToken();
     if (!refreshToken) return null;
-
     const response = await fetch(`${BASE_URL}/user/auth/refresh-token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken }),
     });
-
     if (!response.ok) { clearTokens(); return null; }
-
     const data = await response.json();
-
-    const newAccessToken =
-      data.data?.accessToken ?? data.data?.token ??
-      data.accessToken       ?? data.token;
-
-    const newRefreshToken =
-      data.data?.refreshToken ?? data.refreshToken;
-
+    const newAccessToken  = data.data?.accessToken  ?? data.data?.token  ?? data.accessToken  ?? data.token;
+    const newRefreshToken = data.data?.refreshToken ?? data.refreshToken;
     if (!newAccessToken) return null;
-
     setTokens(newAccessToken, newRefreshToken);
     return newAccessToken;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
-// ─── Smart Fetch with Auto Refresh ────────────────────────
 async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
   const token = getToken();
-
   const response = await fetch(url, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-      ...options.headers,
-    },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, ...options.headers },
   });
-
   if (response.status === 401) {
     const newToken = await refreshAccessToken();
-    if (!newToken) {
-      clearTokens();
-      window.location.href = '/LoginPage';
-      return response;
-    }
+    if (!newToken) { clearTokens(); window.location.href = '/LoginPage'; return response; }
     return fetch(url, {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${newToken}`,
-        ...options.headers,
-      },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${newToken}`, ...options.headers },
     });
   }
-
   return response;
 }
 
-// ─── Transaction Types ─────────────────────────────────────
 interface Transaction {
   id: string;
   date?: string;
@@ -203,8 +137,7 @@ interface Transaction {
   transactionId?: string;
 }
 
-// ─── Components ────────────────────────────────────────────
-
+// ─── Action Buttons ────────────────────────────────────────
 function ActionButtons() {
   const { AR, isArabic } = useT();
   const actions = [
@@ -241,11 +174,16 @@ function SpendingChart() {
   );
 }
 
-// ─── Transactions Table ────────────────────────────────────
+// ─── Transactions Table with Date Filter ───────────────────
 function TransactionsTable() {
   const { AR, isArabic } = useT();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading]           = useState(true);
+  const [transactions,   setTransactions]   = useState<Transaction[]>([]);
+  const [loading,        setLoading]        = useState(true);
+  const [showFilter,     setShowFilter]     = useState(false);
+  const [fromDate,       setFromDate]       = useState('');
+  const [toDate,         setToDate]         = useState('');
+  const [activeFrom,     setActiveFrom]     = useState('');
+  const [activeTo,       setActiveTo]       = useState('');
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -277,6 +215,42 @@ function TransactionsTable() {
     return typeof amount === 'number' ? `$${amount.toLocaleString()}` : amount;
   };
 
+  // ── Apply filter ───────────────────────────────────────
+  const applyFilter = () => {
+    setActiveFrom(fromDate);
+    setActiveTo(toDate);
+    setShowFilter(false);
+  };
+
+  const clearFilter = () => {
+    setFromDate('');
+    setToDate('');
+    setActiveFrom('');
+    setActiveTo('');
+    setShowFilter(false);
+  };
+
+  const isFilterActive = activeFrom !== '' || activeTo !== '';
+
+  // ── Filter transactions by date range ─────────────────
+  const filteredTransactions = transactions.filter((txn) => {
+    const rawDate = txn.date ?? txn.createdAt;
+    if (!rawDate) return true;
+    const txnDate = new Date(rawDate);
+    txnDate.setHours(0, 0, 0, 0);
+    if (activeFrom) {
+      const from = new Date(activeFrom);
+      from.setHours(0, 0, 0, 0);
+      if (txnDate < from) return false;
+    }
+    if (activeTo) {
+      const to = new Date(activeTo);
+      to.setHours(23, 59, 59, 999);
+      if (txnDate > to) return false;
+    }
+    return true;
+  });
+
   const headers = isArabic
     ? [AR.transactions.date, AR.transactions.type, AR.transactions.amount,
        AR.transactions.status, AR.transactions.fee, AR.transactions.txnId]
@@ -287,12 +261,114 @@ function TransactionsTable() {
       className="backdrop-blur-[20px] bg-white/10 border border-white/20 rounded-[15px] lg:rounded-[20px] h-full flex flex-col overflow-hidden"
       style={{ backgroundImage: "linear-gradient(156deg, rgba(255, 255, 255, 0.3) 29%, rgba(255, 255, 255, 0.05) 131%)" }}
     >
-      <div className="px-4 lg:px-6 py-4 lg:py-5">
+      {/* ── Header with Filter Button ─────────────────── */}
+      <div className="px-4 lg:px-6 py-4 lg:py-5 flex items-center justify-between gap-2">
         <h3 className="text-sm lg:text-base font-medium text-white">
           {isArabic ? AR.transactions.title : "Recent Transactions"}
         </h3>
+
+        <div className="relative">
+          {/* Filter Toggle Button */}
+          <button
+            onClick={() => setShowFilter((prev) => !prev)}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all",
+              isFilterActive
+                ? "bg-[#ef6b23] border-[#ef6b23] text-white"
+                : "border-white/30 text-white/70 hover:border-white/60 hover:text-white"
+            )}
+          >
+            <Filter className="w-3 h-3" />
+            {isArabic ? AR.transactions.filterByDate : "Filter by Date"}
+            {isFilterActive && (
+              <span
+                onClick={(e) => { e.stopPropagation(); clearFilter(); }}
+                className="ml-1 hover:opacity-70"
+              >
+                <X className="w-3 h-3" />
+              </span>
+            )}
+          </button>
+
+          {/* ── Filter Dropdown Panel ──────────────────── */}
+          {showFilter && (
+            <div
+              className={cn(
+                "absolute top-full mt-2 z-50 bg-[#1a1a1a] border border-white/20 rounded-[12px] p-4 shadow-2xl w-[240px]",
+                isArabic ? "left-0" : "right-0"
+              )}
+            >
+              <p className="text-white text-xs font-semibold mb-3">
+                {isArabic ? AR.transactions.filterByDate : "Filter by Date"}
+              </p>
+
+              {/* From Date */}
+              <div className="mb-3">
+                <label className="text-white/60 text-[10px] uppercase tracking-wider block mb-1">
+                  {isArabic ? AR.transactions.from : "From"}
+                </label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  max={toDate || undefined}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-[#ef6b23] [color-scheme:dark]"
+                />
+              </div>
+
+              {/* To Date */}
+              <div className="mb-4">
+                <label className="text-white/60 text-[10px] uppercase tracking-wider block mb-1">
+                  {isArabic ? AR.transactions.to : "To"}
+                </label>
+                <input
+                  type="date"
+                  value={toDate}
+                  min={fromDate || undefined}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-[#ef6b23] [color-scheme:dark]"
+                />
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={clearFilter}
+                  className="flex-1 h-8 rounded-full border border-white/30 text-white/70 text-xs hover:border-white/60 hover:text-white transition-all"
+                >
+                  {isArabic ? AR.transactions.clearFilter : "Clear"}
+                </button>
+                <button
+                  onClick={applyFilter}
+                  disabled={!fromDate && !toDate}
+                  className="flex-1 h-8 rounded-full bg-[#ef6b23] text-white text-xs font-medium hover:bg-[#d85a1a] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
+      {/* ── Active Filter Badge ────────────────────────── */}
+      {isFilterActive && (
+        <div className="px-4 lg:px-6 -mt-2 mb-2 flex items-center gap-2">
+          <span className="text-[10px] text-white/50">
+            {isArabic ? "النطاق:" : "Showing:"}
+          </span>
+          <span className="text-[10px] text-[#ef6b23] font-medium">
+            {activeFrom && formatDate(activeFrom)}
+            {activeFrom && activeTo && " → "}
+            {activeTo && formatDate(activeTo)}
+          </span>
+          <span className="text-[10px] text-white/40">
+            ({filteredTransactions.length} {isArabic ? "معاملة" : "result(s)"})
+          </span>
+        </div>
+      )}
+
+      {/* ── Table Header ──────────────────────────────── */}
       <div className="bg-white/10 h-10 lg:h-12 flex items-center px-4 lg:px-6 shadow-sm">
         <div className="grid grid-cols-6 w-full text-[10px] lg:text-xs font-bold text-white uppercase tracking-wider gap-1">
           <span>{headers[0]}</span>
@@ -304,6 +380,7 @@ function TransactionsTable() {
         </div>
       </div>
 
+      {/* ── Table Body ────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto px-4 lg:px-6 py-2">
         {loading && (
           <div className="space-y-3 py-2">
@@ -317,18 +394,28 @@ function TransactionsTable() {
           </div>
         )}
 
-        {!loading && transactions.length === 0 && (
+        {!loading && filteredTransactions.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full py-8 gap-2">
             <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
               <ArrowLeftRight className="w-5 h-5 text-white/40" />
             </div>
             <p className="text-white/40 text-xs">
-              {isArabic ? AR.transactions.noTxn : "No transactions yet"}
+              {isFilterActive
+                ? (isArabic ? AR.transactions.noResults : "No transactions in this date range")
+                : (isArabic ? AR.transactions.noTxn : "No transactions yet")}
             </p>
+            {isFilterActive && (
+              <button
+                onClick={clearFilter}
+                className="text-[#ef6b23] text-xs hover:underline mt-1"
+              >
+                {isArabic ? AR.transactions.clearFilter : "Clear filter"}
+              </button>
+            )}
           </div>
         )}
 
-        {!loading && transactions.map((txn, i) => (
+        {!loading && filteredTransactions.map((txn, i) => (
           <div key={txn.id ?? i} className="grid grid-cols-6 w-full py-3 lg:py-4 border-b border-white/10 items-center last:border-0 gap-1 text-[11px] lg:text-xs">
             <span className="font-bold text-[#ececec]">{formatDate(txn.date ?? txn.createdAt)}</span>
             <span className="font-bold text-[#ececec] capitalize">{txn.type ?? txn.transactionType ?? '-'}</span>
@@ -407,7 +494,6 @@ function SwapInterface() {
           {isArabic ? AR.swap.slippage : "Slippage"}
         </span>
       </div>
-
       <div className="space-y-2 lg:space-y-3 relative flex-1">
         <div className="border border-white/20 rounded-[12px] lg:rounded-[15px] p-3 lg:p-4 h-auto lg:h-[80px] relative overflow-hidden">
           <div className="flex justify-between items-start gap-2">
@@ -425,13 +511,11 @@ function SwapInterface() {
             </div>
           </div>
         </div>
-
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-full border border-white/20 bg-black/40 flex items-center justify-center cursor-pointer hover:bg-black/60 transition-all rotate-90 shadow-xl">
             <ArrowLeftRight className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-white" />
           </div>
         </div>
-
         <div className="border border-white/20 rounded-[12px] lg:rounded-[15px] p-3 lg:p-4 h-auto lg:h-[80px] relative overflow-hidden mt-5 lg:mt-0">
           <div className="flex justify-between items-start gap-2">
             <div className="flex-1">
@@ -449,7 +533,6 @@ function SwapInterface() {
           </div>
         </div>
       </div>
-
       <div className="mt-4 lg:mt-6">
         <button className="w-full h-8 lg:h-9 bg-[#ef6b23] rounded-full text-white font-medium text-xs lg:text-sm hover:bg-[#ef6b23]/90 transition-all">
           {isArabic ? AR.swap.swapBtn : "Swap Coin"}
@@ -459,7 +542,6 @@ function SwapInterface() {
   );
 }
 
-// ─── AllocationChart ───────────────────────────────────────
 function AllocationChart() {
   const { AR, isArabic } = useT();
   const [balanceEntries, setBalanceEntries] = useState<
@@ -473,31 +555,16 @@ function AllocationChart() {
       try {
         setLoading(true);
         const token = getToken();
-        console.log('🔑 Token found:', token ? 'Yes' : 'No token in localStorage');
         if (!token) return;
-
-        console.log('📡 Calling wallet balance API...');
         const response = await fetchWithAuth(`${BASE_URL}/user/simulation/wallet/balance`);
-        console.log('📶 Response status:', response.status);
-
-        if (!response.ok) {
-          console.error('❌ API call failed with status:', response.status);
-          return;
-        }
-
+        if (!response.ok) return;
         const data = await response.json();
-        console.log('✅ Full API response:', JSON.stringify(data, null, 2));
-
         const balances = data.data?.balances ?? {};
-        const entries = Object.values(balances) as {
-          asset: string; fundSource: string; amount: number;
-        }[];
-
-        console.log('📊 Balance entries:', entries);
+        const entries = Object.values(balances) as { asset: string; fundSource: string; amount: number }[];
         setBalanceEntries(entries);
         setFetched(true);
       } catch (err) {
-        console.error('💥 Error fetching wallet balance:', err);
+        console.error('Error fetching wallet balance:', err);
       } finally {
         setLoading(false);
       }
@@ -506,49 +573,24 @@ function AllocationChart() {
   }, []);
 
   const totalAmount = balanceEntries.reduce((sum, b) => sum + b.amount, 0);
-
-  const MIN_INNER  = 45;
-  const BASE_INNER = 64;
-  const BASE_OUTER = 70;
-  const MAX_GROWTH = 22;
-  const SCALE_CAP  = 500_000;
-
-  const growthFactor = fetched && totalAmount > 0
-    ? Math.min(totalAmount / SCALE_CAP, 1) : 0;
-
-  const dynamicInner = Math.max(
-    BASE_INNER + Math.round(growthFactor * MAX_GROWTH), MIN_INNER
-  );
+  const MIN_INNER = 45, BASE_INNER = 64, BASE_OUTER = 70, MAX_GROWTH = 22, SCALE_CAP = 500_000;
+  const growthFactor = fetched && totalAmount > 0 ? Math.min(totalAmount / SCALE_CAP, 1) : 0;
+  const dynamicInner = Math.max(BASE_INNER + Math.round(growthFactor * MAX_GROWTH), MIN_INNER);
   const dynamicOuter = BASE_OUTER + Math.round(growthFactor * MAX_GROWTH);
 
-  const chartData =
-    fetched && balanceEntries.length > 0
-      ? balanceEntries.map((b) => ({
-          name:  b.asset,
-          value: b.amount > 0 ? b.amount : 1,
-          color: ASSET_COLORS[b.asset] ?? ASSET_COLORS.DEFAULT,
-        }))
-      : [
-          { name: 'Divided',   value: 65, color: '#ef6b23' },
-          { name: 'Remaining', value: 35, color: 'rgba(255, 255, 255, 0.1)' },
-        ];
+  const chartData = fetched && balanceEntries.length > 0
+    ? balanceEntries.map((b) => ({ name: b.asset, value: b.amount > 0 ? b.amount : 1, color: ASSET_COLORS[b.asset] ?? ASSET_COLORS.DEFAULT }))
+    : [{ name: 'Divided', value: 65, color: '#ef6b23' }, { name: 'Remaining', value: 35, color: 'rgba(255, 255, 255, 0.1)' }];
 
-  const legendItems =
-    fetched && balanceEntries.length > 0
-      ? balanceEntries.map((b) => ({
-          label:  b.asset,
-          color:  ASSET_COLORS[b.asset] ?? ASSET_COLORS.DEFAULT,
-          amount: `$${b.amount.toLocaleString()}`,
-        }))
-      : [
-          { label: isArabic ? AR.allocation.phantom  : 'Phantom',  color: '#ffffff', amount: null as string | null },
-          { label: isArabic ? AR.allocation.connects : 'Connects', color: '#ffffff', amount: null as string | null },
-          { label: isArabic ? AR.allocation.coinbase : 'Coinbase', color: '#ffffff', amount: null as string | null },
-        ];
+  const legendItems = fetched && balanceEntries.length > 0
+    ? balanceEntries.map((b) => ({ label: b.asset, color: ASSET_COLORS[b.asset] ?? ASSET_COLORS.DEFAULT, amount: `$${b.amount.toLocaleString()}` as string | null }))
+    : [
+        { label: isArabic ? AR.allocation.phantom  : 'Phantom',  color: '#ffffff', amount: null as string | null },
+        { label: isArabic ? AR.allocation.connects : 'Connects', color: '#ffffff', amount: null as string | null },
+        { label: isArabic ? AR.allocation.coinbase : 'Coinbase', color: '#ffffff', amount: null as string | null },
+      ];
 
-  const formattedTotal = totalAmount.toLocaleString('en-US', {
-    style: 'currency', currency: 'USD', maximumFractionDigits: 2,
-  });
+  const formattedTotal = totalAmount.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
 
   return (
     <div
@@ -558,30 +600,14 @@ function AllocationChart() {
       <h3 className="text-sm lg:text-base font-medium text-white mb-2">
         {isArabic ? AR.allocation.title : "Allocation Funds"}
       </h3>
-
       <div className="relative w-full h-[150px] lg:h-[180px] mt-2">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie
-              data={chartData}
-              innerRadius={dynamicInner}
-              outerRadius={dynamicOuter}
-              startAngle={90}
-              endAngle={450}
-              dataKey="value"
-              stroke="none"
-              cornerRadius={5}
-              isAnimationActive={true}
-              animationDuration={700}
-              animationEasing="ease-out"
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
+            <Pie data={chartData} innerRadius={dynamicInner} outerRadius={dynamicOuter} startAngle={90} endAngle={450} dataKey="value" stroke="none" cornerRadius={5} isAnimationActive animationDuration={700} animationEasing="ease-out">
+              {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
             </Pie>
           </PieChart>
         </ResponsiveContainer>
-
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <div className="bg-[#ef6b23] px-2 py-0.5 rounded-full text-[10px] font-bold text-white uppercase mb-1">
             {isArabic ? AR.allocation.fundsLabel : "Funds"}
@@ -594,9 +620,7 @@ function AllocationChart() {
           ) : (
             <>
               <div className="text-xl lg:text-2xl font-bold text-white">
-                {fetched && totalAmount > 0
-                  ? formattedTotal
-                  : (isArabic ? AR.allocation.defaultAmount : "$35,450")}
+                {fetched && totalAmount > 0 ? formattedTotal : (isArabic ? AR.allocation.defaultAmount : "$35,450")}
               </div>
               <div className="text-white/60 text-[10px] lg:text-xs">
                 {fetched && totalAmount > 0
@@ -607,14 +631,11 @@ function AllocationChart() {
           )}
         </div>
       </div>
-
       <div className="absolute bottom-4 lg:bottom-5 left-0 w-full px-4 lg:px-6">
         <div className="h-px bg-white/20 w-full mb-2 lg:mb-3" />
         {loading ? (
           <div className="flex justify-between px-1">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-3 w-14 bg-white/20 animate-pulse rounded" />
-            ))}
+            {[1, 2, 3].map((i) => <div key={i} className="h-3 w-14 bg-white/20 animate-pulse rounded" />)}
           </div>
         ) : (
           <div className="flex justify-between items-center px-1 flex-wrap gap-y-1">
@@ -622,9 +643,7 @@ function AllocationChart() {
               <div key={i} className="flex items-center gap-1">
                 <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
                 <span className="text-[10px] lg:text-xs text-white font-medium">{item.label}</span>
-                {item.amount && (
-                  <span className="text-[10px] text-white/60">{item.amount}</span>
-                )}
+                {item.amount && <span className="text-[10px] text-white/60">{item.amount}</span>}
               </div>
             ))}
           </div>
@@ -685,12 +704,8 @@ function WalletCard() {
 // ─── Main Wallet Page ──────────────────────────────────────
 export default function Wallet() {
   const { AR, isArabic } = useT();
-
   return (
-    <div
-      className="min-h-screen bg-black text-foreground font-sans overflow-x-hidden"
-      dir={isArabic ? 'rtl' : 'ltr'}
-    >
+    <div className="min-h-screen bg-black text-foreground font-sans overflow-x-hidden" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#ef6b23]/10 rounded-full blur-[100px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#2c3a7c]/20 rounded-full blur-[120px]" />
@@ -715,7 +730,6 @@ export default function Wallet() {
                 <Search className="w-4 h-4 text-white" />
               </div>
             </div>
-
             <div className="flex-1 p-4 space-y-4 overflow-y-auto">
               <ActionButtons />
               <div className="backdrop-blur-[20px] bg-white/5 border border-white/10 rounded-[15px] p-4">
@@ -732,7 +746,6 @@ export default function Wallet() {
                   </span>
                 </div>
               </div>
-
               <div className="space-y-3">
                 {[
                   { ticker: "BTC", amount: "0.00040", usd: "$3,000", icon: imgBitcoin  },
@@ -750,7 +763,6 @@ export default function Wallet() {
                   </div>
                 ))}
               </div>
-
               <div className="relative h-[140px] w-full rounded-[15px] overflow-hidden">
                 <img src={imgDesign} alt="Design" className="absolute inset-0 w-full h-full object-cover" />
                 <div className="absolute inset-0 p-4 flex flex-col justify-between">
