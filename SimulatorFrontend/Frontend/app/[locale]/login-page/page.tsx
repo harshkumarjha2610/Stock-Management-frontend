@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/navigation'; // ✅ locale-aware router
 import { useLocale } from 'next-intl';
 import Image from 'next/image';
 
@@ -9,78 +9,74 @@ const API_BASE_URL = 'https://cobuild-simulator-backend.onrender.com/api/v1';
 // ─── Translations ─────────────────────────────────────────
 const t = {
   en: {
-    havingTrouble:          'Having trouble?',
-    getHelp:                'Get Help',
-    loginTitle:             'Login',
-    emailLabel:             'Email',
-    emailPlaceholder:       'Enter Email Here',
-    passwordLabel:          'Password',
-    passwordPlaceholder:    'Enter Password Here',
-    forgotPassword:         'Forgot Password?',
-    loginButton:            'Login',
-    loggingIn:              'Logging in...',
-    or:                     'OR',
-    continueWithGoogle:     'Continue with Google',
-    signingInGoogle:        'Signing in with Google...',
-    noAccount:              "Don't have an account?",
-    signUp:                 'Sign Up',
-    // Validation
-    emailRequired:          'Email is required',
-    emailInvalid:           'Please enter a valid email address',
-    passwordRequired:       'Password is required',
-    passwordMinLength:      'Password must be at least 6 characters',
-    // API errors
-    googleFailed:           'Google sign-in failed. Please try again.',
-    verifyEmailFirst:       'Please verify your email first. Redirecting...',
-    verifyInvitation:       'Please verify your invitation code. Redirecting...',
-    invalidCredentials:     'Invalid email or password. Please try again.',
-    noAccountFound:         'No account found with this email. Please sign up first.',
-    accessDenied:           'Access denied. Please complete verification.',
-    networkError:           'Network error. Please check your internet connection.',
-    unexpectedError:        'An unexpected error occurred. Please try again.',
+    havingTrouble:      'Having trouble?',
+    getHelp:            'Get Help',
+    loginTitle:         'Login',
+    emailLabel:         'Email',
+    emailPlaceholder:   'Enter Email Here',
+    passwordLabel:      'Password',
+    passwordPlaceholder:'Enter Password Here',
+    forgotPassword:     'Forgot Password?',
+    loginButton:        'Login',
+    loggingIn:          'Logging in...',
+    or:                 'OR',
+    continueWithGoogle: 'Continue with Google',
+    signingInGoogle:    'Signing in with Google...',
+    noAccount:          "Don't have an account?",
+    signUp:             'Sign Up',
+    emailRequired:      'Email is required',
+    emailInvalid:       'Please enter a valid email address',
+    passwordRequired:   'Password is required',
+    passwordMinLength:  'Password must be at least 6 characters',
+    googleFailed:       'Google sign-in failed. Please try again.',
+    verifyEmailFirst:   'Please verify your email first. Redirecting...',
+    verifyInvitation:   'Please verify your invitation code. Redirecting...',
+    invalidCredentials: 'Invalid email or password. Please try again.',
+    noAccountFound:     'No account found with this email. Please sign up first.',
+    accessDenied:       'Access denied. Please complete verification.',
+    networkError:       'Network error. Please check your internet connection.',
+    unexpectedError:    'An unexpected error occurred. Please try again.',
   },
   ar: {
-    havingTrouble:          'هل تواجه مشكلة؟',
-    getHelp:                'الحصول على المساعدة',
-    loginTitle:             'تسجيل الدخول',
-    emailLabel:             'البريد الإلكتروني',
-    emailPlaceholder:       'أدخل بريدك الإلكتروني',
-    passwordLabel:          'كلمة المرور',
-    passwordPlaceholder:    'أدخل كلمة المرور',
-    forgotPassword:         'نسيت كلمة المرور؟',
-    loginButton:            'تسجيل الدخول',
-    loggingIn:              'جارٍ تسجيل الدخول...',
-    or:                     'أو',
-    continueWithGoogle:     'المتابعة بحساب Google',
-    signingInGoogle:        'جارٍ تسجيل الدخول بـ Google...',
-    noAccount:              'ليس لديك حساب؟',
-    signUp:                 'إنشاء حساب',
-    // Validation
-    emailRequired:          'البريد الإلكتروني مطلوب',
-    emailInvalid:           'يرجى إدخال بريد إلكتروني صحيح',
-    passwordRequired:       'كلمة المرور مطلوبة',
-    passwordMinLength:      'يجب أن تكون كلمة المرور 6 أحرف على الأقل',
-    // API errors
-    googleFailed:           'فشل تسجيل الدخول بـ Google. يرجى المحاولة مجدداً.',
-    verifyEmailFirst:       'يرجى التحقق من بريدك الإلكتروني أولاً. جارٍ التحويل...',
-    verifyInvitation:       'يرجى التحقق من رمز الدعوة. جارٍ التحويل...',
-    invalidCredentials:     'البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى المحاولة مجدداً.',
-    noAccountFound:         'لا يوجد حساب بهذا البريد الإلكتروني. يرجى التسجيل أولاً.',
-    accessDenied:           'تم رفض الوصول. يرجى إكمال التحقق.',
-    networkError:           'خطأ في الشبكة. يرجى التحقق من اتصالك بالإنترنت.',
-    unexpectedError:        'حدث خطأ غير متوقع. يرجى المحاولة مجدداً.',
+    havingTrouble:      'هل تواجه مشكلة؟',
+    getHelp:            'الحصول على المساعدة',
+    loginTitle:         'تسجيل الدخول',
+    emailLabel:         'البريد الإلكتروني',
+    emailPlaceholder:   'أدخل بريدك الإلكتروني',
+    passwordLabel:      'كلمة المرور',
+    passwordPlaceholder:'أدخل كلمة المرور',
+    forgotPassword:     'نسيت كلمة المرور؟',
+    loginButton:        'تسجيل الدخول',
+    loggingIn:          'جارٍ تسجيل الدخول...',
+    or:                 'أو',
+    continueWithGoogle: 'المتابعة بحساب Google',
+    signingInGoogle:    'جارٍ تسجيل الدخول بـ Google...',
+    noAccount:          'ليس لديك حساب؟',
+    signUp:             'إنشاء حساب',
+    emailRequired:      'البريد الإلكتروني مطلوب',
+    emailInvalid:       'يرجى إدخال بريد إلكتروني صحيح',
+    passwordRequired:   'كلمة المرور مطلوبة',
+    passwordMinLength:  'يجب أن تكون كلمة المرور 6 أحرف على الأقل',
+    googleFailed:       'فشل تسجيل الدخول بـ Google. يرجى المحاولة مجدداً.',
+    verifyEmailFirst:   'يرجى التحقق من بريدك الإلكتروني أولاً. جارٍ التحويل...',
+    verifyInvitation:   'يرجى التحقق من رمز الدعوة. جارٍ التحويل...',
+    invalidCredentials: 'البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى المحاولة مجدداً.',
+    noAccountFound:     'لا يوجد حساب بهذا البريد الإلكتروني. يرجى التسجيل أولاً.',
+    accessDenied:       'تم رفض الوصول. يرجى إكمال التحقق.',
+    networkError:       'خطأ في الشبكة. يرجى التحقق من اتصالك بالإنترنت.',
+    unexpectedError:    'حدث خطأ غير متوقع. يرجى المحاولة مجدداً.',
   },
 };
 
 export default function LoginPage() {
-  const router = useRouter();
+  const router = useRouter(); // ✅ next-intl router — auto-prepends locale
   const locale = useLocale();
   const isAr   = locale === 'ar';
   const dir    = isAr ? 'rtl' : 'ltr';
   const tx     = isAr ? t.ar : t.en;
 
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [errors,   setErrors]   = useState({ email: '', password: '' });
+  const [formData,        setFormData]        = useState({ email: '', password: '' });
+  const [errors,          setErrors]          = useState({ email: '', password: '' });
   const [isLoading,       setIsLoading]       = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
@@ -112,13 +108,17 @@ export default function LoginPage() {
           }
         })
         .catch(() => {})
-        .finally(() => { router.push('/Investordashboard'); });
+        .finally(() => {
+          router.push('/Investordashboard'); // ✅ becomes /ar/Investordashboard automatically
+        });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
   const handleGoogleSignIn = () => {
     setIsGoogleLoading(true);
+    // ✅ Store locale in localStorage so the OAuth callback page can restore it
+    localStorage.setItem('authLocale', locale);
     window.location.href = `${API_BASE_URL}/user/social-auth/google`;
   };
 
@@ -187,6 +187,7 @@ export default function LoginPage() {
         if (user?.emailVerified !== true) {
           setErrors((prev) => ({ ...prev, email: tx.verifyEmailFirst }));
           setTimeout(() => {
+            // ✅ next-intl router handles locale prefix for query params too
             router.push(`/VerifyOtp?email=${encodeURIComponent(formData.email)}`);
           }, 1500);
           return;
@@ -194,11 +195,13 @@ export default function LoginPage() {
 
         if (user?.isActive !== true) {
           setErrors((prev) => ({ ...prev, email: tx.verifyInvitation }));
-          setTimeout(() => { router.push('/VerifyInvitation'); }, 1500);
+          setTimeout(() => {
+            router.push('/VerifyInvitation'); // ✅ becomes /ar/VerifyInvitation
+          }, 1500);
           return;
         }
 
-        router.push('/Investordashboard');
+        router.push('/Investordashboard'); // ✅ becomes /ar/Investordashboard
 
       } else {
         if (response.status === 403) {
@@ -210,7 +213,9 @@ export default function LoginPage() {
             }, 2000);
           } else if (message.includes('invitation') || message.includes('code') || message.includes('active')) {
             setErrors((prev) => ({ ...prev, email: tx.verifyInvitation }));
-            setTimeout(() => { router.push('/VerifyInvitation'); }, 2000);
+            setTimeout(() => {
+              router.push('/VerifyInvitation'); // ✅ locale-aware
+            }, 2000);
           } else {
             setErrors((prev) => ({ ...prev, email: data.message || tx.accessDenied }));
           }
@@ -233,7 +238,7 @@ export default function LoginPage() {
     }
   };
 
-  // ─── Spinner SVG ──────────────────────────────────────────
+  // ─── Spinner ──────────────────────────────────────────────
   const Spinner = ({ className }: { className?: string }) => (
     <svg className={`animate-spin ${className}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -245,25 +250,23 @@ export default function LoginPage() {
   return (
     <div dir={dir} className="min-h-screen bg-white">
 
-      {/* ── Header ──────────────────────────────────────── */}
+      {/* ── Header ────────────────────────────────────────── */}
       <header className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-        <div className="flex items-center">
-          <Image
-            src="/Co-build-logo-02-1.png"
-            alt="CoBuild Logo"
-            width={150}
-            height={40}
-            className="h-8 sm:h-10 w-auto"
-            priority
-          />
-        </div>
+        <Image
+          src="/Co-build-logo-02-1.png"
+          alt="CoBuild Logo"
+          width={150}
+          height={40}
+          className="h-8 sm:h-10 w-auto"
+          priority
+        />
         <div className="text-xs sm:text-sm text-gray-600">
           {tx.havingTrouble}{' '}
           <span className="text-[#ef6b23] cursor-pointer hover:underline">{tx.getHelp}</span>
         </div>
       </header>
 
-      {/* ── Main Content ─────────────────────────────────── */}
+      {/* ── Main Content ──────────────────────────────────── */}
       <div className="px-4 sm:px-6 py-6 sm:py-8 flex items-center justify-center">
         <div className="w-full max-w-[340px] sm:max-w-md">
 
@@ -286,8 +289,7 @@ export default function LoginPage() {
                   placeholder={tx.emailPlaceholder}
                   value={formData.email}
                   onChange={handleInputChange}
-                  // ✅ LTR for email input even in RTL mode — emails are always LTR
-                  dir="ltr"
+                  dir="ltr" // ✅ emails always LTR
                   className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border ${
                     errors.email ? 'border-red-500' : 'border-gray-300'
                   } rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 placeholder:text-gray-400 bg-white text-sm sm:text-base ${
@@ -327,11 +329,10 @@ export default function LoginPage() {
               </div>
 
               {/* ── Forgot Password ───────────────────────── */}
-              {/* ✅ text-left in RTL so it aligns to the start (left in RTL = visual right) */}
               <div className={`-mt-2 ${isAr ? 'text-left' : 'text-right'}`}>
                 <button
                   type="button"
-                  onClick={() => router.push('/Forgot-password')}
+                  onClick={() => router.push('/forgot-password')} // ✅ locale-aware
                   className="text-xs sm:text-sm text-[#ef6b23] hover:underline"
                 >
                   {tx.forgotPassword}
@@ -375,7 +376,6 @@ export default function LoginPage() {
                 </>
               ) : (
                 <>
-                  {/* Google SVG Icon */}
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="h-5 w-5 flex-shrink-0">
                     <path fill="#EA4335" d="M24 9.5c3.15 0 5.64 1.08 7.56 2.83l5.62-5.62C33.73 3.54 29.22 1.5 24 1.5 14.98 1.5 7.36 6.96 4.04 14.64l6.55 5.09C12.18 13.48 17.6 9.5 24 9.5z"/>
                     <path fill="#4285F4" d="M46.5 24c0-1.64-.15-3.22-.42-4.75H24v9.01h12.67C35.74 32.1 33.05 34.5 29.5 36l6.36 4.94C40.82 37.03 46.5 31.15 46.5 24z"/>
@@ -392,7 +392,7 @@ export default function LoginPage() {
               {tx.noAccount}{' '}
               <button
                 type="button"
-                onClick={() => router.push('/OnboardingPage1')}
+                onClick={() => router.push('/user-registration-page1')} // ✅ locale-aware
                 className="text-[#ef6b23] font-semibold hover:underline"
               >
                 {tx.signUp}

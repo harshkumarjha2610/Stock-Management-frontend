@@ -27,7 +27,7 @@ import {
 import { HeaderSection } from "@/app/[locale]/Investordashboard/sections/HeaderSection";
 import { FooterSection } from "@/app/[locale]/Investordashboard/sections/FooterSection";
 
-// ─── DATA ────────────────────────────────────────────────────────────────────
+// ─── DATA ─────────────────────────────────────────────────────────────────────
 
 const months = [
   { label: "Jan", labelAr: "يناير" },
@@ -63,7 +63,7 @@ const metricCards = [
 ];
 
 const portfolioLegend = [
-  { hex: "#EB6C27", label: "NFT",             labelAr: "رمز NFT",          value: "60% $90k" },
+  { hex: "#EB6C27", label: "NFT",             labelAr: "رمز NFT",             value: "60% $90k" },
   { hex: "#FF8A3D", label: "Fungible Tokens", labelAr: "رموز قابلة للاستبدال", value: "40% $60k" },
 ];
 
@@ -174,17 +174,13 @@ const glassPill =
   "relative inline-flex items-center justify-center gap-[3px] px-[15px] py-[5px] " +
   "bg-[var(--color-navbar)] border border-[var(--color-card-border)] rounded-[82px]";
 
-// ─── COMPONENT ───────────────────────────────────────────────────────────────
+// ─── COMPONENT ────────────────────────────────────────────────────────────────
 export default function ElementDashboard() {
   const [activeNav, setActiveNav] = useState("Investor Dashboard");
-  const router   = useRouter();
-  const locale   = useLocale();
-
-  // ✅ true when Arabic locale is active
-  const isAr = locale === "ar";
-
-  // ✅ RTL-aware direction string
-  const dir = isAr ? "rtl" : "ltr";
+  const router  = useRouter();
+  const locale  = useLocale();
+  const isAr    = locale === "ar";
+  const dir     = isAr ? "rtl" : "ltr";
 
   return (
     <div
@@ -198,16 +194,22 @@ export default function ElementDashboard() {
         }
       `}</style>
 
-      {/* ── HeaderSection ──────────────────────────────────────────────────── */}
+      {/* ── HeaderSection ─────────────────────────────────────────────────── */}
       <div className="w-full max-w-[1836px] mx-auto px-4 md:px-5">
         <HeaderSection />
       </div>
 
-      {/* ── Action buttons row ─────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full px-4 md:px-[22px] py-3 bg-black">
+      {/* ── Action buttons row ────────────────────────────────────────────── */}
+      {/*
+        MOBILE CHANGES (vs original):
+        1. Outer row: removed flex-col + gap-4 on mobile → now always flex row, justify-end on mobile
+        2. Back button wrapper: hidden on mobile (sm:inline-flex)
+        3. Buttons wrapper: grid-cols-2 on mobile → flex on sm+
+      */}
+      <div className="flex items-center justify-end sm:justify-between w-full px-4 md:px-[22px] py-3 bg-black">
 
-        {/* ✅ Back button — arrow flips for RTL */}
-        <div className="inline-flex items-center gap-[15px]">
+        {/* ── Back button: hidden on mobile, visible sm+ ── */}
+        <div className="hidden sm:inline-flex items-center gap-[15px]">
           <div
             onClick={() => router.back()}
             className={
@@ -222,14 +224,14 @@ export default function ElementDashboard() {
           </div>
         </div>
 
-        {/* ✅ Action buttons */}
-        <div className="flex items-center gap-[10px] flex-wrap sm:flex-nowrap sm:gap-[15px] sm:justify-end">
+        {/* ── Action buttons: 2-col grid on mobile, flex row on sm+ ── */}
+        <div className="grid grid-cols-2 gap-[10px] sm:flex sm:items-center sm:gap-[15px] sm:justify-end">
           {menuItems.map((item, i) => (
             <div
               key={i}
               onClick={() => item.route && router.push(item.route)}
               className={
-                "relative flex items-center gap-[10px] px-7 py-4 rounded-[14px] flex-shrink-0 " +
+                "relative flex items-center gap-[10px] px-7 py-0 sm:py-4 rounded-[14px] flex-shrink-0 " +
                 "bg-[linear-gradient(135deg,var(--color-orange-highlight),var(--color-primary-orange))] shadow-[0_3px_0_0_var(--color-orange-dark)] " +
                 (item.route ? "cursor-pointer" : "cursor-default opacity-80")
               }
@@ -248,13 +250,13 @@ export default function ElementDashboard() {
         </div>
       </div>
 
-      {/* ── Two-column main area ─────────────────────────────────────────────── */}
+      {/* ── Two-column main area ──────────────────────────────────────────── */}
       <div className="flex flex-col lg:flex-row w-full items-stretch gap-5 px-4 md:px-5 pb-5">
 
-        {/* ── LEFT COLUMN ──────────────────────────────────────────────────────── */}
+        {/* ── LEFT COLUMN ───────────────────────────────────────────────────── */}
         <div className="flex flex-col w-full lg:w-1/2 min-w-0 self-stretch gap-5">
 
-          {/* ── Investment Summary ─────────────────────────────────────────── */}
+          {/* ── Investment Summary ──────────────────────────────────────────── */}
           <section className={`flex flex-col w-full items-start gap-5 pb-[30px] ${glass}`}>
 
             {/* Header */}
@@ -494,7 +496,7 @@ export default function ElementDashboard() {
           </div>
         </div>
 
-        {/* ── RIGHT COLUMN ─────────────────────────────────────────────────────── */}
+        {/* ── RIGHT COLUMN ──────────────────────────────────────────────────────── */}
         <div className="flex flex-col w-full lg:w-1/2 min-w-0 self-stretch gap-5 mt-5 lg:mt-0">
           <div className={`flex flex-col w-full items-start gap-5 pb-[30px] flex-1 ${glass}`}>
 
@@ -743,7 +745,6 @@ export default function ElementDashboard() {
         </div>
       </div>
 
-      {/* ✅ FooterSection */}
       <FooterSection />
     </div>
   );

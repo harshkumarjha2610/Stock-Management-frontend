@@ -428,8 +428,8 @@ export default function RetailInvestorPage() {
   const clearError = (field: string) => setErrors(prev => ({ ...prev, [field]: '' }));
 
   useEffect(() => {
-    const data = sessionStorage.getItem('onboardingPage1');
-    if (!data) { router.push('/OnboardingPage1'); return; }
+    const data = sessionStorage.getItem('user-registration-page1');
+    if (!data) { router.push('/user-registration-page1'); return; }
     setPage1Data(JSON.parse(data));
   }, [router]);
 
@@ -490,7 +490,7 @@ export default function RetailInvestorPage() {
       );
 
       if (response.data.success) {
-        sessionStorage.removeItem('onboardingPage1');
+        sessionStorage.removeItem('user-registration-page1');
         setRegisteredEmail(page1Data.email);
         setShowSuccessModal(true);
       }

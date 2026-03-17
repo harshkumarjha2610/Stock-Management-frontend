@@ -1,125 +1,27 @@
-'use client';
+"use client";
 
 import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
 import * as React from "react";
-import { useLocale } from 'next-intl';
-import { useRouter, usePathname } from '@/i18n/routing';
 
+// Utility function for className merging
 function cn(...inputs: any[]) {
   return inputs.filter(Boolean).join(" ");
 }
 
-// ==================== TRANSLATIONS ====================
-const AR = {
-  alert: { successTitle: 'نجاح!', errorTitle: 'خطأ', gotIt: 'حسناً!', close: 'إغلاق' },
-  header: { logoAlt: 'شعار كو بيلد', switchLabel: 'EN', toggleTheme: 'تبديل المظهر', login: 'تسجيل الدخول' },
-  landing: {
-    letsText: 'لنبني', coText: 'كو', buildText: 'بيلد', theWorld: 'العالم',
-    eoiTagline: 'قدّم طلب إبداء الاهتمام للحصول على وصول مبكر',
-    submitEoiButton: 'قدّم إبداء الاهتمام',
-    videoBrowserNotSupported: 'متصفحك لا يدعم تشغيل الفيديو.',
-    glassBossAlt: 'صورة المبنى',
-  },
-  validation: {
-    fullNameRequired: 'الاسم الكامل مطلوب', fullNameRequiredDesc: 'يرجى إدخال اسمك الكامل للمتابعة.',
-    emailRequired: 'البريد الإلكتروني مطلوب', emailRequiredDesc: 'يرجى إدخال بريدك الإلكتروني للمتابعة.',
-    invalidEmail: 'بريد إلكتروني غير صالح', invalidEmailDesc: 'يرجى إدخال عنوان بريد إلكتروني صالح.',
-    phoneRequired: 'رقم الهاتف مطلوب', phoneRequiredDesc: 'يرجى إدخال رقم هاتفك للمتابعة.',
-    investorTypeRequired: 'نوع المستثمر مطلوب', investorTypeRequiredDesc: 'يرجى اختيار نوع المستثمر للمتابعة.',
-    responseRequired: 'الإجابة مطلوبة', responseRequiredDesc: 'يرجى الإجابة إذا كنت مهتماً بدائرة المؤسسين.',
-    messageRequired: 'الرسالة مطلوبة', messageRequiredDesc: 'يرجى إخبارنا بسبب اهتمامك بدائرة المؤسسين.',
-    consentRequired: 'الموافقة مطلوبة', consentRequiredDesc: 'يرجى تقديم موافقتك للمتابعة.',
-  },
-  submit: {
-    successMessage: 'تم الإرسال بنجاح!',
-    successDescription: 'لقد استلمنا طلب إبداء اهتمامك. سيتواصل معك فريقنا قريباً.',
-    failedMessage: 'فشل الإرسال', somethingWrong: 'حدث خطأ ما. يرجى المحاولة مرة أخرى.',
-    networkError: 'خطأ في الشبكة', networkErrorDesc: 'فشل الإرسال. يرجى التحقق من اتصالك والمحاولة مجدداً.',
-  },
-  phone: { searchPlaceholder: 'ابحث عن دولة أو رمز...', noResults: 'لا توجد نتائج', phonePlaceholder: 'أدخل رقم الهاتف', fullNumberPreview: 'الرقم الكامل:' },
-  eoi: {
-    modalTitle: 'إبداء الاهتمام',
-    fullNameLabel: 'الاسم الكامل', fullNamePlaceholder: 'أدخل اسمك الكامل',
-    emailLabel: 'عنوان البريد الإلكتروني', emailPlaceholder: 'أدخل بريدك الإلكتروني',
-    phoneLabel: 'رقم الهاتف', fullNumber: 'الرقم الكامل:',
-    investorTypeLabel: 'نوع المستثمر',
-    individualLabel: 'مستثمر فردي', individualDesc: 'شخص واحد يستثمر بشكل مستقل',
-    businessLabel: 'مستثمر أعمال', businessDesc: 'شركة أو مؤسسة استثمارية',
-    institutionalLabel: 'مستثمر مؤسسي', institutionalDesc: 'مؤسسة كبيرة أو منظمة',
-    foundingCircleQuestion: 'هل أنت مهتم بأن تُؤخذ بعين الاعتبار لدائرة مؤسسي CoBuild من المستثمرين؟',
-    yesOption: 'نعم، أود أن أُؤخذ بعين الاعتبار', noOption: 'لا، شكراً',
-    whyInterestedLabel: 'يرجى إخبارنا بسبب اهتمامك',
-    whyInterestedPlaceholder: 'شارك اهتمامك وخبرتك ذات الصلة...',
-    linkedinLabel: 'ملف LinkedIn', linkedinOptional: '(اختياري)',
-    linkedinPlaceholder: 'https://linkedin.com/in/yourprofile',
-    consentText: 'أوافق على جمع ومعالجة بياناتي الشخصية لغرض تقييم اهتمامي كمستثمر.',
-    privacyPolicyLink: 'عرض سياسة الخصوصية',
-    cancelButton: 'إلغاء', submitButton: 'إرسال', submittingButton: 'جارٍ الإرسال...',
-  },
-};
-
-const EN = {
-  alert: { successTitle: 'Success!', errorTitle: 'Error', gotIt: 'Got it!', close: 'Close' },
-  header: { logoAlt: 'Co build logo', switchLabel: 'AR', toggleTheme: 'Toggle theme', login: 'Login' },
-  landing: {
-    letsText: "Let's", coText: 'Co', buildText: 'Build', theWorld: 'THE WORLD',
-    eoiTagline: 'Submit an Expression of Interest to be considered for early access',
-    submitEoiButton: 'Submit Expression of Interest',
-    videoBrowserNotSupported: 'Your browser does not support the video tag.',
-    glassBossAlt: 'Glass boss',
-  },
-  validation: {
-    fullNameRequired: 'Full Name Required', fullNameRequiredDesc: 'Please enter your full name to continue.',
-    emailRequired: 'Email Required', emailRequiredDesc: 'Please enter your email address to continue.',
-    invalidEmail: 'Invalid Email', invalidEmailDesc: 'Please enter a valid email address.',
-    phoneRequired: 'Phone Number Required', phoneRequiredDesc: 'Please enter your phone number to continue.',
-    investorTypeRequired: 'Investor Type Required', investorTypeRequiredDesc: 'Please select an investor type to continue.',
-    responseRequired: 'Response Required', responseRequiredDesc: "Please answer if you're interested in the Founding Circle.",
-    messageRequired: 'Message Required', messageRequiredDesc: "Please tell us why you're interested in the Founding Circle.",
-    consentRequired: 'Consent Required', consentRequiredDesc: 'Please provide your consent to proceed with the submission.',
-  },
-  submit: {
-    successMessage: 'Submitted Successfully!',
-    successDescription: "We've received your Expression of Interest. Our team will be in touch soon.",
-    failedMessage: 'Submission Failed', somethingWrong: 'Something went wrong. Please try again.',
-    networkError: 'Network Error', networkErrorDesc: 'Failed to submit. Please check your connection and try again.',
-  },
-  phone: { searchPlaceholder: 'Search country or code...', noResults: 'No results', phonePlaceholder: 'Enter phone number', fullNumberPreview: 'Full number:' },
-  eoi: {
-    modalTitle: 'Expression of Interest',
-    fullNameLabel: 'Full Name', fullNamePlaceholder: 'Enter your full name',
-    emailLabel: 'Email Address', emailPlaceholder: 'Enter your email',
-    phoneLabel: 'Phone Number', fullNumber: 'Full number:',
-    investorTypeLabel: 'Investor Type',
-    individualLabel: 'Individual Investor', individualDesc: 'A single person investing independently',
-    businessLabel: 'Business Investor', businessDesc: 'A company or investment firm',
-    institutionalLabel: 'Institutional Investor', institutionalDesc: 'A large institution or organization',
-    foundingCircleQuestion: "Are you interested in being considered for CoBuild's Founding Circle of Investors?",
-    yesOption: 'Yes, I would like to be considered', noOption: 'No, thank you',
-    whyInterestedLabel: "Please tell us why you're interested",
-    whyInterestedPlaceholder: 'Share your interest and relevant experience...',
-    linkedinLabel: 'LinkedIn Profile', linkedinOptional: '(Optional)',
-    linkedinPlaceholder: 'https://linkedin.com/in/yourprofile',
-    consentText: 'I consent to the collection and processing of my personal data for the purpose of evaluating my interest as an investor.',
-    privacyPolicyLink: 'View our Privacy Policy',
-    cancelButton: 'Cancel', submitButton: 'Submit', submittingButton: 'Submitting...',
-  },
-};
-
-// ==================== CUSTOM ALERT ====================
+// ==================== CUSTOM ALERT/TOAST COMPONENT ====================
 interface CustomAlertProps {
   type: 'success' | 'error';
   message: string;
   description?: string;
   onClose: () => void;
-  t: typeof EN;
 }
 
-const CustomAlert: React.FC<CustomAlertProps> = ({ type, message, description, onClose, t }) => {
+const CustomAlert: React.FC<CustomAlertProps> = ({ type, message, description, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-fadeIn">
       <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl animate-slideUp">
+        {/* ✅ e.) Orange theme for success */}
         <div className={`p-6 rounded-t-2xl ${type === 'success' ? 'bg-[#ef6b23]/10' : 'bg-red-50'}`}>
           <div className="flex items-center gap-4">
             {type === 'success' ? (
@@ -137,7 +39,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({ type, message, description, o
             )}
             <div className="flex-1">
               <h3 className={`text-lg font-bold ${type === 'success' ? 'text-[#ef6b23]' : 'text-red-900'}`}>
-                {type === 'success' ? t.alert.successTitle : t.alert.errorTitle}
+                {type === 'success' ? 'Success!' : 'Error'}
               </h3>
               <p className={`text-sm mt-1 ${type === 'success' ? 'text-[#ef6b23]/80' : 'text-red-700'}`}>
                 {message}
@@ -161,7 +63,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({ type, message, description, o
                 : 'bg-red-500 hover:bg-red-600 text-white'
             }`}
           >
-            {type === 'success' ? t.alert.gotIt : t.alert.close}
+            {type === 'success' ? 'Got it!' : 'Close'}
           </button>
         </div>
       </div>
@@ -234,7 +136,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
 );
 Input.displayName = "Input";
 
-// ==================== COUNTRY CODES ====================
+// ==================== COUNTRY CODES DATA ====================
 const COUNTRY_CODES = [
   { code: '+971', flag: '🇦🇪', name: 'AE - UAE' },
   { code: '+966', flag: '🇸🇦', name: 'SA - Saudi Arabia' },
@@ -268,14 +170,13 @@ const COUNTRY_CODES = [
   { code: '+60',  flag: '🇲🇾', name: 'MY - Malaysia' },
 ];
 
-// ==================== PHONE INPUT ====================
+// ==================== PHONE INPUT COMPONENT ====================
 interface PhoneInputProps {
   value: string;
   countryCode: string;
   onValueChange: (val: string) => void;
   onCountryChange: (code: string, flag: string, name: string) => void;
   disabled?: boolean;
-  t: typeof EN;
 }
 
 const PhoneInput: React.FC<PhoneInputProps> = ({
@@ -284,7 +185,6 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
   onValueChange,
   onCountryChange,
   disabled,
-  t,
 }) => {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState('');
@@ -337,19 +237,20 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
         {/* Dropdown */}
         {open && (
           <div className="absolute top-[calc(100%+4px)] left-0 z-[300] w-[240px] bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden">
+            {/* Search */}
             <div className="p-2 border-b border-gray-100 sticky top-0 bg-white">
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={t.phone.searchPlaceholder}
+                placeholder="Search country or code..."
                 className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent"
                 autoFocus
               />
             </div>
             <ul className="max-h-[200px] overflow-y-auto">
               {filtered.length === 0 ? (
-                <li className="px-4 py-3 text-sm text-gray-400 text-center">{t.phone.noResults}</li>
+                <li className="px-4 py-3 text-sm text-gray-400 text-center">No results</li>
               ) : (
                 filtered.map((c, i) => (
                   <li key={`${c.code}-${c.name}-${i}`}>
@@ -382,7 +283,7 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
         value={value}
         disabled={disabled}
         onChange={(e) => onValueChange(e.target.value.replace(/[^0-9\s\-]/g, ''))}
-        placeholder={t.phone.phonePlaceholder}
+        placeholder="Enter phone number"
         className="flex-1 h-full px-3 text-sm text-gray-900 bg-white rounded-r-lg focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400 min-w-0"
       />
     </div>
@@ -391,16 +292,9 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
 
 // ==================== MAIN DESIGN COMPONENT ====================
 export const Design = (): React.JSX.Element => {
-  const locale   = useLocale();
-  const router   = useRouter();
-  const pathname = usePathname();
-
-  // ✅ English uses hardcoded EN, Arabic uses AR — no JSON files needed
-  const t = locale === 'ar' ? AR : EN;
-  const isArabic = locale === 'ar';
-
   const [showModal, setShowModal] = React.useState(false);
   const [isWhiteTheme, setIsWhiteTheme] = React.useState(false);
+  const [language, setLanguage] = React.useState<'en' | 'ar'>('en');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = React.useState(false);
   const [ripples, setRipples] = React.useState<Array<{ x: number; y: number; id: number }>>([]);
@@ -419,23 +313,18 @@ export const Design = (): React.JSX.Element => {
     fullName: "",
     email: "",
     phone: "",
-    countryCode: "+971",
+    countryCode: "+971",   // default UAE
     countryFlag: "🇦🇪",
     investorType: "",
     interestedInCircle: "",
     message: "",
-    linkedinProfile: "",
+    linkedinProfile: "",   // ✅ d.) optional
     consentGiven: false,
   });
 
   const videoRef = React.useRef<HTMLVideoElement>(null);
-  const API_BASE_URL = "https://cobuild-simulator-backend.onrender.com/api/v1";
 
-  // ✅ Language switcher via next-intl router
-  const handleLanguageSwitch = () => {
-    const nextLocale = isArabic ? 'en' : 'ar';
-    router.replace(pathname, { locale: nextLocale });
-  };
+  const API_BASE_URL = "https://cobuild-simulator-backend.onrender.com/api/v1";
 
   // Handle image click with ripple effect
   const handleImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -463,6 +352,16 @@ export const Design = (): React.JSX.Element => {
     }, 50);
   };
 
+  // Language switch handler
+  const handleLanguageSwitch = (lang: 'en' | 'ar') => {
+    if (lang === 'ar') {
+      window.location.href = "/LandingArabic";
+    } else {
+      setLanguage(lang);
+    }
+    console.log('Switching to:', lang === 'en' ? 'English' : 'Arabic');
+  };
+
   // ✅ SUBMIT HANDLER
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -470,44 +369,45 @@ export const Design = (): React.JSX.Element => {
     console.log("=== FORM SUBMISSION STARTED ===");
     console.log("Current Form Data:", formData);
 
+    // VALIDATION
     if (!formData.fullName || !formData.fullName.trim()) {
-      setAlert({ show: true, type: 'error', message: t.validation.fullNameRequired, description: t.validation.fullNameRequiredDesc });
+      setAlert({ show: true, type: 'error', message: 'Full Name Required', description: 'Please enter your full name to continue.' });
       return;
     }
 
     if (!formData.email || !formData.email.trim()) {
-      setAlert({ show: true, type: 'error', message: t.validation.emailRequired, description: t.validation.emailRequiredDesc });
+      setAlert({ show: true, type: 'error', message: 'Email Required', description: 'Please enter your email address to continue.' });
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setAlert({ show: true, type: 'error', message: t.validation.invalidEmail, description: t.validation.invalidEmailDesc });
+      setAlert({ show: true, type: 'error', message: 'Invalid Email', description: 'Please enter a valid email address.' });
       return;
     }
 
     if (!formData.phone || !formData.phone.trim()) {
-      setAlert({ show: true, type: 'error', message: t.validation.phoneRequired, description: t.validation.phoneRequiredDesc });
+      setAlert({ show: true, type: 'error', message: 'Phone Number Required', description: 'Please enter your phone number to continue.' });
       return;
     }
 
     if (!formData.investorType) {
-      setAlert({ show: true, type: 'error', message: t.validation.investorTypeRequired, description: t.validation.investorTypeRequiredDesc });
+      setAlert({ show: true, type: 'error', message: 'Investor Type Required', description: 'Please select an investor type to continue.' });
       return;
     }
 
     if (!formData.interestedInCircle) {
-      setAlert({ show: true, type: 'error', message: t.validation.responseRequired, description: t.validation.responseRequiredDesc });
+      setAlert({ show: true, type: 'error', message: 'Response Required', description: "Please answer if you're interested in the Founding Circle." });
       return;
     }
 
     if (formData.interestedInCircle === 'yes' && !formData.message.trim()) {
-      setAlert({ show: true, type: 'error', message: t.validation.messageRequired, description: t.validation.messageRequiredDesc });
+      setAlert({ show: true, type: 'error', message: 'Message Required', description: "Please tell us why you're interested in the Founding Circle." });
       return;
     }
 
     if (!formData.consentGiven) {
-      setAlert({ show: true, type: 'error', message: t.validation.consentRequired, description: t.validation.consentRequiredDesc });
+      setAlert({ show: true, type: 'error', message: 'Consent Required', description: 'Please provide your consent to proceed with the submission.' });
       return;
     }
 
@@ -518,6 +418,7 @@ export const Design = (): React.JSX.Element => {
       const eoiData: any = {
         fullName: formData.fullName.trim(),
         email: formData.email.trim(),
+        // ✅ a.) Combined international phone number
         phoneNumber: `${formData.countryCode}${formData.phone.trim()}`,
         investorType: formData.investorType,
         foundingCircleOptIn: formData.interestedInCircle === 'yes',
@@ -529,6 +430,7 @@ export const Design = (): React.JSX.Element => {
         eoiData.interestReason = formData.message.trim();
       }
 
+      // ✅ d.) Only send LinkedIn if filled in
       if (formData.linkedinProfile.trim()) {
         eoiData.linkedinProfile = formData.linkedinProfile.trim();
       }
@@ -549,15 +451,22 @@ export const Design = (): React.JSX.Element => {
         setAlert({
           show: true,
           type: 'success',
-          message: t.submit.successMessage,
-          description: t.submit.successDescription,
+          message: 'Submitted Successfully!',
+          description: "We've received your Expression of Interest. Our team will be in touch soon.",
         });
         setShowModal(false);
+        // Reset form
         setFormData({
-          fullName: "", email: "", phone: "",
-          countryCode: "+971", countryFlag: "🇦🇪",
-          investorType: "", interestedInCircle: "",
-          message: "", linkedinProfile: "", consentGiven: false,
+          fullName: "",
+          email: "",
+          phone: "",
+          countryCode: "+971",
+          countryFlag: "🇦🇪",
+          investorType: "",
+          interestedInCircle: "",
+          message: "",
+          linkedinProfile: "",
+          consentGiven: false,
         });
         console.log("✅ Form reset completed");
       } else {
@@ -565,8 +474,8 @@ export const Design = (): React.JSX.Element => {
         setAlert({
           show: true,
           type: 'error',
-          message: t.submit.failedMessage,
-          description: result.message || t.submit.somethingWrong,
+          message: 'Submission Failed',
+          description: result.message || 'Something went wrong. Please try again.',
         });
       }
     } catch (error: any) {
@@ -574,8 +483,8 @@ export const Design = (): React.JSX.Element => {
       setAlert({
         show: true,
         type: 'error',
-        message: t.submit.networkError,
-        description: t.submit.networkErrorDesc,
+        message: 'Network Error',
+        description: 'Failed to submit. Please check your connection and try again.',
       });
     } finally {
       setIsSubmitting(false);
@@ -591,11 +500,11 @@ export const Design = (): React.JSX.Element => {
           to { opacity: 1; }
         }
         @keyframes slideUp {
-          from {
+          from { 
             opacity: 0;
             transform: translateY(20px);
           }
-          to {
+          to { 
             opacity: 1;
             transform: translateY(0);
           }
@@ -632,9 +541,15 @@ export const Design = (): React.JSX.Element => {
         .tap-ripple {
           animation: tapRippleExpand 2s ease-out infinite;
         }
-        .tap-ripple:nth-child(1) { animation-delay: 0s; }
-        .tap-ripple:nth-child(2) { animation-delay: 0.6s; }
-        .tap-ripple:nth-child(3) { animation-delay: 1.2s; }
+        .tap-ripple:nth-child(1) {
+          animation-delay: 0s;
+        }
+        .tap-ripple:nth-child(2) {
+          animation-delay: 0.6s;
+        }
+        .tap-ripple:nth-child(3) {
+          animation-delay: 1.2s;
+        }
         @media (max-width: 768px) {
           .mobile-snap-container {
             height: 100vh;
@@ -660,7 +575,6 @@ export const Design = (): React.JSX.Element => {
           message={alert.message}
           description={alert.description}
           onClose={() => setAlert({ ...alert, show: false })}
-          t={t}
         />
       )}
 
@@ -669,7 +583,6 @@ export const Design = (): React.JSX.Element => {
         className={`mobile-snap-container transition-colors duration-500 ${
           isWhiteTheme ? "bg-white" : "bg-black"
         } md:overflow-x-hidden md:w-full md:min-h-screen`}
-        dir={isArabic ? 'rtl' : 'ltr'}
       >
         {/* ===== SECTION 1: Header + Building ===== */}
         <section className="mobile-snap-section md:min-h-0 md:h-auto flex flex-col">
@@ -678,23 +591,23 @@ export const Design = (): React.JSX.Element => {
             <div className="flex flex-col w-[120px] sm:w-[140px] md:w-[180px] lg:w-[200px] items-start">
               <img
                 className="relative w-full h-auto object-contain transition-all duration-500"
-                alt={t.header.logoAlt}
+                alt="Co build logo"
                 src={isWhiteTheme ? "/Co-build-logo-02-1.png" : "/co-build-logo-01-1.png"}
               />
             </div>
 
             {/* Right side buttons */}
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* ✅ Language Toggle */}
+              {/* Language Toggle */}
               <button
-                onClick={handleLanguageSwitch}
+                onClick={() => handleLanguageSwitch(language === 'en' ? 'ar' : 'en')}
                 className={`relative w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 cursor-pointer group ${
                   isWhiteTheme
                     ? "bg-gray-800 hover:bg-gray-700"
                     : "bg-white/10 hover:bg-white/20 border border-white/30"
                 }`}
                 aria-label="Switch language"
-                title={isArabic ? 'Switch to English' : 'Switch to Arabic'}
+                title={language === 'en' ? 'Switch to Arabic' : 'Switch to English'}
               >
                 <svg
                   className="w-5 h-5 text-white"
@@ -714,7 +627,7 @@ export const Design = (): React.JSX.Element => {
                     isWhiteTheme ? "bg-white text-gray-800" : "bg-white/90 text-gray-800"
                   }`}
                 >
-                  {t.header.switchLabel}
+                  {language === 'en' ? 'AR' : 'EN'}
                 </span>
               </button>
 
@@ -726,7 +639,7 @@ export const Design = (): React.JSX.Element => {
                     ? "bg-gray-800 hover:bg-gray-700"
                     : "bg-white/10 hover:bg-white/20 border border-white/30"
                 }`}
-                aria-label={t.header.toggleTheme}
+                aria-label="Toggle theme"
               >
                 {isWhiteTheme ? (
                   <svg className="w-5 h-5 text-yellow-300" fill="currentColor" viewBox="0 0 24 24">
@@ -745,11 +658,11 @@ export const Design = (): React.JSX.Element => {
 
               {/* Login Button */}
               <Button
-                onClick={() => router.push('/login-page')}
+                onClick={() => (window.location.href = "/login-page")}
                 className="w-auto sm:w-[100px] md:w-[110px] h-[32px] sm:h-[40px] md:h-[44px] gap-2 px-3 sm:px-5 md:px-6 py-1.5 bg-[#ef6b23] rounded-[10px] md:rounded-[12px] overflow-hidden hover:bg-[#ef6b23]/90 cursor-pointer"
               >
                 <div className="relative w-fit text-white text-xs sm:text-sm md:text-base font-semibold [font-family:'Manrope',Helvetica] text-center whitespace-nowrap">
-                  {t.header.login}
+                  Login
                 </div>
               </Button>
             </div>
@@ -769,7 +682,7 @@ export const Design = (): React.JSX.Element => {
               >
                 <img
                   className="w-full h-auto object-contain hover:scale-105 transition-transform duration-300"
-                  alt={t.landing.glassBossAlt}
+                  alt="Glass boss"
                   src="/glass-boss-111-2.png"
                 />
 
@@ -802,7 +715,7 @@ export const Design = (): React.JSX.Element => {
                   className="w-[60%] h-auto object-contain"
                   src={isWhiteTheme ? "/building1white.mp4" : "/building1.mp4"}
                 >
-                  {t.landing.videoBrowserNotSupported}
+                  Your browser does not support the video tag.
                 </video>
               </div>
             </div>
@@ -822,7 +735,7 @@ export const Design = (): React.JSX.Element => {
               className="w-full max-w-[350px] sm:max-w-[420px]"
               src={isWhiteTheme ? "/secondbuildingwhite.mp4" : "/secondbuilding.mp4"}
             >
-              {t.landing.videoBrowserNotSupported}
+              Your browser does not support the video tag.
             </video>
 
             {/* Text */}
@@ -833,12 +746,12 @@ export const Design = (): React.JSX.Element => {
                 }`}
               >
                 <span className="block text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl">
-                  {t.landing.letsText}{" "}
-                  <span className="text-[#ef6b23]">{t.landing.coText}</span>
-                  <span className={isWhiteTheme ? "text-black" : "text-white"}>{t.landing.buildText}</span>
+                  Let's{" "}
+                  <span className="text-[#ef6b23]">Co</span>
+                  <span className={isWhiteTheme ? "text-black" : "text-white"}>Build</span>
                 </span>
                 <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl uppercase">
-                  {t.landing.theWorld}
+                  THE WORLD
                 </span>
               </h2>
             </div>
@@ -851,7 +764,7 @@ export const Design = (): React.JSX.Element => {
                 isWhiteTheme ? 'text-black' : 'text-white'
               }`}
             >
-              {t.landing.eoiTagline}
+              Submit an Expression of Interest to be considered for early access
             </h3>
 
             <Button
@@ -859,7 +772,7 @@ export const Design = (): React.JSX.Element => {
               className="w-auto px-5 sm:px-7 md:px-8 py-2.5 md:py-3 h-auto bg-[#ef6b23] rounded-[12px] md:rounded-[14px] overflow-hidden hover:bg-[#ef6b23]/90 shadow-lg transition-all hover:scale-105 cursor-pointer"
             >
               <div className="relative w-fit [font-family:'Satoshi-Bold',Helvetica] font-bold text-white text-sm md:text-base lg:text-lg text-center whitespace-nowrap">
-                {t.landing.submitEoiButton}
+                Submit Expression of Interest
               </div>
             </Button>
           </div>
@@ -879,13 +792,13 @@ export const Design = (): React.JSX.Element => {
 
               <form onSubmit={handleSubmit} className="p-6 md:p-8">
                 <h2 className="[font-family:'Satoshi-Bold',Helvetica] font-bold text-black text-2xl md:text-3xl mb-6 text-center">
-                  {t.eoi.modalTitle}
+                  Expression of Interest
                 </h2>
 
                 {/* Full Name */}
                 <div className="mb-4">
                   <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
-                    {t.eoi.fullNameLabel} <span className="text-red-500">*</span>
+                    Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -894,14 +807,14 @@ export const Design = (): React.JSX.Element => {
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                     className="w-full h-[48px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
-                    placeholder={t.eoi.fullNamePlaceholder}
+                    placeholder="Enter your full name"
                   />
                 </div>
 
                 {/* Email Address */}
                 <div className="mb-4">
                   <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
-                    {t.eoi.emailLabel} <span className="text-red-500">*</span>
+                    Email Address <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
@@ -910,14 +823,14 @@ export const Design = (): React.JSX.Element => {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="w-full h-[48px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
-                    placeholder={t.eoi.emailPlaceholder}
+                    placeholder="Enter your email"
                   />
                 </div>
 
-                {/* Phone Number */}
+                {/* ✅ a.) International Phone Number */}
                 <div className="mb-4">
                   <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
-                    {t.eoi.phoneLabel} <span className="text-red-500">*</span>
+                    Phone Number <span className="text-red-500">*</span>
                   </label>
                   <PhoneInput
                     value={formData.phone}
@@ -927,27 +840,25 @@ export const Design = (): React.JSX.Element => {
                       setFormData({ ...formData, countryCode: code, countryFlag: flag })
                     }
                     disabled={isSubmitting}
-                    t={t}
                   />
                   {/* Preview of full number */}
                   {formData.phone && (
                     <p className="text-xs text-gray-400 mt-1 ml-1">
-                      {t.phone.fullNumberPreview}{' '}
-                      <span className="font-mono text-gray-600">{formData.countryCode}{formData.phone}</span>
+                      Full number: <span className="font-mono text-gray-600">{formData.countryCode}{formData.phone}</span>
                     </p>
                   )}
                 </div>
 
-                {/* Investor Type */}
+                {/* ✅ b.) Investor Type - Updated Labels */}
                 <div className="mb-6">
                   <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-3">
-                    {t.eoi.investorTypeLabel} <span className="text-red-500">*</span>
+                    Investor Type <span className="text-red-500">*</span>
                   </label>
                   <div className="space-y-3">
                     {[
-                      { label: t.eoi.individualLabel, value: 'INDIVIDUAL', desc: t.eoi.individualDesc },
-                      { label: t.eoi.businessLabel,   value: 'BUSINESS',   desc: t.eoi.businessDesc },
-                      { label: t.eoi.institutionalLabel, value: 'INSTITUTIONAL', desc: t.eoi.institutionalDesc },
+                      { label: 'Individual Investor', value: 'INDIVIDUAL', desc: 'A single person investing independently' },
+                      { label: 'Business Investor', value: 'BUSINESS', desc: 'A company or investment firm' },
+                      { label: 'Institutional Investor', value: 'INSTITUTIONAL', desc: 'A large institution or organization' },
                     ].map((type) => (
                       <label
                         key={type.value}
@@ -981,7 +892,7 @@ export const Design = (): React.JSX.Element => {
                 {/* Founding Circle Question */}
                 <div className="mb-6">
                   <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-3">
-                    {t.eoi.foundingCircleQuestion}{' '}
+                    Are you interested in being considered for CoBuild's Founding Circle of Investors?{' '}
                     <span className="text-red-500">*</span>
                   </label>
                   <div className="space-y-3">
@@ -997,7 +908,7 @@ export const Design = (): React.JSX.Element => {
                         required
                       />
                       <span className="ml-3 [font-family:'Satoshi-Regular',Helvetica] text-black text-base group-hover:text-[#ef6b23] transition-colors">
-                        {t.eoi.yesOption}
+                        Yes, I would like to be considered
                       </span>
                     </label>
                     <label className="flex items-center cursor-pointer group">
@@ -1014,7 +925,7 @@ export const Design = (): React.JSX.Element => {
                         required
                       />
                       <span className="ml-3 [font-family:'Satoshi-Regular',Helvetica] text-black text-base group-hover:text-[#ef6b23] transition-colors">
-                        {t.eoi.noOption}
+                        No, thank you
                       </span>
                     </label>
                   </div>
@@ -1024,7 +935,7 @@ export const Design = (): React.JSX.Element => {
                 {formData.interestedInCircle === 'yes' && (
                   <div className="mb-6">
                     <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
-                      {t.eoi.whyInterestedLabel} <span className="text-red-500">*</span>
+                      Please tell us why you're interested <span className="text-red-500">*</span>
                     </label>
                     <textarea
                       required
@@ -1032,16 +943,16 @@ export const Design = (): React.JSX.Element => {
                       disabled={isSubmitting}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       className="w-full h-[120px] px-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent resize-none disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
-                      placeholder={t.eoi.whyInterestedPlaceholder}
+                      placeholder="Share your interest and relevant experience..."
                     />
                   </div>
                 )}
 
-                {/* LinkedIn Profile — Optional */}
+                {/* ✅ d.) LinkedIn Profile — Optional */}
                 <div className="mb-6">
                   <label className="block [font-family:'Satoshi-Medium',Helvetica] font-medium text-black text-sm mb-2">
-                    {t.eoi.linkedinLabel}{' '}
-                    <span className="text-gray-400 font-normal text-xs ml-1">{t.eoi.linkedinOptional}</span>
+                    LinkedIn Profile{' '}
+                    <span className="text-gray-400 font-normal text-xs ml-1">(Optional)</span>
                   </label>
                   <div className="relative">
                     {/* LinkedIn Icon */}
@@ -1056,12 +967,12 @@ export const Design = (): React.JSX.Element => {
                       value={formData.linkedinProfile}
                       onChange={(e) => setFormData({ ...formData, linkedinProfile: e.target.value })}
                       className="w-full h-[48px] pl-11 pr-4 py-3 rounded-lg border border-gray-300 [font-family:'Satoshi-Regular',Helvetica] text-black focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400 text-sm"
-                      placeholder={t.eoi.linkedinPlaceholder}
+                      placeholder="https://linkedin.com/in/yourprofile"
                     />
                   </div>
                 </div>
 
-                {/* Consent Checkbox with Privacy Policy Link */}
+                {/* ✅ c.) Consent Checkbox with Privacy Policy Link */}
                 <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
                   <label className="flex items-start cursor-pointer">
                     <input
@@ -1073,10 +984,11 @@ export const Design = (): React.JSX.Element => {
                       className="w-5 h-5 mt-0.5 rounded border-gray-300 text-[#ef6b23] focus:ring-[#ef6b23] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 flex-shrink-0"
                     />
                     <span className="ml-3 [font-family:'Satoshi-Regular',Helvetica] text-black text-sm leading-relaxed">
-                      {t.eoi.consentText}{' '}
+                      I consent to the collection and processing of my personal data for the purpose of
+                      evaluating my interest as an investor.{' '}
                       <span className="text-red-500">*</span>
                       <br />
-                      {/* Privacy Policy Link */}
+                      {/* ✅ Privacy Policy Link */}
                       <a
                         href="/privacy-policy"
                         target="_blank"
@@ -1092,7 +1004,7 @@ export const Design = (): React.JSX.Element => {
                             d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                           />
                         </svg>
-                        {t.eoi.privacyPolicyLink}
+                        View our Privacy Policy
                       </a>
                     </span>
                   </label>
@@ -1106,7 +1018,7 @@ export const Design = (): React.JSX.Element => {
                     disabled={isSubmitting}
                     className="flex-1 h-[50px] bg-gray-200 text-black hover:bg-gray-300 rounded-lg [font-family:'Satoshi-Bold',Helvetica] font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer text-sm"
                   >
-                    {t.eoi.cancelButton}
+                    Cancel
                   </button>
                   <button
                     type="submit"
@@ -1128,10 +1040,10 @@ export const Design = (): React.JSX.Element => {
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                           ></path>
                         </svg>
-                        {t.eoi.submittingButton}
+                        Submitting...
                       </>
                     ) : (
-                      t.eoi.submitButton
+                      'Submit'
                     )}
                   </button>
                 </div>

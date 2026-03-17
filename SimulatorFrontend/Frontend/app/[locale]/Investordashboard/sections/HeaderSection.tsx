@@ -1,13 +1,15 @@
 'use client';
 import { BellIcon, SettingsIcon, UserIcon, Menu, X, CheckCheck } from "lucide-react";
 import React, { JSX, useState, useRef, useEffect, useCallback } from "react";
-import { useRouter, usePathname } from "@/i18n/routing"; // ✅ BOTH from i18n/routing
+import { useRouter, usePathname } from "@/i18n/routing";
 import { useLocale } from "next-intl";
 import { createPortal } from "react-dom";
 import { Button } from "../../components/button";
 
+
 // ─── Base URL ──────────────────────────────────────────────────────────────────
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 type Notification = {
@@ -28,6 +30,7 @@ type Notification = {
   updatedAt: string;
 };
 
+
 // ─── Translations ──────────────────────────────────────────────────────────────
 const EN = {
   nav: {
@@ -45,6 +48,7 @@ const EN = {
   switchLabel: "AR",
 };
 
+
 const AR = {
   nav: {
     dashboard: "لوحة المستثمر",
@@ -61,6 +65,7 @@ const AR = {
   switchLabel: "EN",
 };
 
+
 // ─── Token Helpers ─────────────────────────────────────────────────────────────
 function getTokens() {
   return {
@@ -69,16 +74,19 @@ function getTokens() {
   };
 }
 
+
 function saveTokens(accessToken: string, refreshToken: string) {
   localStorage.setItem("accessToken",  accessToken);
   localStorage.setItem("refreshToken", refreshToken);
 }
+
 
 function clearTokens() {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("user");
 }
+
 
 // ─── Refresh Access Token ──────────────────────────────────────────────────────
 async function refreshAccessToken(): Promise<string | null> {
@@ -115,6 +123,7 @@ async function refreshAccessToken(): Promise<string | null> {
   }
 }
 
+
 // ─── Authenticated Fetch with Auto Refresh ─────────────────────────────────────
 async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
   const { accessToken } = getTokens();
@@ -137,12 +146,13 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
       res = await makeRequest(newToken);
     } else {
       clearTokens();
-      if (typeof window !== "undefined") window.location.href = "/LoginPage";
+      if (typeof window !== "undefined") window.location.href = "/login-page";
     }
   }
 
   return res;
 }
+
 
 // ─── Static Data ───────────────────────────────────────────────────────────────
 const TYPE_DOT: Record<string, string> = {
@@ -151,6 +161,7 @@ const TYPE_DOT: Record<string, string> = {
   INVESTMENT:   "bg-green-400",
   REWARD:       "bg-purple-400",
 };
+
 
 // ─── Language Toggle Button ────────────────────────────────────────────────────
 const LangToggleButton = ({
@@ -188,6 +199,7 @@ const LangToggleButton = ({
   </button>
 );
 
+
 // ─── Notification Dropdown ─────────────────────────────────────────────────────
 const NotificationDropdown = ({
   isOpen,
@@ -201,7 +213,7 @@ const NotificationDropdown = ({
   t,
 }: {
   isOpen: boolean;
-  position: { top: number; left: number; width: number };
+  position: { top: number; left: number; width: number; isMobile: boolean };
   notifications: Notification[];
   unreadCount: number;
   onClose: () => void;
@@ -238,11 +250,15 @@ const NotificationDropdown = ({
       ref={dropdownRef}
       style={{
         position: "fixed",
-        top:  `${position.top}px`,
-        left: `${position.left}px`,
-        zIndex: 9999,
+        top:      `${position.top}px`,
+        // ✅ On mobile: stretch edge-to-edge with 8px margins using left+right
+        // ✅ On desktop: anchor to bell button position
+        left:     position.isMobile ? "8px"               : `${position.left}px`,
+        right:    position.isMobile ? "8px"               : "auto",
+        width:    position.isMobile ? "auto"              : "400px",
+        zIndex:   9999,
       }}
-      className="w-[350px] sm:w-[400px] bg-[#2a2a2a] rounded-lg shadow-lg border border-white/10 max-h-[500px] overflow-hidden flex flex-col"
+      className="bg-[#2a2a2a] rounded-lg shadow-lg border border-white/10 max-h-[500px] overflow-hidden flex flex-col"
     >
       {/* Header */}
       <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between flex-shrink-0">
@@ -309,7 +325,7 @@ const NotificationDropdown = ({
         )}
       </div>
 
-      {/* Footer */}
+      {/* Footer — always visible */}
       <div className="px-4 py-3 border-t border-white/10 text-center flex-shrink-0">
         <button
           onClick={() => { onViewAll(); onClose(); }}
@@ -323,37 +339,39 @@ const NotificationDropdown = ({
   );
 };
 
+
 // ─── Main Header ───────────────────────────────────────────────────────────────
 export const HeaderSection = (): JSX.Element => {
   const locale   = useLocale();
   const router   = useRouter();
-  const pathname = usePathname(); // ✅ from @/i18n/routing — locale-free path
+  const pathname = usePathname();
 
   const t        = locale === 'ar' ? AR : EN;
   const isArabic = locale === 'ar';
 
   const [isMobileMenuOpen,     setIsMobileMenuOpen]     = useState(false);
   const [isNotificationOpen,   setIsNotificationOpen]   = useState(false);
-  const [notificationPosition, setNotificationPosition] = useState({ top: 0, left: 0, width: 0 });
-  const [notifications,        setNotifications]        = useState<Notification[]>([]);
-  const [unreadCount,          setUnreadCount]          = useState(0);
+  const [notificationPosition, setNotificationPosition] = useState({
+    top: 0, left: 0, width: 0, isMobile: false,
+  });
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount,   setUnreadCount]   = useState(0);
 
-  const bellButtonRef = useRef<HTMLButtonElement>(null);
+  // ✅ Two refs — desktop bell + mobile bell
+  const bellButtonRef       = useRef<HTMLButtonElement>(null);
+  const mobileBellButtonRef = useRef<HTMLButtonElement>(null);
 
-  // ✅ Nav items from translations
   const navigationItems = [
     { label: t.nav.dashboard, route: "/Investordashboard" },
-    { label: t.nav.wallet,    route: "/Wallet"            },
-    { label: t.nav.projects,  route: "/Projects"          },
+    { label: t.nav.wallet,    route: "/simulator-wallet"  },
+    { label: t.nav.projects,  route: "/all-projects"      },
   ];
 
-  // ─── ✅ Language Switch — no double prefix ────────────────────────────────
   const handleLanguageSwitch = () => {
     const nextLocale = isArabic ? 'en' : 'ar';
     router.replace(pathname, { locale: nextLocale });
   };
 
-  // ─── Fetch unread count ───────────────────────────────────────────────────
   const fetchUnreadCount = useCallback(async () => {
     try {
       const { accessToken } = getTokens();
@@ -366,7 +384,6 @@ export const HeaderSection = (): JSX.Element => {
     }
   }, []);
 
-  // ─── Fetch notifications list ─────────────────────────────────────────────
   const fetchNotifications = useCallback(async () => {
     try {
       const { accessToken } = getTokens();
@@ -379,14 +396,12 @@ export const HeaderSection = (): JSX.Element => {
     }
   }, []);
 
-  // ─── Poll badge every 30s ─────────────────────────────────────────────────
   useEffect(() => {
     fetchUnreadCount();
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
   }, [fetchUnreadCount]);
 
-  // ─── Mark single as read ──────────────────────────────────────────────────
   const handleMarkRead = async (id: string) => {
     try {
       await fetchWithAuth(`${API_BASE_URL}/notifications/${id}/read`, { method: "PATCH" });
@@ -399,7 +414,6 @@ export const HeaderSection = (): JSX.Element => {
     }
   };
 
-  // ─── Mark all as read ─────────────────────────────────────────────────────
   const handleMarkAllRead = async () => {
     try {
       await fetchWithAuth(`${API_BASE_URL}/notifications/read-all`, { method: "PATCH" });
@@ -420,13 +434,23 @@ export const HeaderSection = (): JSX.Element => {
     return pathname === route || pathname?.startsWith(`${route}/`);
   };
 
-  const handleNotificationClick = () => {
-    if (!isNotificationOpen && bellButtonRef.current) {
-      const rect = bellButtonRef.current.getBoundingClientRect();
+  // ✅ Positions above bell on mobile, below on desktop
+  const handleNotificationClick = (ref?: React.RefObject<HTMLButtonElement | null>) => {
+    const activeRef  = ref ?? bellButtonRef;
+    if (!isNotificationOpen && activeRef.current) {
+      const rect        = activeRef.current.getBoundingClientRect();
+      const isMobile    = window.innerWidth < 768;
+      const dropdownH   = 500; // matches max-h-[500px]
+
       setNotificationPosition({
-        top:   rect.bottom + 8,
-        left:  rect.right - 400,
-        width: rect.width,
+        top:      isMobile
+                    ? Math.max(8, rect.top - dropdownH - 8)          // ✅ above button
+                    : rect.bottom + 8,                                // ✅ below button
+        left:     isMobile
+                    ? 8                                               // handled via right:"8px" in style
+                    : Math.max(8, Math.min(rect.right - 400, window.innerWidth - 408)),
+        width:    rect.width,
+        isMobile,
       });
       fetchNotifications();
     }
@@ -438,7 +462,7 @@ export const HeaderSection = (): JSX.Element => {
       <div className="w-full h-4 sm:h-5 lg:h-6 bg-black" />
 
       <header
-        className="w-full max-w-[98vw] sm:max-w-[97vw] md:max-w-[96vw] lg:max-w-[1230px] xl:max-w-[1600px] 2xl:max-w-[1850px] mx-auto bg-[#3a3a3a] rounded-[15px] sm:rounded-[20px] lg:rounded-[30px] overflow-hidden relative mt-1 sm:mt-2 lg:mt-2"
+        className="w-full max-w-[98vw] sm:max-w-[97vw] md:max-w-[96vw] lg:max-w-[1220px] xl:max-w-[1280px] 2xl:max-w-[1620px] mx-auto bg-[#3a3a3a] rounded-[15px] sm:rounded-[20px] lg:rounded-[30px] overflow-hidden relative mt-1 sm:mt-2 lg:mt-2"
         dir={isArabic ? "rtl" : "ltr"}
       >
         <div className="flex items-center justify-between px-4 sm:px-6 lg:px-[26px] py-3 sm:py-4 lg:py-5 gap-2 sm:gap-4">
@@ -481,7 +505,7 @@ export const HeaderSection = (): JSX.Element => {
           {/* Desktop Icons */}
           <div className="hidden md:flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
 
-            {/* ✅ Language Toggle */}
+            {/* Language Toggle */}
             <LangToggleButton t={t} onSwitch={handleLanguageSwitch} />
 
             {/* Bell */}
@@ -490,7 +514,7 @@ export const HeaderSection = (): JSX.Element => {
               variant="ghost"
               size="icon"
               className="w-[40px] h-[40px] sm:w-[45px] sm:h-[45px] lg:w-[50px] lg:h-[50px] rounded-full hover:bg-[#4a4a4a] relative"
-              onClick={handleNotificationClick}
+              onClick={() => handleNotificationClick()}
             >
               <BellIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               {unreadCount > 0 && (
@@ -505,7 +529,7 @@ export const HeaderSection = (): JSX.Element => {
               variant="ghost"
               size="icon"
               className="w-[40px] h-[40px] sm:w-[45px] sm:h-[45px] lg:w-[50px] lg:h-[50px] rounded-full hover:bg-[#4a4a4a]"
-              onClick={() => router.push("/userprofile" as any)}
+              onClick={() => router.push("/user-profile" as any)}
             >
               <UserIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </Button>
@@ -521,7 +545,7 @@ export const HeaderSection = (): JSX.Element => {
             </Button>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Toggle */}
           <Button
             variant="ghost"
             size="icon"
@@ -563,18 +587,20 @@ export const HeaderSection = (): JSX.Element => {
             {/* Mobile Icons Row */}
             <div className="md:hidden flex items-center justify-center gap-3 px-4 py-3 border-t border-white/10">
 
-              {/* ✅ Language Toggle mobile */}
+              {/* Language Toggle */}
               <LangToggleButton
                 t={t}
                 onSwitch={handleLanguageSwitch}
                 className="w-[45px] h-[45px] rounded-full hover:bg-[#4a4a4a] relative flex items-center justify-center"
               />
 
+              {/* ✅ Mobile Bell — own ref, opens above */}
               <Button
+                ref={mobileBellButtonRef}
                 variant="ghost"
                 size="icon"
                 className="w-[45px] h-[45px] rounded-full hover:bg-[#4a4a4a] relative"
-                onClick={handleNotificationClick}
+                onClick={() => handleNotificationClick(mobileBellButtonRef)}
               >
                 <BellIcon className="w-5 h-5 text-white" />
                 {unreadCount > 0 && (
@@ -588,7 +614,7 @@ export const HeaderSection = (): JSX.Element => {
                 variant="ghost"
                 size="icon"
                 className="w-[45px] h-[45px] rounded-full hover:bg-[#4a4a4a]"
-                onClick={() => router.push("/userprofile" as any)}
+                onClick={() => router.push("/user-profile" as any)}
               >
                 <UserIcon className="w-5 h-5 text-white" />
               </Button>

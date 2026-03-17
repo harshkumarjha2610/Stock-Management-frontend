@@ -189,7 +189,7 @@ async function fetchWithRefresh(
     const newToken = await refreshAccessToken();
     if (!newToken) {
       clearTokens();
-      router.push('/LoginPage');
+      router.push('/login-page');
       throw new Error(sessionExpiredMsg);
     }
     response = await fetch(url, {
@@ -198,7 +198,7 @@ async function fetchWithRefresh(
     });
     if (response.status === 401) {
       clearTokens();
-      router.push('/login');
+      router.push('/login-page');
       throw new Error(sessionExpiredMsg);
     }
   }
