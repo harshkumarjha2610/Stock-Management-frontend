@@ -251,7 +251,7 @@ function VerifyOtpContent() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    if (!email) router.push('/OnboardingPage1');
+    if (!email) router.push('/user-registration-page1');
   }, [email, router]);
 
   // ── Countdown timer ───────────────────────────────────────
@@ -514,7 +514,7 @@ function VerifyOtpContent() {
           {/* Back to Login */}
           <div className="mt-8 text-center">
             <button
-              onClick={() => router.push('/LoginPage')}
+              onClick={() => router.push('/login-page')}
               className="text-sm text-gray-600 hover:text-[#ef6b23] transition-colors"
             >
               {tx.backToLogin}

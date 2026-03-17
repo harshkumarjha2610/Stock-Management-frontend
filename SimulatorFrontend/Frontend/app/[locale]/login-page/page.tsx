@@ -332,7 +332,7 @@ export default function LoginPage() {
               <div className={`-mt-2 ${isAr ? 'text-left' : 'text-right'}`}>
                 <button
                   type="button"
-                  onClick={() => router.push('/Forgot-password')} // ✅ locale-aware
+                  onClick={() => router.push('/forgot-password')} // ✅ locale-aware
                   className="text-xs sm:text-sm text-[#ef6b23] hover:underline"
                 >
                   {tx.forgotPassword}
@@ -392,7 +392,7 @@ export default function LoginPage() {
               {tx.noAccount}{' '}
               <button
                 type="button"
-                onClick={() => router.push('/OnboardingPage1')} // ✅ locale-aware
+                onClick={() => router.push('/user-registration-page1')} // ✅ locale-aware
                 className="text-[#ef6b23] font-semibold hover:underline"
               >
                 {tx.signUp}

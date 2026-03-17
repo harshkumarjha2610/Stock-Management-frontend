@@ -205,7 +205,7 @@ export default function ForgotPasswordPage() {
             <div className="text-center mt-6 sm:mt-8">
               <button
                 type="button"
-                onClick={() => router.push('/LoginPage')} // ✅ locale-aware
+                onClick={() => router.push('/login-page')} // ✅ locale-aware
                 className="text-xs sm:text-sm text-[#ef6b23] font-semibold hover:underline"
               >
                 {tx.backToLogin}

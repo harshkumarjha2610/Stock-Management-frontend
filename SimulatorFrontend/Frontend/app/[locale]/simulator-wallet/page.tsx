@@ -115,7 +115,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
   });
   if (response.status === 401) {
     const newToken = await refreshAccessToken();
-    if (!newToken) { clearTokens(); window.location.href = '/LoginPage'; return response; }
+    if (!newToken) { clearTokens(); window.location.href = '/login-page'; return response; }
     return fetch(url, {
       ...options,
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${newToken}`, ...options.headers },
@@ -573,7 +573,7 @@ function AllocationChart() {
   }, []);
 
   const totalAmount = balanceEntries.reduce((sum, b) => sum + b.amount, 0);
-  const MIN_INNER = 45, BASE_INNER = 64, BASE_OUTER = 70, MAX_GROWTH = 22, SCALE_CAP = 500_000;
+  const MIN_INNER = 45, BASE_INNER = 64, BASE_OUTER = 70, MAX_GROWTH = 32, SCALE_CAP = 500_000;
   const growthFactor = fetched && totalAmount > 0 ? Math.min(totalAmount / SCALE_CAP, 1) : 0;
   const dynamicInner = Math.max(BASE_INNER + Math.round(growthFactor * MAX_GROWTH), MIN_INNER);
   const dynamicOuter = BASE_OUTER + Math.round(growthFactor * MAX_GROWTH);
@@ -600,7 +600,7 @@ function AllocationChart() {
       <h3 className="text-sm lg:text-base font-medium text-white mb-2">
         {isArabic ? AR.allocation.title : "Allocation Funds"}
       </h3>
-      <div className="relative w-full h-[150px] lg:h-[180px] mt-2">
+      <div className="relative w-full h-[220px] lg:h-[220px] mt-2">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie data={chartData} innerRadius={dynamicInner} outerRadius={dynamicOuter} startAngle={90} endAngle={450} dataKey="value" stroke="none" cornerRadius={5} isAnimationActive animationDuration={700} animationEasing="ease-out">
@@ -786,7 +786,7 @@ export default function Wallet() {
 
           {/* RIGHT COLUMN */}
           <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-5 min-w-0 content-start">
-            <div className="h-[260px] lg:h-[320px]"><AllocationChart /></div>
+            <div className="h-[300px] lg:h-[320px]"><AllocationChart /></div>
             <div className="h-[280px] lg:h-[320px]"><WalletConnect   /></div>
             <div className="h-[280px] lg:h-[320px]"><SwapInterface    /></div>
             <div className="h-[260px] lg:h-[320px]"><WalletCard       /></div>

@@ -2,23 +2,71 @@
 
 import React, { JSX, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, TrendingUp, Wallet, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useLocale } from 'next-intl';
+import { ArrowLeft, ArrowRight, TrendingUp, Wallet, CheckCircle2, AlertCircle } from 'lucide-react';
 import { HeaderSection } from '@/app/[locale]/Investordashboard/sections/HeaderSection';
 const HeaderSectionAny: any = HeaderSection;
 
-// ─── Base URL ─────────────────────────────────────────────
 const BASE_URL = 'https://cobuild-simulator-backend.onrender.com/api/v1';
 
-// ─── Token Helpers ────────────────────────────────────────
-function getToken(): string {
-  return localStorage.getItem('accessToken') ?? '';
-}
-function getRefreshToken(): string {
-  return localStorage.getItem('refreshToken') ?? '';
-}
-function setTokens(accessToken: string, refreshToken?: string) {
-  localStorage.setItem('accessToken', accessToken);
-  if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
+// ─── Translations ──────────────────────────────────────────
+const t = {
+  en: {
+    pageTitle:         'My Investments',
+    investmentsFound:  (n: number) => `${n} investment${n !== 1 ? 's' : ''} found`,
+    totalInvested:     'Total Invested',
+    expectedReturn:    'Expected Return',
+    estimatedProfit:   'Estimated Profit',
+    active:            'Active',
+    project:           'Project',
+    amountReturnAction:'Amount / Return / Action',
+    viewSimulation:    'View Simulation',
+    simulated:         'Simulated',
+    expected:          'expected',
+    profit:            'profit',
+    noInvestments:     'No investments yet',
+    exploreProjects:   'Explore Projects',
+    retry:             'Retry',
+    notAuthenticated:  'Not authenticated. Please log in.',
+    fetchInvError:     (s: number) => `Failed to fetch investments (${s})`,
+    fetchProjError:    (s: number) => `Failed to fetch projects (${s})`,
+    somethingWrong:    'Something went wrong. Please try again.',
+    statusActive:      'Active',
+    statusCompleted:   'Completed',
+    statusCancelled:   'Cancelled',
+  },
+  ar: {
+    pageTitle:         'استثماراتي',
+    investmentsFound:  (n: number) => `${n} استثمار${n !== 1 ? '' : ''} موجود`,
+    totalInvested:     'إجمالي الاستثمار',
+    expectedReturn:    'العائد المتوقع',
+    estimatedProfit:   'الربح التقديري',
+    active:            'نشط',
+    project:           'المشروع',
+    amountReturnAction:'المبلغ / العائد / الإجراء',
+    viewSimulation:    'عرض المحاكاة',
+    simulated:         'محاكاة',
+    expected:          'متوقع',
+    profit:            'ربح',
+    noInvestments:     'لا توجد استثمارات بعد',
+    exploreProjects:   'استكشاف المشاريع',
+    retry:             'إعادة المحاولة',
+    notAuthenticated:  'غير مصادق. يرجى تسجيل الدخول.',
+    fetchInvError:     (s: number) => `فشل تحميل الاستثمارات (${s})`,
+    fetchProjError:    (s: number) => `فشل تحميل المشاريع (${s})`,
+    somethingWrong:    'حدث خطأ ما. يرجى المحاولة مجدداً.',
+    statusActive:      'نشط',
+    statusCompleted:   'مكتمل',
+    statusCancelled:   'ملغى',
+  },
+};
+
+// ─── Token Helpers ─────────────────────────────────────────
+function getToken():        string { return localStorage.getItem('accessToken')  ?? ''; }
+function getRefreshToken(): string { return localStorage.getItem('refreshToken') ?? ''; }
+function setTokens(at: string, rt?: string) {
+  localStorage.setItem('accessToken', at);
+  if (rt) localStorage.setItem('refreshToken', rt);
 }
 function clearTokens() {
   localStorage.removeItem('accessToken');
@@ -54,7 +102,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
   });
   if (res.status === 401) {
     const newToken = await refreshAccessToken();
-    if (!newToken) { clearTokens(); window.location.href = '/LoginPage'; return res; }
+    if (!newToken) { clearTokens(); window.location.href = '/login'; return res; }
     return fetch(url, {
       ...options,
       headers: {
@@ -67,7 +115,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
   return res;
 }
 
-// ─── Types ────────────────────────────────────────────────
+// ─── Types ─────────────────────────────────────────────────
 interface Investment {
   id: string;
   userId: string;
@@ -80,7 +128,6 @@ interface Investment {
   createdAt?: string;
   updatedAt?: string;
 }
-
 interface Project {
   id: string;
   name: string;
@@ -89,15 +136,9 @@ interface Project {
   returnPercent: string;
   timelineDays: number;
   totalValue: string;
-  pool: {
-    id: string;
-    asset: string;
-    mode: string;
-  };
+  pool: { id: string; asset: string; mode: string; };
   latestProgress: null | number;
 }
-
-// ── Enriched = Investment + matched Project ──
 interface EnrichedInvestment extends Investment {
   projectName: string;
   projectId: string;
@@ -105,7 +146,7 @@ interface EnrichedInvestment extends Investment {
   projectAsset: string;
 }
 
-// ─── Skeleton Row ─────────────────────────────────────────
+// ─── Skeleton Row ──────────────────────────────────────────
 function SkeletonRow() {
   return (
     <div
@@ -126,41 +167,51 @@ function SkeletonRow() {
   );
 }
 
-// ─── Status Badge ─────────────────────────────────────────
-function StatusBadge({ status }: { status: string }) {
+// ─── Status Badge ──────────────────────────────────────────
+function StatusBadge({ status, tx }: { status: string; tx: typeof t.en }) {
   const map: Record<string, { bg: string; color: string; border: string }> = {
     ACTIVE:    { bg: 'rgba(19,174,133,0.15)',  color: '#13AE85', border: 'rgba(19,174,133,0.3)'  },
     COMPLETED: { bg: 'rgba(99,102,241,0.15)',  color: '#818cf8', border: 'rgba(99,102,241,0.3)'  },
     CANCELLED: { bg: 'rgba(239,68,68,0.15)',   color: '#f87171', border: 'rgba(239,68,68,0.3)'   },
   };
-  const c = map[status] ?? { bg: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.15)' };
+  const c = map[status] ?? {
+    bg: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.15)',
+  };
+
+  // ── Translated label ──
+  const label =
+    status === 'ACTIVE'    ? tx.statusActive    :
+    status === 'COMPLETED' ? tx.statusCompleted :
+    status === 'CANCELLED' ? tx.statusCancelled :
+    status.charAt(0) + status.slice(1).toLowerCase();
+
   return (
     <span
       className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold whitespace-nowrap"
       style={{ background: c.bg, color: c.color, border: `1px solid ${c.border}`, fontFamily: 'Satoshi, sans-serif' }}
     >
       <CheckCircle2 size={9} />
-      {status.charAt(0) + status.slice(1).toLowerCase()}
+      {label}
     </span>
   );
 }
 
-// ─── Investment Card ──────────────────────────────────────
+// ─── Investment Card ───────────────────────────────────────
 function InvestmentCard({
-  inv,
-  index,
-  onView,
+  inv, index, onView, tx, isAr,
 }: {
   inv: EnrichedInvestment;
   index: number;
   onView: (inv: EnrichedInvestment) => void;
+  tx: typeof t.en;
+  isAr: boolean;
 }) {
-  const amount = Number(inv.amount);
+  const amount         = Number(inv.amount);
   const expectedReturn = Number(inv.expectedReturn);
-  const profit = expectedReturn - amount;
+  const profit         = expectedReturn - amount;
 
   const createdDate = inv.createdAt
-    ? new Date(inv.createdAt).toLocaleDateString('en-IN', {
+    ? new Date(inv.createdAt).toLocaleDateString(isAr ? 'ar-SA' : 'en-IN', {
         day: '2-digit', month: 'short', year: 'numeric',
       })
     : null;
@@ -172,9 +223,9 @@ function InvestmentCard({
         background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
       }}
     >
-      {/* ── Index badge + Info ── */}
+      {/* ── Index + Info ── */}
       <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-        {/* Number */}
+        {/* Number Badge */}
         <div
           className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-sm"
           style={{
@@ -187,9 +238,8 @@ function InvestmentCard({
           {String(index + 1).padStart(2, '0')}
         </div>
 
-        {/* Text info */}
+        {/* Text Info */}
         <div className="flex flex-col gap-1 min-w-0">
-          {/* ✅ Project Name (not ID) */}
           <div className="flex items-center gap-2 flex-wrap">
             <span
               className="text-white font-semibold text-sm sm:text-base"
@@ -197,7 +247,7 @@ function InvestmentCard({
             >
               {inv.projectName}
             </span>
-            <StatusBadge status={inv.status} />
+            <StatusBadge status={inv.status} tx={tx} />
             {inv.isSimulated && (
               <span
                 className="px-2 py-0.5 rounded-full text-[9px] font-medium"
@@ -208,18 +258,14 @@ function InvestmentCard({
                   fontFamily: 'Satoshi, sans-serif',
                 }}
               >
-                Simulated
+                {tx.simulated}
               </span>
             )}
           </div>
 
-          {/* Sub info: location + asset + date */}
           <div className="flex items-center gap-1.5 flex-wrap">
             {inv.projectLocation && (
-              <span
-                className="text-white/40 text-[10px] sm:text-xs"
-                style={{ fontFamily: 'Satoshi, sans-serif' }}
-              >
+              <span className="text-white/40 text-[10px] sm:text-xs" style={{ fontFamily: 'Satoshi, sans-serif' }}>
                 📍 {inv.projectLocation}
               </span>
             )}
@@ -235,80 +281,62 @@ function InvestmentCard({
 
       {/* ── Financials + Button ── */}
       <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-6 flex-shrink-0">
-
-        {/* Amounts */}
         <div className="flex flex-col items-start sm:items-end gap-1">
           <div className="flex items-center gap-1.5">
             <Wallet size={11} className="text-white/40" />
-            <span
-              className="text-white font-bold text-sm sm:text-base"
-              style={{ fontFamily: 'Dubai, sans-serif' }}
-            >
+            <span className="text-white font-bold text-sm sm:text-base" style={{ fontFamily: 'Dubai, sans-serif' }}>
               ${amount.toLocaleString()}
             </span>
           </div>
           <div className="flex items-center gap-1">
             <TrendingUp size={11} className="text-[#13AE85]" />
-            <span
-              className="text-[#13AE85] font-semibold text-xs"
-              style={{ fontFamily: 'Satoshi, sans-serif' }}
-            >
-              ${expectedReturn.toLocaleString()} expected
+            <span className="text-[#13AE85] font-semibold text-xs" style={{ fontFamily: 'Satoshi, sans-serif' }}>
+              ${expectedReturn.toLocaleString()} {tx.expected}
             </span>
           </div>
           {profit > 0 && (
-            <span
-              className="text-[#13AE85]/60 text-[10px]"
-              style={{ fontFamily: 'Satoshi, sans-serif' }}
-            >
-              +${profit.toLocaleString()} profit
+            <span className="text-[#13AE85]/60 text-[10px]" style={{ fontFamily: 'Satoshi, sans-serif' }}>
+              +${profit.toLocaleString()} {tx.profit}
             </span>
           )}
         </div>
 
-        {/* ✅ View Simulation → goes to SimulatorDashboardF3?id=PROJECT_ID */}
         <button
           onClick={() => onView(inv)}
           className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-[10px] sm:text-xs font-semibold text-white transition-all hover:opacity-90 whitespace-nowrap flex-shrink-0"
           style={{ background: '#EF6B23', fontFamily: 'Satoshi, sans-serif' }}
         >
-          View Simulation
+          {tx.viewSimulation}
         </button>
       </div>
     </div>
   );
 }
 
-// ─── Summary Bar ──────────────────────────────────────────
-function SummaryBar({ investments }: { investments: EnrichedInvestment[] }) {
-  const total = investments.reduce((s, i) => s + Number(i.amount), 0);
+// ─── Summary Bar ───────────────────────────────────────────
+function SummaryBar({ investments, tx }: { investments: EnrichedInvestment[]; tx: typeof t.en }) {
+  const total         = investments.reduce((s, i) => s + Number(i.amount), 0);
   const totalExpected = investments.reduce((s, i) => s + Number(i.expectedReturn), 0);
-  const profit = totalExpected - total;
-  const active = investments.filter(i => i.status === 'ACTIVE').length;
+  const profit        = totalExpected - total;
+  const active        = investments.filter(i => i.status === 'ACTIVE').length;
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
       {[
-        { label: 'Total Invested',    value: `$${total.toLocaleString()}`,          color: 'white'    },
-        { label: 'Expected Return',   value: `$${totalExpected.toLocaleString()}`,  color: '#13AE85'  },
-        { label: 'Estimated Profit',  value: profit > 0 ? `+$${profit.toLocaleString()}` : '—', color: '#13AE85' },
-        { label: 'Active',            value: String(active),                        color: '#EF6B23'  },
+        { label: tx.totalInvested,   value: `$${total.toLocaleString()}`,                              color: 'white'   },
+        { label: tx.expectedReturn,  value: `$${totalExpected.toLocaleString()}`,                      color: '#13AE85' },
+        { label: tx.estimatedProfit, value: profit > 0 ? `+$${profit.toLocaleString()}` : '—',         color: '#13AE85' },
+        { label: tx.active,          value: String(active),                                             color: '#EF6B23' },
       ].map(s => (
         <div
           key={s.label}
           className="flex flex-col gap-1 px-4 py-3 rounded-2xl border border-white/10"
           style={{ background: 'rgba(255,255,255,0.05)' }}
         >
-          <span
-            className="text-white/40 text-[10px] uppercase tracking-wide"
-            style={{ fontFamily: 'Satoshi, sans-serif' }}
-          >
+          <span className="text-white/40 text-[10px] uppercase tracking-wide" style={{ fontFamily: 'Satoshi, sans-serif' }}>
             {s.label}
           </span>
-          <span
-            className="font-bold text-lg sm:text-xl"
-            style={{ color: s.color, fontFamily: 'Dubai, sans-serif' }}
-          >
+          <span className="font-bold text-lg sm:text-xl" style={{ color: s.color, fontFamily: 'Dubai, sans-serif' }}>
             {s.value}
           </span>
         </div>
@@ -317,13 +345,16 @@ function SummaryBar({ investments }: { investments: EnrichedInvestment[] }) {
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────
+// ─── Main Page ─────────────────────────────────────────────
 export default function InvestmentsPage(): JSX.Element {
   const router = useRouter();
+  const locale = useLocale();
+  const isAr   = locale === 'ar';
+  const tx     = isAr ? t.ar : t.en;
 
   const [enriched, setEnriched] = useState<EnrichedInvestment[]>([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState<string | null>(null);
+  const [loading,  setLoading]  = useState(true);
+  const [error,    setError]    = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -331,47 +362,32 @@ export default function InvestmentsPage(): JSX.Element {
       setError(null);
       try {
         const token = getToken();
-        if (!token) { setError('Not authenticated. Please log in.'); return; }
+        if (!token) { setError(tx.notAuthenticated); return; }
 
-        // ── Fetch both in parallel ──────────────────────────
         const [invRes, projRes] = await Promise.all([
           fetchWithAuth(`${BASE_URL}/user/simulation/investments`),
           fetchWithAuth(`${BASE_URL}/user/simulation/projects`),
         ]);
 
-        if (!invRes.ok)  { setError(`Failed to fetch investments (${invRes.status})`);  return; }
-        if (!projRes.ok) { setError(`Failed to fetch projects (${projRes.status})`);    return; }
+        if (!invRes.ok)  { setError(tx.fetchInvError(invRes.status));   return; }
+        if (!projRes.ok) { setError(tx.fetchProjError(projRes.status)); return; }
 
         const invJson  = await invRes.json();
         const projJson = await projRes.json();
 
-        console.log('✅ [INVESTMENTS]', invJson.data);
-        console.log('✅ [PROJECTS]',    projJson.data);
-
         const investments: Investment[] = Array.isArray(invJson.data)  ? invJson.data  : [];
         const projects:    Project[]    = Array.isArray(projJson.data) ? projJson.data : [];
 
-        // ── Build pool.id → Project map ─────────────────────
-        // Each project has a `pool.id` — match against investment.projectPoolId
         const poolToProject = new Map<string, Project>();
-        projects.forEach(p => {
-          if (p.pool?.id) poolToProject.set(p.pool.id, p);
-        });
+        projects.forEach(p => { if (p.pool?.id) poolToProject.set(p.pool.id, p); });
 
-        console.log('🗺️ [MATCH] Pool→Project map size:', poolToProject.size);
-
-        // ── Enrich investments with project data ─────────────
         const result: EnrichedInvestment[] = investments.map(inv => {
           const matched = poolToProject.get(inv.projectPoolId);
-          console.log(
-            `🔗 [MATCH] inv.projectPoolId=${inv.projectPoolId} →`,
-            matched ? `✅ ${matched.name}` : '❌ No match'
-          );
           return {
             ...inv,
-            projectName:     matched?.name     ?? `Investment ${inv.id.slice(0, 6).toUpperCase()}`,
-            projectId:       matched?.id       ?? '',
-            projectLocation: matched?.location ?? '',
+            projectName:     matched?.name        ?? `Investment ${inv.id.slice(0, 6).toUpperCase()}`,
+            projectId:       matched?.id          ?? '',
+            projectLocation: matched?.location    ?? '',
             projectAsset:    matched?.pool?.asset ?? 'USD',
           };
         });
@@ -379,30 +395,31 @@ export default function InvestmentsPage(): JSX.Element {
         setEnriched(result);
       } catch (err) {
         console.error('💥 [INVESTMENTS]', err);
-        setError('Something went wrong. Please try again.');
+        setError(tx.somethingWrong);
       } finally {
         setLoading(false);
       }
     };
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ✅ Navigate to simulator using the REAL project.id
   const handleView = (inv: EnrichedInvestment) => {
-    if (!inv.projectId) {
-      console.warn('⚠️ No projectId found for investment — using projectPoolId as fallback');
-      router.push(`/SimulatorDashboardF3?id=${inv.projectPoolId}`);
-      return;
-    }
-    console.log('🚀 [NAV] Opening simulator for project:', inv.projectId, '—', inv.projectName);
-    router.push(`/SimulatorDashboardF3?id=${inv.projectId}`);
+    const id = inv.projectId || inv.projectPoolId;
+    router.push(`/SimulatorDashboardF3?id=${id}`);
   };
 
+  // ── Back arrow flips in RTL ──
+  const BackIcon = isAr ? ArrowRight : ArrowLeft;
+
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div
+      dir={isAr ? 'rtl' : 'ltr'}
+      className="min-h-screen bg-black text-white"
+    >
       <div className="max-w-[1836px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 pt-1 pb-8">
 
-        {/* Header */}
+        {/* ── Header ───────────────────────────────────── */}
         <div className="-mt-4 sm:-mt-5 md:-mt-6">
           <HeaderSectionAny
             showNavButtons={true}
@@ -410,7 +427,7 @@ export default function InvestmentsPage(): JSX.Element {
           />
         </div>
 
-        {/* Back + Title */}
+        {/* ── Back + Title ─────────────────────────────── */}
         <div className="flex items-center gap-3 sm:gap-4 mt-4 sm:mt-6 mb-6 sm:mb-8">
           <button
             onClick={() => router.back()}
@@ -418,27 +435,27 @@ export default function InvestmentsPage(): JSX.Element {
             style={{ background: '#ef6b23' }}
             aria-label="Go back"
           >
-            <ArrowLeft size={18} className="text-white" />
+            <BackIcon size={18} className="text-white" />
           </button>
           <div>
             <h1
               className="text-white text-xl sm:text-2xl md:text-3xl font-bold"
               style={{ fontFamily: 'Dubai, sans-serif' }}
             >
-              My Investments
+              {tx.pageTitle}
             </h1>
             {!loading && !error && (
               <p
                 className="text-white/40 text-xs sm:text-sm mt-0.5"
                 style={{ fontFamily: 'Satoshi, sans-serif' }}
               >
-                {enriched.length} investment{enriched.length !== 1 ? 's' : ''} found
+                {tx.investmentsFound(enriched.length)}
               </p>
             )}
           </div>
         </div>
 
-        {/* Loading */}
+        {/* ── Loading ───────────────────────────────────── */}
         {loading && (
           <div className="space-y-3">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 animate-pulse">
@@ -450,7 +467,7 @@ export default function InvestmentsPage(): JSX.Element {
           </div>
         )}
 
-        {/* Error */}
+        {/* ── Error ─────────────────────────────────────── */}
         {!loading && error && (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <AlertCircle size={40} className="text-red-400" />
@@ -460,12 +477,12 @@ export default function InvestmentsPage(): JSX.Element {
               className="px-5 py-2 rounded-full text-xs text-white"
               style={{ background: '#ef6b23' }}
             >
-              Retry
+              {tx.retry}
             </button>
           </div>
         )}
 
-        {/* Empty */}
+        {/* ── Empty ─────────────────────────────────────── */}
         {!loading && !error && enriched.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <div
@@ -475,30 +492,30 @@ export default function InvestmentsPage(): JSX.Element {
               <Wallet size={28} className="text-white/30" />
             </div>
             <p className="text-white/40 text-sm" style={{ fontFamily: 'Satoshi, sans-serif' }}>
-              No investments yet
+              {tx.noInvestments}
             </p>
             <button
-              onClick={() => router.push('/ProjectDiscovery')}
+              onClick={() => router.push('/projects')}
               className="px-6 py-2.5 rounded-full text-sm text-white font-medium"
               style={{ background: '#ef6b23', fontFamily: 'Satoshi, sans-serif' }}
             >
-              Explore Projects
+              {tx.exploreProjects}
             </button>
           </div>
         )}
 
-        {/* Loaded */}
+        {/* ── Loaded ────────────────────────────────────── */}
         {!loading && !error && enriched.length > 0 && (
           <>
-            <SummaryBar investments={enriched} />
+            <SummaryBar investments={enriched} tx={tx} />
 
             <div
               className="rounded-2xl border border-white/10 overflow-hidden"
               style={{
-                background: 'linear-gradient(0deg, rgba(0,0,0,0.2), rgba(0,0,0,0.2)), linear-gradient(134.61deg, rgba(255,255,255,0.15) -29.34%, rgba(255,255,255,0.03) 131.55%)'
+                background: 'linear-gradient(0deg, rgba(0,0,0,0.2), rgba(0,0,0,0.2)), linear-gradient(134.61deg, rgba(255,255,255,0.15) -29.34%, rgba(255,255,255,0.03) 131.55%)',
               }}
             >
-              {/* Table header */}
+              {/* Table Header */}
               <div
                 className="hidden sm:flex items-center justify-between px-5 py-3 border-b border-white/10"
                 style={{ background: 'rgba(0,0,0,0.3)' }}
@@ -507,13 +524,13 @@ export default function InvestmentsPage(): JSX.Element {
                   className="text-white/40 text-xs uppercase tracking-widest"
                   style={{ fontFamily: 'Satoshi, sans-serif' }}
                 >
-                  Project
+                  {tx.project}
                 </span>
                 <span
                   className="text-white/40 text-xs uppercase tracking-widest"
                   style={{ fontFamily: 'Satoshi, sans-serif' }}
                 >
-                  Amount / Return / Action
+                  {tx.amountReturnAction}
                 </span>
               </div>
 
@@ -525,12 +542,15 @@ export default function InvestmentsPage(): JSX.Element {
                     inv={inv}
                     index={i}
                     onView={handleView}
+                    tx={tx}
+                    isAr={isAr}
                   />
                 ))}
               </div>
             </div>
           </>
         )}
+
       </div>
     </div>
   );

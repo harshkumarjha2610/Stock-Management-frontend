@@ -24,7 +24,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
   if (!refreshToken) {
     console.error('No refresh token available');
     if (typeof window !== 'undefined') {
-      window.location.href = '/LoginPage';
+      window.location.href = '/login-page';
     }
     return null;
   }
@@ -49,7 +49,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
       console.error('Token refresh failed:', data.message);
       localStorage.clear();
       if (typeof window !== 'undefined') {
-        window.location.href = '/LoginPage';
+        window.location.href = '/login-page';
       }
       return null;
     }
@@ -57,7 +57,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
     console.error('Error refreshing token:', error);
     localStorage.clear();
     if (typeof window !== 'undefined') {
-      window.location.href = '/LoginPage';
+      window.location.href = '/login-page';
     }
     return null;
   }

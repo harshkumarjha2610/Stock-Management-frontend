@@ -224,12 +224,12 @@ export default function RetailInvestorStep1() {
   // ─── Submit ───────────────────────────────────────────────
   const handleNext = () => {
     if (validatePage1()) {
-      sessionStorage.setItem('onboardingPage1', JSON.stringify({
+      sessionStorage.setItem('user-registration-page1', JSON.stringify({
         ...formData,
         countryCode,
         fullPhoneNumber: `${countryCode}${formData.phone}`,
       }));
-      router.push('/OnboardingPage2');
+      router.push('/user-registration-page2');
     }
   };
 
