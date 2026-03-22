@@ -663,12 +663,16 @@ function WalletCard() {
       <h3 className="text-sm lg:text-base font-medium text-white mb-3 lg:mb-4">
         {isArabic ? AR.card.title : "My Card Wallet"}
       </h3>
-      <div className="relative w-full h-[130px] lg:h-[160px] rounded-[15px] lg:rounded-[20px] overflow-hidden bg-[#19224d]">
-        <div className="absolute inset-0 opacity-50">
-          <img src={imgVector1} className="absolute top-0 right-0 w-2/3 h-full object-cover" alt="" />
-          <img src={imgVector2} className="absolute bottom-0 right-0 w-1/2 h-2/3 object-contain" alt="" />
-          <img src={imgVector3} className="absolute top-0 left-0 w-1/2 h-full object-contain" alt="" />
-        </div>
+
+      {/* ✅ Card — clean blue gradient, no vector images */}
+      <div
+        className="relative w-full h-[130px] lg:h-[160px] rounded-[15px] lg:rounded-[20px] overflow-hidden"
+        style={{
+          background: "linear-gradient(135deg, #1a3a6e 0%, #0f2252 50%, #0a1840 100%)",
+        }}
+      >
+        {/* ❌ REMOVED: the three imgVector overlay divs that caused the noisy background */}
+
         <div className="relative z-10 p-4 lg:p-5 flex flex-col justify-between h-full">
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-1.5">
@@ -693,6 +697,7 @@ function WalletCard() {
           </div>
         </div>
       </div>
+
       <button className="mt-auto w-full h-8 rounded-full border border-white/60 bg-transparent text-white font-medium text-xs flex items-center justify-center gap-1.5 hover:bg-white/5 transition-all">
         <div className="w-3.5 h-3.5 lg:w-4 lg:h-4 rounded-full bg-white text-black flex items-center justify-center text-xs">+</div>
         {isArabic ? AR.card.addCard : "Add Card"}
@@ -700,6 +705,7 @@ function WalletCard() {
     </div>
   );
 }
+
 
 // ─── Main Wallet Page ──────────────────────────────────────
 export default function Wallet() {
