@@ -105,7 +105,7 @@ export default function UserProfilePage() {
   }, [router]);
 
   // ─── Handlers ────────────────────────────────────────────
-  const handleEdit = () => router.push('/Editprofile');
+  const handleEdit = () => router.push('/edit-profile');
 
   const handleLogout = async () => {
     try {

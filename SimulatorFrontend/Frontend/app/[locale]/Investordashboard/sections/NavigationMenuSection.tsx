@@ -8,7 +8,7 @@ const navigationItems = [
   {
     icon: "/frame-1000003212.svg",
     label: "My Investments",
-    href: "/Investments",
+    href: "/my-Investments",
   },
   {
     icon: "/frame-1000003212-1.svg",
