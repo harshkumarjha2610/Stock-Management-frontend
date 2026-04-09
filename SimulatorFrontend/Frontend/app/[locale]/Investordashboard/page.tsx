@@ -123,7 +123,7 @@ const nftItemChartsData = [
 ];
 
 const menuItems = [
-  { label: "My Investments",      labelAr: "استثماراتي",        icon: "/figmaAssets/frame-1000003212-1.svg", route: "/Investments"  },
+  { label: "My Investments",      labelAr: "استثماراتي",        icon: "/figmaAssets/frame-1000003212-1.svg", route: "/my-Investments"  },
   { label: "Smart Contact (Log)", labelAr: "سجل العقود الذكية", icon: "/figmaAssets/frame-1000003212.svg",   route: null            },
 ];
 

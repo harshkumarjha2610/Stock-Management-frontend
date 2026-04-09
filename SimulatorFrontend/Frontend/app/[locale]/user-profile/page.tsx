@@ -158,7 +158,7 @@ export default function UserProfilePage() {
   }, [router, tx.tokenNotFound]);
 
   // ─── Handlers ────────────────────────────────────────────
-  const handleEdit   = () => router.push('/Editprofile');
+  const handleEdit   = () => router.push('/edit-profile');
   const handleBack   = () => router.back();
 
   const handleLogout = async () => {

@@ -58,7 +58,7 @@ export function FooterSection() {
           <div className="hidden lg:block lg:col-span-2" />
 
           {/* Quick Links */}
-          <div className={`col-span-1 lg:col-span-2 ${isRtl ? 'lg:text-left' : 'lg:text-right'}`}>
+          {/* <div className={`col-span-1 lg:col-span-2 ${isRtl ? 'lg:text-left' : 'lg:text-right'}`}>
             <h4 className="text-white font-semibold text-sm sm:text-base mb-3 sm:mb-4">
               {t('quickLinks.title')}
             </h4>
@@ -84,10 +84,10 @@ export function FooterSection() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </div> */}
 
           {/* Support */}
-          <div className={`col-span-1 lg:col-span-2 ${isRtl ? 'lg:text-left' : 'lg:text-right'}`}>
+       <div className={`col-span-1 lg:col-span-2 lg:col-start-11 ${isRtl ? 'lg:text-left' : 'lg:text-right'}`}>
             <h4 className="text-white font-semibold text-sm sm:text-base mb-3 sm:mb-4">
               {t('support.title')}
             </h4>

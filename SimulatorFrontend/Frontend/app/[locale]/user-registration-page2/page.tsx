@@ -34,7 +34,7 @@ const t = {
     uploadPassport:         'Upload Passport',
     uploadPassportHint:     '(You can upload a dummy image for simulation)',
     clickToUploadPassport:  'Click to upload\nyour passport',
-    uploadSelfie:           'Upload Your Selfie',
+    uploadSelfie:           'Upload Your Image',
     upload:                 'Upload',
     imageSizeLimit:         'Image cannot be greater than 2 MB',
     carriedFromStep1Title:  'Carried from Step 1',
@@ -449,8 +449,8 @@ export default function RetailInvestorPage() {
 
   const validateForm = () => {
     const e: Record<string, string> = {};
-    if (!formData.walletNumber.trim())     e.walletNumber     = tx.walletRequired;
-    if (!formData.tinNumber.trim())        e.tinNumber        = tx.tinRequired;
+    // if (!formData.walletNumber.trim())     e.walletNumber     = tx.walletRequired;
+    // if (!formData.tinNumber.trim())        e.tinNumber        = tx.tinRequired;
     if (!formData.sourceOfFund)            e.sourceOfFund     = tx.sourceRequired;
     if (!formData.nationalIdNumber.trim()) e.nationalIdNumber = tx.nationalIdRequired;
     if (!formData.passportNumber.trim())   e.passportNumber   = tx.passportNumberRequired;
@@ -593,7 +593,7 @@ export default function RetailInvestorPage() {
 
               {/* Wallet Number */}
               <div>
-                <Label required isAr={isAr}>{tx.walletNumber}</Label>
+                <Label isAr={isAr}>{tx.walletNumber}</Label>
                 <input
                   type="text"
                   placeholder={tx.walletPlaceholder}
@@ -606,7 +606,7 @@ export default function RetailInvestorPage() {
 
               {/* TIN Number */}
               <div>
-                <Label required isAr={isAr}>{tx.tinNumber}</Label>
+               <Label isAr={isAr}>{tx.tinNumber}</Label>
                 <div className="relative">
                   <input
                     type={showTIN ? 'text' : 'password'}
@@ -682,7 +682,7 @@ export default function RetailInvestorPage() {
               </div>
 
               {/* Country Code (read-only from Step 1) */}
-              <div>
+              {/* <div>
                 <Label isAr={isAr}>{tx.countryCodeLabel}</Label>
                 <div className={`${inputBase(false)} flex items-center gap-2 bg-gray-50 cursor-not-allowed`}>
                   <span className="text-gray-400 text-sm">{tx.carriedFromStep1}</span>
@@ -693,7 +693,7 @@ export default function RetailInvestorPage() {
                 <p className={`text-xs text-gray-400 mt-1 ${isAr ? 'text-right' : ''}`}>
                   {tx.changeCountryCode}
                 </p>
-              </div>
+              </div> */}
 
               {/* Wallet Setup Link */}
               <div>
