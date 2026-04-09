@@ -20,15 +20,13 @@ const t = {
     loginButton:        'Login',
     loggingIn:          'Logging in...',
     or:                 'OR',
-    continueWithGoogle: 'Continue with Google',
-    signingInGoogle:    'Signing in with Google...',
     noAccount:          "Don't have an account?",
     signUp:             'Sign Up',
     emailRequired:      'Email is required',
     emailInvalid:       'Please enter a valid email address',
     passwordRequired:   'Password is required',
     passwordMinLength:  'Password must be at least 6 characters',
-    googleFailed:       'Google sign-in failed. Please try again.',
+    
     verifyEmailFirst:   'Please verify your email first. Redirecting...',
     verifyInvitation:   'Please verify your invitation code. Redirecting...',
     invalidCredentials: 'Invalid email or password. Please try again.',
@@ -81,46 +79,7 @@ export default function LoginPage() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   // ✅ Handle Google OAuth callback
-  useEffect(() => {
-    const urlParams    = new URLSearchParams(window.location.search);
-    const accessToken  = urlParams.get('accessToken');
-    const refreshToken = urlParams.get('refreshToken');
-    const error        = urlParams.get('error');
-
-    if (error) {
-      setErrors((prev) => ({ ...prev, email: tx.googleFailed }));
-      return;
-    }
-
-    if (accessToken) {
-      setIsGoogleLoading(true);
-      localStorage.setItem('accessToken', accessToken);
-      if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
-
-      fetch(`${API_BASE_URL}/user/profile`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data?.data?.user) {
-            localStorage.setItem('user',      JSON.stringify(data.data.user));
-            localStorage.setItem('userEmail', data.data.user.email);
-          }
-        })
-        .catch(() => {})
-        .finally(() => {
-          router.push('/Investordashboard'); // ✅ becomes /ar/Investordashboard automatically
-        });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
-
-  const handleGoogleSignIn = () => {
-    setIsGoogleLoading(true);
-    // ✅ Store locale in localStorage so the OAuth callback page can restore it
-    localStorage.setItem('authLocale', locale);
-    window.location.href = `${API_BASE_URL}/user/social-auth/google`;
-  };
+  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -363,29 +322,7 @@ export default function LoginPage() {
             </div>
 
             {/* ── Google Sign-In Button ─────────────────── */}
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              disabled={isLoading || isGoogleLoading}
-              className="w-full px-4 sm:px-6 py-2.5 sm:py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors shadow-sm text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-            >
-              {isGoogleLoading ? (
-                <>
-                  <Spinner className="h-5 w-5 text-gray-500" />
-                  {tx.signingInGoogle}
-                </>
-              ) : (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="h-5 w-5 flex-shrink-0">
-                    <path fill="#EA4335" d="M24 9.5c3.15 0 5.64 1.08 7.56 2.83l5.62-5.62C33.73 3.54 29.22 1.5 24 1.5 14.98 1.5 7.36 6.96 4.04 14.64l6.55 5.09C12.18 13.48 17.6 9.5 24 9.5z"/>
-                    <path fill="#4285F4" d="M46.5 24c0-1.64-.15-3.22-.42-4.75H24v9.01h12.67C35.74 32.1 33.05 34.5 29.5 36l6.36 4.94C40.82 37.03 46.5 31.15 46.5 24z"/>
-                    <path fill="#FBBC05" d="M10.59 28.27A14.56 14.56 0 0 1 9.5 24c0-1.49.25-2.93.68-4.27L3.63 14.64A22.44 22.44 0 0 0 1.5 24c0 3.57.83 6.94 2.3 9.95l6.79-5.68z"/>
-                    <path fill="#34A853" d="M24 46.5c5.5 0 10.12-1.82 13.5-4.94L31.13 37c-1.8 1.2-4.1 1.92-7.13 1.92-6.4 0-11.82-4.32-13.72-10.13l-6.67 5.16C7.12 41.3 14.9 46.5 24 46.5z"/>
-                  </svg>
-                  {tx.continueWithGoogle}
-                </>
-              )}
-            </button>
+           
 
             {/* ── Sign Up Link ──────────────────────────── */}
             <div className="text-center text-xs sm:text-sm text-gray-600 mt-6">

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import Image from 'next/image';
 
+
 // ─── Country codes ────────────────────────────────────────
 const countryCodes = [
   { code: '+91',  country: 'IN', flag: '🇮🇳', name: 'India',     nameAr: 'الهند',           maxLength: 10 },
@@ -18,107 +19,131 @@ const countryCodes = [
   { code: '+65',  country: 'SG', flag: '🇸🇬', name: 'Singapore', nameAr: 'سنغافورة',         maxLength: 8  },
 ];
 
+
+// ─── Password rules ───────────────────────────────────────
+const passwordRules = [
+  { key: 'length',    test: (p: string) => p.length >= 8,            en: 'At least 8 characters',             ar: '8 أحرف على الأقل'              },
+  { key: 'uppercase', test: (p: string) => /[A-Z]/.test(p),          en: 'One uppercase letter (A–Z)',          ar: 'حرف كبير واحد (A–Z)'           },
+  { key: 'lowercase', test: (p: string) => /[a-z]/.test(p),          en: 'One lowercase letter (a–z)',          ar: 'حرف صغير واحد (a–z)'           },
+  { key: 'number',    test: (p: string) => /[0-9]/.test(p),          en: 'One number (0–9)',                    ar: 'رقم واحد (0–9)'                },
+  { key: 'special',   test: (p: string) => /[^A-Za-z0-9]/.test(p),  en: 'One special character (!@#$%...)',   ar: 'رمز خاص واحد (!@#$%...)'       },
+];
+
+
+// ─── Strength levels ──────────────────────────────────────
+const getStrength = (password: string) => {
+  const passed = passwordRules.filter(r => r.test(password)).length;
+  if (password.length === 0) return { level: 0, label: '',         labelAr: '',               color: '' };
+  if (passed <= 1)           return { level: 1, label: 'Weak',     labelAr: 'ضعيف',           color: 'bg-red-500' };
+  if (passed === 2)          return { level: 2, label: 'Fair',     labelAr: 'مقبول',          color: 'bg-orange-400' };
+  if (passed === 3)          return { level: 3, label: 'Good',     labelAr: 'جيد',            color: 'bg-yellow-400' };
+  if (passed === 4)          return { level: 4, label: 'Strong',   labelAr: 'قوي',            color: 'bg-blue-500' };
+  return                            { level: 5, label: 'Very Strong', labelAr: 'قوي جداً',   color: 'bg-green-500' };
+};
+
+
 // ─── Translations ─────────────────────────────────────────
 const t = {
   en: {
-    havingTrouble:        'Having trouble?',
-    getHelp:              'Get Help',
-    pageTitle:            'Retail Investor - Step 1',
-    firstName:            'First Name',
-    firstNamePlaceholder: 'Enter First Name',
-    lastName:             'Last Name',
-    lastNamePlaceholder:  'Enter Last Name',
-    email:                'Email',
-    emailPlaceholder:     'Enter Email Here',
-    countryCode:          'Country Code',
-    selected:             'Selected:',
-    phoneNumber:          'Phone Number',
-    digitNumber:          (n: number, country: string) => `${n}-digit number for ${country}`,
-    residency:            'Residency',
-    residencyPlaceholder: 'e.g., New York',
-    nationality:          'Nationality',
-    selectNationality:    'Select Nationality',
-    dob:                  'Date of Birth',
-    dobHint:              '(Must be 18+)',
-    password:             'Password',
-    passwordPlaceholder:  'Min 8 characters',
-    confirmPassword:      'Confirm Password',
-    confirmPlaceholder:   'Re-enter password',
-    back:                 'Back',
-    next:                 'Next',
-    // Nationalities
-    india:          '🇮🇳  India',
-    usa:            '🇺🇸  USA',
-    uae:            '🇦🇪  UAE',
-    uk:             '🇬🇧  United Kingdom',
-    australia:      '🇦🇺  Australia',
-    singapore:      '🇸🇬  Singapore',
-    // Validation
-    firstNameRequired:  'First name is required',
-    lastNameRequired:   'Last name is required',
-    emailRequired:      'Email is required',
-    emailInvalid:       'Please enter a valid email',
-    countryCodeRequired:'Country code is required',
-    phoneRequired:      'Phone number is required',
-    phoneInvalid:       (n: number) => `Please enter a valid ${n}-digit phone number`,
-    residencyRequired:  'Residency is required',
-    nationalityRequired:'Nationality is required',
-    dobRequired:        'Date of birth is required',
-    dobAge:             'You must be at least 18 years old to register',
-    passwordRequired:   'Password is required',
-    passwordMin:        'Password must be at least 8 characters',
-    passwordMismatch:   'Passwords do not match',
+    havingTrouble:          'Having trouble?',
+    getHelp:                'Get Help',
+    pageTitle:              'Retail Investor - Step 1',
+    firstName:              'First Name',
+    firstNamePlaceholder:   'Enter First Name',
+    lastName:               'Last Name',
+    lastNamePlaceholder:    'Enter Last Name',
+    email:                  'Email',
+    emailPlaceholder:       'Enter Email Here',
+    countryCode:            'Country Code',
+    selected:               'Selected:',
+    phoneNumber:            'Phone Number',
+    digitNumber:            (n: number, country: string) => `${n}-digit number for ${country}`,
+    residency:              'Residency',
+    residencyPlaceholder:   'e.g., New York',
+    nationality:            'Nationality',
+    selectNationality:      'Select Nationality',
+    dob:                    'Date of Birth',
+    dobHint:                '(Must be 18+)',
+    password:               'Password',
+    passwordPlaceholder:    'Min 8 characters',
+    confirmPassword:        'Confirm Password',
+    confirmPlaceholder:     'Re-enter password',
+    passwordStrength:       'Password strength:',
+    requirements:           'Password must include:',
+    back:                   'Back',
+    next:                   'Next',
+    india:                  '🇮🇳  India',
+    usa:                    '🇺🇸  USA',
+    uae:                    '🇦🇪  UAE',
+    uk:                     '🇬🇧  United Kingdom',
+    australia:              '🇦🇺  Australia',
+    singapore:              '🇸🇬  Singapore',
+    firstNameRequired:      'First name is required',
+    lastNameRequired:       'Last name is required',
+    emailRequired:          'Email is required',
+    emailInvalid:           'Please enter a valid email',
+    countryCodeRequired:    'Country code is required',
+    phoneRequired:          'Phone number is required',
+    phoneInvalid:           (n: number) => `Please enter a valid ${n}-digit phone number`,
+    residencyRequired:      'Residency is required',
+    nationalityRequired:    'Nationality is required',
+    dobRequired:            'Date of birth is required',
+    dobAge:                 'You must be at least 18 years old to register',
+    passwordRequired:       'Password is required',
+    passwordWeak:           'Password is too weak. Please meet all requirements.',
+    passwordMismatch:       'Passwords do not match',
   },
   ar: {
-    havingTrouble:        'هل تواجه مشكلة؟',
-    getHelp:              'الحصول على المساعدة',
-    pageTitle:            'مستثمر التجزئة - الخطوة 1',
-    firstName:            'الاسم الأول',
-    firstNamePlaceholder: 'أدخل الاسم الأول',
-    lastName:             'اسم العائلة',
-    lastNamePlaceholder:  'أدخل اسم العائلة',
-    email:                'البريد الإلكتروني',
-    emailPlaceholder:     'أدخل البريد الإلكتروني',
-    countryCode:          'رمز الدولة',
-    selected:             'المحدد:',
-    phoneNumber:          'رقم الهاتف',
-    digitNumber:          (n: number, country: string) => `رقم مكوّن من ${n} أرقام لـ ${country}`,
-    residency:            'الإقامة',
-    residencyPlaceholder: 'مثال: نيويورك',
-    nationality:          'الجنسية',
-    selectNationality:    'اختر الجنسية',
-    dob:                  'تاريخ الميلاد',
-    dobHint:              '(يجب أن يكون العمر 18+)',
-    password:             'كلمة المرور',
-    passwordPlaceholder:  '8 أحرف على الأقل',
-    confirmPassword:      'تأكيد كلمة المرور',
-    confirmPlaceholder:   'أعد إدخال كلمة المرور',
-    back:                 'رجوع',
-    next:                 'التالي',
-    // Nationalities
-    india:          '🇮🇳  الهند',
-    usa:            '🇺🇸  الولايات المتحدة',
-    uae:            '🇦🇪  الإمارات',
-    uk:             '🇬🇧  المملكة المتحدة',
-    australia:      '🇦🇺  أستراليا',
-    singapore:      '🇸🇬  سنغافورة',
-    // Validation
-    firstNameRequired:  'الاسم الأول مطلوب',
-    lastNameRequired:   'اسم العائلة مطلوب',
-    emailRequired:      'البريد الإلكتروني مطلوب',
-    emailInvalid:       'يرجى إدخال بريد إلكتروني صحيح',
-    countryCodeRequired:'رمز الدولة مطلوب',
-    phoneRequired:      'رقم الهاتف مطلوب',
-    phoneInvalid:       (n: number) => `يرجى إدخال رقم هاتف صحيح من ${n} أرقام`,
-    residencyRequired:  'الإقامة مطلوبة',
-    nationalityRequired:'الجنسية مطلوبة',
-    dobRequired:        'تاريخ الميلاد مطلوب',
-    dobAge:             'يجب أن يكون عمرك 18 عاماً على الأقل للتسجيل',
-    passwordRequired:   'كلمة المرور مطلوبة',
-    passwordMin:        'يجب أن تكون كلمة المرور 8 أحرف على الأقل',
-    passwordMismatch:   'كلمتا المرور غير متطابقتين',
+    havingTrouble:          'هل تواجه مشكلة؟',
+    getHelp:                'الحصول على المساعدة',
+    pageTitle:              'مستثمر التجزئة - الخطوة 1',
+    firstName:              'الاسم الأول',
+    firstNamePlaceholder:   'أدخل الاسم الأول',
+    lastName:               'اسم العائلة',
+    lastNamePlaceholder:    'أدخل اسم العائلة',
+    email:                  'البريد الإلكتروني',
+    emailPlaceholder:       'أدخل البريد الإلكتروني',
+    countryCode:            'رمز الدولة',
+    selected:               'المحدد:',
+    phoneNumber:            'رقم الهاتف',
+    digitNumber:            (n: number, country: string) => `رقم مكوّن من ${n} أرقام لـ ${country}`,
+    residency:              'الإقامة',
+    residencyPlaceholder:   'مثال: نيويورك',
+    nationality:            'الجنسية',
+    selectNationality:      'اختر الجنسية',
+    dob:                    'تاريخ الميلاد',
+    dobHint:                '(يجب أن يكون العمر 18+)',
+    password:               'كلمة المرور',
+    passwordPlaceholder:    '8 أحرف على الأقل',
+    confirmPassword:        'تأكيد كلمة المرور',
+    confirmPlaceholder:     'أعد إدخال كلمة المرور',
+    passwordStrength:       'قوة كلمة المرور:',
+    requirements:           'يجب أن تحتوي كلمة المرور على:',
+    back:                   'رجوع',
+    next:                   'التالي',
+    india:                  '🇮🇳  الهند',
+    usa:                    '🇺🇸  الولايات المتحدة',
+    uae:                    '🇦🇪  الإمارات',
+    uk:                     '🇬🇧  المملكة المتحدة',
+    australia:              '🇦🇺  أستراليا',
+    singapore:              '🇸🇬  سنغافورة',
+    firstNameRequired:      'الاسم الأول مطلوب',
+    lastNameRequired:       'اسم العائلة مطلوب',
+    emailRequired:          'البريد الإلكتروني مطلوب',
+    emailInvalid:           'يرجى إدخال بريد إلكتروني صحيح',
+    countryCodeRequired:    'رمز الدولة مطلوب',
+    phoneRequired:          'رقم الهاتف مطلوب',
+    phoneInvalid:           (n: number) => `يرجى إدخال رقم هاتف صحيح من ${n} أرقام`,
+    residencyRequired:      'الإقامة مطلوبة',
+    nationalityRequired:    'الجنسية مطلوبة',
+    dobRequired:            'تاريخ الميلاد مطلوب',
+    dobAge:                 'يجب أن يكون عمرك 18 عاماً على الأقل للتسجيل',
+    passwordRequired:       'كلمة المرور مطلوبة',
+    passwordWeak:           'كلمة المرور ضعيفة جداً. يرجى تلبية جميع المتطلبات.',
+    passwordMismatch:       'كلمتا المرور غير متطابقتين',
   },
 };
+
 
 // ─── Reusable Label ───────────────────────────────────────
 function Label({ htmlFor, children, required, hint, isAr }: {
@@ -139,6 +164,7 @@ function Label({ htmlFor, children, required, hint, isAr }: {
   );
 }
 
+
 // ─── Main Component ───────────────────────────────────────
 export default function RetailInvestorStep1() {
   const router = useRouter();
@@ -148,6 +174,8 @@ export default function RetailInvestorStep1() {
   const tx     = isAr ? t.ar : t.en;
 
   const [countryCode, setCountryCode] = useState('+91');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     firstName:       '',
     lastName:        '',
@@ -180,6 +208,10 @@ export default function RetailInvestorStep1() {
   const set        = (field: string, value: string) => setFormData(prev => ({ ...prev, [field]: value }));
   const clearError = (field: string) => setErrors(prev => ({ ...prev, [field]: '' }));
 
+  // ─── Password strength ────────────────────────────────────
+  const strength = getStrength(formData.password);
+  const allRulesPassed = passwordRules.every(r => r.test(formData.password));
+
   // ─── Validation ───────────────────────────────────────────
   const validatePage1 = () => {
     const e: Record<string, string> = {};
@@ -188,7 +220,7 @@ export default function RetailInvestorStep1() {
     if (!formData.lastName.trim())  e.lastName  = tx.lastNameRequired;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim())            e.email = tx.emailRequired;
+    if (!formData.email.trim())                e.email = tx.emailRequired;
     else if (!emailRegex.test(formData.email)) e.email = tx.emailInvalid;
 
     if (!countryCode) e.countryCode = tx.countryCodeRequired;
@@ -209,10 +241,12 @@ export default function RetailInvestorStep1() {
       e.dob = tx.dobAge;
     }
 
-    if (!formData.password)
+    if (!formData.password) {
       e.password = tx.passwordRequired;
-    else if (formData.password.length < 8)
-      e.password = tx.passwordMin;
+    } else if (!allRulesPassed) {
+      // ✅ Block submission if any password rule fails
+      e.password = tx.passwordWeak;
+    }
 
     if (formData.password !== formData.confirmPassword)
       e.confirmPassword = tx.passwordMismatch;
@@ -242,7 +276,6 @@ export default function RetailInvestorStep1() {
   const selectClass =
     `w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 bg-white appearance-none cursor-pointer text-sm sm:text-base ${isAr ? 'text-right' : ''}`;
 
-  // ✅ Chevron position flips for RTL
   const selectStyle = {
     backgroundImage:    chevronSvg,
     backgroundRepeat:   'no-repeat' as const,
@@ -252,9 +285,21 @@ export default function RetailInvestorStep1() {
     paddingRight:       isAr ? undefined : '2rem',
   };
 
-  // ✅ Current selected country
   const selectedCountry = countryCodes.find(c => c.code === countryCode);
   const countryName     = isAr ? (selectedCountry?.nameAr ?? selectedCountry?.name ?? '') : (selectedCountry?.name ?? '');
+
+  // ─── Eye icon SVG ─────────────────────────────────────────
+  const EyeIcon = ({ open }: { open: boolean }) => open ? (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    </svg>
+  ) : (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.97 9.97 0 012.083-3.667M6.343 6.343A9.96 9.96 0 0112 5c4.477 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411M3 3l18 18" />
+    </svg>
+  );
+
 
   return (
     <div dir={dir} className="min-h-screen bg-white">
@@ -324,7 +369,6 @@ export default function RetailInvestorStep1() {
             {/* ── Email ───────────────────────────────────── */}
             <div>
               <Label required isAr={isAr}>{tx.email}</Label>
-              {/* ✅ Email input always LTR — emails are universally left-to-right */}
               <input
                 type="email"
                 dir="ltr"
@@ -337,7 +381,7 @@ export default function RetailInvestorStep1() {
             </div>
 
             {/* ── Country Code ────────────────────────────── */}
-            <div>
+            {/* <div>
               <Label required isAr={isAr}>{tx.countryCode}</Label>
               <div className="relative">
                 <select
@@ -358,8 +402,6 @@ export default function RetailInvestorStep1() {
                   ))}
                 </select>
               </div>
-
-              {/* Selected pill */}
               <div className="mt-1.5 flex items-center gap-1.5">
                 <span className="text-xs text-gray-400">{tx.selected}</span>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#ef6b23]/10 text-[#ef6b23] text-xs font-semibold border border-[#ef6b23]/20">
@@ -367,43 +409,63 @@ export default function RetailInvestorStep1() {
                 </span>
               </div>
               {errors.countryCode && <p className="text-red-500 text-xs mt-1">{errors.countryCode}</p>}
-            </div>
+            </div> */}
 
             {/* ── Phone Number ────────────────────────────── */}
-            <div>
-              <Label required isAr={isAr}>{tx.phoneNumber}</Label>
-              <div className="relative">
-                {/* ✅ Country code prefix — position flips for RTL */}
-                <span
-                  className={`absolute ${isAr ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium pointer-events-none select-none`}
-                >
-                  {countryCode}
-                </span>
-                <input
-                  type="tel"
-                  // ✅ Phone digits always LTR
-                  dir="ltr"
-                  placeholder={'0'.repeat(selectedCountry?.maxLength ?? 10)}
-                  value={formData.phone}
-                  onChange={e => {
-                    const max = selectedCountry?.maxLength ?? 10;
-                    set('phone', e.target.value.replace(/\D/g, '').slice(0, max));
-                    clearError('phone');
-                  }}
-                  maxLength={selectedCountry?.maxLength ?? 10}
-                  style={{
-                    // ✅ Padding shifts to correct side based on direction
-                    paddingRight: isAr ? `${countryCode.length * 9 + 20}px` : '1rem',
-                    paddingLeft:  isAr ? '1rem' : `${countryCode.length * 9 + 20}px`,
-                  }}
-                  className="w-full py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ef6b23] focus:border-transparent text-gray-900 placeholder:text-gray-400 bg-white text-sm sm:text-base"
-                />
-              </div>
-              <p className={`text-xs text-gray-400 mt-1 ${isAr ? 'text-right' : ''}`}>
-                {tx.digitNumber(selectedCountry?.maxLength ?? 10, countryName)}
-              </p>
-              {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
-            </div>
+          {/* ── Phone Number (with inline country code selector) ── */}
+<div>
+  <Label required isAr={isAr}>{tx.phoneNumber}</Label>
+  <div className={`flex items-stretch border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-[#ef6b23] focus-within:border-transparent ${isAr ? 'flex-row-reverse' : ''}`}>
+
+    {/* ── Inline Country Code Dropdown ── */}
+    <div className={`relative flex-shrink-0 ${isAr ? 'border-l' : 'border-r'} border-gray-300`}>
+      <select
+        value={countryCode}
+        onChange={e => {
+          setCountryCode(e.target.value);
+          set('phone', '');
+          clearError('phone');
+        }}
+        className="h-full appearance-none bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer text-sm font-medium text-gray-700 focus:outline-none"
+        style={{
+          // Extra padding to fit flag + code + chevron
+          paddingLeft:  isAr ? '1.5rem' : '0.625rem',
+          paddingRight: isAr ? '0.625rem' : '1.5rem',
+          backgroundImage: chevronSvg,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: isAr ? 'left 0.3rem center' : 'right 0.3rem center',
+          backgroundSize: '10px',
+        }}
+      >
+        {countryCodes.map(item => (
+          <option key={item.code} value={item.code}>
+            {item.flag} {item.code}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    {/* ── Phone Number Input ── */}
+    <input
+      type="tel"
+      dir="ltr"
+      placeholder={'0'.repeat(selectedCountry?.maxLength ?? 10)}
+      value={formData.phone}
+      onChange={e => {
+        const max = selectedCountry?.maxLength ?? 10;
+        set('phone', e.target.value.replace(/\D/g, '').slice(0, max));
+        clearError('phone');
+      }}
+      maxLength={selectedCountry?.maxLength ?? 10}
+      className="flex-1 px-3 py-2.5 sm:py-3 text-gray-900 placeholder:text-gray-400 bg-white text-sm sm:text-base focus:outline-none"
+    />
+  </div>
+
+  <p className={`text-xs text-gray-400 mt-1 ${isAr ? 'text-right' : ''}`}>
+    {tx.digitNumber(selectedCountry?.maxLength ?? 10, countryName)}
+  </p>
+  {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+</div>
 
             {/* ── Residency ───────────────────────────────── */}
             <div>
@@ -454,26 +516,101 @@ export default function RetailInvestorStep1() {
             {/* ── Password ────────────────────────────────── */}
             <div>
               <Label required isAr={isAr}>{tx.password}</Label>
-              <input
-                type="password"
-                placeholder={tx.passwordPlaceholder}
-                value={formData.password}
-                onChange={e => { set('password', e.target.value); clearError('password'); }}
-                className={inputClass}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder={tx.passwordPlaceholder}
+                  value={formData.password}
+                  onChange={e => { set('password', e.target.value); clearError('password'); }}
+                  className={`${inputClass} ${isAr ? 'pl-10' : 'pr-10'}`}
+                />
+                {/* ✅ Show/Hide toggle */}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(p => !p)}
+                  className={`absolute ${isAr ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600`}
+                >
+                  <EyeIcon open={showPassword} />
+                </button>
+              </div>
+
+              {/* ✅ Strength meter — only shows when user starts typing */}
+              {formData.password.length > 0 && (
+                <div className="mt-2 space-y-2">
+                  {/* Bar + label */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 flex gap-1">
+                      {[1, 2, 3, 4, 5].map(i => (
+                        <div
+                          key={i}
+                          className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+                            i <= strength.level ? strength.color : 'bg-gray-200'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className={`text-xs font-semibold ${
+                      strength.level <= 1 ? 'text-red-500'    :
+                      strength.level === 2 ? 'text-orange-400' :
+                      strength.level === 3 ? 'text-yellow-500' :
+                      strength.level === 4 ? 'text-blue-500'   : 'text-green-500'
+                    }`}>
+                      {isAr ? strength.labelAr : strength.label}
+                    </span>
+                  </div>
+
+                  {/* ✅ Live requirement checklist */}
+                  <div className={`bg-gray-50 rounded-lg p-3 border border-gray-100 ${isAr ? 'text-right' : ''}`}>
+                    <p className="text-xs font-medium text-gray-600 mb-2">{tx.requirements}</p>
+                    <ul className="space-y-1">
+                      {passwordRules.map(rule => {
+                        const passed = rule.test(formData.password);
+                        return (
+                          <li key={rule.key} className={`flex items-center gap-2 text-xs ${isAr ? 'flex-row-reverse' : ''}`}>
+                            <span className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-white text-[10px] font-bold transition-colors ${passed ? 'bg-green-500' : 'bg-gray-300'}`}>
+                              {passed ? '✓' : '✗'}
+                            </span>
+                            <span className={passed ? 'text-green-600 line-through' : 'text-gray-500'}>
+                              {isAr ? rule.ar : rule.en}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </div>
+              )}
+
               {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
             </div>
 
             {/* ── Confirm Password ─────────────────────────── */}
             <div>
               <Label required isAr={isAr}>{tx.confirmPassword}</Label>
-              <input
-                type="password"
-                placeholder={tx.confirmPlaceholder}
-                value={formData.confirmPassword}
-                onChange={e => { set('confirmPassword', e.target.value); clearError('confirmPassword'); }}
-                className={inputClass}
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder={tx.confirmPlaceholder}
+                  value={formData.confirmPassword}
+                  onChange={e => { set('confirmPassword', e.target.value); clearError('confirmPassword'); }}
+                  className={`${inputClass} ${isAr ? 'pl-10' : 'pr-10'}`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(p => !p)}
+                  className={`absolute ${isAr ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600`}
+                >
+                  <EyeIcon open={showConfirmPassword} />
+                </button>
+              </div>
+              {/* ✅ Live match indicator */}
+              {formData.confirmPassword.length > 0 && (
+                <p className={`text-xs mt-1 ${formData.password === formData.confirmPassword ? 'text-green-500' : 'text-red-400'}`}>
+                  {formData.password === formData.confirmPassword
+                    ? (isAr ? '✓ كلمتا المرور متطابقتان' : '✓ Passwords match')
+                    : (isAr ? '✗ كلمتا المرور غير متطابقتين' : '✗ Passwords do not match')}
+                </p>
+              )}
               {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
             </div>
 

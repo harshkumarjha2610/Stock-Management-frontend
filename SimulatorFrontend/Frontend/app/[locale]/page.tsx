@@ -719,7 +719,7 @@ export const Design = (): React.JSX.Element => {
               </button>
 
               {/* Theme Toggle */}
-              <button
+              {/* <button
                 onClick={() => setIsWhiteTheme(!isWhiteTheme)}
                 className={`w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 cursor-pointer ${
                   isWhiteTheme
@@ -741,7 +741,7 @@ export const Design = (): React.JSX.Element => {
                     />
                   </svg>
                 )}
-              </button>
+              </button> */}
 
               {/* Login Button */}
               <Button

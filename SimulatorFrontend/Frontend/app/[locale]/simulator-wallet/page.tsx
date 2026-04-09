@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import {
   ArrowDown, ArrowUp, Send, CreditCard,
-  Search, ChevronDown, ArrowLeftRight, Settings, Filter, X
+  ChevronDown, ArrowLeftRight, Settings, Filter, X
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { clsx, type ClassValue } from "clsx";
@@ -23,9 +23,6 @@ const imgEthereum = "/assets/ethereum.png";
 const imgDesign   = "/assets/card-design.png";
 const imgSolana   = "/assets/solana.png";
 const imgUsdc     = "/assets/usdc.png";
-const imgVector1  = "/assets/vector1.png";
-const imgVector2  = "/assets/vector2.png";
-const imgVector3  = "/assets/vector3.png";
 
 const walletsList = [
   { name: "Phantom",  date: "15 Mar 2025", icon: "/assets/phantom.png"  },
@@ -55,6 +52,7 @@ const AR = {
     simulationWallet: "محفظة المحاكاة", dividedWallet: "المحفظة المقسمة",
     defaultAmount: "$35,450", phantom: "فانتوم",
     connects: "كونيكتس", coinbase: "كوين بيس",
+    noAssets: "لا توجد أصول بعد",
   },
   walletConnect: { title: "ربط المحفظة", connect: "ربط" },
   swap: {
@@ -137,6 +135,35 @@ interface Transaction {
   transactionId?: string;
 }
 
+// ─── NEW: hook to fetch real total invested ────────────────
+function useTotalInvested() {
+  const [totalInvested, setTotalInvested] = useState<number | null>(null);
+  const [loadingTotal,  setLoadingTotal]  = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        setLoadingTotal(true);
+        if (!getToken()) return;
+        const response = await fetchWithAuth(`${BASE_URL}/user/simulation/investments`);
+        if (!response.ok) return;
+        const data = await response.json();
+        const investments: { amount: string }[] = Array.isArray(data.data) ? data.data : [];
+        // ✅ Same logic as InvestmentsPage SummaryBar
+        const total = investments.reduce((sum, inv) => sum + Number(inv.amount), 0);
+        setTotalInvested(total);
+      } catch (err) {
+        console.error('Error fetching total invested:', err);
+      } finally {
+        setLoadingTotal(false);
+      }
+    };
+    fetch();
+  }, []);
+
+  return { totalInvested, loadingTotal };
+}
+
 // ─── Action Buttons ────────────────────────────────────────
 function ActionButtons() {
   const { AR, isArabic } = useT();
@@ -174,16 +201,16 @@ function SpendingChart() {
   );
 }
 
-// ─── Transactions Table with Date Filter ───────────────────
+// ─── Transactions Table ────────────────────────────────────
 function TransactionsTable() {
   const { AR, isArabic } = useT();
-  const [transactions,   setTransactions]   = useState<Transaction[]>([]);
-  const [loading,        setLoading]        = useState(true);
-  const [showFilter,     setShowFilter]     = useState(false);
-  const [fromDate,       setFromDate]       = useState('');
-  const [toDate,         setToDate]         = useState('');
-  const [activeFrom,     setActiveFrom]     = useState('');
-  const [activeTo,       setActiveTo]       = useState('');
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading,      setLoading]      = useState(true);
+  const [showFilter,   setShowFilter]   = useState(false);
+  const [fromDate,     setFromDate]     = useState('');
+  const [toDate,       setToDate]       = useState('');
+  const [activeFrom,   setActiveFrom]   = useState('');
+  const [activeTo,     setActiveTo]     = useState('');
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -215,7 +242,6 @@ function TransactionsTable() {
     return typeof amount === 'number' ? `$${amount.toLocaleString()}` : amount;
   };
 
-  // ── Apply filter ───────────────────────────────────────
   const applyFilter = () => {
     setActiveFrom(fromDate);
     setActiveTo(toDate);
@@ -232,7 +258,6 @@ function TransactionsTable() {
 
   const isFilterActive = activeFrom !== '' || activeTo !== '';
 
-  // ── Filter transactions by date range ─────────────────
   const filteredTransactions = transactions.filter((txn) => {
     const rawDate = txn.date ?? txn.createdAt;
     if (!rawDate) return true;
@@ -261,14 +286,11 @@ function TransactionsTable() {
       className="backdrop-blur-[20px] bg-white/10 border border-white/20 rounded-[15px] lg:rounded-[20px] h-full flex flex-col overflow-hidden"
       style={{ backgroundImage: "linear-gradient(156deg, rgba(255, 255, 255, 0.3) 29%, rgba(255, 255, 255, 0.05) 131%)" }}
     >
-      {/* ── Header with Filter Button ─────────────────── */}
       <div className="px-4 lg:px-6 py-4 lg:py-5 flex items-center justify-between gap-2">
         <h3 className="text-sm lg:text-base font-medium text-white">
           {isArabic ? AR.transactions.title : "Recent Transactions"}
         </h3>
-
         <div className="relative">
-          {/* Filter Toggle Button */}
           <button
             onClick={() => setShowFilter((prev) => !prev)}
             className={cn(
@@ -281,56 +303,40 @@ function TransactionsTable() {
             <Filter className="w-3 h-3" />
             {isArabic ? AR.transactions.filterByDate : "Filter by Date"}
             {isFilterActive && (
-              <span
-                onClick={(e) => { e.stopPropagation(); clearFilter(); }}
-                className="ml-1 hover:opacity-70"
-              >
+              <span onClick={(e) => { e.stopPropagation(); clearFilter(); }} className="ml-1 hover:opacity-70">
                 <X className="w-3 h-3" />
               </span>
             )}
           </button>
 
-          {/* ── Filter Dropdown Panel ──────────────────── */}
           {showFilter && (
-            <div
-              className={cn(
-                "absolute top-full mt-2 z-50 bg-[#1a1a1a] border border-white/20 rounded-[12px] p-4 shadow-2xl w-[240px]",
-                isArabic ? "left-0" : "right-0"
-              )}
-            >
+            <div className={cn(
+              "absolute top-full mt-2 z-50 bg-[#1a1a1a] border border-white/20 rounded-[12px] p-4 shadow-2xl w-[240px]",
+              isArabic ? "left-0" : "right-0"
+            )}>
               <p className="text-white text-xs font-semibold mb-3">
                 {isArabic ? AR.transactions.filterByDate : "Filter by Date"}
               </p>
-
-              {/* From Date */}
               <div className="mb-3">
                 <label className="text-white/60 text-[10px] uppercase tracking-wider block mb-1">
                   {isArabic ? AR.transactions.from : "From"}
                 </label>
                 <input
-                  type="date"
-                  value={fromDate}
-                  max={toDate || undefined}
+                  type="date" value={fromDate} max={toDate || undefined}
                   onChange={(e) => setFromDate(e.target.value)}
                   className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-[#ef6b23] [color-scheme:dark]"
                 />
               </div>
-
-              {/* To Date */}
               <div className="mb-4">
                 <label className="text-white/60 text-[10px] uppercase tracking-wider block mb-1">
                   {isArabic ? AR.transactions.to : "To"}
                 </label>
                 <input
-                  type="date"
-                  value={toDate}
-                  min={fromDate || undefined}
+                  type="date" value={toDate} min={fromDate || undefined}
                   onChange={(e) => setToDate(e.target.value)}
                   className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-[#ef6b23] [color-scheme:dark]"
                 />
               </div>
-
-              {/* Buttons */}
               <div className="flex gap-2">
                 <button
                   onClick={clearFilter}
@@ -351,12 +357,9 @@ function TransactionsTable() {
         </div>
       </div>
 
-      {/* ── Active Filter Badge ────────────────────────── */}
       {isFilterActive && (
         <div className="px-4 lg:px-6 -mt-2 mb-2 flex items-center gap-2">
-          <span className="text-[10px] text-white/50">
-            {isArabic ? "النطاق:" : "Showing:"}
-          </span>
+          <span className="text-[10px] text-white/50">{isArabic ? "النطاق:" : "Showing:"}</span>
           <span className="text-[10px] text-[#ef6b23] font-medium">
             {activeFrom && formatDate(activeFrom)}
             {activeFrom && activeTo && " → "}
@@ -368,7 +371,6 @@ function TransactionsTable() {
         </div>
       )}
 
-      {/* ── Table Header ──────────────────────────────── */}
       <div className="bg-white/10 h-10 lg:h-12 flex items-center px-4 lg:px-6 shadow-sm">
         <div className="grid grid-cols-6 w-full text-[10px] lg:text-xs font-bold text-white uppercase tracking-wider gap-1">
           <span>{headers[0]}</span>
@@ -380,7 +382,6 @@ function TransactionsTable() {
         </div>
       </div>
 
-      {/* ── Table Body ────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto px-4 lg:px-6 py-2">
         {loading && (
           <div className="space-y-3 py-2">
@@ -405,10 +406,7 @@ function TransactionsTable() {
                 : (isArabic ? AR.transactions.noTxn : "No transactions yet")}
             </p>
             {isFilterActive && (
-              <button
-                onClick={clearFilter}
-                className="text-[#ef6b23] text-xs hover:underline mt-1"
-              >
+              <button onClick={clearFilter} className="text-[#ef6b23] text-xs hover:underline mt-1">
                 {isArabic ? AR.transactions.clearFilter : "Clear filter"}
               </button>
             )}
@@ -542,6 +540,7 @@ function SwapInterface() {
   );
 }
 
+// ─── Allocation Chart ──────────────────────────────────────
 function AllocationChart() {
   const { AR, isArabic } = useT();
   const [balanceEntries, setBalanceEntries] = useState<
@@ -554,8 +553,7 @@ function AllocationChart() {
     const fetchWalletBalance = async () => {
       try {
         setLoading(true);
-        const token = getToken();
-        if (!token) return;
+        if (!getToken()) return;
         const response = await fetchWithAuth(`${BASE_URL}/user/simulation/wallet/balance`);
         if (!response.ok) return;
         const data = await response.json();
@@ -578,19 +576,38 @@ function AllocationChart() {
   const dynamicInner = Math.max(BASE_INNER + Math.round(growthFactor * MAX_GROWTH), MIN_INNER);
   const dynamicOuter = BASE_OUTER + Math.round(growthFactor * MAX_GROWTH);
 
-  const chartData = fetched && balanceEntries.length > 0
-    ? balanceEntries.map((b) => ({ name: b.asset, value: b.amount > 0 ? b.amount : 1, color: ASSET_COLORS[b.asset] ?? ASSET_COLORS.DEFAULT }))
-    : [{ name: 'Divided', value: 65, color: '#ef6b23' }, { name: 'Remaining', value: 35, color: 'rgba(255, 255, 255, 0.1)' }];
+  const chartData =
+    fetched && balanceEntries.length > 0
+      ? balanceEntries.map((b) => ({
+          name: b.asset,
+          value: b.amount > 0 ? b.amount : 1,
+          color: ASSET_COLORS[b.asset] ?? ASSET_COLORS.DEFAULT,
+        }))
+      : fetched && balanceEntries.length === 0
+      ? [{ name: 'Empty', value: 1, color: 'rgba(255, 255, 255, 0.08)' }]
+      : [
+          { name: 'Divided',   value: 65, color: '#ef6b23' },
+          { name: 'Remaining', value: 35, color: 'rgba(255, 255, 255, 0.1)' },
+        ];
 
-  const legendItems = fetched && balanceEntries.length > 0
-    ? balanceEntries.map((b) => ({ label: b.asset, color: ASSET_COLORS[b.asset] ?? ASSET_COLORS.DEFAULT, amount: `$${b.amount.toLocaleString()}` as string | null }))
-    : [
-        { label: isArabic ? AR.allocation.phantom  : 'Phantom',  color: '#ffffff', amount: null as string | null },
-        { label: isArabic ? AR.allocation.connects : 'Connects', color: '#ffffff', amount: null as string | null },
-        { label: isArabic ? AR.allocation.coinbase : 'Coinbase', color: '#ffffff', amount: null as string | null },
-      ];
+  const legendItems =
+    fetched && balanceEntries.length > 0
+      ? balanceEntries.map((b) => ({
+          label: b.asset,
+          color: ASSET_COLORS[b.asset] ?? ASSET_COLORS.DEFAULT,
+          amount: `$${b.amount.toLocaleString()}` as string | null,
+        }))
+      : fetched && balanceEntries.length === 0
+      ? []
+      : [
+          { label: isArabic ? AR.allocation.phantom  : 'Phantom',  color: '#ffffff', amount: null as string | null },
+          { label: isArabic ? AR.allocation.connects : 'Connects', color: '#ffffff', amount: null as string | null },
+          { label: isArabic ? AR.allocation.coinbase : 'Coinbase', color: '#ffffff', amount: null as string | null },
+        ];
 
-  const formattedTotal = totalAmount.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+  const formattedTotal = totalAmount.toLocaleString('en-US', {
+    style: 'currency', currency: 'USD', maximumFractionDigits: 2,
+  });
 
   return (
     <div
@@ -603,8 +620,21 @@ function AllocationChart() {
       <div className="relative w-full h-[220px] lg:h-[220px] mt-2">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie data={chartData} innerRadius={dynamicInner} outerRadius={dynamicOuter} startAngle={90} endAngle={450} dataKey="value" stroke="none" cornerRadius={5} isAnimationActive animationDuration={700} animationEasing="ease-out">
-              {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+            <Pie
+              data={chartData}
+              innerRadius={dynamicInner}
+              outerRadius={dynamicOuter}
+              startAngle={90} endAngle={450}
+              dataKey="value"
+              stroke="none"
+              cornerRadius={5}
+              isAnimationActive
+              animationDuration={700}
+              animationEasing="ease-out"
+            >
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
             </Pie>
           </PieChart>
         </ResponsiveContainer>
@@ -620,10 +650,10 @@ function AllocationChart() {
           ) : (
             <>
               <div className="text-xl lg:text-2xl font-bold text-white">
-                {fetched && totalAmount > 0 ? formattedTotal : (isArabic ? AR.allocation.defaultAmount : "$35,450")}
+                {fetched ? formattedTotal : (isArabic ? AR.allocation.defaultAmount : "$35,450")}
               </div>
               <div className="text-white/60 text-[10px] lg:text-xs">
-                {fetched && totalAmount > 0
+                {fetched
                   ? (isArabic ? AR.allocation.simulationWallet : "Simulation Wallet")
                   : (isArabic ? AR.allocation.dividedWallet    : "Divided Wallet")}
               </div>
@@ -637,6 +667,10 @@ function AllocationChart() {
           <div className="flex justify-between px-1">
             {[1, 2, 3].map((i) => <div key={i} className="h-3 w-14 bg-white/20 animate-pulse rounded" />)}
           </div>
+        ) : fetched && legendItems.length === 0 ? (
+          <p className="text-white/30 text-[10px] text-center w-full">
+            {isArabic ? AR.allocation.noAssets : "No assets yet"}
+          </p>
         ) : (
           <div className="flex justify-between items-center px-1 flex-wrap gap-y-1">
             {legendItems.map((item, i) => (
@@ -663,16 +697,10 @@ function WalletCard() {
       <h3 className="text-sm lg:text-base font-medium text-white mb-3 lg:mb-4">
         {isArabic ? AR.card.title : "My Card Wallet"}
       </h3>
-
-      {/* ✅ Card — clean blue gradient, no vector images */}
       <div
         className="relative w-full h-[130px] lg:h-[160px] rounded-[15px] lg:rounded-[20px] overflow-hidden"
-        style={{
-          background: "linear-gradient(135deg, #1a3a6e 0%, #0f2252 50%, #0a1840 100%)",
-        }}
+        style={{ background: "linear-gradient(135deg, #1a3a6e 0%, #0f2252 50%, #0a1840 100%)" }}
       >
-        {/* ❌ REMOVED: the three imgVector overlay divs that caused the noisy background */}
-
         <div className="relative z-10 p-4 lg:p-5 flex flex-col justify-between h-full">
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-1.5">
@@ -697,7 +725,6 @@ function WalletCard() {
           </div>
         </div>
       </div>
-
       <button className="mt-auto w-full h-8 rounded-full border border-white/60 bg-transparent text-white font-medium text-xs flex items-center justify-center gap-1.5 hover:bg-white/5 transition-all">
         <div className="w-3.5 h-3.5 lg:w-4 lg:h-4 rounded-full bg-white text-black flex items-center justify-center text-xs">+</div>
         {isArabic ? AR.card.addCard : "Add Card"}
@@ -706,10 +733,18 @@ function WalletCard() {
   );
 }
 
-
 // ─── Main Wallet Page ──────────────────────────────────────
 export default function Wallet() {
   const { AR, isArabic } = useT();
+
+  // ✅ Real total invested from /user/simulation/investments
+  const { totalInvested, loadingTotal } = useTotalInvested();
+
+  const formattedTotalInvested =
+    totalInvested !== null
+      ? `$${totalInvested.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      : null;
+
   return (
     <div className="min-h-screen bg-black text-foreground font-sans overflow-x-hidden" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="fixed inset-0 z-0 pointer-events-none">
@@ -724,18 +759,25 @@ export default function Wallet() {
 
           {/* LEFT COLUMN */}
           <div className="w-full lg:w-[300px] xl:w-[340px] 2xl:w-[380px] shrink-0 backdrop-blur-[20px] bg-white/10 border border-white/20 rounded-[15px] lg:rounded-[20px] flex flex-col overflow-hidden">
+
+            {/* ✅ UPDATED: Real Total Invested */}
             <div className="h-[70px] lg:h-[80px] border-b border-white/10 px-4 flex items-center justify-between">
               <div className="flex items-center gap-1">
                 <span className="text-white/80 text-sm lg:text-base font-medium">
                   {isArabic ? AR.totalInvested : "Total Invested"}
                 </span>
                 <span className="text-white/80 text-sm lg:text-base">:</span>
-                <span className="text-white text-xl lg:text-2xl font-bold ml-1">$9,385.34</span>
-              </div>
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center cursor-pointer">
-                <Search className="w-4 h-4 text-white" />
+                {loadingTotal ? (
+                  // Skeleton while loading
+                  <div className="h-6 w-24 ml-1 bg-white/20 animate-pulse rounded" />
+                ) : (
+                  <span className="text-white text-xl lg:text-2xl font-bold ml-1">
+                    {formattedTotalInvested ?? '$0.00'}
+                  </span>
+                )}
               </div>
             </div>
+
             <div className="flex-1 p-4 space-y-4 overflow-y-auto">
               <ActionButtons />
               <div className="backdrop-blur-[20px] bg-white/5 border border-white/10 rounded-[15px] p-4">
@@ -772,7 +814,10 @@ export default function Wallet() {
               <div className="relative h-[140px] w-full rounded-[15px] overflow-hidden">
                 <img src={imgDesign} alt="Design" className="absolute inset-0 w-full h-full object-cover" />
                 <div className="absolute inset-0 p-4 flex flex-col justify-between">
-                  <div className="text-right text-white text-lg font-medium">$9,385.34</div>
+                  <div className="text-right text-white text-lg font-medium">
+                    {/* ✅ Also updated in the mini card */}
+                    {formattedTotalInvested ?? '$0.00'}
+                  </div>
                   <div className="flex justify-between items-end">
                     <div className="space-y-1">
                       <div className="text-white text-xs tracking-widest">**** **** **** 9865</div>

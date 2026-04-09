@@ -14,11 +14,14 @@ import Image from 'next/image';
 import { HeaderSection } from '@/app/[locale]/Investordashboard/sections/HeaderSection';
 import { FooterSection } from '@/app/[locale]/Investordashboard/sections/FooterSection';
 
+
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+
 const BASE_URL = 'https://cobuild-simulator-backend.onrender.com/api/v1';
+
 
 // ─── Translations ──────────────────────────────────────────
 const t = {
@@ -36,9 +39,9 @@ const t = {
     noOverview:         'No overview available.',
     milestonesTimeline: 'Milestones and Timeline',
     milestones:         ['Launch', 'Construction Start', '50% Complete', 'Handover'],
-    trackRecord:        'Track Record',
-    projectsSold:       'Projects Sold',
-    reviews:            'Review & Ratings',
+    // trackRecord:        'Track Record',      // ← commented out
+    // projectsSold:       'Projects Sold',     // ← commented out
+    // reviews:            'Review & Ratings',  // ← commented out
     faqs:               'FAQs',
     discussion:         'Discussion',
     noFaqs:             'No FAQs available.',
@@ -75,9 +78,9 @@ const t = {
     noOverview:         'لا توجد نظرة عامة متاحة.',
     milestonesTimeline: 'المعالم والجدول الزمني',
     milestones:         ['الإطلاق', 'بدء البناء', 'اكتمال 50%', 'التسليم'],
-    trackRecord:        'سجل الأعمال',
-    projectsSold:       'المشاريع المُباعة',
-    reviews:            'التقييمات والمراجعات',
+    // trackRecord:        'سجل الأعمال',       // ← commented out
+    // projectsSold:       'المشاريع المُباعة', // ← commented out
+    // reviews:            'التقييمات والمراجعات', // ← commented out
     faqs:               'الأسئلة الشائعة',
     discussion:         'النقاش',
     noFaqs:             'لا توجد أسئلة شائعة متاحة.',
@@ -102,6 +105,7 @@ const t = {
   },
 };
 
+
 // ─── Token Helpers ─────────────────────────────────────────
 function getToken():        string { return localStorage.getItem('accessToken')  ?? ''; }
 function getRefreshToken(): string { return localStorage.getItem('refreshToken') ?? ''; }
@@ -114,8 +118,8 @@ function clearTokens() {
   localStorage.removeItem('refreshToken');
 }
 
+
 // ─── Refresh Token ─────────────────────────────────────────
-// NOTE: refresh-token call intentionally uses 'en' — it's an auth call, not content
 async function refreshAccessToken(): Promise<string | null> {
   const rt = getRefreshToken();
   if (!rt) return null;
@@ -135,20 +139,19 @@ async function refreshAccessToken(): Promise<string | null> {
   } catch { return null; }
 }
 
-// ─── fetchWithAuth — now accepts locale ───────────────────
-// Sends Accept-Language header on every request so the backend
-// can return Arabic or English content accordingly.
+
+// ─── fetchWithAuth ─────────────────────────────────────────
 async function fetchWithAuth(
   url:     string,
   options: RequestInit = {},
-  locale:  string = 'en',            // ✅ NEW — defaults to 'en'
+  locale:  string = 'en',
 ): Promise<Response> {
   const token = getToken();
 
   const makeHeaders = (t: string) => ({
     'Content-Type':    'application/json',
     Authorization:     `Bearer ${t}`,
-    'Accept-Language': locale,         // ✅ tells backend which language to return
+    'Accept-Language': locale,
     ...options.headers,
   });
 
@@ -166,6 +169,7 @@ async function fetchWithAuth(
 
   return res;
 }
+
 
 // ─── Types ─────────────────────────────────────────────────
 interface Pool {
@@ -190,6 +194,7 @@ interface ProjectData {
   latestProgress: null | number;
 }
 
+
 // ─── Image Resolver ────────────────────────────────────────
 function resolveImageUrl(imageUrl: string): string {
   if (!imageUrl) return '/building.png';
@@ -199,6 +204,7 @@ function resolveImageUrl(imageUrl: string): string {
   if (imageUrl.startsWith('http')) return imageUrl;
   return '/building.png';
 }
+
 
 // ─── Badge ─────────────────────────────────────────────────
 const badgeVariants = cva(
@@ -219,6 +225,7 @@ interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<
 function Badge({ className, variant, ...props }: BadgeProps) {
   return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
 }
+
 
 // ─── Button ────────────────────────────────────────────────
 const buttonVariants = cva(
@@ -254,6 +261,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 Button.displayName = 'Button';
 
+
 // ─── Card ──────────────────────────────────────────────────
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
@@ -267,6 +275,7 @@ const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
   )
 );
 CardContent.displayName = 'CardContent';
+
 
 // ─── Tabs ──────────────────────────────────────────────────
 const Tabs = TabsPrimitive.Root;
@@ -307,32 +316,34 @@ const TabsContent = React.forwardRef<
 ));
 TabsContent.displayName = TabsPrimitive.Content.displayName;
 
-// ─── Static Data ───────────────────────────────────────────
-const trackRecordItems = [
-  '2017 - 2018 Project Housing (Raising $2m)',
-  '2017 - 2018 Project Housing (Raising $2m)',
-  '2017 - 2018 Project Housing (Raising $2m)',
-  '2017 - 2018 Project Housing (Raising $2m)',
-];
-const projectSoldData = [
-  { name: 'Project Alpha', percentage: 60 },
-  { name: 'Project Beta',  percentage: 30 },
-  { name: 'Project Gama',  percentage: 80 },
-];
-const reviews = [
-  {
-    rating: 5, date: 'Oct 20, 2035',
-    text:   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    author: 'Alice Johnson',
-    starsImage: '/figmaAssetsProjectDetails/stars.svg',
-  },
-  {
-    rating: 5, date: 'Oct 20, 2035',
-    text:   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    author: 'Alice Johnson',
-    starsImage: '/figmaAssetsProjectDetails/stars-2.svg',
-  },
-];
+
+// ─── Static Data (Track Record, Projects Sold, Reviews — COMMENTED OUT) ──
+// const trackRecordItems = [
+//   '2017 - 2018 Project Housing (Raising $2m)',
+//   '2017 - 2018 Project Housing (Raising $2m)',
+//   '2017 - 2018 Project Housing (Raising $2m)',
+//   '2017 - 2018 Project Housing (Raising $2m)',
+// ];
+// const projectSoldData = [
+//   { name: 'Project Alpha', percentage: 60 },
+//   { name: 'Project Beta',  percentage: 30 },
+//   { name: 'Project Gama',  percentage: 80 },
+// ];
+// const reviews = [
+//   {
+//     rating: 5, date: 'Oct 20, 2035',
+//     text:   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+//     author: 'Alice Johnson',
+//     starsImage: '/figmaAssetsProjectDetails/stars.svg',
+//   },
+//   {
+//     rating: 5, date: 'Oct 20, 2035',
+//     text:   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+//     author: 'Alice Johnson',
+//     starsImage: '/figmaAssetsProjectDetails/stars-2.svg',
+//   },
+// ];
+
 
 // ─── Skeletons ─────────────────────────────────────────────
 function ProjectDetailSkeleton() {
@@ -355,6 +366,7 @@ function PageSkeleton() {
   );
 }
 
+
 // ─── Stat Card ─────────────────────────────────────────────
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
@@ -372,12 +384,85 @@ function StatCard({ label, value }: { label: string; value: string }) {
   );
 }
 
+// ─── Milestone Progress Bar (API-driven) ───────────────────
+// Replaces the static slider-1.svg. Renders 4 milestone nodes
+// over a progress track filled to `progressPercent` from the API.
+function MilestoneProgressBar({
+  progressPercent,
+  milestones,
+}: {
+  progressPercent: number;
+  milestones: string[];
+}) {
+  // clamp between 0–100
+  const pct = Math.min(100, Math.max(0, progressPercent));
+
+  // milestone positions as % of the bar (0%, 33%, 66%, 100%)
+  const positions = [0, 33, 66, 100];
+
+  return (
+    <div className="w-full flex flex-col gap-3">
+      {/* Track */}
+      <div className="relative w-full h-2 bg-white/10 rounded-full">
+        {/* Filled portion */}
+        <div
+          className="absolute left-0 top-0 h-full bg-[#ef6b23] rounded-full transition-all duration-700"
+          style={{ width: `${pct}%` }}
+        />
+
+        {/* Milestone nodes */}
+        {positions.map((pos, i) => {
+          const reached = pct >= pos;
+          return (
+            <div
+              key={i}
+              className={cn(
+                'absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full border-2 transition-all duration-500',
+                reached
+                  ? 'bg-[#ef6b23] border-[#ef6b23] shadow-[0_0_6px_rgba(239,107,35,0.7)]'
+                  : 'bg-[#0a0a0a] border-white/30'
+              )}
+              style={{ left: `${pos}%` }}
+            />
+          );
+        })}
+      </div>
+
+      {/* Labels */}
+      <div className="grid grid-cols-2 md:flex md:items-center md:justify-between gap-2 w-full">
+        {milestones.map((label, i) => {
+          const reached = pct >= positions[i];
+          return (
+            <div
+              key={i}
+              className={cn(
+                'flex items-center justify-center [font-family:\'Satoshi-Medium\',Helvetica] font-medium text-xs md:text-[14px] transition-colors duration-300',
+                reached ? 'text-[#ef6b23]' : 'text-white/40'
+              )}
+            >
+              {label}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Progress label */}
+      <div className="flex justify-end">
+        <span className="text-[10px] text-[#ef6b23] font-semibold" style={{ fontFamily: 'Satoshi, sans-serif' }}>
+          {pct}% complete
+        </span>
+      </div>
+    </div>
+  );
+}
+
+
 // ─── Inner Content ─────────────────────────────────────────
 function ProjectDetailContent() {
   const router       = useRouter();
   const searchParams = useSearchParams();
   const projectId    = searchParams.get('id');
-  const locale       = useLocale();               // ✅ 'en' or 'ar'
+  const locale       = useLocale();
   const isAr         = locale === 'ar';
   const tx           = isAr ? t.ar : t.en;
   const BackIcon     = isAr ? ArrowRight : ArrowLeft;
@@ -401,7 +486,6 @@ function ProjectDetailContent() {
       setLoading(true);
       setError(null);
       try {
-        // ✅ Pass locale → sets Accept-Language: ar (or en) on the request
         const res = await fetchWithAuth(
           `${BASE_URL}/user/simulation/projects/${projectId}`,
           {},
@@ -421,7 +505,7 @@ function ProjectDetailContent() {
 
     fetchProject();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId, locale]);   // ✅ re-fetch when locale changes (user switches language)
+  }, [projectId, locale]);
 
   // ── Derived ─────────────────────────────────────────────
   const daysLeft = project
@@ -430,10 +514,12 @@ function ProjectDetailContent() {
       : tx.daysLeft(project.timelineDays)
     : '—';
 
+  // ✅ API-driven progress — used for both Funding Progress card AND Milestone bar
   const progressPercent = project?.latestProgress ?? 0;
 
+  // ── Community tabs — Reviews tab REMOVED ────────────────
   const communityTabs = [
-    { value: 'reviews',    label: tx.reviews    },
+    // { value: 'reviews',    label: tx.reviews    },  // ← commented out
     { value: 'faqs',       label: tx.faqs       },
     { value: 'discussion', label: tx.discussion },
   ];
@@ -465,12 +551,6 @@ function ProjectDetailContent() {
               {loading ? tx.loading : project?.name ?? tx.projectDetail}
             </h1>
           </div>
-          <button className="flex items-center justify-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-[25px] bg-white/10 hover:bg-white/20 border border-white/20 transition-all">
-            <Share2 size={18} className="text-white" />
-            <span className="text-white text-sm md:text-base font-medium" style={{ fontFamily: 'Dubai, sans-serif' }}>
-              {tx.share}
-            </span>
-          </button>
         </div>
       </div>
 
@@ -583,25 +663,19 @@ function ProjectDetailContent() {
                       </p>
                     </div>
 
-                    {/* Milestones */}
-                    <div className="flex flex-col items-start gap-2.5 w-full mt-2.5">
+                    {/* ✅ Milestones — now uses API progressPercent via MilestoneProgressBar */}
+                    <div className="flex flex-col items-start gap-2.5 w-full mt-4">
                       <div className="flex items-center justify-center gap-[9.55px] w-full">
                         <h4 className="text-sm md:text-[17.2px] flex items-center justify-center flex-1 [font-family:'Satoshi-Bold',Helvetica] font-bold text-white">
                           {tx.milestonesTimeline}
                         </h4>
                       </div>
-                      <div className="flex items-center justify-center gap-[4.77px] w-full">
-                        <div className="flex items-start gap-[5px] flex-1">
-                          <img className="flex-1 w-full" alt="Slider" src="/figmaAssetsProjectDetails/slider-1.svg" />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 md:flex md:items-center md:justify-between gap-2 w-full">
-                        {tx.milestones.map((label, i) => (
-                          <div key={i} className="flex items-center justify-center [font-family:'Satoshi-Medium',Helvetica] font-medium text-white text-xs md:text-[17.2px]">
-                            {label}
-                          </div>
-                        ))}
-                      </div>
+
+                      {/* ── Dynamic progress bar replacing static slider-1.svg ── */}
+                      <MilestoneProgressBar
+                        progressPercent={progressPercent}
+                        milestones={tx.milestones}
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -618,7 +692,7 @@ function ProjectDetailContent() {
                   <StatCard label={tx.asset}          value={project.pool.asset} />
                 </div>
 
-                {/* Funding Progress */}
+                {/* Funding Progress — uses API latestProgress */}
                 <Card className="border border-transparent bg-[linear-gradient(0deg,rgba(0,0,0,0.2)_0%,rgba(0,0,0,0.2)_100%),linear-gradient(119deg,rgba(255,255,255,0.3)_0%,rgba(255,255,255,0.05)_100%)] rounded-[10px]">
                   <CardContent className="px-3 md:px-[15px] py-4 md:py-5">
                     <h3 className="[font-family:'Dubai-Bold',Helvetica] font-bold text-white text-base md:text-xl mb-3">
@@ -649,10 +723,10 @@ function ProjectDetailContent() {
                   </Card>
                 )}
 
-                {/* Community Tabs */}
+                {/* Community Tabs — Reviews tab removed */}
                 <Card className="border border-transparent bg-[linear-gradient(0deg,rgba(0,0,0,0.2)_0%,rgba(0,0,0,0.2)_100%),linear-gradient(119deg,rgba(255,255,255,0.3)_0%,rgba(255,255,255,0.05)_100%)] rounded-[10px]">
                   <CardContent className="px-3 md:px-[15px] py-4 md:py-5">
-                    <Tabs defaultValue="reviews">
+                    <Tabs defaultValue="faqs">
                       <TabsList className="w-full bg-white/10 mb-4">
                         {communityTabs.map(tab => (
                           <TabsTrigger
@@ -664,7 +738,9 @@ function ProjectDetailContent() {
                           </TabsTrigger>
                         ))}
                       </TabsList>
-                      <TabsContent value="reviews">
+
+                      {/* Reviews tab — COMMENTED OUT */}
+                      {/* <TabsContent value="reviews">
                         <div className="space-y-4">
                           {reviews.map((r, i) => (
                             <div key={i} className="flex flex-col gap-2 border-b border-white/10 pb-4 last:border-0">
@@ -677,7 +753,8 @@ function ProjectDetailContent() {
                             </div>
                           ))}
                         </div>
-                      </TabsContent>
+                      </TabsContent> */}
+
                       <TabsContent value="faqs">
                         <p className="text-white/40 text-sm text-center py-6">{tx.noFaqs}</p>
                       </TabsContent>
@@ -692,8 +769,8 @@ function ProjectDetailContent() {
               {/* ── RIGHT COLUMN ─────────────────────────── */}
               <div className="flex flex-col gap-3 md:gap-[15px]">
 
-                {/* Track Record */}
-                <Card className="border border-transparent bg-[linear-gradient(0deg,rgba(0,0,0,0.2)_0%,rgba(0,0,0,0.2)_100%),linear-gradient(119deg,rgba(255,255,255,0.3)_0%,rgba(255,255,255,0.05)_100%)] rounded-[10px]">
+                {/* Track Record — COMMENTED OUT */}
+                {/* <Card className="border border-transparent bg-[linear-gradient(0deg,rgba(0,0,0,0.2)_0%,rgba(0,0,0,0.2)_100%),linear-gradient(119deg,rgba(255,255,255,0.3)_0%,rgba(255,255,255,0.05)_100%)] rounded-[10px]">
                   <CardContent className="px-3 md:px-[15px] py-4 md:py-5">
                     <h3 className="[font-family:'Dubai-Bold',Helvetica] font-bold text-white text-base md:text-xl mb-3">
                       {tx.trackRecord}
@@ -707,10 +784,10 @@ function ProjectDetailContent() {
                       ))}
                     </ul>
                   </CardContent>
-                </Card>
+                </Card> */}
 
-                {/* Projects Sold */}
-                <Card className="border border-transparent bg-[linear-gradient(0deg,rgba(0,0,0,0.2)_0%,rgba(0,0,0,0.2)_100%),linear-gradient(119deg,rgba(255,255,255,0.3)_0%,rgba(255,255,255,0.05)_100%)] rounded-[10px]">
+                {/* Projects Sold — COMMENTED OUT */}
+                {/* <Card className="border border-transparent bg-[linear-gradient(0deg,rgba(0,0,0,0.2)_0%,rgba(0,0,0,0.2)_100%),linear-gradient(119deg,rgba(255,255,255,0.3)_0%,rgba(255,255,255,0.05)_100%)] rounded-[10px]">
                   <CardContent className="px-3 md:px-[15px] py-4 md:py-5">
                     <h3 className="[font-family:'Dubai-Bold',Helvetica] font-bold text-white text-base md:text-xl mb-4">
                       {tx.projectsSold}
@@ -732,7 +809,7 @@ function ProjectDetailContent() {
                       ))}
                     </div>
                   </CardContent>
-                </Card>
+                </Card> */}
 
                 {/* Smart Contract */}
                 {project.smartContractUrl && (
@@ -797,7 +874,6 @@ function ProjectDetailContent() {
                       amount:         Number(project.totalValue),
                       expectedReturn: project.returnPercent,
                     };
-                    // ✅ Pass locale so the investment response also comes in the right language
                     const res = await fetchWithAuth(
                       `${BASE_URL}/user/simulation/investments`,
                       { method: 'POST', body: JSON.stringify(body) },

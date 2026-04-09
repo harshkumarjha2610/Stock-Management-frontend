@@ -102,7 +102,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
   });
   if (res.status === 401) {
     const newToken = await refreshAccessToken();
-    if (!newToken) { clearTokens(); window.location.href = '/login'; return res; }
+    if (!newToken) { clearTokens(); window.location.href = '/login-page'; return res; }
     return fetch(url, {
       ...options,
       headers: {
