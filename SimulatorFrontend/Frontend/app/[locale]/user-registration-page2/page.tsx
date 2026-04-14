@@ -46,7 +46,6 @@ const t = {
     back:                   'Back',
     submit:                 'Submit',
     submitting:             'Submitting...',
-    // Success modal
     savedSuccessfully:      'Response Saved Successfully!',
     completeIdVerification: 'Complete ID verification to finish registration',
     registrationPending:    'Registration Pending — ID Verification Required',
@@ -59,11 +58,9 @@ const t = {
     registrationCompleteDesc: "You'll gain full access to your investor dashboard",
     upNext:                 'UP NEXT',
     verifyEmailNow:         'Verify Email Now',
-    redirecting:            'Redirecting to OTP verification in 6 seconds...',
-    // Alerts
+    redirecting:            'Redirecting to OTP verification in 18 seconds...',
     imageTooLarge:          'Image size cannot exceed 2 MB. Please choose a smaller file.',
     submissionFailed:       'Submission failed. Please try again.',
-    // Validation
     walletRequired:         'Wallet number is required',
     tinRequired:            'TIN number is required',
     sourceRequired:         'Source of fund is required',
@@ -110,7 +107,6 @@ const t = {
     back:                   'رجوع',
     submit:                 'إرسال',
     submitting:             'جارٍ الإرسال...',
-    // Success modal
     savedSuccessfully:      'تم حفظ البيانات بنجاح!',
     completeIdVerification: 'أكمل التحقق من الهوية لإنهاء التسجيل',
     registrationPending:    'التسجيل معلّق — التحقق من الهوية مطلوب',
@@ -123,11 +119,9 @@ const t = {
     registrationCompleteDesc: 'ستحصل على وصول كامل إلى لوحة تحكم المستثمر',
     upNext:                 'التالي',
     verifyEmailNow:         'تحقق من البريد الإلكتروني الآن',
-    redirecting:            'جارٍ التحويل إلى التحقق بالرمز خلال 6 ثوانٍ...',
-    // Alerts
+    redirecting:            'جارٍ التحويل إلى التحقق بالرمز خلال 18 ثانية...',
     imageTooLarge:          'لا يمكن أن يتجاوز حجم الصورة 2 ميغابايت. يرجى اختيار ملف أصغر.',
     submissionFailed:       'فشل الإرسال. يرجى المحاولة مجدداً.',
-    // Validation
     walletRequired:         'رقم المحفظة مطلوب',
     tinRequired:            'رقم التعريف الضريبي مطلوب',
     sourceRequired:         'مصدر الأموال مطلوب',
@@ -182,6 +176,7 @@ function InlineAlert({ type, message, onClose, isAr }: {
 }
 
 // ─── Success Modal ────────────────────────────────────────
+// All actions (X button, Verify Email Now, auto-timer) → redirect to OTP
 function SuccessModal({ isOpen, onClose, email, tx, isAr }: {
   isOpen: boolean;
   onClose: () => void;
@@ -189,9 +184,10 @@ function SuccessModal({ isOpen, onClose, email, tx, isAr }: {
   tx: typeof t.en;
   isAr: boolean;
 }) {
+  // ✅ Auto-redirect after 18 seconds
   useEffect(() => {
     if (!isOpen) return;
-    const timer = setTimeout(onClose, 6000);
+    const timer = setTimeout(onClose, 20000);
     return () => clearTimeout(timer);
   }, [isOpen, onClose]);
 
@@ -233,32 +229,60 @@ function SuccessModal({ isOpen, onClose, email, tx, isAr }: {
   return (
     <div
       dir={isAr ? 'rtl' : 'ltr'}
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center px-6"
       style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)' }}
       onClick={onClose}
     >
+      {/*
+        ✅ CLOSE BUTTON FIX:
+        - This wrapper has NO overflow-hidden, so the button is never clipped
+        - Button sits at top-4 right-4 of THIS wrapper (same visual position as card's top-right)
+        - Solid white bg + strong shadow = always visible on every screen & laptop
+        - Clicking X now redirects to OTP (same as "Verify Email Now")
+      */}
       <div
-        className="relative w-full max-w-md rounded-3xl overflow-hidden shadow-2xl"
+        className="relative w-full max-w-md"
         style={{ animation: 'scaleIn 0.35s cubic-bezier(0.34,1.56,0.64,1)' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="bg-white rounded-3xl overflow-hidden">
+        {/* ✅ Close button — always visible, solid white, strong drop shadow */}
+        <button
+          onClick={onClose}
+          aria-label="Close and go to OTP verification"
+          style={{
+            position: 'absolute',
+            top: '12px',
+            ...(isAr ? { left: '12px' } : { right: '12px' }),
+            zIndex: 100,
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            backgroundColor: '#ffffff',
+            border: '2px solid #e5e7eb',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.30)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
 
-          {/* Orange top banner */}
-          <div className="bg-gradient-to-r from-[#ef6b23] to-[#f59e0b] px-6 pt-8 pb-10 flex flex-col items-center relative overflow-hidden">
+        {/* ✅ Card — overflow-hidden only here for rounded corners */}
+        <div className="rounded-3xl overflow-hidden shadow-2xl bg-white">
+
+          {/* Orange top banner — extra top padding so close button doesn't overlap heading */}
+          <div
+            className="px-6 pt-14 pb-10 flex flex-col items-center relative"
+            style={{ background: 'linear-gradient(135deg, #ef6b23 0%, #f59e0b 100%)' }}
+          >
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none" />
             <div className="absolute -bottom-6 -right-6 w-32 h-32 rounded-full bg-white/10 pointer-events-none" />
             <div className="absolute -top-4 -left-4 w-24 h-24 rounded-full bg-white/10 pointer-events-none" />
-
-            {/* ✅ Close button flips side for RTL */}
-            <button
-              onClick={onClose}
-              className={`absolute top-4 ${isAr ? 'left-4' : 'right-4'} w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors z-10`}
-            >
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
 
             <div className="relative mb-4 z-10">
               <span className="absolute inset-0 w-20 h-20 rounded-full bg-white/20 animate-ping" />
@@ -327,14 +351,15 @@ function SuccessModal({ isOpen, onClose, email, tx, isAr }: {
               ))}
             </div>
 
-            {/* Progress bar */}
+            {/* ✅ Progress bar — 18 seconds */}
             <div className="w-full bg-gray-100 rounded-full h-1.5 mb-5 overflow-hidden">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-[#ef6b23] to-[#f59e0b]"
-                style={{ animation: 'shrink 6s linear forwards' }}
+                style={{ animation: 'shrink 18s linear forwards' }}
               />
             </div>
 
+            {/* "Verify Email Now" button — redirects to OTP */}
             <button
               onClick={onClose}
               className="w-full py-3.5 rounded-2xl font-bold text-white text-sm transition-all hover:shadow-lg hover:shadow-[#ef6b23]/25 hover:-translate-y-0.5 transform flex items-center justify-center gap-2"
@@ -449,8 +474,6 @@ export default function RetailInvestorPage() {
 
   const validateForm = () => {
     const e: Record<string, string> = {};
-    // if (!formData.walletNumber.trim())     e.walletNumber     = tx.walletRequired;
-    // if (!formData.tinNumber.trim())        e.tinNumber        = tx.tinRequired;
     if (!formData.sourceOfFund)            e.sourceOfFund     = tx.sourceRequired;
     if (!formData.nationalIdNumber.trim()) e.nationalIdNumber = tx.nationalIdRequired;
     if (!formData.passportNumber.trim())   e.passportNumber   = tx.passportNumberRequired;
@@ -501,6 +524,7 @@ export default function RetailInvestorPage() {
     }
   };
 
+  // ✅ Single handler — ALL actions redirect to OTP (X button, Verify Email Now, auto-timer)
   const handleModalClose = () => {
     setShowSuccessModal(false);
     router.push(`/VerifyOtp?email=${encodeURIComponent(registeredEmail)}`);
@@ -508,7 +532,7 @@ export default function RetailInvestorPage() {
 
   if (!page1Data) return null;
 
-  const chevronBg  = makeChevronBg(isAr);
+  const chevronBg = makeChevronBg(isAr);
 
   const inputBase = (hasError: boolean) =>
     `w-full px-3 sm:px-4 py-2.5 sm:py-3 border ${
@@ -517,7 +541,6 @@ export default function RetailInvestorPage() {
       isAr ? 'text-right' : ''
     }`;
 
-  // ─── Summary rows ─────────────────────────────────────
   const summaryRows = [
     { label: tx.name,        value: `${page1Data?.firstName ?? ''} ${page1Data?.lastName ?? ''}` },
     { label: tx.email,       value: page1Data?.email ?? '' },
@@ -606,18 +629,16 @@ export default function RetailInvestorPage() {
 
               {/* TIN Number */}
               <div>
-               <Label isAr={isAr}>{tx.tinNumber}</Label>
+                <Label isAr={isAr}>{tx.tinNumber}</Label>
                 <div className="relative">
                   <input
                     type={showTIN ? 'text' : 'password'}
                     placeholder={tx.tinPlaceholder}
                     value={formData.tinNumber}
                     onChange={e => { set('tinNumber', e.target.value); clearError('tinNumber'); }}
-                    // ✅ TIN always LTR (numeric/alphanumeric codes)
                     dir="ltr"
                     className={`${inputBase(!!errors.tinNumber)} ${isAr ? 'pl-10 sm:pl-12' : 'pr-10 sm:pr-12'}`}
                   />
-                  {/* ✅ Toggle icon flips side for RTL */}
                   <button
                     type="button"
                     onClick={() => setShowTIN(!showTIN)}
@@ -668,7 +689,6 @@ export default function RetailInvestorPage() {
                 <Label required isAr={isAr}>{tx.passportNumber}</Label>
                 <input
                   type="text"
-                  // ✅ Passport numbers always LTR (alphanumeric codes)
                   dir="ltr"
                   placeholder={tx.passportPlaceholder}
                   value={formData.passportNumber}
@@ -680,20 +700,6 @@ export default function RetailInvestorPage() {
                 />
                 {errors.passportNumber && <p className="text-red-500 text-xs mt-1">{errors.passportNumber}</p>}
               </div>
-
-              {/* Country Code (read-only from Step 1) */}
-              {/* <div>
-                <Label isAr={isAr}>{tx.countryCodeLabel}</Label>
-                <div className={`${inputBase(false)} flex items-center gap-2 bg-gray-50 cursor-not-allowed`}>
-                  <span className="text-gray-400 text-sm">{tx.carriedFromStep1}</span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#ef6b23]/10 text-[#ef6b23] text-xs font-bold border border-[#ef6b23]/20">
-                    {page1Data?.countryCode ?? '+91'}
-                  </span>
-                </div>
-                <p className={`text-xs text-gray-400 mt-1 ${isAr ? 'text-right' : ''}`}>
-                  {tx.changeCountryCode}
-                </p>
-              </div> */}
 
               {/* Wallet Setup Link */}
               <div>
