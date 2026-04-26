@@ -101,8 +101,8 @@ function ChartTooltip({
   active, payload, label, prefix = "₹",
 }: {
   active?: boolean;
-  payload?: { name: string; value: number; color: string }[];
-  label?: string;
+  payload?: readonly any[];
+  label?: any;
   prefix?: string;
 }) {
   if (!active || !payload?.length) return null;
@@ -124,7 +124,7 @@ function ChartTooltip({
   );
 }
 
-function StockTooltip({ active, payload, label }: { active?: boolean; payload?: { name: string; value: number; color: string }[]; label?: string }) {
+function StockTooltip({ active, payload, label }: { active?: boolean; payload?: readonly any[]; label?: any }) {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-white border border-slate-200 rounded-xl shadow-lg px-4 py-3 text-sm">
@@ -411,7 +411,7 @@ export default function DashboardPage() {
                 width={24}
               />
               <Tooltip
-                content={({ active, payload, label }: { active?: boolean; payload?: { name: string; value: number; color: string }[]; label?: string }) => {
+                content={({ active, payload, label }: any) => {
                   if (!active || !payload?.length) return null;
                   return (
                     <div className="bg-white border border-slate-200 rounded-xl shadow-lg px-4 py-3 text-sm">
