@@ -932,7 +932,7 @@ export default function Sidebar() {
         </div>
 
       </aside>
-{/* harsh */}
+
       {showCreateStore && (
         <CreateStoreModal
           onClose={() => setShowCreateStore(false)}
