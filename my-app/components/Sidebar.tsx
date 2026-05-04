@@ -5,61 +5,37 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Package, Receipt, ShoppingCart,
   Users, UserCheck, BarChart3, Settings, LogOut,
-  Store, Plus, Tag, X, Upload, Check, ArrowLeftRight,
-  Loader2, AlertCircle,
+  Store, Plus, X, Check, ArrowLeftRight,
+  AlertCircle, Pencil, UserPlus, Wallet,
+  Phone, Mail, ShoppingBag, Salad, Upload,
 } from "lucide-react";
 import { type LucideIcon } from "lucide-react";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 
-// ─── API Config ────────────────────────────────────────────────────────────────
-
-const API_BASE = "https://stock-management-backend-harsh2610.onrender.com/api";
-
-function getToken() {
-  return typeof window !== "undefined" ? localStorage.getItem("token") : null;
-}
-
-async function apiFetch(path: string, options: RequestInit = {}) {
-  const token = getToken();
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || data.error || "API error");
-  return data;
-}
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Types ─────────────────────────────────────────────────────────────────────
 
 type NavItem = { label: string; href: string; icon: LucideIcon; badge?: number };
 
-type ShopCategory = { id: string; name: string; description: string };
+type StoreCategory = "GROCERY" | "GARMENTS";
+
+type StoreAdmin = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+};
 
 type Shop = {
   id: string;
   name: string;
-  address: string;
-  phoneNumber: string;
-  email: string;
   ownerName: string;
-  logoUrl: string | null;
-  categories: ShopCategory[];
-};
-
-type ApiStore = {
-  id: number;
-  name: string;
-  owner_name: string;
-  email: string;
-  phone: string;
   address: string;
-  created_at: string;
-  updated_at: string;
+  phone: string;
+  email: string;
+  upiId: string;
+  logoUrl: string | null;
+  category: StoreCategory;
+  admins: StoreAdmin[];
 };
 
 type StoredUser = {
@@ -70,41 +46,11 @@ type StoredUser = {
   store_id?: number;
 };
 
-// ─── Safe API store mapper ────────────────────────────────────────────────────
-// Handles both { data: {...} } and flat { id, name, ... } response shapes
+// ─── Helpers ───────────────────────────────────────────────────────────────────
 
-function extractStore(res: unknown): ApiStore {
-  if (res && typeof res === "object") {
-    // Shape: { data: { id, name, ... } }
-    if ("data" in res && res.data && typeof res.data === "object" && "id" in (res.data as object)) {
-      return res.data as ApiStore;
-    }
-    // Shape: { store: { id, name, ... } }
-    if ("store" in res && res.store && typeof res.store === "object" && "id" in (res.store as object)) {
-      return res.store as ApiStore;
-    }
-    // Shape: flat { id, name, ... }
-    if ("id" in res) {
-      return res as ApiStore;
-    }
-  }
-  throw new Error("Unexpected store response shape: " + JSON.stringify(res));
-}
+function uid() { return Math.random().toString(36).slice(2, 10); }
 
-function mapApiStore(s: ApiStore): Shop {
-  return {
-    id: String(s.id),
-    name: s.name,
-    address: s.address || "",
-    phoneNumber: s.phone || "",
-    email: s.email || "",
-    ownerName: s.owner_name || "",
-    logoUrl: null,
-    categories: [],
-  };
-}
-
-// ─── Nav config ───────────────────────────────────────────────────────────────
+// ─── Nav config ────────────────────────────────────────────────────────────────
 
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -117,16 +63,46 @@ const navItems: NavItem[] = [
   { label: "Settings",  href: "/settings",  icon: Settings                },
 ];
 
-function uid() { return Math.random().toString(36).slice(2, 10); }
+const CATEGORY_META: Record<StoreCategory, { label: string; icon: LucideIcon; color: string }> = {
+  GROCERY:  { label: "Grocery",  icon: Salad,       color: "text-green-600 bg-green-50 border-green-200"   },
+  GARMENTS: { label: "Garments", icon: ShoppingBag, color: "text-purple-600 bg-purple-50 border-purple-200" },
+};
 
-// ─── Logo Uploader ────────────────────────────────────────────────────────────
+// ─── Shared UI helpers ─────────────────────────────────────────────────────────
 
-function LogoUploader({
-  value,
-  onChange,
-}: {
+const inputCls = (err?: string) =>
+  `w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+    err ? "border-red-400 bg-red-50" : "border-slate-200"
+  }`;
+
+function Field({ label, required, error, children }: {
+  label: string; required?: boolean; error?: string; children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label className="block text-xs font-medium text-slate-600 mb-1">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      {children}
+      {error && <p className="text-[11px] text-red-500 mt-0.5">{error}</p>}
+    </div>
+  );
+}
+
+function ErrorBanner({ msg }: { msg: string }) {
+  return (
+    <div className="flex items-start gap-2 mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+      <AlertCircle size={15} className="text-red-500 mt-0.5 shrink-0" />
+      <p className="text-xs text-red-600">{msg}</p>
+    </div>
+  );
+}
+
+// ─── Logo Uploader ─────────────────────────────────────────────────────────────
+
+function LogoUploader({ value, onChange }: {
   value: string | null;
-  onChange: (base64: string | null) => void;
+  onChange: (v: string | null) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -175,187 +151,481 @@ function LogoUploader({
           )}
         </div>
       </div>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleFile}
-      />
+      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
     </div>
   );
 }
 
-// ─── Category Builder ─────────────────────────────────────────────────────────
+// ─── Category Selector ─────────────────────────────────────────────────────────
 
-function CategoryBuilder({
-  categories,
-  onChange,
-}: {
-  categories: ShopCategory[];
-  onChange: (cats: ShopCategory[]) => void;
+function CategorySelector({ value, onChange, disabled }: {
+  value: StoreCategory;
+  onChange: (v: StoreCategory) => void;
+  disabled?: boolean;
 }) {
-  const [input, setInput] = useState({ name: "", description: "" });
-  const [error, setError] = useState("");
-
-  function addCategory() {
-    if (!input.name.trim()) { setError("Name is required"); return; }
-    if (categories.some((c) => c.name.toLowerCase() === input.name.trim().toLowerCase())) {
-      setError("Category already added");
-      return;
-    }
-    onChange([...categories, { id: uid(), name: input.name.trim(), description: input.description.trim() }]);
-    setInput({ name: "", description: "" });
-    setError("");
-  }
-
   return (
-    <div className="space-y-2">
-      {categories.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-1">
-          {categories.map((cat) => (
-            <span
-              key={cat.id}
-              className="flex items-center gap-1 text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-1 rounded-full"
-            >
-              <Tag size={9} />
-              {cat.name}
-              <button
-                type="button"
-                onClick={() => onChange(categories.filter((c) => c.id !== cat.id))}
-                className="ml-0.5 text-emerald-400 hover:text-red-500 transition-colors"
-              >
-                <X size={10} />
-              </button>
-            </span>
-          ))}
-        </div>
-      )}
-      <div className="flex gap-2">
-        <input
-          type="text"
-          placeholder="Category name"
-          value={input.name}
-          onChange={(e) => { setInput({ ...input, name: e.target.value }); setError(""); }}
-          onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCategory())}
-          className="flex-1 px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-        />
-        <button
-          type="button"
-          onClick={addCategory}
-          className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors shrink-0"
-        >
-          <Plus size={12} /> Add
-        </button>
-      </div>
-      <input
-        type="text"
-        placeholder="Description (optional)"
-        value={input.description}
-        onChange={(e) => setInput({ ...input, description: e.target.value })}
-        className="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-      />
-      {error && <p className="text-[11px] text-red-500">{error}</p>}
-      <p className="text-[10px] text-slate-400">Press Enter or click Add. You can add more categories later.</p>
+    <div className="grid grid-cols-2 gap-2">
+      {(Object.keys(CATEGORY_META) as StoreCategory[]).map((cat) => {
+        const { label, icon: Icon, color } = CATEGORY_META[cat];
+        const active = value === cat;
+        return (
+          <button
+            key={cat}
+            type="button"
+            disabled={disabled}
+            onClick={() => onChange(cat)}
+            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all ${
+              active
+                ? `${color} border-current shadow-sm`
+                : "border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50"
+            } disabled:opacity-50`}
+          >
+            <Icon size={15} /> {label}
+          </button>
+        );
+      })}
     </div>
   );
 }
 
-// ─── Create Store Modal ───────────────────────────────────────────────────────
+// ─── Add Admin Modal ───────────────────────────────────────────────────────────
 
-function CreateStoreModal({
-  onClose,
-  onSave,
-}: {
+function AddAdminModal({ shopName, onClose, onAdded }: {
+  shopName: string;
   onClose: () => void;
-  onSave: (shop: Shop) => void;
+  onAdded: (admin: StoreAdmin) => void;
 }) {
-  const [step, setStep]             = useState<1 | 2>(1);
-  const [logoUrl, setLogoUrl]       = useState<string | null>(null);
-  const [categories, setCategories] = useState<ShopCategory[]>([]);
-  const [saving, setSaving]         = useState(false);
-  const [apiError, setApiError]     = useState("");
-
-  const [form, setForm] = useState({
-    storeName: "",
-    address: "",
-    phoneNumber: "",
-    email: "",
-    ownerName: "",
-    ownerEmail: "",
-    ownerPassword: "",
-  });
+  const [form, setForm]     = useState({ name: "", email: "", phone: "", password: "" });
   const [errors, setErrors] = useState<Partial<typeof form>>({});
+  const [apiError]          = useState("");
 
-  function validateStep1() {
+  function validate() {
     const e: Partial<typeof form> = {};
-    if (!form.storeName.trim())     e.storeName     = "Required";
-    if (!form.ownerName.trim())     e.ownerName     = "Required";
-    if (!form.ownerEmail.trim())    e.ownerEmail    = "Required";
-    if (!form.ownerPassword.trim()) e.ownerPassword = "Required";
-    if (form.ownerPassword && form.ownerPassword.length < 6)
-      e.ownerPassword = "Min 6 characters";
+    if (!form.name.trim())     e.name     = "Required";
+    if (!form.email.trim())    e.email    = "Required";
+    if (!form.password.trim()) e.password = "Required";
+    if (form.password && form.password.length < 6) e.password = "Min 6 characters";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
-    setApiError("");
+    if (!validate()) return;
+    onAdded({
+      id:    uid(),
+      name:  form.name.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim(),
+    });
+  }
 
-    try {
-      // ── 1. Create Store ──────────────────────────────────────────────────────
-      const storeRaw = await apiFetch("/stores", {
-        method: "POST",
-        body: JSON.stringify({
-          name:       form.storeName.trim(),
-          owner_name: form.ownerName.trim(),
-          ...(form.email.trim()       && { email:   form.email.trim()       }),
-          ...(form.phoneNumber.trim() && { phone:   form.phoneNumber.trim() }),
-          ...(form.address.trim()     && { address: form.address.trim()     }),
-        }),
-      });
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-auto">
 
-      // FIX 1 ─ handle any response shape: { data }, { store }, or flat object
-      console.log("[CreateStore] raw response:", storeRaw);
-      const createdStore = extractStore(storeRaw);
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+              <UserPlus size={15} className="text-indigo-600" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-slate-900">Add Admin</h2>
+              <p className="text-[11px] text-slate-400 truncate max-w-[160px]">{shopName}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+            <X size={18} />
+          </button>
+        </div>
 
-      // ── 2. Create ADMIN user linked to store ─────────────────────────────────
-      await apiFetch("/users", {
-        method: "POST",
-        body: JSON.stringify({
-          name:     form.ownerName.trim(),
-          email:    form.ownerEmail.trim(),
-          password: form.ownerPassword,
-          role:     "ADMIN",
-          store_id: createdStore.id,
-        }),
-      });
+        {/* Body */}
+        <form onSubmit={handleSubmit} className="px-5 py-4 space-y-3">
+          {apiError && <ErrorBanner msg={apiError} />}
 
-      const newShop: Shop = {
-        id:          String(createdStore.id),
-        name:        createdStore.name,
-        address:     createdStore.address || "",
-        phoneNumber: createdStore.phone   || "",
-        email:       createdStore.email   || "",
-        ownerName:   createdStore.owner_name,
-        logoUrl,
-        categories,
-      };
+          <Field label="Full Name" required error={errors.name}>
+            <input
+              type="text"
+              placeholder="e.g. Rahul Sharma"
+              value={form.name}
+              onChange={(e) => { setForm({ ...form, name: e.target.value }); setErrors({ ...errors, name: "" }); }}
+              className={inputCls(errors.name)}
+            />
+          </Field>
 
-      onSave(newShop);
-    } catch (err: unknown) {
-      console.error("[CreateStore] error:", err);
-      setApiError(err instanceof Error ? err.message : "Failed to create store. Check console for details.");
-    } finally {
-      setSaving(false);
-    }
+          <Field label="Email" required error={errors.email}>
+            <div className="relative">
+              <Mail size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="email"
+                placeholder="admin@store.com"
+                value={form.email}
+                onChange={(e) => { setForm({ ...form, email: e.target.value }); setErrors({ ...errors, email: "" }); }}
+                className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.email ? "border-red-400 bg-red-50" : "border-slate-200"
+                }`}
+              />
+            </div>
+          </Field>
+
+          <Field label="Phone Number">
+            <div className="relative">
+              <Phone size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="tel"
+                placeholder="9876543210"
+                maxLength={10}
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })}
+                className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </Field>
+
+          <Field label="Password" required error={errors.password}>
+            <input
+              type="password"
+              placeholder="Min 6 characters"
+              value={form.password}
+              onChange={(e) => { setForm({ ...form, password: e.target.value }); setErrors({ ...errors, password: "" }); }}
+              className={inputCls(errors.password)}
+            />
+          </Field>
+
+          <div className="flex gap-2 pt-1">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 text-sm font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              <UserPlus size={14} /> Add Admin
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ─── Edit Store Modal ──────────────────────────────────────────────────────────
+
+function EditStoreModal({ shop, onClose, onUpdate }: {
+  shop: Shop;
+  onClose: () => void;
+  onUpdate: (updated: Shop) => void;
+}) {
+  const [form, setForm] = useState({
+    name:      shop.name,
+    ownerName: shop.ownerName,
+    address:   shop.address,
+    phone:     shop.phone,
+    upiId:     shop.upiId,
+    category:  shop.category,
+    logoUrl:   shop.logoUrl,
+  });
+  const [admins, setAdmins]             = useState<StoreAdmin[]>(shop.admins);
+  const [errors, setErrors]             = useState<Partial<typeof form>>({});
+  const [activeTab, setActiveTab]       = useState<"details" | "admins">("details");
+  const [showAddAdmin, setShowAddAdmin] = useState(false);
+
+  function validate() {
+    const e: Partial<typeof form> = {};
+    if (!form.name.trim()) e.name = "Required";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  }
+
+  function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    if (!validate()) return;
+    onUpdate({
+      ...shop,
+      name:      form.name.trim(),
+      ownerName: form.ownerName.trim(),
+      address:   form.address.trim(),
+      phone:     form.phone.trim(),
+      upiId:     form.upiId.trim(),
+      category:  form.category,
+      logoUrl:   form.logoUrl,
+      admins,
+    });
+  }
+
+  return (
+    <>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto flex flex-col max-h-[90vh]">
+
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                <Pencil size={15} className="text-amber-600" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-900">Edit Store</h2>
+                <p className="text-[11px] text-slate-400 truncate max-w-[200px]">{shop.name}</p>
+              </div>
+            </div>
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex px-6 pt-3 gap-1 shrink-0 border-b border-slate-100">
+            {(["details", "admins"] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 ${
+                  activeTab === tab
+                    ? "text-blue-600 border-blue-600 bg-blue-50"
+                    : "text-slate-500 border-transparent hover:text-slate-700"
+                }`}
+              >
+                {tab === "admins" ? `Admins (${admins.length})` : "Store Details"}
+              </button>
+            ))}
+          </div>
+
+          {/* Body */}
+          <div className="overflow-y-auto flex-1 px-6 py-4">
+
+            {/* ── Details Tab ── */}
+            {activeTab === "details" && (
+              <form id="edit-store-form" onSubmit={handleSave} className="space-y-4">
+
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">Store Logo</p>
+                  <LogoUploader
+                    value={form.logoUrl}
+                    onChange={(v) => setForm({ ...form, logoUrl: v })}
+                  />
+                </div>
+
+                <div className="border-t border-slate-100 pt-3 space-y-3">
+
+                  <Field label="Store Name" required error={errors.name}>
+                    <input
+                      type="text"
+                      value={form.name}
+                      onChange={(e) => { setForm({ ...form, name: e.target.value }); setErrors({ ...errors, name: "" }); }}
+                      className={inputCls(errors.name)}
+                    />
+                  </Field>
+
+                  <Field label="Owner Name">
+                    <input
+                      type="text"
+                      placeholder="e.g. Rahul Sharma"
+                      value={form.ownerName}
+                      onChange={(e) => setForm({ ...form, ownerName: e.target.value })}
+                      className={inputCls()}
+                    />
+                  </Field>
+
+                  {/* Email — read only */}
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">
+                      Email <span className="text-slate-400 font-normal">(not editable)</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={shop.email}
+                      disabled
+                      className="w-full px-3 py-2 text-sm border border-slate-100 rounded-lg bg-slate-50 text-slate-400 cursor-not-allowed"
+                    />
+                  </div>
+
+                  <Field label="Address">
+                    <input
+                      type="text"
+                      placeholder="123 Main St, Delhi"
+                      value={form.address}
+                      onChange={(e) => setForm({ ...form, address: e.target.value })}
+                      className={inputCls()}
+                    />
+                  </Field>
+
+                  <Field label="Phone Number">
+                    <div className="relative">
+                      <Phone size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="tel"
+                        placeholder="9876543210"
+                        maxLength={10}
+                        value={form.phone}
+                        onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })}
+                        className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </Field>
+
+                  <Field label="UPI ID">
+                    <div className="relative">
+                      <Wallet size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="yourname@upi"
+                        value={form.upiId}
+                        onChange={(e) => setForm({ ...form, upiId: e.target.value })}
+                        className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </Field>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-2">Category</label>
+                    <CategorySelector
+                      value={form.category}
+                      onChange={(v) => setForm({ ...form, category: v })}
+                    />
+                  </div>
+
+                </div>
+              </form>
+            )}
+
+            {/* ── Admins Tab ── */}
+            {activeTab === "admins" && (
+              <div className="space-y-3">
+                <button
+                  onClick={() => setShowAddAdmin(true)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors"
+                >
+                  <UserPlus size={15} /> Add Admin
+                </button>
+
+                {admins.length === 0 ? (
+                  <div className="text-center py-8 text-slate-400">
+                    <UserCheck size={32} className="mx-auto mb-2 text-slate-300" />
+                    <p className="text-sm">No admins yet.</p>
+                    <p className="text-[11px]">Add an admin to manage this store.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {admins.map((admin) => (
+                      <div
+                        key={admin.id}
+                        className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50"
+                      >
+                        <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs font-bold shrink-0">
+                          {admin.name.slice(0, 2).toUpperCase()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-slate-800 truncate">{admin.name}</p>
+                          <div className="flex items-center gap-1 text-[11px] text-slate-500 truncate">
+                            <Mail size={9} /> {admin.email}
+                          </div>
+                          {admin.phone && (
+                            <div className="flex items-center gap-1 text-[10px] text-slate-400">
+                              <Phone size={9} /> +91 {admin.phone}
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full">
+                          ADMIN
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+          </div>
+
+          {/* Footer */}
+          <div className="px-6 py-4 border-t border-slate-100 flex gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 text-sm font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+            >
+              Cancel
+            </button>
+            {activeTab === "details" && (
+              <button
+                type="submit"
+                form="edit-store-form"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Check size={14} /> Save Changes
+              </button>
+            )}
+          </div>
+
+        </div>
+      </div>
+
+      {showAddAdmin && (
+        <AddAdminModal
+          shopName={shop.name}
+          onClose={() => setShowAddAdmin(false)}
+          onAdded={(admin) => {
+            setAdmins((prev) => [...prev, admin]);
+            setShowAddAdmin(false);
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+// ─── Create Store Modal ────────────────────────────────────────────────────────
+
+function CreateStoreModal({ onClose, onSave }: {
+  onClose: () => void;
+  onSave: (shop: Shop) => void;
+}) {
+  const [form, setForm] = useState({
+    name:      "",
+    ownerName: "",
+    address:   "",
+    phone:     "",
+    email:     "",
+    upiId:     "",
+    category:  "GROCERY" as StoreCategory,
+  });
+  const [logoUrl, setLogoUrl]   = useState<string | null>(null);
+  const [errors, setErrors]     = useState<Partial<typeof form>>({});
+
+  function validate() {
+    const e: Partial<typeof form> = {};
+    if (!form.name.trim())  e.name  = "Required";
+    if (!form.email.trim()) e.email = "Required";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!validate()) return;
+    onSave({
+      id:        uid(),
+      name:      form.name.trim(),
+      ownerName: form.ownerName.trim(),
+      address:   form.address.trim(),
+      phone:     form.phone.trim(),
+      email:     form.email.trim(),
+      upiId:     form.upiId.trim(),
+      logoUrl,
+      category:  form.category,
+      admins:    [],
+    });
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto flex flex-col max-h-[90vh]">
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
@@ -365,7 +635,7 @@ function CreateStoreModal({
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900">Create New Store</h2>
-              <p className="text-[11px] text-slate-400">Step {step} of 2</p>
+              <p className="text-[11px] text-slate-400">Fill in store details to get started</p>
             </div>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
@@ -373,217 +643,120 @@ function CreateStoreModal({
           </button>
         </div>
 
-        {/* Step indicator */}
-        <div className="flex px-6 pt-4 gap-2 shrink-0">
-          {[{ n: 1, label: "Store & Owner" }, { n: 2, label: "Logo & Categories" }].map(({ n, label }) => (
-            <div key={n} className="flex-1 flex flex-col items-center gap-1">
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${step >= n ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-400"}`}>
-                {step > n ? <Check size={13} /> : n}
-              </div>
-              <span className={`text-[10px] font-medium ${step >= n ? "text-blue-600" : "text-slate-400"}`}>{label}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Progress bar */}
-        <div className="px-6 pt-1 pb-1 shrink-0">
-          <div className="h-0.5 bg-slate-100 rounded-full mx-3.5">
-            <div
-              className="h-full bg-blue-600 rounded-full transition-all duration-300"
-              style={{ width: step === 2 ? "100%" : "0%" }}
-            />
-          </div>
-        </div>
-
         {/* Body */}
         <div className="overflow-y-auto flex-1 px-6 py-4">
+          <form id="create-store-form" onSubmit={handleSubmit} className="space-y-4">
 
-          {/* API Error Banner */}
-          {apiError && (
-            <div className="flex items-start gap-2 mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-              <AlertCircle size={15} className="text-red-500 mt-0.5 shrink-0" />
-              <p className="text-xs text-red-600">{apiError}</p>
+            {/* Logo */}
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">Store Logo</p>
+              <LogoUploader value={logoUrl} onChange={setLogoUrl} />
             </div>
-          )}
 
-          <form id="store-form" onSubmit={handleSubmit}>
+            <div className="border-t border-slate-100 pt-3 space-y-3">
 
-            {/* ── STEP 1 ── */}
-            {step === 1 && (
-              <div className="space-y-4">
+              <Field label="Store Name" required error={errors.name}>
+                <input
+                  type="text"
+                  placeholder="e.g. Downtown Branch"
+                  value={form.name}
+                  onChange={(e) => { setForm({ ...form, name: e.target.value }); setErrors({ ...errors, name: "" }); }}
+                  className={inputCls(errors.name)}
+                />
+              </Field>
 
-                {/* Store Details */}
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-3">Store Details</p>
-                  <div className="space-y-3">
+              <Field label="Owner Name">
+                <input
+                  type="text"
+                  placeholder="e.g. Rahul Sharma"
+                  value={form.ownerName}
+                  onChange={(e) => setForm({ ...form, ownerName: e.target.value })}
+                  className={inputCls()}
+                />
+              </Field>
 
-                    <div>
-                      <label className="block text-xs font-medium text-slate-600 mb-1">Store Name *</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Downtown Branch"
-                        value={form.storeName}
-                        onChange={(e) => setForm({ ...form, storeName: e.target.value })}
-                        className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.storeName ? "border-red-400 bg-red-50" : "border-slate-200"}`}
-                      />
-                      {errors.storeName && <p className="text-[11px] text-red-500 mt-0.5">{errors.storeName}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-slate-600 mb-1">Store Email</label>
-                      <input
-                        type="email"
-                        placeholder="store@example.com"
-                        value={form.email}
-                        onChange={(e) => setForm({ ...form, email: e.target.value })}
-                        className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-slate-600 mb-1">Address</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. 123 Main St, Delhi"
-                        value={form.address}
-                        onChange={(e) => setForm({ ...form, address: e.target.value })}
-                        className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-slate-600 mb-1">Phone Number</label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-medium select-none">+91</span>
-                        <input
-                          type="tel"
-                          placeholder="9876543210"
-                          maxLength={10}
-                          value={form.phoneNumber}
-                          onChange={(e) => setForm({ ...form, phoneNumber: e.target.value.replace(/\D/g, "") })}
-                          className="w-full pl-10 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-
-                  </div>
+              <Field label="Store Email" required error={errors.email}>
+                <div className="relative">
+                  <Mail size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="email"
+                    placeholder="store@example.com"
+                    value={form.email}
+                    onChange={(e) => { setForm({ ...form, email: e.target.value }); setErrors({ ...errors, email: "" }); }}
+                    className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.email ? "border-red-400 bg-red-50" : "border-slate-200"
+                    }`}
+                  />
                 </div>
+              </Field>
 
-                {/* Admin Credentials */}
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-3">Admin Login Credentials</p>
-                  <div className="mb-3 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
-                    <p className="text-[11px] text-slate-600">
-                      Creates an <strong>ADMIN</strong> user who can log in and manage this store.
-                    </p>
-                  </div>
-                  <div className="space-y-3">
-
-                    <div>
-                      <label className="block text-xs font-medium text-slate-600 mb-1">Owner Name *</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Rahul Sharma"
-                        value={form.ownerName}
-                        onChange={(e) => setForm({ ...form, ownerName: e.target.value })}
-                        className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.ownerName ? "border-red-400 bg-red-50" : "border-slate-200"}`}
-                      />
-                      {errors.ownerName && <p className="text-[11px] text-red-500 mt-0.5">{errors.ownerName}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-slate-600 mb-1">Admin Login Email *</label>
-                      <input
-                        type="email"
-                        placeholder="admin@store.com"
-                        value={form.ownerEmail}
-                        onChange={(e) => setForm({ ...form, ownerEmail: e.target.value })}
-                        className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.ownerEmail ? "border-red-400 bg-red-50" : "border-slate-200"}`}
-                      />
-                      {errors.ownerEmail && <p className="text-[11px] text-red-500 mt-0.5">{errors.ownerEmail}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-slate-600 mb-1">
-                        Password * <span className="font-normal text-slate-400">(min 6 chars)</span>
-                      </label>
-                      <input
-                        type="password"
-                        placeholder="Set login password"
-                        value={form.ownerPassword}
-                        onChange={(e) => setForm({ ...form, ownerPassword: e.target.value })}
-                        className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.ownerPassword ? "border-red-400 bg-red-50" : "border-slate-200"}`}
-                      />
-                      {errors.ownerPassword && <p className="text-[11px] text-red-500 mt-0.5">{errors.ownerPassword}</p>}
-                    </div>
-
-                  </div>
+              <Field label="Phone Number">
+                <div className="relative">
+                  <Phone size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="tel"
+                    placeholder="9876543210"
+                    maxLength={10}
+                    value={form.phone}
+                    onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })}
+                    className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
                 </div>
+              </Field>
+
+              <Field label="UPI ID">
+                <div className="relative">
+                  <Wallet size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="yourname@upi"
+                    value={form.upiId}
+                    onChange={(e) => setForm({ ...form, upiId: e.target.value })}
+                    className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </Field>
+
+              <Field label="Address">
+                <input
+                  type="text"
+                  placeholder="e.g. 123 Main St, Delhi"
+                  value={form.address}
+                  onChange={(e) => setForm({ ...form, address: e.target.value })}
+                  className={inputCls()}
+                />
+              </Field>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-2">
+                  Store Category <span className="text-red-500">*</span>
+                </label>
+                <CategorySelector
+                  value={form.category}
+                  onChange={(v) => setForm({ ...form, category: v })}
+                />
               </div>
-            )}
 
-            {/* ── STEP 2 ── */}
-            {step === 2 && (
-              <div className="space-y-5">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-3">Store Logo</p>
-                  <LogoUploader value={logoUrl} onChange={setLogoUrl} />
-                  <p className="text-[10px] text-slate-400 mt-2">Logo is stored in-browser only.</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1">
-                    Product Categories
-                    <span className="ml-1 normal-case text-slate-300">(optional — add now or later)</span>
-                  </p>
-                  <CategoryBuilder categories={categories} onChange={setCategories} />
-                </div>
-              </div>
-            )}
-
+            </div>
           </form>
         </div>
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-slate-100 flex gap-2 shrink-0">
-          {step === 1 ? (
-            <>
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 px-4 py-2 text-sm font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => validateStep1() && setStep(2)}
-                className="flex-1 px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Next →
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                type="button"
-                onClick={() => setStep(1)}
-                disabled={saving}
-                className="flex-1 px-4 py-2 text-sm font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
-              >
-                ← Back
-              </button>
-              <button
-                type="submit"
-                form="store-form"
-                disabled={saving}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-60"
-              >
-                {saving ? (
-                  <><Loader2 size={14} className="animate-spin" /> Creating…</>
-                ) : "Create Store"}
-              </button>
-            </>
-          )}
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 px-4 py-2 text-sm font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="create-store-form"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Store size={14} /> Create Store
+          </button>
         </div>
 
       </div>
@@ -591,14 +764,9 @@ function CreateStoreModal({
   );
 }
 
-// ─── Store Switcher Modal ─────────────────────────────────────────────────────
+// ─── Store Switcher Modal ──────────────────────────────────────────────────────
 
-function StoreSwitcherModal({
-  shops,
-  activeShopId,
-  onSwitch,
-  onClose,
-}: {
+function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
   shops: Shop[];
   activeShopId: string | null;
   onSwitch: (id: string) => void;
@@ -622,27 +790,36 @@ function StoreSwitcherModal({
           ) : (
             shops.map((shop) => {
               const isActive = shop.id === activeShopId;
+              const catMeta  = CATEGORY_META[shop.category];
+              const CatIcon  = catMeta.icon;
               return (
                 <button
                   key={shop.id}
                   onClick={() => { onSwitch(shop.id); onClose(); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${isActive ? "bg-blue-600 text-white shadow-md shadow-blue-100" : "hover:bg-slate-50 text-slate-700"}`}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${
+                    isActive
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-100"
+                      : "hover:bg-slate-50 text-slate-700"
+                  }`}
                 >
-                  <div className={`w-10 h-10 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${isActive ? "bg-white/20" : "bg-slate-100"}`}>
+                  <div className={`w-10 h-10 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${
+                    isActive ? "bg-white/20" : catMeta.color
+                  }`}>
                     {shop.logoUrl
                       ? <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
-                      : <Store size={18} className={isActive ? "text-white" : "text-slate-400"} />}
+                      : <CatIcon size={18} className={isActive ? "text-white" : ""} />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-semibold truncate ${isActive ? "text-white" : "text-slate-800"}`}>{shop.name}</p>
-                    <p className={`text-[11px] truncate ${isActive ? "text-white/70" : "text-slate-400"}`}>
-                      {shop.ownerName} · {shop.categories.length} categories
+                    <p className={`text-sm font-semibold truncate ${isActive ? "text-white" : "text-slate-800"}`}>
+                      {shop.name}
                     </p>
-                    {shop.phoneNumber && (
-                      <p className={`text-[10px] truncate ${isActive ? "text-white/60" : "text-slate-400"}`}>+91 {shop.phoneNumber}</p>
-                    )}
-                    {shop.email && (
-                      <p className={`text-[10px] truncate ${isActive ? "text-white/60" : "text-slate-400"}`}>{shop.email}</p>
+                    <p className={`text-[11px] truncate ${isActive ? "text-white/70" : "text-slate-400"}`}>
+                      {shop.ownerName ? `${shop.ownerName} · ` : ""}{catMeta.label}
+                    </p>
+                    {shop.phone && (
+                      <p className={`text-[10px] ${isActive ? "text-white/60" : "text-slate-400"}`}>
+                        +91 {shop.phone}
+                      </p>
                     )}
                   </div>
                   {isActive && <Check size={16} className="text-white shrink-0" />}
@@ -656,9 +833,16 @@ function StoreSwitcherModal({
   );
 }
 
-// ─── Active Store Banner ──────────────────────────────────────────────────────
+// ─── Active Store Banner ───────────────────────────────────────────────────────
 
-function ActiveStoreBanner({ shop, onSwitch }: { shop: Shop; onSwitch: () => void }) {
+function ActiveStoreBanner({ shop, onSwitch, onEdit }: {
+  shop: Shop;
+  onSwitch: () => void;
+  onEdit: () => void;
+}) {
+  const catMeta = CATEGORY_META[shop.category];
+  const CatIcon = catMeta.icon;
+
   return (
     <div className="mx-3 mb-3 rounded-xl border border-blue-100 bg-blue-50 p-3">
       <p className="text-[10px] font-semibold uppercase tracking-widest text-blue-400 mb-2">Active Store</p>
@@ -666,45 +850,43 @@ function ActiveStoreBanner({ shop, onSwitch }: { shop: Shop; onSwitch: () => voi
         <div className="w-10 h-10 rounded-lg bg-white border border-blue-100 flex items-center justify-center overflow-hidden shrink-0">
           {shop.logoUrl
             ? <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
-            : <Store size={17} className="text-blue-500" />}
+            : <CatIcon size={17} className="text-blue-500" />}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-slate-800 truncate">{shop.name}</p>
-          <p className="text-[11px] text-slate-500 truncate">{shop.ownerName}</p>
-          {shop.phoneNumber && (
-            <p className="text-[10px] text-slate-400 truncate">📞 +91 {shop.phoneNumber}</p>
+          {shop.ownerName && (
+            <p className="text-[11px] text-slate-500 truncate">{shop.ownerName}</p>
           )}
-          {shop.email && (
-            <p className="text-[10px] text-slate-400 truncate">✉️ {shop.email}</p>
+          <span className={`inline-flex items-center gap-1 text-[10px] font-semibold border px-1.5 py-0.5 rounded-full ${catMeta.color}`}>
+            <CatIcon size={8} /> {catMeta.label}
+          </span>
+          {shop.phone && (
+            <p className="text-[10px] text-slate-400 truncate mt-0.5">📞 +91 {shop.phone}</p>
+          )}
+          {shop.upiId && (
+            <p className="text-[10px] text-slate-400 truncate">💳 {shop.upiId}</p>
           )}
         </div>
-        <button
-          onClick={onSwitch}
-          className="flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800 bg-white hover:bg-blue-50 border border-blue-200 px-2 py-1 rounded-lg transition-colors shrink-0"
-        >
-          <ArrowLeftRight size={10} /> Switch
-        </button>
+        <div className="flex flex-col gap-1 shrink-0">
+          <button
+            onClick={onEdit}
+            className="flex items-center gap-1 text-[11px] font-semibold text-amber-600 hover:text-amber-800 bg-white hover:bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg transition-colors"
+          >
+            <Pencil size={10} /> Edit
+          </button>
+          <button
+            onClick={onSwitch}
+            className="flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800 bg-white hover:bg-blue-50 border border-blue-200 px-2 py-1 rounded-lg transition-colors"
+          >
+            <ArrowLeftRight size={10} /> Switch
+          </button>
+        </div>
       </div>
-      {shop.categories.length > 0 && (
-        <div className="flex flex-wrap gap-1 mt-2.5">
-          {shop.categories.slice(0, 4).map((cat) => (
-            <span
-              key={cat.id}
-              className="flex items-center gap-1 text-[10px] font-medium bg-white text-emerald-700 border border-emerald-100 px-1.5 py-0.5 rounded-full"
-            >
-              <Tag size={8} /> {cat.name}
-            </span>
-          ))}
-          {shop.categories.length > 4 && (
-            <span className="text-[10px] text-slate-400 px-1 py-0.5">+{shop.categories.length - 4} more</span>
-          )}
-        </div>
-      )}
     </div>
   );
 }
 
-// ─── Main Sidebar ─────────────────────────────────────────────────────────────
+// ─── Main Sidebar ──────────────────────────────────────────────────────────────
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -714,45 +896,15 @@ export default function Sidebar() {
   const [activeShopId, setActiveShopId]       = useState<string | null>(null);
   const [showCreateStore, setShowCreateStore] = useState(false);
   const [showSwitcher, setShowSwitcher]       = useState(false);
-  const [loadingStores, setLoadingStores]     = useState(true);
-
-  // FIX 2 ─ user read reactively via useEffect, not inline during render
-  const [user, setUser] = useState<StoredUser | null>(null);
+  const [editShop, setEditShop]               = useState<Shop | null>(null);
+  const [user, setUser]                       = useState<StoredUser | null>(null);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem("user");
       if (raw) setUser(JSON.parse(raw));
-    } catch {
-      setUser(null);
-    }
+    } catch { setUser(null); }
   }, []);
-
-  // FIX 3 ─ fetchStores no longer closes over activeShopId — uses functional setState
-  const fetchStores = useCallback(async () => {
-    setLoadingStores(true);
-    try {
-      const res = await apiFetch("/stores");
-
-      // Handle { data: [] } or flat []
-      const list: ApiStore[] = Array.isArray(res)
-        ? res
-        : Array.isArray(res.data)
-        ? res.data
-        : [];
-
-      const fetched = list.map(mapApiStore);
-      setShops(fetched);
-      // Auto-select first store without closing over activeShopId
-      setActiveShopId((prev) => (fetched.length > 0 && !prev ? fetched[0].id : prev));
-    } catch (err) {
-      console.error("[fetchStores] error:", err);
-    } finally {
-      setLoadingStores(false);
-    }
-  }, []); // no deps needed — uses functional updater
-
-  useEffect(() => { fetchStores(); }, [fetchStores]);
 
   const activeShop = shops.find((s) => s.id === activeShopId) ?? null;
 
@@ -762,13 +914,17 @@ export default function Sidebar() {
     router.push("/");
   }
 
-  // FIX 4 ─ check shops.length inside the setShops updater to avoid stale closure
   function handleCreateStore(shop: Shop) {
     setShops((prev) => {
       if (prev.length === 0) setActiveShopId(shop.id);
       return [...prev, shop];
     });
     setShowCreateStore(false);
+  }
+
+  function handleUpdateStore(updated: Shop) {
+    setShops((prev) => prev.map((s) => s.id === updated.id ? updated : s));
+    setEditShop(null);
   }
 
   const isSuperAdmin = !user || user.role === "SUPER_ADMIN";
@@ -791,7 +947,11 @@ export default function Sidebar() {
         {/* Active Store Banner */}
         {activeShop && (
           <div className="pt-3">
-            <ActiveStoreBanner shop={activeShop} onSwitch={() => setShowSwitcher(true)} />
+            <ActiveStoreBanner
+              shop={activeShop}
+              onSwitch={() => setShowSwitcher(true)}
+              onEdit={() => setEditShop(activeShop)}
+            />
           </div>
         )}
 
@@ -858,12 +1018,7 @@ export default function Sidebar() {
               </div>
             </div>
 
-            {loadingStores ? (
-              <div className="flex items-center gap-2 px-2 py-3 text-slate-400">
-                <Loader2 size={13} className="animate-spin text-blue-400" />
-                <span className="text-[11px]">Loading stores…</span>
-              </div>
-            ) : shops.length === 0 ? (
+            {shops.length === 0 ? (
               <p className="text-[11px] text-slate-400 px-2 py-1">
                 No stores yet.{" "}
                 {isSuperAdmin && (
@@ -879,31 +1034,48 @@ export default function Sidebar() {
               <div className="space-y-1">
                 {shops.map((shop) => {
                   const isActive = shop.id === activeShopId;
+                  const catMeta  = CATEGORY_META[shop.category];
+                  const CatIcon  = catMeta.icon;
                   return (
-                    <button
-                      key={shop.id}
-                      onClick={() => setActiveShopId(shop.id)}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all ${
-                        isActive
-                          ? "bg-blue-600 text-white shadow-sm"
-                          : "hover:bg-slate-50 text-slate-700"
-                      }`}
-                    >
-                      <div className={`w-7 h-7 rounded-md shrink-0 overflow-hidden flex items-center justify-center ${isActive ? "bg-white/20" : "bg-slate-100"}`}>
-                        {shop.logoUrl
-                          ? <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
-                          : <Store size={13} className={isActive ? "text-white" : "text-slate-400"} />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-xs font-semibold truncate ${isActive ? "text-white" : "text-slate-800"}`}>
-                          {shop.name}
-                        </p>
-                        <p className={`text-[10px] truncate ${isActive ? "text-white/70" : "text-slate-400"}`}>
-                          {shop.ownerName}{shop.phoneNumber ? ` · ${shop.phoneNumber}` : ""}
-                        </p>
-                      </div>
-                      {isActive && <Check size={13} className="text-white shrink-0" />}
-                    </button>
+                    <div key={shop.id} className="flex items-center gap-1">
+                      <button
+                        onClick={() => setActiveShopId(shop.id)}
+                        className={`flex-1 flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all ${
+                          isActive
+                            ? "bg-blue-600 text-white shadow-sm"
+                            : "hover:bg-slate-50 text-slate-700"
+                        }`}
+                      >
+                        <div className={`w-7 h-7 rounded-md shrink-0 overflow-hidden flex items-center justify-center ${
+                          isActive ? "bg-white/20" : catMeta.color
+                        }`}>
+                          {shop.logoUrl
+                            ? <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
+                            : <CatIcon size={13} className={isActive ? "text-white" : ""} />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-xs font-semibold truncate ${isActive ? "text-white" : "text-slate-800"}`}>
+                            {shop.name}
+                          </p>
+                          <p className={`text-[10px] truncate ${isActive ? "text-white/70" : "text-slate-400"}`}>
+                            {shop.ownerName || catMeta.label}{shop.phone ? ` · ${shop.phone}` : ""}
+                          </p>
+                        </div>
+                        {isActive && <Check size={13} className="text-white shrink-0" />}
+                      </button>
+                      {/* Edit button per row */}
+                      <button
+                        onClick={() => setEditShop(shop)}
+                        className={`p-1.5 rounded-lg transition-colors ${
+                          isActive
+                            ? "text-white/70 hover:text-white hover:bg-white/10"
+                            : "text-slate-400 hover:text-amber-600 hover:bg-amber-50"
+                        }`}
+                        title="Edit store"
+                      >
+                        <Pencil size={12} />
+                      </button>
+                    </div>
                   );
                 })}
               </div>
@@ -945,6 +1117,13 @@ export default function Sidebar() {
           activeShopId={activeShopId}
           onSwitch={setActiveShopId}
           onClose={() => setShowSwitcher(false)}
+        />
+      )}
+      {editShop && (
+        <EditStoreModal
+          shop={editShop}
+          onClose={() => setEditShop(null)}
+          onUpdate={handleUpdateStore}
         />
       )}
     </>
