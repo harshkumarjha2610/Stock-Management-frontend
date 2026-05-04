@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const API_BASE_URL = "https://stock-management-backend-harsh2610.onrender.com/api";
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -21,11 +23,41 @@ export default function LoginPage() {
     }
 
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1000)); // Replace with real auth
-    setLoading(false);
 
-    // TODO: Replace with NextAuth signIn or your API call
-    router.push("/dashboard");
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setError(data.message || "Login failed. Please try again.");
+        return;
+      }
+
+      // Save token & user to localStorage
+      localStorage.setItem("token", data.data.token);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
+
+      // Role-based redirect
+      const role = data.data.user.role;
+      if (role === "SUPER_ADMIN") {
+        router.push("/dashboard");
+      } else if (role === "ADMIN") {
+        router.push("/dashboard");
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (err) {
+      setError("Network error. Please check your connection.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -40,9 +72,7 @@ export default function LoginPage() {
             </svg>
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-              Stock Management
-            </h1>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Stock Management</h1>
             <p className="mt-1 text-sm text-slate-500">Sign in to your admin account</p>
           </div>
         </div>
@@ -61,9 +91,7 @@ export default function LoginPage() {
             )}
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="email" className="text-sm font-medium text-slate-700">
-                Email address
-              </label>
+              <label htmlFor="email" className="text-sm font-medium text-slate-700">Email address</label>
               <input
                 id="email"
                 type="email"
@@ -78,12 +106,8 @@ export default function LoginPage() {
 
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <label htmlFor="password" className="text-sm font-medium text-slate-700">
-                  Password
-                </label>
-                <a href="#" className="text-xs text-blue-600 hover:text-blue-700 transition-colors">
-                  Forgot password?
-                </a>
+                <label htmlFor="password" className="text-sm font-medium text-slate-700">Password</label>
+                <a href="#" className="text-xs text-blue-600 hover:text-blue-700 transition-colors">Forgot password?</a>
               </div>
               <div className="relative">
                 <input
