@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Search, Eye, Trash2, X, ChevronDown, Filter,
   ShoppingCart, Clock, CheckCircle, XCircle, Truck,
   IndianRupee, CalendarDays, User, Phone, Package,
-  ArrowUpDown, RefreshCw, Receipt,
+  ArrowUpDown, RefreshCw, Receipt, Loader2,
 } from "lucide-react";
+import { api } from "@/lib/api";
 
 // ═══════════════════════════════════════════════════════════
 // TYPES
@@ -43,108 +44,7 @@ type Order = {
   note:          string;
 };
 
-// ═══════════════════════════════════════════════════════════
-// MOCK DATA
-// ═══════════════════════════════════════════════════════════
-
-const MOCK_ORDERS: Order[] = [
-  {
-    id:"ORD-001", invoiceNo:"INV-1001", customer:"Arjun Das",     phone:"9876543210",
-    items:[
-      { productId:"PRD-001", name:"Wireless Keyboard Pro", qty:1, rate:1299, gstPercent:18, discount:0   },
-      { productId:"PRD-002", name:"USB-C Hub 7-in-1",      qty:1, rate:999,  gstPercent:18, discount:50  },
-    ],
-    subtotal:2298, totalDiscount:50, totalGST:400, grandTotal:2648,
-    paymentMethod:"upi",  paymentStatus:"paid",   status:"delivered",
-    createdAt:"2026-04-17 10:30", updatedAt:"2026-04-17 11:00", note:"",
-  },
-  {
-    id:"ORD-002", invoiceNo:"INV-1002", customer:"Priya Sharma",  phone:"8765432109",
-    items:[
-      { productId:"PRD-007", name:"Webcam 1080p",           qty:1, rate:3299, gstPercent:18, discount:0   },
-    ],
-    subtotal:3299, totalDiscount:0, totalGST:594, grandTotal:3893,
-    paymentMethod:"card", paymentStatus:"paid",   status:"delivered",
-    createdAt:"2026-04-16 14:15", updatedAt:"2026-04-16 15:00", note:"",
-  },
-  {
-    id:"ORD-003", invoiceNo:"INV-1003", customer:"Ravi Kumar",    phone:"7654321098",
-    items:[
-      { productId:"PRD-003", name:"Monitor Stand Adj.",     qty:2, rate:2499, gstPercent:12, discount:100 },
-      { productId:"PRD-008", name:"Desk Organizer Set",     qty:1, rate:749,  gstPercent:12, discount:0   },
-    ],
-    subtotal:5747, totalDiscount:200, totalGST:666, grandTotal:6213,
-    paymentMethod:"cash", paymentStatus:"partial", status:"confirmed",
-    createdAt:"2026-04-17 09:00", updatedAt:"2026-04-17 09:30", note:"Partial payment of ₹3000 received.",
-  },
-  {
-    id:"ORD-004", invoiceNo:"INV-1004", customer:"Meena Nair",    phone:"6543210987",
-    items:[
-      { productId:"PRD-005", name:"Laptop Sleeve 15\"",     qty:2, rate:599,  gstPercent:12, discount:0   },
-    ],
-    subtotal:1198, totalDiscount:0, totalGST:144, grandTotal:1342,
-    paymentMethod:"upi",  paymentStatus:"unpaid",  status:"pending",
-    createdAt:"2026-04-18 08:45", updatedAt:"2026-04-18 08:45", note:"",
-  },
-  {
-    id:"ORD-005", invoiceNo:"INV-1005", customer:"Suresh Pillai", phone:"5432109876",
-    items:[
-      { productId:"PRD-004", name:"Mechanical Mouse",       qty:3, rate:849,  gstPercent:18, discount:0   },
-      { productId:"PRD-006", name:"HDMI Cable 2m",          qty:2, rate:299,  gstPercent:18, discount:0   },
-    ],
-    subtotal:3145, totalDiscount:0, totalGST:566, grandTotal:3711,
-    paymentMethod:"cash", paymentStatus:"paid",    status:"delivered",
-    createdAt:"2026-04-15 16:20", updatedAt:"2026-04-15 17:00", note:"",
-  },
-  {
-    id:"ORD-006", invoiceNo:"INV-1006", customer:"Anita Bose",    phone:"4321098765",
-    items:[
-      { productId:"PRD-009", name:"Mouse Pad XL",           qty:1, rate:399,  gstPercent:18, discount:0   },
-    ],
-    subtotal:399, totalDiscount:0, totalGST:72, grandTotal:471,
-    paymentMethod:"cash", paymentStatus:"paid",    status:"cancelled",
-    createdAt:"2026-04-14 12:00", updatedAt:"2026-04-14 12:30", note:"Customer cancelled order.",
-  },
-  {
-    id:"ORD-007", invoiceNo:"INV-1007", customer:"Vijay Menon",   phone:"3210987654",
-    items:[
-      { productId:"PRD-010", name:"Laptop Stand Portable",  qty:1, rate:1799, gstPercent:12, discount:0   },
-      { productId:"PRD-001", name:"Wireless Keyboard Pro",  qty:1, rate:1299, gstPercent:18, discount:100 },
-    ],
-    subtotal:3098, totalDiscount:100, totalGST:512, grandTotal:3510,
-    paymentMethod:"card", paymentStatus:"paid",    status:"confirmed",
-    createdAt:"2026-04-18 11:10", updatedAt:"2026-04-18 11:10", note:"",
-  },
-  {
-    id:"ORD-008", invoiceNo:"INV-1008", customer:"Deepa Iyer",    phone:"9123456789",
-    items:[
-      { productId:"PRD-002", name:"USB-C Hub 7-in-1",       qty:2, rate:999,  gstPercent:18, discount:0   },
-    ],
-    subtotal:1998, totalDiscount:0, totalGST:360, grandTotal:2358,
-    paymentMethod:"upi",  paymentStatus:"paid",    status:"pending",
-    createdAt:"2026-04-19 07:55", updatedAt:"2026-04-19 07:55", note:"",
-  },
-  {
-    id:"ORD-009", invoiceNo:"INV-1009", customer:"Kiran Reddy",   phone:"8012345678",
-    items:[
-      { productId:"PRD-007", name:"Webcam 1080p",           qty:1, rate:3299, gstPercent:18, discount:200 },
-      { productId:"PRD-003", name:"Monitor Stand Adj.",     qty:1, rate:2499, gstPercent:12, discount:0   },
-    ],
-    subtotal:5798, totalDiscount:200, totalGST:908, grandTotal:6506,
-    paymentMethod:"card", paymentStatus:"paid",    status:"delivered",
-    createdAt:"2026-04-13 15:30", updatedAt:"2026-04-14 10:00", note:"",
-  },
-  {
-    id:"ORD-010", invoiceNo:"INV-1010", customer:"Sonal Mehta",   phone:"7901234567",
-    items:[
-      { productId:"PRD-005", name:"Laptop Sleeve 15\"",     qty:1, rate:599,  gstPercent:12, discount:0   },
-      { productId:"PRD-008", name:"Desk Organizer Set",     qty:2, rate:749,  gstPercent:12, discount:50  },
-    ],
-    subtotal:2097, totalDiscount:100, totalGST:238, grandTotal:2235,
-    paymentMethod:"cash", paymentStatus:"unpaid",  status:"pending",
-    createdAt:"2026-04-19 09:20", updatedAt:"2026-04-19 09:20", note:"",
-  },
-];
+// Orders (Bills) are fetched from backend API
 
 // ═══════════════════════════════════════════════════════════
 // CONFIG
@@ -340,7 +240,46 @@ function OrderDetailModal({
 // ═══════════════════════════════════════════════════════════
 
 export default function OrdersPage() {
-  const [orders,     setOrders]     = useState<Order[]>(MOCK_ORDERS);
+  const [orders,     setOrders]     = useState<Order[]>([]);
+  const [loading,    setLoading]    = useState(true);
+
+  useEffect(() => {
+    async function fetchOrders() {
+      try {
+        setLoading(true);
+        const res = await api.get('/bills');
+        setOrders(res.data.map((b: any) => ({
+          id: b.id,
+          invoiceNo: b.invoice_no,
+          customer: b.customer?.name || "Walk-in",
+          phone: b.customer?.phone || "—",
+          items: b.items?.map((i: any) => ({
+            productId: i.product_id,
+            name: i.product?.name || "Unknown",
+            qty: i.quantity,
+            rate: parseFloat(i.unit_price),
+            gstPercent: parseFloat(i.gst_percent || 0),
+            discount: parseFloat(i.discount || 0)
+          })) || [],
+          subtotal: parseFloat(b.subtotal),
+          totalDiscount: parseFloat(b.total_discount || 0),
+          totalGST: parseFloat(b.total_gst || 0),
+          grandTotal: parseFloat(b.total_amount),
+          paymentMethod: (b.payment_method || "cash").toLowerCase() as PaymentMethod,
+          paymentStatus: (b.payment_status || "paid").toLowerCase() as PaymentStatus,
+          status: (b.status || "pending").toLowerCase() as OrderStatus,
+          createdAt: b.createdAt?.replace('T',' ').slice(0, 16),
+          updatedAt: b.updatedAt?.replace('T',' ').slice(0, 16),
+          note: b.note || ""
+        })));
+      } catch (error) {
+        console.error("Failed to fetch orders", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchOrders();
+  }, []);
   const [search,     setSearch]     = useState("");
   const [statusF,    setStatusF]    = useState("All");
   const [payF,       setPayF]       = useState("All");
@@ -390,15 +329,31 @@ export default function OrdersPage() {
     else { setSortKey(key); setSortDir("desc"); }
   }
 
-  function handleStatusChange(id: string, status: OrderStatus) {
-    setOrders((prev) => prev.map((o) =>
-      o.id === id ? { ...o, status, updatedAt: "2026-04-22 " + new Date().toTimeString().slice(0, 5) } : o
-    ));
+  async function handleStatusChange(id: string, status: OrderStatus) {
+    setLoading(true);
+    try {
+      await api.put(`/bills/${id}`, { status });
+      setOrders((prev) => prev.map((o) =>
+        o.id === id ? { ...o, status, updatedAt: new Date().toISOString().replace('T',' ').slice(0, 16) } : o
+      ));
+    } catch (error: any) {
+      alert(error.message || "Failed to update status");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function handleDelete(id: string) {
-    setOrders((prev) => prev.filter((o) => o.id !== id));
-    setDeleteId(null);
+  async function handleDelete(id: string) {
+    setLoading(true);
+    try {
+      await api.delete(`/bills/${id}`);
+      setOrders((prev) => prev.filter((o) => o.id !== id));
+      setDeleteId(null);
+    } catch (error: any) {
+      alert(error.message || "Failed to delete order");
+    } finally {
+      setLoading(false);
+    }
   }
 
   function clearFilters() {
@@ -407,6 +362,17 @@ export default function OrdersPage() {
   }
 
   const hasFilters = search || statusF !== "All" || payF !== "All" || methodF !== "All" || dateFrom || dateTo;
+
+  if (loading) {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <p className="text-sm font-medium text-slate-500">Loading orders...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

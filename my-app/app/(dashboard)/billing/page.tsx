@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import {
   Search, Plus, Minus, Trash2, Printer, CheckCircle,
   X, ShoppingCart, User, Phone, IndianRupee, Receipt,
-  Tag, Package, ChevronDown, ScanLine, RotateCcw,
+  Tag, Package, ChevronDown, ScanLine, RotateCcw, Loader2,
 } from "lucide-react";
+import { api } from "@/lib/api";
 
 // ═══════════════════════════════════════════════════════════
 // TYPES
@@ -33,18 +34,7 @@ type PaymentMethod = "cash" | "upi" | "card";
 // MOCK PRODUCTS
 // ═══════════════════════════════════════════════════════════
 
-const PRODUCTS: Product[] = [
-  { id:"PRD-001", name:"Wireless Keyboard Pro",  category:"Electronics", brand:"Logitech",     sellingPrice:1299, gstPercent:18, stock:45, barcode:"8901030814918" },
-  { id:"PRD-002", name:"USB-C Hub 7-in-1",       category:"Electronics", brand:"Anker",        sellingPrice:999,  gstPercent:18, stock:8,  barcode:"0194252657188" },
-  { id:"PRD-003", name:"Monitor Stand Adj.",      category:"Furniture",   brand:"AmazonBasics", sellingPrice:2499, gstPercent:12, stock:22, barcode:"8906096490200" },
-  { id:"PRD-004", name:"Mechanical Mouse",        category:"Electronics", brand:"Razer",        sellingPrice:849,  gstPercent:18, stock:15, barcode:"0811069013124" },
-  { id:"PRD-005", name:"Laptop Sleeve 15\"",      category:"Accessories", brand:"Herschel",     sellingPrice:599,  gstPercent:12, stock:60, barcode:"0840386100179" },
-  { id:"PRD-006", name:"HDMI Cable 2m",           category:"Accessories", brand:"iBall",        sellingPrice:299,  gstPercent:18, stock:5,  barcode:"8906037560155" },
-  { id:"PRD-007", name:"Webcam 1080p",            category:"Electronics", brand:"Logitech",     sellingPrice:3299, gstPercent:18, stock:18, barcode:"5099206062573" },
-  { id:"PRD-008", name:"Desk Organizer Set",      category:"Furniture",   brand:"",             sellingPrice:749,  gstPercent:12, stock:30, barcode:"7350062381345" },
-  { id:"PRD-009", name:"Mouse Pad XL",            category:"Accessories", brand:"Logitech",     sellingPrice:399,  gstPercent:18, stock:3,  barcode:"7350062381346" },
-  { id:"PRD-010", name:"Laptop Stand Portable",   category:"Furniture",   brand:"Nexstand",     sellingPrice:1799, gstPercent:12, stock:12, barcode:"7350062381347" },
-];
+// Products will be fetched from API
 
 const PAYMENT_METHODS: { key: PaymentMethod; label: string; icon: string }[] = [
   { key: "cash", label: "Cash",     icon: "💵" },
@@ -164,6 +154,34 @@ function printInvoice(
 // ═══════════════════════════════════════════════════════════
 
 export default function BillingPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading]   = useState(true);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        setLoading(true);
+        const res = await api.get('/products');
+        const mapped = res.data.map((p: any) => ({
+          id: String(p.id),
+          name: p.name,
+          category: p.category,
+          brand: p.brand || "",
+          sellingPrice: parseFloat(p.selling_price),
+          gstPercent: parseFloat(p.gst_percent),
+          stock: p.sizes?.reduce((s: number, x: any) => s + x.quantity, 0) || 0,
+          barcode: p.sku || ""
+        }));
+        setProducts(mapped);
+      } catch (error) {
+        console.error("Failed to fetch products", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
+
   // Product search
   const [search,     setSearch]     = useState("");
   const [showSearch, setShowSearch] = useState(false);
@@ -183,19 +201,20 @@ export default function BillingPage() {
   // State
   const [success, setSuccess] = useState(false);
   const [lastInvoice, setLastInvoice] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   // ── Search results ──
   const searchResults = useMemo(() => {
     if (!search.trim()) return [];
     const q = search.toLowerCase();
-    return PRODUCTS.filter(
+    return products.filter(
       (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.barcode.includes(q) ||
-        p.id.toLowerCase().includes(q) ||
-        p.brand.toLowerCase().includes(q)
+        (p.name?.toLowerCase() || "").includes(q) ||
+        (p.barcode?.toLowerCase() || "").includes(q) ||
+        String(p.id).toLowerCase().includes(q) ||
+        (p.brand?.toLowerCase() || "").includes(q)
     ).slice(0, 6);
-  }, [search]);
+  }, [search, products]);
 
   // ── Cart actions ──
   function addToCart(product: Product) {
@@ -260,15 +279,38 @@ export default function BillingPage() {
   }, [cart, billDiscount, cashReceived, payMethod]);
 
   // ── Checkout ──
-  function handleCheckout() {
+  async function handleCheckout() {
     if (cart.length === 0) return;
-    const invNo = `INV-${invoiceCounter++}`;
-    setLastInvoice(invNo);
-    printInvoice(cart, { name: custName, phone: custPhone }, payMethod, invNo, {
-      ...totals,
-      cashReceived,
-    });
-    setSuccess(true);
+    setSubmitting(true);
+    try {
+      const payload = {
+        customer_name: custName,
+        customer_phone: custPhone,
+        payment_method: payMethod,
+        discount_percent: billDiscount,
+        cash_received: cashReceived,
+        items: cart.map(item => ({
+          product_id: item.id,
+          quantity: item.qty,
+          price: item.sellingPrice,
+          discount: item.discount, // flat discount per unit
+          gst_percent: item.gstPercent
+        }))
+      };
+
+      const res = await api.post('/bills', payload);
+      const invNo = res.data.invoice_no;
+      setLastInvoice(invNo);
+      printInvoice(cart, { name: custName, phone: custPhone }, payMethod, invNo, {
+        ...totals,
+        cashReceived,
+      });
+      setSuccess(true);
+    } catch (error: any) {
+      alert(error.message || "Failed to create bill");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   // ── Success screen ──
@@ -590,11 +632,11 @@ export default function BillingPage() {
         {/* Checkout Button */}
         <button
           onClick={handleCheckout}
-          disabled={cart.length === 0 || (payMethod === "cash" && cashReceived > 0 && cashReceived < totals.grandTotal)}
+          disabled={cart.length === 0 || submitting || (payMethod === "cash" && cashReceived > 0 && cashReceived < totals.grandTotal)}
           className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm shadow-blue-200"
         >
-          <Receipt size={18} />
-          Generate Bill &amp; Print
+          {submitting ? <Loader2 size={18} className="animate-spin" /> : <Receipt size={18} />}
+          {submitting ? "Processing..." : "Generate Bill & Print"}
         </button>
 
         <p className="text-xs text-center text-slate-400 -mt-1">Bill will open in a print dialog</p>

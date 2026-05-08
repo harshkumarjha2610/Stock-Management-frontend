@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-const API_BASE_URL = "https://stock-management-backend-harsh2610.onrender.com/api";
+import { api } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,36 +24,20 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        setError(data.message || "Login failed. Please try again.");
-        return;
-      }
+      const data = await api.post('/auth/login', { email, password });
 
       // Save token & user to localStorage
       localStorage.setItem("token", data.data.token);
       localStorage.setItem("user", JSON.stringify(data.data.user));
 
-      // Role-based redirect
-      const role = data.data.user.role;
-      if (role === "SUPER_ADMIN") {
-        router.push("/dashboard");
-      } else if (role === "ADMIN") {
-        router.push("/dashboard");
+      // Redirect based on role
+      if (data.data.user.role === 'ADMIN') {
+        router.push("/products");
       } else {
         router.push("/dashboard");
       }
-    } catch (err) {
-      setError("Network error. Please check your connection.");
+    } catch (err: any) {
+      setError(err.message || "Login failed. Please check your connection.");
     } finally {
       setLoading(false);
     }

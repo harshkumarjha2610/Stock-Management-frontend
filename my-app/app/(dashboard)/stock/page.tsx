@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Search, Plus, TrendingUp, TrendingDown, Package,
   AlertTriangle, X, ChevronDown, History, Eye,
-  ArrowUpCircle, ArrowDownCircle, Filter,
+  ArrowUpCircle, ArrowDownCircle, Filter, Loader2,
 } from "lucide-react";
+import { api } from "@/lib/api";
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -41,35 +42,7 @@ type StockHistory = {
   note:          string;
 };
 
-// ═══════════════════════════════════════════════════════════════
-// MOCK DATA
-// ═══════════════════════════════════════════════════════════════
-
-const INITIAL_PRODUCTS: Product[] = [
-  { id:"PRD-001", name:"Wireless Keyboard",   category:"Electronics", unit:"pcs", currentStock:45, lowStockAt:10, purchasePrice:850,  sellingPrice:1299 },
-  { id:"PRD-002", name:"USB-C Hub 7-in-1",    category:"Electronics", unit:"pcs", currentStock:8,  lowStockAt:10, purchasePrice:650,  sellingPrice:999  },
-  { id:"PRD-003", name:"Monitor Stand",        category:"Furniture",   unit:"pcs", currentStock:22, lowStockAt:8,  purchasePrice:1600, sellingPrice:2499 },
-  { id:"PRD-004", name:"Mechanical Mouse",     category:"Electronics", unit:"pcs", currentStock:0,  lowStockAt:10, purchasePrice:550,  sellingPrice:849  },
-  { id:"PRD-005", name:"Laptop Sleeve 15\"",   category:"Accessories", unit:"pcs", currentStock:60, lowStockAt:15, purchasePrice:380,  sellingPrice:599  },
-  { id:"PRD-006", name:"HDMI Cable 2m",        category:"Accessories", unit:"pcs", currentStock:5,  lowStockAt:10, purchasePrice:180,  sellingPrice:299  },
-  { id:"PRD-007", name:"Webcam 1080p",         category:"Electronics", unit:"pcs", currentStock:18, lowStockAt:5,  purchasePrice:2100, sellingPrice:3299 },
-  { id:"PRD-008", name:"Desk Organizer",       category:"Furniture",   unit:"pcs", currentStock:30, lowStockAt:8,  purchasePrice:480,  sellingPrice:749  },
-  { id:"PRD-009", name:"Mechanical Keyboard",  category:"Electronics", unit:"pcs", currentStock:0,  lowStockAt:5,  purchasePrice:2200, sellingPrice:3499 },
-  { id:"PRD-010", name:"Mouse Pad XL",         category:"Accessories", unit:"pcs", currentStock:3,  lowStockAt:10, purchasePrice:250,  sellingPrice:399  },
-];
-
-const INITIAL_HISTORY: StockHistory[] = [
-  { id:"SH-001", productId:"PRD-001", productName:"Wireless Keyboard",  type:"IN",  quantity:20, purchasePrice:850,  supplier:"TechZone Pvt Ltd",  reason:"",        date:"2026-04-10", note:"Regular restock"         },
-  { id:"SH-002", productId:"PRD-004", productName:"Mechanical Mouse",   type:"IN",  quantity:15, purchasePrice:550,  supplier:"Global Traders",     reason:"",        date:"2026-04-09", note:""                        },
-  { id:"SH-003", productId:"PRD-004", productName:"Mechanical Mouse",   type:"OUT", quantity:15, purchasePrice:0,    supplier:"",                   reason:"Sold",    date:"2026-04-12", note:"Bulk sale to Arjun Das"  },
-  { id:"SH-004", productId:"PRD-006", productName:"HDMI Cable 2m",      type:"OUT", quantity:5,  purchasePrice:0,    supplier:"",                   reason:"Damaged", date:"2026-04-11", note:"Found damaged in storage" },
-  { id:"SH-005", productId:"PRD-002", productName:"USB-C Hub 7-in-1",   type:"OUT", quantity:4,  purchasePrice:0,    supplier:"",                   reason:"Sold",    date:"2026-04-14", note:""                        },
-  { id:"SH-006", productId:"PRD-005", productName:"Laptop Sleeve 15\"", type:"IN",  quantity:30, purchasePrice:380,  supplier:"Fashion Accessories", reason:"",        date:"2026-04-13", note:"New batch"               },
-  { id:"SH-007", productId:"PRD-007", productName:"Webcam 1080p",       type:"IN",  quantity:10, purchasePrice:2100, supplier:"TechZone Pvt Ltd",    reason:"",        date:"2026-04-15", note:""                        },
-  { id:"SH-008", productId:"PRD-009", productName:"Mechanical Keyboard",type:"OUT", quantity:3,  purchasePrice:0,    supplier:"",                   reason:"Return",  date:"2026-04-16", note:"Customer return, defective"},
-  { id:"SH-009", productId:"PRD-010", productName:"Mouse Pad XL",       type:"OUT", quantity:7,  purchasePrice:0,    supplier:"",                   reason:"Sold",    date:"2026-04-15", note:""                        },
-  { id:"SH-010", productId:"PRD-003", productName:"Monitor Stand",      type:"IN",  quantity:10, purchasePrice:1600, supplier:"Furniture Hub",       reason:"",        date:"2026-04-08", note:"Monthly restock"         },
-];
+const TODAY = new Date().toISOString().split('T')[0];
 
 // ═══════════════════════════════════════════════════════════════
 // HELPERS
@@ -89,8 +62,6 @@ function genHistoryId(list: StockHistory[]) {
   const max = list.length ? Math.max(...list.map((h) => parseInt(h.id.split("-")[1]))) : 0;
   return `SH-${String(max + 1).padStart(3, "0")}`;
 }
-
-const TODAY = "2026-04-17";
 
 const statusStyle: Record<StockStatus, string> = {
   "Available": "bg-green-50 text-green-700",
@@ -189,9 +160,51 @@ function ModalFooter({
 // ═══════════════════════════════════════════════════════════════
 
 export default function StockPage() {
-  const [products, setProducts]   = useState<Product[]>(INITIAL_PRODUCTS);
-  const [history, setHistory]     = useState<StockHistory[]>(INITIAL_HISTORY);
+  const [products, setProducts]   = useState<Product[]>([]);
+  const [history, setHistory]     = useState<StockHistory[]>([]);
+  const [loading, setLoading]     = useState(true);
   const [mainTab, setMainTab]     = useState<MainTab>("overview");
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        const [prodRes, histRes] = await Promise.all([
+          api.get('/products'),
+          api.get('/stock-history')
+        ]);
+
+        setProducts(prodRes.data.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          category: p.category,
+          unit: "pcs", // Clothing usually pcs
+          currentStock: p.sizes?.reduce((s: number, x: any) => s + x.quantity, 0) || 0,
+          lowStockAt: parseInt(p.min_stock_level || 5),
+          purchasePrice: parseFloat(p.purchase_price),
+          sellingPrice: parseFloat(p.selling_price)
+        })));
+
+        setHistory(histRes.data.map((h: any) => ({
+          id: h.id,
+          productId: h.product_id,
+          productName: h.product?.name || "Unknown",
+          type: h.type,
+          quantity: h.quantity,
+          purchasePrice: parseFloat(h.purchase_price || 0),
+          supplier: h.supplier,
+          reason: h.reason,
+          date: h.date?.split('T')[0],
+          note: h.note
+        })));
+      } catch (error) {
+        console.error("Failed to fetch stock data", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
   // ── Overview filters ──
   const [search, setSearch]             = useState("");
@@ -287,65 +300,106 @@ export default function StockPage() {
     setModal("out");
   }
 
-  function handleStockIn() {
+  async function handleStockIn() {
     if (!inForm.productId || inForm.quantity <= 0) return;
-    const prod = products.find((p) => p.id === inForm.productId);
-    if (!prod) return;
+    setLoading(true);
+    try {
+      const prod = products.find((p) => p.id === inForm.productId);
+      if (!prod) return;
 
-    // Update product stock
-    setProducts((prev) =>
-      prev.map((p) =>
-        p.id === inForm.productId
-          ? { ...p, currentStock: p.currentStock + inForm.quantity, purchasePrice: inForm.purchasePrice || p.purchasePrice }
-          : p
-      )
-    );
+      const payload = {
+        product_id: inForm.productId,
+        type: "IN",
+        quantity: inForm.quantity,
+        purchase_price: inForm.purchasePrice,
+        supplier: inForm.supplier,
+        date: inForm.date,
+        note: inForm.note
+      };
 
-    // Add history record
-    const rec: StockHistory = {
-      id:            genHistoryId(history),
-      productId:     inForm.productId,
-      productName:   prod.name,
-      type:          "IN",
-      quantity:      inForm.quantity,
-      purchasePrice: inForm.purchasePrice,
-      supplier:      inForm.supplier,
-      reason:        "",
-      date:          inForm.date,
-      note:          inForm.note,
-    };
-    setHistory((prev) => [rec, ...prev]);
-    setModal(null);
+      const res = await api.post('/stock-history', payload);
+      
+      const newRec: StockHistory = {
+        id: res.data.id,
+        productId: res.data.product_id,
+        productName: prod.name,
+        type: "IN",
+        quantity: res.data.quantity,
+        purchasePrice: parseFloat(res.data.purchase_price || 0),
+        supplier: res.data.supplier,
+        reason: "",
+        date: res.data.date?.split('T')[0],
+        note: res.data.note
+      };
+
+      setHistory((prev) => [newRec, ...prev]);
+      
+      // Update local product stock
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === inForm.productId
+            ? { ...p, currentStock: p.currentStock + inForm.quantity }
+            : p
+        )
+      );
+      setModal(null);
+    } catch (error: any) {
+      alert(error.message || "Failed to add stock");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function handleStockOut() {
+  async function handleStockOut() {
     if (!outForm.productId || outForm.quantity <= 0) return;
-    const prod = products.find((p) => p.id === outForm.productId);
-    if (!prod) return;
-    if (outForm.quantity > prod.currentStock) return; // prevent negative
+    setLoading(true);
+    try {
+      const prod = products.find((p) => p.id === outForm.productId);
+      if (!prod) return;
+      if (outForm.quantity > prod.currentStock) {
+        alert("Insufficient stock");
+        return;
+      }
 
-    setProducts((prev) =>
-      prev.map((p) =>
-        p.id === outForm.productId
-          ? { ...p, currentStock: Math.max(0, p.currentStock - outForm.quantity) }
-          : p
-      )
-    );
+      const payload = {
+        product_id: outForm.productId,
+        type: "OUT",
+        quantity: outForm.quantity,
+        reason: outForm.reason,
+        date: outForm.date,
+        note: outForm.note
+      };
 
-    const rec: StockHistory = {
-      id:            genHistoryId(history),
-      productId:     outForm.productId,
-      productName:   prod.name,
-      type:          "OUT",
-      quantity:      outForm.quantity,
-      purchasePrice: 0,
-      supplier:      "",
-      reason:        outForm.reason,
-      date:          outForm.date,
-      note:          outForm.note,
-    };
-    setHistory((prev) => [rec, ...prev]);
-    setModal(null);
+      const res = await api.post('/stock-history', payload);
+
+      const newRec: StockHistory = {
+        id: res.data.id,
+        productId: res.data.product_id,
+        productName: prod.name,
+        type: "OUT",
+        quantity: res.data.quantity,
+        purchasePrice: 0,
+        supplier: "",
+        reason: res.data.reason as StockOutReason,
+        date: res.data.date?.split('T')[0],
+        note: res.data.note
+      };
+
+      setHistory((prev) => [newRec, ...prev]);
+
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === outForm.productId
+            ? { ...p, currentStock: Math.max(0, p.currentStock - outForm.quantity) }
+            : p
+        )
+      );
+      setModal(null);
+    } catch (error: any) {
+      alert(error.message || "Failed to remove stock");
+    } finally {
+      setLoading(false);
+    }
   }
 
   // When product selected in Stock In form, auto-fill purchase price
@@ -363,6 +417,16 @@ export default function StockPage() {
   // ═══════════════════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════════════════
+  if (loading) {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <p className="text-sm font-medium text-slate-500">Loading stock data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

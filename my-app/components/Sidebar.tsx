@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { type LucideIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { api } from "@/lib/api";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -23,6 +24,7 @@ type StoreAdmin = {
   name: string;
   email: string;
   phone: string;
+  password?: string;
 };
 
 type Shop = {
@@ -46,9 +48,33 @@ type StoredUser = {
   store_id?: number;
 };
 
+type BackendAdmin = {
+  id: number | string;
+  name: string;
+  email: string;
+  phone?: string | null;
+};
+
+type BackendStore = {
+  id: number | string;
+  name: string;
+  owner_name?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  upi_id?: string | null;
+  logo_url?: string | null;
+  category?: StoreCategory | null;
+  users?: BackendAdmin[];
+};
+
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
 function uid() { return Math.random().toString(36).slice(2, 10); }
+
+function getErrorMessage(err: unknown, fallback: string) {
+  return err instanceof Error ? err.message : fallback;
+}
 
 // ─── Nav config ────────────────────────────────────────────────────────────────
 
@@ -190,14 +216,16 @@ function CategorySelector({ value, onChange, disabled }: {
 
 // ─── Add Admin Modal ───────────────────────────────────────────────────────────
 
-function AddAdminModal({ shopName, onClose, onAdded }: {
+function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
+  shopId: string;
   shopName: string;
   onClose: () => void;
   onAdded: (admin: StoreAdmin) => void;
 }) {
   const [form, setForm]     = useState({ name: "", email: "", phone: "", password: "" });
   const [errors, setErrors] = useState<Partial<typeof form>>({});
-  const [apiError]          = useState("");
+  const [apiError, setApiError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   function validate() {
     const e: Partial<typeof form> = {};
@@ -209,15 +237,35 @@ function AddAdminModal({ shopName, onClose, onAdded }: {
     return Object.keys(e).length === 0;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
-    onAdded({
-      id:    uid(),
-      name:  form.name.trim(),
-      email: form.email.trim(),
-      phone: form.phone.trim(),
-    });
+
+    setApiError("");
+    setIsSubmitting(true);
+    try {
+      const response = await api.post("/users", {
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        password: form.password,
+        role: "ADMIN",
+        store_id: Number(shopId),
+      });
+
+      const created = response.data;
+      onAdded({
+        id: String(created.id),
+        name: created.name,
+        email: created.email,
+        phone: created.phone || form.phone.trim(),
+      });
+      onClose();
+    } catch (err: unknown) {
+      setApiError(getErrorMessage(err, "Failed to add admin"));
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -297,15 +345,17 @@ function AddAdminModal({ shopName, onClose, onAdded }: {
             <button
               type="button"
               onClick={onClose}
+              disabled={isSubmitting}
               className="flex-1 px-4 py-2 text-sm font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
+              disabled={isSubmitting}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <UserPlus size={14} /> Add Admin
+              <UserPlus size={14} /> {isSubmitting ? "Adding..." : "Add Admin"}
             </button>
           </div>
         </form>
@@ -316,10 +366,11 @@ function AddAdminModal({ shopName, onClose, onAdded }: {
 
 // ─── Edit Store Modal ──────────────────────────────────────────────────────────
 
-function EditStoreModal({ shop, onClose, onUpdate }: {
+function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
   shop: Shop;
   onClose: () => void;
   onUpdate: (updated: Shop) => void;
+  onAdminAdded: (shopId: string, admin: StoreAdmin) => void;
 }) {
   const [form, setForm] = useState({
     name:      shop.name,
@@ -568,11 +619,12 @@ function EditStoreModal({ shop, onClose, onUpdate }: {
 
       {showAddAdmin && (
         <AddAdminModal
+          shopId={shop.id}
           shopName={shop.name}
           onClose={() => setShowAddAdmin(false)}
           onAdded={(admin) => {
             setAdmins((prev) => [...prev, admin]);
-            setShowAddAdmin(false);
+            onAdminAdded(shop.id, admin);
           }}
         />
       )}
@@ -835,10 +887,11 @@ function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
 
 // ─── Active Store Banner ───────────────────────────────────────────────────────
 
-function ActiveStoreBanner({ shop, onSwitch, onEdit }: {
+function ActiveStoreBanner({ shop, onSwitch, onEdit, isSuperAdmin }: {
   shop: Shop;
   onSwitch: () => void;
   onEdit: () => void;
+  isSuperAdmin?: boolean;
 }) {
   const catMeta = CATEGORY_META[shop.category];
   const CatIcon = catMeta.icon;
@@ -867,6 +920,7 @@ function ActiveStoreBanner({ shop, onSwitch, onEdit }: {
             <p className="text-[10px] text-slate-400 truncate">💳 {shop.upiId}</p>
           )}
         </div>
+        {isSuperAdmin && (
         <div className="flex flex-col gap-1 shrink-0">
           <button
             onClick={onEdit}
@@ -881,6 +935,7 @@ function ActiveStoreBanner({ shop, onSwitch, onEdit }: {
             <ArrowLeftRight size={10} /> Switch
           </button>
         </div>
+        )}
       </div>
     </div>
   );
@@ -897,13 +952,55 @@ export default function Sidebar() {
   const [showCreateStore, setShowCreateStore] = useState(false);
   const [showSwitcher, setShowSwitcher]       = useState(false);
   const [editShop, setEditShop]               = useState<Shop | null>(null);
-  const [user, setUser]                       = useState<StoredUser | null>(null);
-
-  useEffect(() => {
+  const [user]                                = useState<StoredUser | null>(() => {
+    if (typeof window === "undefined") return null;
     try {
       const raw = localStorage.getItem("user");
-      if (raw) setUser(JSON.parse(raw));
-    } catch { setUser(null); }
+      return raw ? JSON.parse(raw) as StoredUser : null;
+    } catch {
+      return null;
+    }
+  });
+
+  // Map backend store to frontend Shop type
+  const mapStore = (s: BackendStore): Shop => ({
+    id: s.id.toString(),
+    name: s.name,
+    ownerName: s.owner_name || "",
+    address: s.address || "",
+    phone: s.phone || "",
+    email: s.email || "",
+    upiId: s.upi_id || "",
+    logoUrl: s.logo_url || null,
+    category: s.category || "GROCERY",
+    admins: s.users?.map((u) => ({
+      id: u.id.toString(),
+      name: u.name,
+      email: u.email,
+      phone: u.phone || ""
+    })) || [],
+  });
+
+  useEffect(() => {
+    const fetchStores = async () => {
+      try {
+        const response = await api.get('/stores');
+        const mappedStores = (response.data as BackendStore[]).map(mapStore);
+        setShops(mappedStores);
+        
+        const savedId = localStorage.getItem('activeStoreId');
+        if (savedId && mappedStores.some((s: Shop) => s.id === savedId)) {
+          setActiveShopId(savedId);
+        } else if (mappedStores.length > 0) {
+          const firstId = mappedStores[0].id;
+          setActiveShopId(firstId);
+          localStorage.setItem('activeStoreId', firstId);
+        }
+      } catch (err) {
+        console.error('Failed to fetch stores:', err);
+      }
+    };
+    fetchStores();
   }, []);
 
   const activeShop = shops.find((s) => s.id === activeShopId) ?? null;
@@ -911,23 +1008,75 @@ export default function Sidebar() {
   function handleLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("activeStoreId");
     router.push("/");
   }
 
-  function handleCreateStore(shop: Shop) {
-    setShops((prev) => {
-      if (prev.length === 0) setActiveShopId(shop.id);
-      return [...prev, shop];
-    });
-    setShowCreateStore(false);
+  function switchStore(id: string) {
+    setActiveShopId(id);
+    localStorage.setItem('activeStoreId', id);
+    // Optional: Refresh page or trigger a global state update to reload data for new store
+    window.location.reload(); 
   }
 
-  function handleUpdateStore(updated: Shop) {
-    setShops((prev) => prev.map((s) => s.id === updated.id ? updated : s));
-    setEditShop(null);
+  async function handleCreateStore(shopData: Shop) {
+    try {
+      const response = await api.post('/stores', {
+        name: shopData.name,
+        owner_name: shopData.ownerName,
+        email: shopData.email,
+        phone: shopData.phone,
+        address: shopData.address,
+        category: shopData.category,
+        logo_url: shopData.logoUrl,
+        upi_id: shopData.upiId,
+        admins: shopData.admins,
+      });
+      
+      const newStore = mapStore(response.data);
+      setShops((prev) => [...prev, newStore]);
+      if (shops.length === 0) {
+        switchStore(newStore.id);
+      }
+      setShowCreateStore(false);
+    } catch (err: unknown) {
+      alert(getErrorMessage(err, "Failed to create store"));
+    }
+  }
+
+  async function handleUpdateStore(updated: Shop) {
+    try {
+      const response = await api.put(`/stores/${updated.id}`, {
+        name: updated.name,
+        owner_name: updated.ownerName,
+        email: updated.email,
+        phone: updated.phone,
+        address: updated.address,
+        category: updated.category,
+        logo_url: updated.logoUrl,
+        upi_id: updated.upiId,
+        admins: updated.admins,
+      });
+      
+      const updatedStore = mapStore(response.data);
+      setShops((prev) => prev.map((s) => s.id === updatedStore.id ? updatedStore : s));
+      setEditShop(null);
+    } catch (err: unknown) {
+      alert(getErrorMessage(err, "Failed to update store"));
+    }
   }
 
   const isSuperAdmin = !user || user.role === "SUPER_ADMIN";
+  const isAdmin = user?.role === "ADMIN";
+
+  // Filter navigation items based on role
+  const visibleNavItems = navItems.filter((item) => {
+    if (isSuperAdmin) return true;
+    if (isAdmin) {
+      return ["Products", "Billing", "Orders", "Staff"].includes(item.label);
+    }
+    return false; // Hide everything else or add staff rules later
+  });
 
   return (
     <>
@@ -951,6 +1100,7 @@ export default function Sidebar() {
               shop={activeShop}
               onSwitch={() => setShowSwitcher(true)}
               onEdit={() => setEditShop(activeShop)}
+              isSuperAdmin={isSuperAdmin}
             />
           </div>
         )}
@@ -958,7 +1108,7 @@ export default function Sidebar() {
         {/* Navigation */}
         <nav className="px-3 py-4 space-y-0.5 shrink-0">
           <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Main Menu</p>
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             const Icon = item.icon;
             return (
@@ -990,7 +1140,8 @@ export default function Sidebar() {
           })}
         </nav>
 
-        {/* Stores Section */}
+        {/* Stores Section (Super Admin Only) */}
+        {isSuperAdmin && (
         <div className="px-3 pb-4 flex-1">
           <div className="border-t border-slate-100 pt-4">
 
@@ -1039,7 +1190,7 @@ export default function Sidebar() {
                   return (
                     <div key={shop.id} className="flex items-center gap-1">
                       <button
-                        onClick={() => setActiveShopId(shop.id)}
+                        onClick={() => switchStore(shop.id)}
                         className={`flex-1 flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all ${
                           isActive
                             ? "bg-blue-600 text-white shadow-sm"
@@ -1083,6 +1234,7 @@ export default function Sidebar() {
 
           </div>
         </div>
+        )}
 
         {/* User Footer */}
         <div className="border-t border-slate-100 p-4 shrink-0">
@@ -1115,7 +1267,7 @@ export default function Sidebar() {
         <StoreSwitcherModal
           shops={shops}
           activeShopId={activeShopId}
-          onSwitch={setActiveShopId}
+          onSwitch={switchStore}
           onClose={() => setShowSwitcher(false)}
         />
       )}
@@ -1124,6 +1276,13 @@ export default function Sidebar() {
           shop={editShop}
           onClose={() => setEditShop(null)}
           onUpdate={handleUpdateStore}
+          onAdminAdded={(shopId, admin) => {
+            setShops((prev) => prev.map((shop) => (
+              shop.id === shopId
+                ? { ...shop, admins: [...shop.admins, admin] }
+                : shop
+            )));
+          }}
         />
       )}
     </>

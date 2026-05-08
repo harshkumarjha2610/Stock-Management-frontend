@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   Search, Plus, Eye, Pencil, Trash2, X, ChevronDown,
   UserCheck, Clock, BadgeIndianRupee, Phone, CalendarDays,
   CheckCircle, XCircle, LogIn, LogOut, FileText,
-  TrendingUp, Users, AlertCircle, Download,
+  TrendingUp, Users, AlertCircle, Download, Loader2, Camera, Upload
 } from "lucide-react";
+import { api } from "@/lib/api";
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -22,6 +23,9 @@ type Staff = {
   name:        string;
   phone:       string;
   address:     string;
+  aadharCard:  string;
+  emailId:     string;
+  photoUrl:    string;
   joiningDate: string;
   salary:      number;
   status:      StaffStatus;
@@ -49,53 +53,7 @@ type SalaryRecord = {
   status:        SalaryStatus;
 };
 
-// ═══════════════════════════════════════════════════════════════
-// MOCK DATA
-// ═══════════════════════════════════════════════════════════════
-
-const INITIAL_STAFF: Staff[] = [
-  { id: "STF-001", name: "Aditi Verma",  phone: "9123456780", address: "22, Rajouri Garden, Delhi",    joiningDate: "2025-06-01", salary: 18000, status: "Active"   },
-  { id: "STF-002", name: "Rohit Joshi",  phone: "8234567891", address: "45, Koramangala, Bangalore",   joiningDate: "2025-08-15", salary: 15000, status: "Active"   },
-  { id: "STF-003", name: "Meena Pillai", phone: "7345678902", address: "78, T Nagar, Chennai",         joiningDate: "2024-11-01", salary: 20000, status: "Inactive" },
-  { id: "STF-004", name: "Dev Malhotra", phone: "6456789013", address: "12, Kalyani Nagar, Pune",      joiningDate: "2026-01-10", salary: 12000, status: "Active"   },
-  { id: "STF-005", name: "Sunita Rao",   phone: "5567890124", address: "34, Banjara Hills, Hyderabad", joiningDate: "2026-02-01", salary: 14000, status: "Active"   },
-];
-
-const TODAY = "2026-04-17";
-
-const INITIAL_ATTENDANCE: Attendance[] = [
-  { id:"ATT-001", staffId:"STF-001", staffName:"Aditi Verma",  date:"2026-04-17", checkIn:"09:02", checkOut:"",      workingHours:0,   present:true  },
-  { id:"ATT-002", staffId:"STF-002", staffName:"Rohit Joshi",  date:"2026-04-17", checkIn:"09:45", checkOut:"",      workingHours:0,   present:true  },
-  { id:"ATT-003", staffId:"STF-004", staffName:"Dev Malhotra", date:"2026-04-17", checkIn:"10:10", checkOut:"",      workingHours:0,   present:true  },
-  { id:"ATT-004", staffId:"STF-005", staffName:"Sunita Rao",   date:"2026-04-17", checkIn:"",      checkOut:"",      workingHours:0,   present:false },
-  { id:"ATT-005", staffId:"STF-001", staffName:"Aditi Verma",  date:"2026-04-16", checkIn:"09:00", checkOut:"18:00", workingHours:9.0, present:true  },
-  { id:"ATT-006", staffId:"STF-002", staffName:"Rohit Joshi",  date:"2026-04-16", checkIn:"09:30", checkOut:"18:30", workingHours:9.0, present:true  },
-  { id:"ATT-007", staffId:"STF-004", staffName:"Dev Malhotra", date:"2026-04-16", checkIn:"10:00", checkOut:"19:00", workingHours:9.0, present:true  },
-  { id:"ATT-008", staffId:"STF-005", staffName:"Sunita Rao",   date:"2026-04-16", checkIn:"09:15", checkOut:"17:45", workingHours:8.5, present:true  },
-  { id:"ATT-009", staffId:"STF-001", staffName:"Aditi Verma",  date:"2026-04-15", checkIn:"09:02", checkOut:"18:05", workingHours:9.1, present:true  },
-  { id:"ATT-010", staffId:"STF-002", staffName:"Rohit Joshi",  date:"2026-04-15", checkIn:"10:00", checkOut:"19:00", workingHours:9.0, present:true  },
-  { id:"ATT-011", staffId:"STF-004", staffName:"Dev Malhotra", date:"2026-04-15", checkIn:"",      checkOut:"",      workingHours:0,   present:false },
-  { id:"ATT-012", staffId:"STF-005", staffName:"Sunita Rao",   date:"2026-04-15", checkIn:"09:20", checkOut:"18:10", workingHours:8.8, present:true  },
-  { id:"ATT-013", staffId:"STF-001", staffName:"Aditi Verma",  date:"2026-04-14", checkIn:"09:10", checkOut:"18:00", workingHours:8.8, present:true  },
-  { id:"ATT-014", staffId:"STF-002", staffName:"Rohit Joshi",  date:"2026-04-14", checkIn:"09:45", checkOut:"18:30", workingHours:8.8, present:true  },
-  { id:"ATT-015", staffId:"STF-004", staffName:"Dev Malhotra", date:"2026-04-14", checkIn:"10:00", checkOut:"19:00", workingHours:9.0, present:true  },
-  { id:"ATT-016", staffId:"STF-005", staffName:"Sunita Rao",   date:"2026-04-14", checkIn:"",      checkOut:"",      workingHours:0,   present:false },
-];
-
-const INITIAL_SALARY: SalaryRecord[] = [
-  { id:"SAL-001", staffId:"STF-001", staffName:"Aditi Verma",  month:"2026-04", amount:18000, paidDate:"",           paymentMethod:"",             status:"Unpaid" },
-  { id:"SAL-002", staffId:"STF-002", staffName:"Rohit Joshi",  month:"2026-04", amount:15000, paidDate:"",           paymentMethod:"",             status:"Unpaid" },
-  { id:"SAL-003", staffId:"STF-003", staffName:"Meena Pillai", month:"2026-04", amount:20000, paidDate:"",           paymentMethod:"",             status:"Unpaid" },
-  { id:"SAL-004", staffId:"STF-004", staffName:"Dev Malhotra", month:"2026-04", amount:12000, paidDate:"",           paymentMethod:"",             status:"Unpaid" },
-  { id:"SAL-005", staffId:"STF-005", staffName:"Sunita Rao",   month:"2026-04", amount:14000, paidDate:"",           paymentMethod:"",             status:"Unpaid" },
-  { id:"SAL-006", staffId:"STF-001", staffName:"Aditi Verma",  month:"2026-03", amount:18000, paidDate:"2026-03-31", paymentMethod:"Bank Transfer", status:"Paid"   },
-  { id:"SAL-007", staffId:"STF-002", staffName:"Rohit Joshi",  month:"2026-03", amount:15000, paidDate:"2026-03-31", paymentMethod:"Cash",          status:"Paid"   },
-  { id:"SAL-008", staffId:"STF-003", staffName:"Meena Pillai", month:"2026-03", amount:20000, paidDate:"2026-03-31", paymentMethod:"Bank Transfer", status:"Paid"   },
-  { id:"SAL-009", staffId:"STF-004", staffName:"Dev Malhotra", month:"2026-03", amount:12000, paidDate:"2026-03-31", paymentMethod:"UPI",           status:"Paid"   },
-  { id:"SAL-010", staffId:"STF-005", staffName:"Sunita Rao",   month:"2026-03", amount:14000, paidDate:"2026-03-31", paymentMethod:"UPI",           status:"Paid"   },
-  { id:"SAL-011", staffId:"STF-001", staffName:"Aditi Verma",  month:"2026-02", amount:18000, paidDate:"2026-02-28", paymentMethod:"Bank Transfer", status:"Paid"   },
-  { id:"SAL-012", staffId:"STF-002", staffName:"Rohit Joshi",  month:"2026-02", amount:15000, paidDate:"2026-02-28", paymentMethod:"Cash",          status:"Paid"   },
-];
+const TODAY = new Date().toISOString().split('T')[0];
 
 // ═══════════════════════════════════════════════════════════════
 // HELPERS
@@ -165,10 +123,11 @@ function StatCard({
 // ═══════════════════════════════════════════════════════════════
 
 export default function StaffManagementPage() {
+  const [loading, setLoading] = useState(true);
   const [mainTab, setMainTab] = useState<MainTab>("staff");
 
   // ── Staff State ──────────────────────────────────────────────
-  const [staffList, setStaffList]       = useState<Staff[]>(INITIAL_STAFF);
+  const [staffList, setStaffList]       = useState<Staff[]>([]);
   const [staffSearch, setStaffSearch]   = useState("");
   const [staffStatus, setStaffStatus]   = useState("All");
   const [showStaffModal, setShowStaffModal] = useState(false);
@@ -176,26 +135,80 @@ export default function StaffManagementPage() {
   const [deleteStaffId, setDeleteStaffId]   = useState<string | null>(null);
   const [viewStaff, setViewStaff]       = useState<Staff | null>(null);
   const [staffForm, setStaffForm]       = useState({
-    name: "", phone: "", address: "", joiningDate: "", salary: 0, status: "Active" as StaffStatus,
+    name: "", phone: "", address: "", aadharCard: "", emailId: "", photoUrl: "", joiningDate: "", salary: 0, status: "Active" as StaffStatus,
   });
 
   // ── Attendance State ─────────────────────────────────────────
-  const [attendance, setAttendance]   = useState<Attendance[]>(INITIAL_ATTENDANCE);
+  const [attendance, setAttendance]   = useState<Attendance[]>([]);
   const [attDate, setAttDate]         = useState(TODAY);
   const [attStaffFilter, setAttStaffFilter] = useState("All");
   const [attView, setAttView]         = useState<"daily" | "monthly">("daily");
-  const [attMonth, setAttMonth]       = useState("2026-04");
+  const [attMonth, setAttMonth]       = useState(TODAY.slice(0, 7));
   const [checkinModal, setCheckinModal]   = useState<Staff | null>(null);
   const [checkoutModal, setCheckoutModal] = useState<Attendance | null>(null);
   const [manualTime, setManualTime]   = useState("");
 
   // ── Salary State ─────────────────────────────────────────────
-  const [salaryList, setSalaryList]     = useState<SalaryRecord[]>(INITIAL_SALARY);
-  const [salaryMonth, setSalaryMonth]   = useState("2026-04");
+  const [salaryList, setSalaryList]     = useState<SalaryRecord[]>([]);
+  const [salaryMonth, setSalaryMonth]   = useState(TODAY.slice(0, 7));
   const [salarySearch, setSalarySearch] = useState("");
   const [salaryStatusFilter, setSalaryStatusFilter] = useState("All");
   const [payModal, setPayModal]         = useState<SalaryRecord | null>(null);
   const [payForm, setPayForm]           = useState({ paidDate: TODAY, paymentMethod: "Bank Transfer" as PayMethod });
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        const [staffRes, attRes, salRes] = await Promise.all([
+          api.get('/staff'),
+          api.get('/attendance'),
+          api.get('/salaries')
+        ]);
+        
+        setStaffList(staffRes.data.map((s: any) => ({
+          id: s.id,
+          name: s.name,
+          phone: s.phone,
+          address: s.address,
+          aadharCard: s.aadhar_card || "",
+          emailId: s.email_id || "",
+          photoUrl: s.photo_url || "",
+          joiningDate: s.joining_date?.split('T')[0],
+          salary: parseFloat(s.base_salary),
+          status: s.status
+        })));
+
+        setAttendance(attRes.data.map((a: any) => ({
+          id: a.id,
+          staffId: a.staff_id,
+          staffName: a.staff?.name || "Unknown",
+          date: a.date?.split('T')[0],
+          checkIn: a.check_in,
+          checkOut: a.check_out,
+          workingHours: parseFloat(a.working_hours || 0),
+          present: a.status === 'Present'
+        })));
+
+        setSalaryList(salRes.data.map((s: any) => ({
+          id: s.id,
+          staffId: s.staff_id,
+          staffName: s.staff?.name || "Unknown",
+          month: s.month,
+          amount: parseFloat(s.amount),
+          paidDate: s.paid_date?.split('T')[0],
+          paymentMethod: s.payment_method,
+          status: s.status
+        })));
+
+      } catch (error) {
+        console.error("Failed to fetch staff data", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
   // ═══════════════════════════════════════════════════════════════
   // ── STAFF LOGIC ──────────────────────────────────────────────
@@ -212,37 +225,76 @@ export default function StaffManagementPage() {
 
   function openAddStaff() {
     setEditingStaff(null);
-    setStaffForm({ name: "", phone: "", address: "", joiningDate: "", salary: 0, status: "Active" });
+    setStaffForm({ name: "", phone: "", address: "", aadharCard: "", emailId: "", photoUrl: "", joiningDate: "", salary: 0, status: "Active" });
     setShowStaffModal(true);
   }
 
   function openEditStaff(s: Staff) {
     setEditingStaff(s);
-    setStaffForm({ name: s.name, phone: s.phone, address: s.address, joiningDate: s.joiningDate, salary: s.salary, status: s.status });
+    setStaffForm({ name: s.name, phone: s.phone, address: s.address, aadharCard: s.aadharCard || "", emailId: s.emailId || "", photoUrl: s.photoUrl || "", joiningDate: s.joiningDate, salary: s.salary, status: s.status });
     setShowStaffModal(true);
   }
 
-  function saveStaff() {
+  async function saveStaff() {
     if (!staffForm.name.trim() || !staffForm.phone.trim()) return;
-    if (editingStaff) {
-      setStaffList((p) => p.map((s) => s.id === editingStaff.id ? { ...s, ...staffForm } : s));
-    } else {
-      const newStaff: Staff = { ...staffForm, id: genStaffId(staffList) };
-      setStaffList((p) => [newStaff, ...p]);
-      // Auto-create unpaid salary record for current month
-      const newSalary: SalaryRecord = {
-        id: `SAL-${Date.now()}`, staffId: newStaff.id, staffName: newStaff.name,
-        month: "2026-04", amount: newStaff.salary, paidDate: "",
-        paymentMethod: "", status: "Unpaid",
+    setLoading(true);
+    try {
+      const payload = {
+        name: staffForm.name,
+        phone: staffForm.phone,
+        address: staffForm.address,
+        aadhar_card: staffForm.aadharCard,
+        email_id: staffForm.emailId,
+        photo_url: staffForm.photoUrl,
+        joining_date: staffForm.joiningDate,
+        base_salary: staffForm.salary,
+        status: staffForm.status
       };
-      setSalaryList((p) => [newSalary, ...p]);
+
+      if (editingStaff) {
+        await api.put(`/staff/${editingStaff.id}`, payload);
+        setStaffList((p) => p.map((s) => s.id === editingStaff.id ? { ...s, ...staffForm } : s));
+      } else {
+        const res = await api.post('/staff', payload);
+        const newStaff: Staff = { 
+          ...staffForm, 
+          id: res.data.id, 
+          joiningDate: res.data.joining_date?.split('T')[0] 
+        };
+        setStaffList((p) => [newStaff, ...p]);
+        // Auto-create unpaid salary record for current month
+        const salRes = await api.get('/salaries'); // Refresh salaries as backend might auto-gen
+        setSalaryList(salRes.data.map((s: any) => ({
+          id: s.id,
+          staffId: s.staff_id,
+          staffName: s.staff?.name || "Unknown",
+          month: s.month,
+          amount: parseFloat(s.amount),
+          paidDate: s.paid_date?.split('T')[0],
+          paymentMethod: s.payment_method,
+          status: s.status
+        })));
+      }
+      setShowStaffModal(false);
+    } catch (error: any) {
+      alert(error.message || "Failed to save staff");
+    } finally {
+      setLoading(false);
     }
-    setShowStaffModal(false);
   }
 
-  function deleteStaff(id: string) {
-    setStaffList((p) => p.filter((s) => s.id !== id));
-    setDeleteStaffId(null);
+  async function deleteStaff(id: string) {
+    if (!confirm("Are you sure you want to delete this staff member?")) return;
+    setLoading(true);
+    try {
+      await api.delete(`/staff/${id}`);
+      setStaffList((p) => p.filter((s) => s.id !== id));
+      setDeleteStaffId(null);
+    } catch (error: any) {
+      alert(error.message || "Failed to delete staff");
+    } finally {
+      setLoading(false);
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -283,30 +335,64 @@ export default function StaffManagementPage() {
     );
   }, [attendance, attMonth, staffList, attStaffFilter]);
 
-  function doCheckIn(staff: Staff, time: string) {
-    const existing = attendance.find((a) => a.date === attDate && a.staffId === staff.id);
-    if (existing) {
-      setAttendance((p) =>
-        p.map((a) => a.id === existing.id ? { ...a, checkIn: time, present: true } : a)
-      );
-    } else {
-      setAttendance((p) => [
-        ...p,
-        {
-          id: `ATT-${Date.now()}`, staffId: staff.id, staffName: staff.name,
-          date: attDate, checkIn: time, checkOut: "", workingHours: 0, present: true,
-        },
-      ]);
+  async function doCheckIn(staff: Staff, time: string) {
+    setLoading(true);
+    try {
+      const res = await api.post('/attendance', {
+        staff_id: staff.id,
+        date: attDate,
+        check_in: time,
+        status: 'Present'
+      });
+      
+      const newAtt: Attendance = {
+        id: res.data.id,
+        staffId: res.data.staff_id,
+        staffName: staff.name,
+        date: res.data.date?.split('T')[0],
+        checkIn: res.data.check_in,
+        checkOut: "",
+        workingHours: 0,
+        present: true
+      };
+
+      setAttendance((p) => {
+        const idx = p.findIndex(a => a.staffId === staff.id && a.date === attDate);
+        if (idx >= 0) {
+          const next = [...p];
+          next[idx] = newAtt;
+          return next;
+        }
+        return [...p, newAtt];
+      });
+    } catch (error: any) {
+      alert(error.message || "Failed to check in");
+    } finally {
+      setLoading(false);
+      setCheckinModal(null);
     }
-    setCheckinModal(null);
   }
 
-  function doCheckOut(rec: Attendance, time: string) {
-    const wh = calcHours(rec.checkIn, time);
-    setAttendance((p) =>
-      p.map((a) => a.id === rec.id ? { ...a, checkOut: time, workingHours: wh } : a)
-    );
-    setCheckoutModal(null);
+  async function doCheckOut(rec: Attendance, time: string) {
+    setLoading(true);
+    try {
+      const res = await api.put(`/attendance/${rec.id}`, {
+        check_out: time
+      });
+      
+      setAttendance((p) =>
+        p.map((a) => a.id === rec.id ? { 
+          ...a, 
+          checkOut: res.data.check_out, 
+          workingHours: parseFloat(res.data.working_hours || 0) 
+        } : a)
+      );
+    } catch (error: any) {
+      alert(error.message || "Failed to check out");
+    } finally {
+      setLoading(false);
+      setCheckoutModal(null);
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -328,20 +414,44 @@ export default function StaffManagementPage() {
   const totalPending  = filteredSalary.filter((s) => s.status === "Unpaid").reduce((t, s) => t + s.amount, 0);
   const unpaidCount   = filteredSalary.filter((s) => s.status === "Unpaid").length;
 
-  function markPaid(rec: SalaryRecord) {
-    setSalaryList((p) =>
-      p.map((s) =>
-        s.id === rec.id
-          ? { ...s, status: "Paid", paidDate: payForm.paidDate, paymentMethod: payForm.paymentMethod }
-          : s
-      )
-    );
-    setPayModal(null);
+  async function markPaid(rec: SalaryRecord) {
+    setLoading(true);
+    try {
+      await api.put(`/salaries/${rec.id}`, {
+        status: 'Paid',
+        paid_date: payForm.paidDate,
+        payment_method: payForm.paymentMethod
+      });
+
+      setSalaryList((p) =>
+        p.map((s) =>
+          s.id === rec.id
+            ? { ...s, status: "Paid", paidDate: payForm.paidDate, paymentMethod: payForm.paymentMethod }
+            : s
+        )
+      );
+    } catch (error: any) {
+      alert(error.message || "Failed to mark salary as paid");
+    } finally {
+      setLoading(false);
+      setPayModal(null);
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════════════════
+
+  if (loading) {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <p className="text-sm font-medium text-slate-500">Loading staff data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -844,40 +954,61 @@ export default function StaffManagementPage() {
           sub={editingStaff ? `Editing ${editingStaff.id}` : "Fill in the staff details"}
           onClose={() => setShowStaffModal(false)}>
           <div className="px-6 py-5 space-y-4">
-            <Field label="Full Name *">
-              <input type="text" placeholder="e.g. Aditi Verma" value={staffForm.name}
-                onChange={(e) => setStaffForm((p) => ({ ...p, name: e.target.value }))} className={inputCls} />
-            </Field>
-            <Field label="Phone Number *">
-              <input type="tel" placeholder="e.g. 9876543210" value={staffForm.phone}
-                onChange={(e) => setStaffForm((p) => ({ ...p, phone: e.target.value }))} className={inputCls} />
-            </Field>
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Joining Date">
-                <input type="date" value={staffForm.joiningDate}
-                  onChange={(e) => setStaffForm((p) => ({ ...p, joiningDate: e.target.value }))} className={inputCls} />
-              </Field>
-              <Field label="Monthly Salary (₹)">
-                <input type="number" min={0} placeholder="0" value={staffForm.salary || ""}
-                  onChange={(e) => setStaffForm((p) => ({ ...p, salary: Number(e.target.value) }))} className={inputCls} />
-              </Field>
-            </div>
-            <Field label="Status">
-              <div className="relative">
-                <select value={staffForm.status}
-                  onChange={(e) => setStaffForm((p) => ({ ...p, status: e.target.value as StaffStatus }))}
-                  className={inputCls + " appearance-none pr-8 cursor-pointer"}>
-                  <option>Active</option>
-                  <option>Inactive</option>
-                </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <div className="flex flex-col sm:flex-row gap-6">
+              <div className="w-full sm:w-32 shrink-0">
+                <Field label="Photo">
+                  <ImageUploader value={staffForm.photoUrl} onChange={(url) => setStaffForm((p) => ({ ...p, photoUrl: url }))} />
+                </Field>
               </div>
-            </Field>
-            <Field label="Address">
-              <textarea placeholder="e.g. 22, Rajouri Garden, Delhi" value={staffForm.address}
-                onChange={(e) => setStaffForm((p) => ({ ...p, address: e.target.value }))}
-                rows={2} className={inputCls + " resize-none"} />
-            </Field>
+              <div className="flex-1 space-y-4">
+                <Field label="Full Name *">
+                  <input type="text" placeholder="e.g. Aditi Verma" value={staffForm.name}
+                    onChange={(e) => setStaffForm((p) => ({ ...p, name: e.target.value }))} className={inputCls} />
+                </Field>
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label="Phone Number *">
+                    <input type="tel" placeholder="e.g. 9876543210" value={staffForm.phone}
+                      onChange={(e) => setStaffForm((p) => ({ ...p, phone: e.target.value }))} className={inputCls} />
+                  </Field>
+                  <Field label="Email ID">
+                    <input type="email" placeholder="e.g. aditi@example.com" value={staffForm.emailId}
+                      onChange={(e) => setStaffForm((p) => ({ ...p, emailId: e.target.value }))} className={inputCls} />
+                  </Field>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label="Aadhar Card">
+                    <input type="text" placeholder="e.g. 1234 5678 9012" value={staffForm.aadharCard}
+                      onChange={(e) => setStaffForm((p) => ({ ...p, aadharCard: e.target.value }))} className={inputCls} />
+                  </Field>
+                  <Field label="Joining Date">
+                    <input type="date" value={staffForm.joiningDate}
+                      onChange={(e) => setStaffForm((p) => ({ ...p, joiningDate: e.target.value }))} className={inputCls} />
+                  </Field>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label="Monthly Salary (₹)">
+                    <input type="number" min={0} placeholder="0" value={staffForm.salary || ""}
+                      onChange={(e) => setStaffForm((p) => ({ ...p, salary: Number(e.target.value) }))} className={inputCls} />
+                  </Field>
+                  <Field label="Status">
+                    <div className="relative">
+                      <select value={staffForm.status}
+                        onChange={(e) => setStaffForm((p) => ({ ...p, status: e.target.value as StaffStatus }))}
+                        className={inputCls + " appearance-none pr-8 cursor-pointer"}>
+                        <option>Active</option>
+                        <option>Inactive</option>
+                      </select>
+                      <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                    </div>
+                  </Field>
+                </div>
+                <Field label="Address">
+                  <textarea placeholder="e.g. 22, Rajouri Garden, Delhi" value={staffForm.address}
+                    onChange={(e) => setStaffForm((p) => ({ ...p, address: e.target.value }))}
+                    rows={2} className={inputCls + " resize-none"} />
+                </Field>
+              </div>
+            </div>
           </div>
           <ModalFooter
             onCancel={() => setShowStaffModal(false)}
@@ -892,20 +1023,30 @@ export default function StaffManagementPage() {
       {viewStaff && (
         <Modal title={viewStaff.name} sub={`${viewStaff.id} · ${viewStaff.phone}`} onClose={() => setViewStaff(null)} maxW="max-w-lg">
           <div className="px-6 py-5 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { label: "Staff ID",    value: viewStaff.id           },
-                { label: "Phone",       value: viewStaff.phone        },
-                { label: "Joining Date",value: viewStaff.joiningDate  },
-                { label: "Salary",      value: fmt(viewStaff.salary)  },
-                { label: "Status",      value: viewStaff.status       },
-                { label: "Address",     value: viewStaff.address || "—" },
-              ].map((r) => (
-                <div key={r.label} className="flex flex-col gap-0.5">
-                  <span className="text-xs text-slate-400 font-medium">{r.label}</span>
-                  <span className="text-sm font-semibold text-slate-800">{r.value}</span>
+            <div className="flex flex-col sm:flex-row gap-6">
+              {viewStaff.photoUrl && (
+                <div className="w-24 h-24 shrink-0 rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={viewStaff.photoUrl} alt={viewStaff.name} className="w-full h-full object-cover" />
                 </div>
-              ))}
+              )}
+              <div className="grid grid-cols-2 gap-4 flex-1">
+                {[
+                  { label: "Staff ID",    value: viewStaff.id           },
+                  { label: "Phone",       value: viewStaff.phone        },
+                  { label: "Email ID",    value: viewStaff.emailId || "—" },
+                  { label: "Aadhar Card", value: viewStaff.aadharCard || "—" },
+                  { label: "Joining Date",value: viewStaff.joiningDate  },
+                  { label: "Salary",      value: fmt(viewStaff.salary)  },
+                  { label: "Status",      value: viewStaff.status       },
+                  { label: "Address",     value: viewStaff.address || "—" },
+                ].map((r) => (
+                  <div key={r.label} className="flex flex-col gap-0.5">
+                    <span className="text-xs text-slate-400 font-medium">{r.label}</span>
+                    <span className="text-sm font-semibold text-slate-800">{r.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Attendance summary for this staff */}
@@ -1062,6 +1203,98 @@ export default function StaffManagementPage() {
         </div>
       )}
 
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// IMAGE UPLOADER
+// ═══════════════════════════════════════════════════════════════
+
+function ImageUploader({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (dataUrl: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
+
+  function handleFile(file: File) {
+    if (!file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result) onChange(e.target.result as string);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  return (
+    <div className="space-y-3">
+      {value ? (
+        <div className="relative w-full aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={value}
+            alt="Uploaded"
+            className="w-full h-full object-cover"
+          />
+          <button
+            onClick={() => onChange("")}
+            className="absolute top-2 right-2 w-7 h-7 rounded-lg bg-white/90 hover:bg-red-50 text-slate-500 hover:text-red-600 flex items-center justify-center shadow-sm border border-slate-200"
+          >
+            <X size={13} />
+          </button>
+          <button
+            onClick={() => inputRef.current?.click()}
+            className="absolute bottom-2 right-2 flex items-center gap-1.5 px-3 py-1.5 bg-white/90 hover:bg-white rounded-lg text-xs font-semibold text-slate-700 shadow-sm border border-slate-200"
+          >
+            <Upload size={12} /> Replace
+          </button>
+        </div>
+      ) : (
+        <div
+          onClick={() => inputRef.current?.click()}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragging(false);
+            const f = e.dataTransfer.files[0];
+            if (f) handleFile(f);
+          }}
+          className={`flex flex-col items-center justify-center gap-3 w-full aspect-square rounded-xl border-2 border-dashed cursor-pointer transition-all ${
+            dragging
+              ? "border-blue-400 bg-blue-50"
+              : "border-slate-200 bg-slate-50 hover:border-blue-300 hover:bg-blue-50/50"
+          }`}
+        >
+          <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
+            <Camera size={20} className="text-slate-400" />
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-semibold text-slate-600">
+              Upload Photo
+            </p>
+            <p className="text-xs text-slate-400 mt-0.5">PNG, JPG</p>
+          </div>
+        </div>
+      )}
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) handleFile(f);
+          e.target.value = "";
+        }}
+      />
     </div>
   );
 }

@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Search, Plus, Eye, Pencil, Trash2, X, ChevronDown,
   User, Phone, Mail, MapPin, ShoppingCart, IndianRupee,
   CalendarDays, ArrowUpDown, Filter, CheckCircle,
-  TrendingUp, Users, Star, Package,
+  TrendingUp, Users, Star, Package, Loader2,
 } from "lucide-react";
+import { api } from "@/lib/api";
 
 // ═══════════════════════════════════════════════════════════
 // TYPES
@@ -33,20 +34,7 @@ type ModalMode = "add" | "edit" | "view" | null;
 // MOCK DATA
 // ═══════════════════════════════════════════════════════════
 
-const INITIAL_CUSTOMERS: Customer[] = [
-  { id:"CUS-001", name:"Arjun Das",      phone:"9876543210", email:"arjun@email.com",   address:"12, MG Road",        city:"Delhi",     totalOrders:12, totalSpent:48200, lastPurchase:"2026-04-17", joinedDate:"2025-06-10", status:"active",   tag:"vip"     },
-  { id:"CUS-002", name:"Priya Sharma",   phone:"8765432109", email:"priya@email.com",   address:"45, Green Park",     city:"Mumbai",    totalOrders:8,  totalSpent:31600, lastPurchase:"2026-04-14", joinedDate:"2025-08-22", status:"active",   tag:"regular" },
-  { id:"CUS-003", name:"Ravi Kumar",     phone:"7654321098", email:"ravi@email.com",    address:"78, Nehru Nagar",    city:"Bangalore", totalOrders:15, totalSpent:62400, lastPurchase:"2026-04-16", joinedDate:"2025-04-05", status:"active",   tag:"vip"     },
-  { id:"CUS-004", name:"Meena Nair",     phone:"6543210987", email:"meena@email.com",   address:"23, Lal Bagh",       city:"Kochi",     totalOrders:5,  totalSpent:18900, lastPurchase:"2026-04-10", joinedDate:"2025-10-14", status:"active",   tag:"regular" },
-  { id:"CUS-005", name:"Suresh Pillai",  phone:"5432109876", email:"suresh@email.com",  address:"99, Anna Salai",     city:"Chennai",   totalOrders:20, totalSpent:89000, lastPurchase:"2026-04-19", joinedDate:"2025-01-18", status:"active",   tag:"vip"     },
-  { id:"CUS-006", name:"Anita Bose",     phone:"4321098765", email:"anita@email.com",   address:"56, Park Street",   city:"Kolkata",   totalOrders:3,  totalSpent:9400,  lastPurchase:"2026-04-08", joinedDate:"2026-01-30", status:"inactive", tag:"new"     },
-  { id:"CUS-007", name:"Vijay Menon",    phone:"3210987654", email:"vijay@email.com",   address:"11, JP Nagar",       city:"Bangalore", totalOrders:9,  totalSpent:37500, lastPurchase:"2026-04-12", joinedDate:"2025-07-07", status:"active",   tag:"regular" },
-  { id:"CUS-008", name:"Deepa Iyer",     phone:"9123456789", email:"deepa@email.com",   address:"67, CIT Colony",    city:"Chennai",   totalOrders:6,  totalSpent:24100, lastPurchase:"2026-04-13", joinedDate:"2025-09-19", status:"active",   tag:"regular" },
-  { id:"CUS-009", name:"Kiran Reddy",    phone:"8012345678", email:"kiran@email.com",   address:"34, Banjara Hills",  city:"Hyderabad", totalOrders:11, totalSpent:51300, lastPurchase:"2026-04-15", joinedDate:"2025-05-23", status:"active",   tag:"vip"     },
-  { id:"CUS-010", name:"Sonal Mehta",    phone:"7901234567", email:"sonal@email.com",   address:"88, Prahlad Nagar",  city:"Ahmedabad", totalOrders:4,  totalSpent:14700, lastPurchase:"2026-04-19", joinedDate:"2026-02-14", status:"active",   tag:"new"     },
-  { id:"CUS-011", name:"Ramesh Gupta",   phone:"6890123456", email:"ramesh@email.com",  address:"22, Civil Lines",    city:"Delhi",     totalOrders:7,  totalSpent:28900, lastPurchase:"2026-03-28", joinedDate:"2025-11-05", status:"inactive", tag:"regular" },
-  { id:"CUS-012", name:"Kavita Singh",   phone:"5789012345", email:"kavita@email.com",  address:"15, Rajouri Garden", city:"Delhi",     totalOrders:2,  totalSpent:5600,  lastPurchase:"2026-03-10", joinedDate:"2026-03-01", status:"active",   tag:"new"     },
-];
+// Customers will be fetched from API
 
 const CITIES = ["Delhi", "Mumbai", "Bangalore", "Chennai", "Hyderabad", "Kolkata", "Kochi", "Ahmedabad", "Pune", "Jaipur"];
 
@@ -326,7 +314,37 @@ function CustomerModal({
 // ═══════════════════════════════════════════════════════════
 
 export default function CustomersPage() {
-  const [customers,  setCustomers]  = useState<Customer[]>(INITIAL_CUSTOMERS);
+  const [customers,  setCustomers]  = useState<Customer[]>([]);
+  const [loading,    setLoading]    = useState(true);
+  
+  useEffect(() => {
+    async function fetchCustomers() {
+      try {
+        setLoading(true);
+        const res = await api.get('/customers');
+        setCustomers(res.data.map((c: any) => ({
+          id: c.id,
+          name: c.name,
+          phone: c.phone,
+          email: c.email || "",
+          address: c.address || "",
+          city: c.city || "Other",
+          totalOrders: c.total_orders || 0,
+          totalSpent: parseFloat(c.total_spent || 0),
+          lastPurchase: c.last_purchase?.split('T')[0] || "—",
+          joinedDate: c.createdAt?.split('T')[0] || "—",
+          status: c.status || "active",
+          tag: c.tag || "regular"
+        })));
+      } catch (error) {
+        console.error("Failed to fetch customers", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchCustomers();
+  }, []);
+
   const [search,     setSearch]     = useState("");
   const [tagFilter,  setTagFilter]  = useState("All");
   const [stFilter,   setStFilter]   = useState("All");
@@ -381,16 +399,49 @@ export default function CustomersPage() {
     setModal(mode);
   }
 
-  function handleSave(c: Customer) {
-    setCustomers((prev) => {
-      const exists = prev.find((x) => x.id === c.id);
-      return exists ? prev.map((x) => x.id === c.id ? c : x) : [...prev, c];
-    });
+  async function handleSave(c: Customer) {
+    setLoading(true);
+    try {
+      const payload = {
+        name: c.name,
+        phone: c.phone,
+        email: c.email,
+        address: c.address,
+        city: c.city,
+        status: c.status,
+        tag: c.tag
+      };
+
+      if (selected) {
+        await api.put(`/customers/${selected.id}`, payload);
+        setCustomers((prev) => prev.map((x) => x.id === selected.id ? c : x));
+      } else {
+        const res = await api.post('/customers', payload);
+        const newCustomer: Customer = {
+          ...c,
+          id: res.data.id,
+          joinedDate: res.data.createdAt?.split('T')[0]
+        };
+        setCustomers((prev) => [newCustomer, ...prev]);
+      }
+    } catch (error: any) {
+      alert(error.message || "Failed to save customer");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function handleDelete(id: string) {
-    setCustomers((prev) => prev.filter((c) => c.id !== id));
-    setDeleteId(null);
+  async function handleDelete(id: string) {
+    setLoading(true);
+    try {
+      await api.delete(`/customers/${id}`);
+      setCustomers((prev) => prev.filter((c) => c.id !== id));
+      setDeleteId(null);
+    } catch (error: any) {
+      alert(error.message || "Failed to delete customer");
+    } finally {
+      setLoading(false);
+    }
   }
 
   function clearFilters() {
@@ -403,6 +454,17 @@ export default function CustomersPage() {
   const SortIcon = ({ k }: { k: typeof sortKey }) => (
     <ArrowUpDown size={11} className={`inline ml-1 ${sortKey === k ? "text-blue-500" : "text-slate-300"}`} />
   );
+
+  if (loading) {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <p className="text-sm font-medium text-slate-500">Loading customers...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

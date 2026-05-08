@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
   PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid,
@@ -8,8 +8,9 @@ import {
 } from "recharts";
 import {
   TrendingUp, Package, Users, BadgeIndianRupee,
-  CalendarDays, ShoppingBag, ChevronDown,
+  CalendarDays, ShoppingBag, ChevronDown, Loader2,
 } from "lucide-react";
+import { api } from "@/lib/api";
 
 // ─── Palette ────────────────────────────────────────────────────────────────────
 const C = {
@@ -24,77 +25,6 @@ const C = {
   slate:      "#94a3b8",
   grid:       "#f1f5f9",
 };
-
-// ─── Mock Data ──────────────────────────────────────────────────────────────────
-
-// Daily Sales (last 14 days)
-const dailySalesData = [
-  { day: "Apr 02", sales: 4200,  profit: 1050 },
-  { day: "Apr 03", sales: 6800,  profit: 1700 },
-  { day: "Apr 04", sales: 3100,  profit: 775  },
-  { day: "Apr 05", sales: 0,     profit: 0    },
-  { day: "Apr 06", sales: 0,     profit: 0    },
-  { day: "Apr 07", sales: 7200,  profit: 1800 },
-  { day: "Apr 08", sales: 5400,  profit: 1350 },
-  { day: "Apr 09", sales: 9100,  profit: 2275 },
-  { day: "Apr 10", sales: 6300,  profit: 1575 },
-  { day: "Apr 11", sales: 8700,  profit: 2175 },
-  { day: "Apr 12", sales: 10761, profit: 2690 },
-  { day: "Apr 13", sales: 10963, profit: 2740 },
-  { day: "Apr 14", sales: 7142,  profit: 1785 },
-  { day: "Apr 15", sales: 7529,  profit: 1882 },
-];
-
-// Monthly Sales (last 6 months)
-const monthlySalesData = [
-  { month: "Nov 25", sales: 82400,  profit: 20600 },
-  { month: "Dec 25", sales: 118900, profit: 29725 },
-  { month: "Jan 26", sales: 74200,  profit: 18550 },
-  { month: "Feb 26", sales: 91300,  profit: 22825 },
-  { month: "Mar 26", sales: 136200, profit: 34050 },
-  { month: "Apr 26", sales: 46395,  profit: 11598 },
-];
-
-// Stock Overview — top 8 products
-const stockData = [
-  { name: "Wireless Keyboard",  stock: 45, reorderAt: 10 },
-  { name: "USB-C Hub",          stock: 8,  reorderAt: 10 },
-  { name: "Monitor Stand",      stock: 22, reorderAt: 8  },
-  { name: "Mechanical Mouse",   stock: 0,  reorderAt: 10 },
-  { name: "Laptop Sleeve",      stock: 60, reorderAt: 15 },
-  { name: "HDMI Cable 2m",      stock: 5,  reorderAt: 10 },
-  { name: "Webcam 1080p",       stock: 18, reorderAt: 5  },
-  { name: "Desk Organizer",     stock: 30, reorderAt: 8  },
-];
-
-// Staff Attendance (this week)
-const attendanceData = [
-  { day: "Mon",  present: 4, absent: 1 },
-  { day: "Tue",  present: 5, absent: 0 },
-  { day: "Wed",  present: 3, absent: 2 },
-  { day: "Thu",  present: 5, absent: 0 },
-  { day: "Fri",  present: 4, absent: 1 },
-  { day: "Sat",  present: 2, absent: 3 },
-  { day: "Sun",  present: 0, absent: 5 },
-];
-
-// Monthly GST (last 6 months)
-const gstData = [
-  { month: "Nov 25", collected: 9888,  paid: 8200  },
-  { month: "Dec 25", collected: 14268, paid: 11000 },
-  { month: "Jan 26", collected: 8904,  paid: 7100  },
-  { month: "Feb 26", collected: 10956, paid: 9200  },
-  { month: "Mar 26", collected: 16344, paid: 13500 },
-  { month: "Apr 26", collected: 5567,  paid: 0     },
-];
-
-// Summary Stats
-const stats = [
-  { label: "Today's Revenue",  value: "₹7,529",  sub: "+8.2% vs yesterday", icon: BadgeIndianRupee, color: "text-blue-600",   bg: "bg-blue-50"   },
-  { label: "Today's Profit",   value: "₹1,882",  sub: "Margin 25%",         icon: TrendingUp,       color: "text-green-600",  bg: "bg-green-50"  },
-  { label: "Stock Items",      value: "188",     sub: "3 items low / OOS",  icon: Package,          color: "text-purple-600", bg: "bg-purple-50" },
-  { label: "Staff Present",    value: "4/5",     sub: "1 absent today",     icon: Users,            color: "text-amber-600",  bg: "bg-amber-50"  },
-];
 
 // ─── Custom Tooltip ─────────────────────────────────────────────────────────────
 function ChartTooltip({
@@ -168,7 +98,68 @@ function ChartCard({
 
 // ─── Page ───────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
+  const [loading, setLoading] = useState(true);
   const [salesView, setSalesView] = useState<"daily" | "monthly">("daily");
+  
+  const [summary, setSummary] = useState<any>({
+    today_sales: 0,
+    today_profit: 0,
+    total_products: 0,
+    low_stock_count: 0,
+    staff_present: 0,
+    staff_total: 0,
+    this_month_sales: 0,
+    last_month_sales: 0,
+    avg_margin: 0
+  });
+
+  const [dailySalesData, setDailySalesData] = useState<any[]>([]);
+  const [monthlySalesData, setMonthlySalesData] = useState<any[]>([]);
+  const [stockData, setStockData] = useState<any[]>([]);
+  const [attendanceData, setAttendanceData] = useState<any[]>([]);
+  const [gstSummary, setGstSummary] = useState<any>({ history: [], ytd_collected: 0 });
+
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        setLoading(true);
+        const [
+          statsRes, 
+          dailyRes, 
+          monthlyRes, 
+          stockRes, 
+          attendanceRes, 
+          gstRes
+        ] = await Promise.all([
+          api.get('/reports/dashboard'),
+          api.get('/reports/daily-sales'),
+          api.get('/reports/monthly-sales'),
+          api.get('/reports/stock-overview'),
+          api.get('/reports/attendance-stats'),
+          api.get('/reports/gst-summary')
+        ]);
+
+        setSummary(statsRes.data);
+        setDailySalesData(dailyRes.data);
+        setMonthlySalesData(monthlyRes.data);
+        setStockData(stockRes.data);
+        setAttendanceData(attendanceRes.data);
+        setGstSummary(gstRes.data);
+      } catch (error) {
+        console.error("Failed to fetch dashboard data", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchDashboardData();
+  }, []);
+
+  const stats = [
+    { label: "Today's Revenue",  value: `₹${summary.today_sales.toLocaleString()}`,  sub: "Updated live", icon: BadgeIndianRupee, color: "text-blue-600",   bg: "bg-blue-50"   },
+    { label: "Today's Profit",   value: `₹${summary.today_profit.toLocaleString()}`,  sub: "Gross margin",         icon: TrendingUp,       color: "text-green-600",  bg: "bg-green-50"  },
+    { label: "Stock Items",      value: summary.total_products.toString(),     sub: `${summary.low_stock_count} low / OOS`,  icon: Package,          color: "text-purple-600", bg: "bg-purple-50" },
+    { label: "Staff Present",    value: `${summary.staff_present}/${summary.staff_total}`,     sub: "Active staff",     icon: Users,            color: "text-amber-600",  bg: "bg-amber-50"  },
+  ];
 
   const salesChartData = useMemo(() => {
     if (salesView === "daily") {
@@ -179,7 +170,7 @@ export default function DashboardPage() {
       sales: item.sales,
       profit: item.profit,
     }));
-  }, [salesView]);
+  }, [salesView, dailySalesData, monthlySalesData]);
   
   const salesXKey = "day";
 
@@ -191,6 +182,17 @@ export default function DashboardPage() {
       ? C.amber
       : C.green
   );
+
+  if (loading) {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <p className="text-sm font-medium text-slate-500">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -322,9 +324,9 @@ export default function DashboardPage() {
           {/* Profit Metrics */}
           <div className="grid grid-cols-3 gap-3 pt-1 border-t border-slate-100">
             {[
-              { label: "This Month",  value: "₹11,598" },
-              { label: "Last Month",  value: "₹34,050" },
-              { label: "Avg Margin",  value: "25%"     },
+              { label: "This Month",  value: `₹${(summary.this_month_sales || 0).toLocaleString("en-IN")}` },
+              { label: "Last Month",  value: `₹${(summary.last_month_sales || 0).toLocaleString("en-IN")}` },
+              { label: "Avg Margin",  value: `${summary.avg_margin || 0}%` },
             ].map((m) => (
               <div key={m.label} className="text-center">
                 <p className="text-xs text-slate-400">{m.label}</p>
@@ -440,9 +442,9 @@ export default function DashboardPage() {
           {/* Attendance Metrics */}
           <div className="grid grid-cols-3 gap-3 pt-1 border-t border-slate-100">
             {[
-              { label: "Avg Present",  value: `${(attendanceData.reduce((s, d) => s + d.present, 0) / attendanceData.length).toFixed(1)}`, color: "text-teal-600" },
-              { label: "Best Day",     value: "Tue / Thu", color: "text-green-600" },
+              { label: "Avg Present",  value: `${(attendanceData.reduce((s, d) => s + d.present, 0) / (attendanceData.length || 1)).toFixed(1)}`, color: "text-teal-600" },
               { label: "Total Absent", value: attendanceData.reduce((s, d) => s + d.absent, 0), color: "text-red-500" },
+              { label: "Weekly Capacity", value: `${Math.round((attendanceData.reduce((s, d) => s + d.present, 0) / (attendanceData.length * summary.staff_total || 1)) * 100)}%`, color: "text-green-600" },
             ].map((m) => (
               <div key={m.label} className="text-center">
                 <p className={`text-sm font-bold ${m.color}`}>{m.value}</p>
@@ -458,7 +460,7 @@ export default function DashboardPage() {
           subtitle="GST collected vs paid — last 6 months"
         >
           <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={gstData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+            <LineChart data={gstSummary.history} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="gradGSTCollected" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%"  stopColor={C.purple} stopOpacity={0.1} />
@@ -504,9 +506,9 @@ export default function DashboardPage() {
           {/* GST Metrics */}
           <div className="grid grid-cols-3 gap-3 pt-1 border-t border-slate-100">
             {[
-              { label: "Apr Collected", value: "₹5,567",  color: "text-purple-600" },
-              { label: "Apr Paid",      value: "Pending",  color: "text-amber-500"  },
-              { label: "YTD Collected", value: "₹65,927", color: "text-slate-700"  },
+              { label: "Latest Collected", value: gstSummary.history.length > 0 ? `₹${gstSummary.history[0].collected.toLocaleString("en-IN")}` : "₹0",  color: "text-purple-600" },
+              { label: "Latest Paid (Est)", value: gstSummary.history.length > 0 ? `₹${gstSummary.history[0].paid.toLocaleString("en-IN")}` : "₹0",  color: "text-amber-500"  },
+              { label: "YTD Collected", value: `₹${(gstSummary.ytd_collected || 0).toLocaleString("en-IN")}`, color: "text-slate-700"  },
             ].map((m) => (
               <div key={m.label} className="text-center">
                 <p className={`text-sm font-bold ${m.color}`}>{m.value}</p>

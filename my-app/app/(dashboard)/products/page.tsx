@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import {
   Search, Plus, Eye, Pencil, Trash2, X, ChevronDown,
   Package, Tag, AlertTriangle, Camera, Upload,
   IndianRupee, Percent, BarChart3, ImageOff, CheckCircle,
-  ArrowUpDown, Grid3X3, List, XCircle, Shirt,
+  ArrowUpDown, Grid3X3, List, XCircle, Shirt, Loader2,
 } from "lucide-react";
+import { api } from "@/lib/api";
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -69,40 +70,7 @@ const GST_OPTIONS = [0, 5, 12, 18];
 // SEED DATA
 // ═══════════════════════════════════════════════════════════════
 
-const SEED: ClothingProduct[] = [
-  {
-    id: "1", name: "Classic White Shirt", category: "Shirt", gender: "Men",
-    brand: "Raymond", fabric: "Cotton", color: "White",
-    sizes: [{ size: "S", qty: 5 }, { size: "M", qty: 12 }, { size: "L", qty: 8 }, { size: "XL", qty: 3 }],
-    purchasePrice: 450, sellingPrice: 899, gstPercent: 5,
-    minStockAlert: 5, description: "Premium cotton formal shirt.", sku: "RYM-SHT-001",
-    image: "", createdDate: "2026-04-10",
-  },
-  {
-    id: "2", name: "Slim Fit Jeans", category: "Jeans", gender: "Men",
-    brand: "Levis", fabric: "Denim", color: "Dark Blue",
-    sizes: [{ size: "30", qty: 6 }, { size: "32", qty: 14 }, { size: "34", qty: 9 }, { size: "36", qty: 2 }],
-    purchasePrice: 900, sellingPrice: 1799, gstPercent: 12,
-    minStockAlert: 5, description: "Comfortable slim fit denim jeans.", sku: "LV-JNS-032",
-    image: "", createdDate: "2026-04-12",
-  },
-  {
-    id: "3", name: "Floral Kurti", category: "Kurti", gender: "Women",
-    brand: "Biba", fabric: "Rayon", color: "Pink",
-    sizes: [{ size: "S", qty: 7 }, { size: "M", qty: 10 }, { size: "L", qty: 4 }, { size: "XL", qty: 1 }],
-    purchasePrice: 350, sellingPrice: 749, gstPercent: 5,
-    minStockAlert: 5, description: "Vibrant floral print daily wear kurti.", sku: "BB-KRT-018",
-    image: "", createdDate: "2026-04-15",
-  },
-  {
-    id: "4", name: "Kids Cartoon Tee", category: "T-Shirt", gender: "Kids",
-    brand: "H&M", fabric: "Cotton", color: "Yellow",
-    sizes: [{ size: "2Y", qty: 0 }, { size: "4Y", qty: 2 }, { size: "6Y", qty: 5 }],
-    purchasePrice: 180, sellingPrice: 399, gstPercent: 5,
-    minStockAlert: 3, description: "Fun cartoon print t-shirt for kids.", sku: "HM-KID-007",
-    image: "", createdDate: "2026-04-20",
-  },
-];
+// Products will be fetched from API
 
 // ═══════════════════════════════════════════════════════════════
 // HELPERS
@@ -115,7 +83,7 @@ function fmt(n: number) {
 }
 
 function totalStock(p: ClothingProduct) {
-  return p.sizes.reduce((s, x) => s + x.qty, 0);
+  return p.sizes?.reduce((s, x) => s + (x.qty || 0), 0) || 0;
 }
 
 function getStockBadge(p: ClothingProduct) {
@@ -523,14 +491,50 @@ function ProductModal({
     return Object.keys(e).length === 0;
   }
 
-  function handleSave() {
+  const [loading, setLoading] = useState(false);
+
+  async function handleSave() {
     if (!validate()) return;
-    const saved: ClothingProduct = {
-      ...(product ?? { id: uid(), createdDate: new Date().toISOString().split("T")[0] }),
-      ...form,
-    };
-    onSave(saved);
-    onClose();
+    setLoading(true);
+    try {
+      const payload = {
+        name: form.name,
+        category: form.category,
+        gender: form.gender,
+        brand: form.brand,
+        fabric: form.fabric,
+        color: form.color,
+        purchase_price: form.purchasePrice,
+        selling_price: form.sellingPrice,
+        gst_percent: form.gstPercent,
+        min_stock_level: form.minStockAlert,
+        description: form.description,
+        sku: form.sku,
+        image_url: form.image,
+        sizes: form.sizes.map(s => ({ size: s.size, quantity: s.qty }))
+      };
+
+      let res;
+      if (mode === "add") {
+        res = await api.post('/products', payload);
+      } else {
+        res = await api.put(`/products/${product?.id}`, payload);
+      }
+      
+      const saved: ClothingProduct = {
+        ...product,
+        ...form,
+        id: res.data.id,
+        createdDate: res.data.created_at?.split('T')[0] || new Date().toISOString().split('T')[0]
+      } as ClothingProduct;
+
+      onSave(saved);
+      onClose();
+    } catch (error: any) {
+      alert(error.message || "Failed to save product");
+    } finally {
+      setLoading(false);
+    }
   }
 
   const marginVal =
@@ -542,7 +546,7 @@ function ProductModal({
   const withTax = Math.round(
     form.sellingPrice * (1 + form.gstPercent / 100)
   );
-  const totalQty = form.sizes.reduce((s, x) => s + x.qty, 0);
+  const totalQty = form.sizes?.reduce((s, x) => s + (x.qty || 0), 0) || 0;
 
   // ── VIEW MODE ─────────────────────────────────────────────────
   if (isView && product) {
@@ -947,7 +951,41 @@ function ProductModal({
 // ═══════════════════════════════════════════════════════════════
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<ClothingProduct[]>(SEED);
+  const [products, setProducts] = useState<ClothingProduct[]>([]);
+  const [loading, setLoading]   = useState(true);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        setLoading(true);
+        const res = await api.get('/products');
+        const mapped = res.data.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          category: p.category,
+          gender: p.gender,
+          brand: p.brand,
+          fabric: p.fabric,
+          color: p.color,
+          purchasePrice: parseFloat(p.purchase_price),
+          sellingPrice: parseFloat(p.selling_price),
+          gstPercent: parseFloat(p.gst_percent),
+          minStockAlert: p.min_stock_level,
+          description: p.description,
+          sku: p.sku,
+          image: p.image_url,
+          createdDate: p.created_at?.split('T')[0],
+          sizes: p.sizes?.map((s: any) => ({ size: s.size, qty: s.quantity })) || []
+        }));
+        setProducts(mapped);
+      } catch (error) {
+        console.error("Failed to fetch products", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
   const [search, setSearch]     = useState("");
   const [catFilter, setCatFilter]   = useState("All");
   const [genderFilter, setGenderFilter] = useState("All");
@@ -1017,12 +1055,29 @@ export default function ProductsPage() {
     });
   }
 
-  function handleDelete(id: string) {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-    setDeleteId(null);
+  async function handleDelete(id: string) {
+    if (!confirm("Are you sure you want to delete this product?")) return;
+    try {
+      await api.delete(`/products/${id}`);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      setDeleteId(null);
+    } catch (error: any) {
+      alert(error.message || "Failed to delete product");
+    }
   }
 
   // ── RENDER ────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <p className="text-sm font-medium text-slate-500">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="space-y-6">

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Search, TrendingUp, ShoppingBag, BadgeIndianRupee,
-  CalendarDays, ChevronDown, X, Printer, Eye,
+  CalendarDays, ChevronDown, X, Printer, Eye, Loader2,
 } from "lucide-react";
+import { api } from "@/lib/api";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 type PaymentMethod = "Cash" | "UPI" | "Card";
@@ -30,79 +31,8 @@ type Sale = {
   discount:       number;
   finalTotal:     number;
   paymentMethod:  PaymentMethod;
-  createdAt:      string; // "YYYY-MM-DD"
+  createdAt:      string;
 };
-
-// ─── Mock Sales Data ────────────────────────────────────────────────────────────
-const allSales: Sale[] = [
-  {
-    invoiceNumber: "INV-2604-1001", customerName: "Ravi Shankar",  customerPhone: "9876543210",
-    items: [
-      { productId: "PRD-001", productName: "Wireless Keyboard",  quantity: 2, rate: 1299, gstPercent: 18, gstAmount: 467,  total: 3065 },
-      { productId: "PRD-005", productName: "Laptop Sleeve 15\"", quantity: 1, rate: 599,  gstPercent: 12, gstAmount: 72,   total: 671  },
-    ],
-    subTotal: 3197, gstAmount: 539,  discount: 100, finalTotal: 3636, paymentMethod: "UPI",  createdAt: "2026-04-15",
-  },
-  {
-    invoiceNumber: "INV-2604-1002", customerName: "Priya Mehta",   customerPhone: "8765432109",
-    items: [
-      { productId: "PRD-007", productName: "Webcam 1080p",         quantity: 1, rate: 3299, gstPercent: 18, gstAmount: 594,  total: 3893 },
-    ],
-    subTotal: 3299, gstAmount: 594,  discount: 0,   finalTotal: 3893, paymentMethod: "Card", createdAt: "2026-04-15",
-  },
-  {
-    invoiceNumber: "INV-2604-1003", customerName: "Arjun Das",     customerPhone: "7654321098",
-    items: [
-      { productId: "PRD-003", productName: "Monitor Stand",        quantity: 1, rate: 2499, gstPercent: 12, gstAmount: 300,  total: 2799 },
-      { productId: "PRD-006", productName: "HDMI Cable 2m",        quantity: 2, rate: 299,  gstPercent: 18, gstAmount: 108,  total: 706  },
-    ],
-    subTotal: 3097, gstAmount: 408,  discount: 200, finalTotal: 3305, paymentMethod: "Cash", createdAt: "2026-04-14",
-  },
-  {
-    invoiceNumber: "INV-2604-1004", customerName: "Sneha Nair",    customerPhone: "6543210987",
-    items: [
-      { productId: "PRD-002", productName: "USB-C Hub 7-in-1",     quantity: 3, rate: 999,  gstPercent: 18, gstAmount: 540,  total: 3537 },
-    ],
-    subTotal: 2997, gstAmount: 540,  discount: 0,   finalTotal: 3537, paymentMethod: "UPI",  createdAt: "2026-04-14",
-  },
-  {
-    invoiceNumber: "INV-2604-1005", customerName: "Vikram Singh",  customerPhone: "5432109876",
-    items: [
-      { productId: "PRD-008", productName: "Desk Organizer",       quantity: 2, rate: 749,  gstPercent: 12, gstAmount: 180,  total: 1678 },
-      { productId: "PRD-001", productName: "Wireless Keyboard",    quantity: 1, rate: 1299, gstPercent: 18, gstAmount: 234,  total: 1533 },
-    ],
-    subTotal: 3797, gstAmount: 414,  discount: 150, finalTotal: 3477 , paymentMethod: "Cash", createdAt: "2026-04-13",
-  },
-  {
-    invoiceNumber: "INV-2604-1006", customerName: "Meena Pillai",  customerPhone: "4321098765",
-    items: [
-      { productId: "PRD-007", productName: "Webcam 1080p",         quantity: 2, rate: 3299, gstPercent: 18, gstAmount: 1188, total: 7786 },
-    ],
-    subTotal: 6598, gstAmount: 1188, discount: 300, finalTotal: 7486, paymentMethod: "Card", createdAt: "2026-04-13",
-  },
-  {
-    invoiceNumber: "INV-2603-1007", customerName: "Ravi Shankar",  customerPhone: "9876543210",
-    items: [
-      { productId: "PRD-005", productName: "Laptop Sleeve 15\"",   quantity: 2, rate: 599,  gstPercent: 12, gstAmount: 144,  total: 1342 },
-    ],
-    subTotal: 1198, gstAmount: 144,  discount: 0,   finalTotal: 1342, paymentMethod: "Cash", createdAt: "2026-03-28",
-  },
-  {
-    invoiceNumber: "INV-2603-1008", customerName: "Priya Mehta",   customerPhone: "8765432109",
-    items: [
-      { productId: "PRD-003", productName: "Monitor Stand",        quantity: 2, rate: 2499, gstPercent: 12, gstAmount: 600,  total: 5598 },
-    ],
-    subTotal: 4998, gstAmount: 600,  discount: 200, finalTotal: 5398, paymentMethod: "UPI",  createdAt: "2026-03-22",
-  },
-  {
-    invoiceNumber: "INV-2603-1009", customerName: "Arjun Das",     customerPhone: "7654321098",
-    items: [
-      { productId: "PRD-001", productName: "Wireless Keyboard",    quantity: 3, rate: 1299, gstPercent: 18, gstAmount: 701,  total: 4598 },
-      { productId: "PRD-002", productName: "USB-C Hub 7-in-1",     quantity: 2, rate: 999,  gstPercent: 18, gstAmount: 360,  total: 2358 },
-    ],
-    subTotal: 6895, gstAmount: 1061, discount: 500, finalTotal: 7456, paymentMethod: "Card", createdAt: "2026-03-15",
-  },
-];
 
 // ─── Helpers ────────────────────────────────────────────────────────────────────
 function fmt(n: number) {
@@ -119,6 +49,43 @@ const tabs: FilterTab[] = ["All", "Day", "Month", "Customer", "Product"];
 
 // ─── Main Component ─────────────────────────────────────────────────────────────
 export default function SalesPage() {
+  const [allSales, setAllSales]         = useState<Sale[]>([]);
+  const [loading, setLoading]           = useState(true);
+
+  useEffect(() => {
+    async function fetchSales() {
+      try {
+        setLoading(true);
+        const res = await api.get('/bills');
+        setAllSales(res.data.map((b: any) => ({
+          invoiceNumber: b.invoice_no,
+          customerName: b.customer?.name || "Walk-in",
+          customerPhone: b.customer?.phone || "—",
+          items: b.items?.map((i: any) => ({
+            productId: i.product_id,
+            productName: i.product?.name || "Unknown",
+            quantity: i.quantity,
+            rate: parseFloat(i.unit_price),
+            gstPercent: parseFloat(i.gst_percent || 0),
+            gstAmount: parseFloat(i.gst_amount || 0),
+            total: parseFloat(i.total_price)
+          })) || [],
+          subTotal: parseFloat(b.subtotal),
+          gstAmount: parseFloat(b.total_gst || 0),
+          discount: parseFloat(b.total_discount || 0),
+          finalTotal: parseFloat(b.total_amount),
+          paymentMethod: (b.payment_method || "Cash") as PaymentMethod,
+          createdAt: b.createdAt?.split('T')[0]
+        })));
+      } catch (error) {
+        console.error("Failed to fetch sales", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSales();
+  }, []);
+
   const [search, setSearch]             = useState("");
   const [activeTab, setActiveTab]       = useState<FilterTab>("All");
   const [dateFrom, setDateFrom]         = useState("");
@@ -142,13 +109,24 @@ export default function SalesPage() {
 
       return matchSearch && matchPm && matchFrom && matchTo;
     });
-  }, [search, pmFilter, dateFrom, dateTo]);
+  }, [allSales, search, pmFilter, dateFrom, dateTo]);
 
   // ── Summary Stats (on filtered) ──
   const totalRevenue  = filtered.reduce((s, b) => s + b.finalTotal, 0);
   const totalGST      = filtered.reduce((s, b) => s + b.gstAmount, 0);
   const totalDiscount = filtered.reduce((s, b) => s + b.discount, 0);
   const totalBills    = filtered.length;
+
+  if (loading) {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <p className="text-sm font-medium text-slate-500">Loading sales report...</p>
+        </div>
+      </div>
+    );
+  }
 
   // ── Day-wise Breakdown ──
   const dayWise = useMemo(() => {
