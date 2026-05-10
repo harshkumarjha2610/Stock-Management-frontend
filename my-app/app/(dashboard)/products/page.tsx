@@ -13,27 +13,37 @@ import { api } from "@/lib/api";
 // TYPES
 // ═══════════════════════════════════════════════════════════════
 
-type ClothingProduct = {
+type Product = {
   id: string;
   name: string;
-  category: string;       // Shirt, Pant, Kurti, etc.
-  gender: string;         // Men, Women, Kids, Unisex
-  brand: string;
-  fabric: string;         // Cotton, Polyester, etc.
-  color: string;
-  sizes: SizeStock[];     // per-size stock
+  category: string;
+  
+  // Garment specific
+  gender?: string;
+  fabric?: string;
+  color?: string;
+  sizes?: SizeStock[];
+
+  // Grocery specific
+  unit?: string;
+  expiryDate?: string;
+  mfgDate?: string;
+  hsnCode?: string;
+  stockQuantity?: number; // Used for grocery if sizes not present
+
+  brand?: string;
   purchasePrice: number;
   sellingPrice: number;
   gstPercent: number;
   minStockAlert: number;
-  description: string;
-  sku: string;
-  image: string;
+  description?: string;
+  sku?: string;
+  image?: string;
   createdDate: string;
 };
 
 type SizeStock = {
-  size: string;   // XS, S, M, L, XL, XXL, 28, 30, 32...
+  size: string;
   qty: number;
 };
 
@@ -64,6 +74,14 @@ const APPAREL_SIZES    = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
 const BOTTOM_SIZES     = ["26", "28", "30", "32", "34", "36", "38", "40", "42"];
 const KIDS_SIZES       = ["0-6M", "6-12M", "1Y", "2Y", "3Y", "4Y", "6Y", "8Y", "10Y", "12Y"];
 
+const GROCERY_CATEGORIES = [
+  "Fruits & Vegetables", "Dairy & Bakery", "Staples",
+  "Snacks & Branded Foods", "Beverages", "Personal Care",
+  "Home Care", "Baby Care", "Meat & Fish", "Others",
+];
+
+const UNITS = ["kg", "g", "liter", "ml", "pcs", "packet", "bottle", "box"];
+
 const GST_OPTIONS = [0, 5, 12, 18];
 
 // ═══════════════════════════════════════════════════════════════
@@ -82,23 +100,26 @@ function fmt(n: number) {
   return "₹" + n.toLocaleString("en-IN");
 }
 
-function totalStock(p: ClothingProduct) {
-  return p.sizes?.reduce((s, x) => s + (x.qty || 0), 0) || 0;
+function totalStock(p: Product) {
+  if (p.sizes && p.sizes.length > 0) {
+    return p.sizes.reduce((s, x) => s + (x.qty || 0), 0);
+  }
+  return p.stockQuantity || 0;
 }
 
-function getStockBadge(p: ClothingProduct) {
+function getStockBadge(p: Product) {
   const total = totalStock(p);
   if (total === 0)              return { label: "Out of Stock", cls: "bg-red-50 text-red-600 border-red-200" };
   if (total <= p.minStockAlert) return { label: "Low Stock",    cls: "bg-amber-50 text-amber-700 border-amber-200" };
   return                               { label: "In Stock",     cls: "bg-green-50 text-green-700 border-green-200" };
 }
 
-function marginPct(p: ClothingProduct) {
+function marginPct(p: Product) {
   if (!p.purchasePrice) return 0;
   return Math.round(((p.sellingPrice - p.purchasePrice) / p.purchasePrice) * 100);
 }
 
-function sellingWithGST(p: ClothingProduct) {
+function sellingWithGST(p: Product) {
   return Math.round(p.sellingPrice * (1 + p.gstPercent / 100));
 }
 
@@ -216,7 +237,7 @@ function ProductImage({
   name,
   size = "md",
 }: {
-  src: string;
+  src?: string;
   name: string;
   size?: "sm" | "md" | "lg";
 }) {
@@ -341,7 +362,7 @@ function ImageUploader({
   value,
   onChange,
 }: {
-  value: string;
+  value?: string;
   onChange: (dataUrl: string) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -429,14 +450,10 @@ function ImageUploader({
 // EMPTY FORM
 // ═══════════════════════════════════════════════════════════════
 
-const EMPTY_FORM: Omit<ClothingProduct, "id" | "createdDate"> = {
+const EMPTY_FORM: Omit<Product, "id" | "createdDate"> = {
   name: "",
-  category: "T-Shirt",
-  gender: "Men",
+  category: "",
   brand: "",
-  fabric: "Cotton",
-  color: "",
-  sizes: [],
   purchasePrice: 0,
   sellingPrice: 0,
   gstPercent: 5,
@@ -444,6 +461,19 @@ const EMPTY_FORM: Omit<ClothingProduct, "id" | "createdDate"> = {
   description: "",
   sku: "",
   image: "",
+  
+  // Garment defaults
+  gender: "Men",
+  fabric: "Cotton",
+  color: "",
+  sizes: [],
+
+  // Grocery defaults
+  unit: "pcs",
+  expiryDate: "",
+  mfgDate: "",
+  hsnCode: "",
+  stockQuantity: 0,
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -455,21 +485,28 @@ function ProductModal({
   product,
   onSave,
   onClose,
+  storeCategory,
 }: {
   mode: "add" | "edit" | "view";
-  product: ClothingProduct | null;
-  onSave: (p: ClothingProduct) => void;
+  product: Product | null;
+  onSave: (p: Product) => void;
   onClose: () => void;
+  storeCategory: "GARMENTS" | "GROCERY";
 }) {
   const isView = mode === "view";
+  const isGrocery = storeCategory === "GROCERY";
 
-  const [form, setForm] = useState<Omit<ClothingProduct, "id" | "createdDate">>(
+  const [form, setForm] = useState<Omit<Product, "id" | "createdDate">>(
     () => {
       if (product) {
         const { id, createdDate, ...rest } = product;
         return rest;
       }
-      return { ...EMPTY_FORM, sizes: [] };
+      return { 
+        ...EMPTY_FORM, 
+        category: isGrocery ? GROCERY_CATEGORIES[0] : CLOTHING_CATEGORIES[0],
+        sizes: [] 
+      };
     }
   );
 
@@ -483,8 +520,12 @@ function ProductModal({
   function validate() {
     const e: Record<string, string> = {};
     if (!form.name.trim())        e.name = "Required";
-    if (!form.color.trim())       e.color = "Required";
-    if (form.sizes.length === 0)  e.sizes = "Select at least one size";
+    if (!isGrocery) {
+      if (!form.color?.trim())     e.color = "Required";
+      if (!form.sizes || form.sizes.length === 0)  e.sizes = "Select at least one size";
+    } else {
+      if (!form.unit?.trim())      e.unit = "Required";
+    }
     if (!form.purchasePrice)      e.purchasePrice = "Required";
     if (!form.sellingPrice)       e.sellingPrice = "Required";
     setErrors(e);
@@ -497,13 +538,10 @@ function ProductModal({
     if (!validate()) return;
     setLoading(true);
     try {
-      const payload = {
+      const payload: any = {
         name: form.name,
         category: form.category,
-        gender: form.gender,
         brand: form.brand,
-        fabric: form.fabric,
-        color: form.color,
         purchase_price: form.purchasePrice,
         selling_price: form.sellingPrice,
         gst_percent: form.gstPercent,
@@ -511,8 +549,20 @@ function ProductModal({
         description: form.description,
         sku: form.sku,
         image_url: form.image,
-        sizes: form.sizes.map(s => ({ size: s.size, quantity: s.qty }))
       };
+
+      if (isGrocery) {
+        payload.unit = form.unit;
+        payload.hsn_code = form.hsnCode;
+        payload.expiry_date = form.expiryDate;
+        payload.mfg_date = form.mfgDate;
+        payload.stock_quantity = form.stockQuantity;
+      } else {
+        payload.gender = form.gender;
+        payload.fabric = form.fabric;
+        payload.color = form.color;
+        payload.sizes = form.sizes?.map(s => ({ size: s.size, quantity: s.qty }));
+      }
 
       let res;
       if (mode === "add") {
@@ -521,12 +571,12 @@ function ProductModal({
         res = await api.put(`/products/${product?.id}`, payload);
       }
       
-      const saved: ClothingProduct = {
+      const saved: Product = {
         ...product,
         ...form,
         id: res.data.id,
         createdDate: res.data.created_at?.split('T')[0] || new Date().toISOString().split('T')[0]
-      } as ClothingProduct;
+      } as Product;
 
       onSave(saved);
       onClose();
@@ -568,9 +618,16 @@ function ProductModal({
                   <span className={`px-2 py-0.5 rounded-full text-xs font-semibold border ${badge.cls}`}>
                     {badge.label}
                   </span>
-                  <span className="px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 text-xs font-semibold">
-                    {product.gender}
-                  </span>
+                  {!isGrocery && (
+                    <span className="px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 text-xs font-semibold">
+                      {product.gender}
+                    </span>
+                  )}
+                  {isGrocery && (
+                    <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold">
+                      {product.unit}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -601,7 +658,7 @@ function ProductModal({
                 { label: "Selling Price",  value: fmt(product.sellingPrice),  color: "text-blue-700"  },
                 { label: "With GST",       value: fmt(sellingWithGST(product)), color: "text-indigo-700" },
                 { label: "Margin",         value: `${marginPct(product)}%`,   color: marginPct(product) >= 0 ? "text-green-700" : "text-red-600" },
-                { label: "Total Stock",    value: `${total} pcs`,              color: total === 0 ? "text-red-600" : total <= product.minStockAlert ? "text-amber-600" : "text-green-700" },
+                { label: "Total Stock",    value: `${total} ${isGrocery ? product.unit : 'pcs'}`, color: total === 0 ? "text-red-600" : total <= product.minStockAlert ? "text-amber-600" : "text-green-700" },
                 { label: "GST Rate",       value: `${product.gstPercent}%`,   color: "text-slate-800" },
               ].map((m) => (
                 <div key={m.label} className="bg-slate-50 rounded-xl border border-slate-100 px-3 py-3 text-center">
@@ -615,12 +672,19 @@ function ProductModal({
             <div className="grid grid-cols-2 gap-4">
               {[
                 { label: "Category", value: product.category },
-                { label: "Gender",   value: product.gender   },
+                ...(isGrocery ? [
+                  { label: "Unit",   value: product.unit },
+                  { label: "HSN",    value: product.hsnCode || "—" },
+                  { label: "MFG",    value: product.mfgDate || "—" },
+                  { label: "EXP",    value: product.expiryDate || "—" },
+                ] : [
+                  { label: "Gender", value: product.gender },
+                  { label: "Fabric", value: product.fabric },
+                  { label: "Color",  value: product.color },
+                ]),
                 { label: "Brand",    value: product.brand || "—" },
-                { label: "Fabric",   value: product.fabric   },
-                { label: "Color",    value: product.color    },
                 { label: "SKU",      value: product.sku || "—" },
-                { label: "Min Alert",value: `${product.minStockAlert} pcs` },
+                { label: "Min Alert",value: `${product.minStockAlert} ${isGrocery ? product.unit : 'pcs'}` },
                 { label: "Created",  value: product.createdDate },
               ].map((d) => (
                 <div key={d.label}>
@@ -630,26 +694,28 @@ function ProductModal({
               ))}
             </div>
 
-            {/* Size breakdown */}
-            <div>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Size-wise Stock</p>
-              <div className="flex flex-wrap gap-2">
-                {product.sizes.map((s) => (
-                  <div
-                    key={s.size}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold ${
-                      s.qty === 0
-                        ? "bg-red-50 text-red-500 border-red-200"
-                        : "bg-slate-50 text-slate-700 border-slate-200"
-                    }`}
-                  >
-                    <span>{s.size}</span>
-                    <span className="text-slate-400">·</span>
-                    <span>{s.qty} pcs</span>
-                  </div>
-                ))}
+            {/* Size breakdown (Garments only) */}
+            {!isGrocery && (
+              <div>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Size-wise Stock</p>
+                <div className="flex flex-wrap gap-2">
+                  {product.sizes?.map((s) => (
+                    <div
+                      key={s.size}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold ${
+                        s.qty === 0
+                          ? "bg-red-50 text-red-500 border-red-200"
+                          : "bg-slate-50 text-slate-700 border-slate-200"
+                      }`}
+                    >
+                      <span>{s.size}</span>
+                      <span className="text-slate-400">·</span>
+                      <span>{s.qty} pcs</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {product.description && (
               <div>
@@ -684,7 +750,9 @@ function ProductModal({
               {mode === "add" ? "Add New Product" : `Edit — ${product?.name}`}
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              {mode === "add" ? "Fill in clothing details below" : "Update product information"}
+              {mode === "add" 
+                ? `Fill in ${isGrocery ? "grocery" : "clothing"} details below` 
+                : "Update product information"}
             </p>
           </div>
           <button
@@ -721,53 +789,97 @@ function ProductModal({
                     value={form.category}
                     onChange={(v) => {
                       set("category", v);
-                      set("sizes", []); // reset sizes when category changes
+                      if (!isGrocery) set("sizes", []);
                     }}
-                    options={CLOTHING_CATEGORIES}
+                    options={isGrocery ? GROCERY_CATEGORIES : CLOTHING_CATEGORIES}
                   />
 
-                  <SelectField
-                    label="Gender *"
-                    value={form.gender}
-                    onChange={(v) => {
-                      set("gender", v);
-                      set("sizes", []); // reset sizes when gender changes
-                    }}
-                    options={GENDERS}
-                  />
+                  {!isGrocery ? (
+                    <>
+                      <SelectField
+                        label="Gender *"
+                        value={form.gender || "Men"}
+                        onChange={(v) => {
+                          set("gender", v);
+                          set("sizes", []); 
+                        }}
+                        options={GENDERS}
+                      />
+                      <Field label="Brand">
+                        <input
+                          type="text"
+                          placeholder="e.g. Levis, Zara, Biba"
+                          value={form.brand}
+                          onChange={(e) => set("brand", e.target.value)}
+                          className={inputCls}
+                        />
+                      </Field>
+                      <SelectField
+                        label="Fabric *"
+                        value={form.fabric || "Cotton"}
+                        onChange={(v) => set("fabric", v)}
+                        options={FABRICS}
+                      />
+                      <Field label="Color *">
+                        <input
+                          type="text"
+                          placeholder="e.g. Navy Blue, Floral Pink"
+                          value={form.color}
+                          onChange={(e) => set("color", e.target.value)}
+                          className={`${inputCls} ${errors.color ? "border-red-400 bg-red-50" : ""}`}
+                        />
+                        {errors.color && <p className="text-[11px] text-red-500">{errors.color}</p>}
+                      </Field>
+                    </>
+                  ) : (
+                    <>
+                      <SelectField
+                        label="Unit *"
+                        value={form.unit || "pcs"}
+                        onChange={(v) => set("unit", v)}
+                        options={UNITS}
+                      />
+                      <Field label="HSN Code">
+                        <input
+                          type="text"
+                          placeholder="e.g. 1905"
+                          value={form.hsnCode}
+                          onChange={(e) => set("hsnCode", e.target.value)}
+                          className={inputCls}
+                        />
+                      </Field>
+                      <Field label="MFG Date">
+                        <input
+                          type="date"
+                          value={form.mfgDate}
+                          onChange={(e) => set("mfgDate", e.target.value)}
+                          className={inputCls}
+                        />
+                      </Field>
+                      <Field label="Expiry Date">
+                        <input
+                          type="date"
+                          value={form.expiryDate}
+                          onChange={(e) => set("expiryDate", e.target.value)}
+                          className={inputCls}
+                        />
+                      </Field>
+                      <Field label="Brand">
+                        <input
+                          type="text"
+                          placeholder="e.g. Nestle, Amul"
+                          value={form.brand}
+                          onChange={(e) => set("brand", e.target.value)}
+                          className={inputCls}
+                        />
+                      </Field>
+                    </>
+                  )}
 
-                  <Field label="Brand">
+                  <Field label="SKU / Barcode">
                     <input
                       type="text"
-                      placeholder="e.g. Levis, Zara, Biba"
-                      value={form.brand}
-                      onChange={(e) => set("brand", e.target.value)}
-                      className={inputCls}
-                    />
-                  </Field>
-
-                  <SelectField
-                    label="Fabric *"
-                    value={form.fabric}
-                    onChange={(v) => set("fabric", v)}
-                    options={FABRICS}
-                  />
-
-                  <Field label="Color *">
-                    <input
-                      type="text"
-                      placeholder="e.g. Navy Blue, Floral Pink"
-                      value={form.color}
-                      onChange={(e) => set("color", e.target.value)}
-                      className={`${inputCls} ${errors.color ? "border-red-400 bg-red-50" : ""}`}
-                    />
-                    {errors.color && <p className="text-[11px] text-red-500">{errors.color}</p>}
-                  </Field>
-
-                  <Field label="SKU / Article No.">
-                    <input
-                      type="text"
-                      placeholder="e.g. LV-JNS-032"
+                      placeholder={isGrocery ? "e.g. 8901234567890" : "e.g. LV-JNS-032"}
                       value={form.sku}
                       onChange={(e) => set("sku", e.target.value)}
                       className={inputCls}
@@ -776,26 +888,47 @@ function ProductModal({
                 </div>
               </div>
 
-              {/* Size & Stock */}
+              {/* Size & Stock (Garments) or Simple Stock (Grocery) */}
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                    Sizes & Stock *
+                    {isGrocery ? "Stock Quantity *" : "Sizes & Stock *"}
                   </p>
                   {totalQty > 0 && (
                     <span className="text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
-                      Total: {totalQty} pcs
+                      Total: {totalQty} {isGrocery ? (form.unit || "pcs") : "pcs"}
                     </span>
                   )}
                 </div>
-                <SizeStockEditor
-                  sizes={form.sizes}
-                  category={form.category}
-                  gender={form.gender}
-                  onChange={(s) => { set("sizes", s); setErrors((e) => { const n = {...e}; delete n.sizes; return n; }); }}
-                />
-                {errors.sizes && (
-                  <p className="text-[11px] text-red-500 mt-1">{errors.sizes}</p>
+                
+                {isGrocery ? (
+                  <Field label="Quantity">
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder="0"
+                        value={form.stockQuantity || ""}
+                        onChange={(e) => set("stockQuantity", Number(e.target.value))}
+                        className={inputCls}
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                        {form.unit || "pcs"}
+                      </span>
+                    </div>
+                  </Field>
+                ) : (
+                  <>
+                    <SizeStockEditor
+                      sizes={form.sizes || []}
+                      category={form.category}
+                      gender={form.gender || "Men"}
+                      onChange={(s) => { set("sizes", s); setErrors((e) => { const n = {...e}; delete n.sizes; return n; }); }}
+                    />
+                    {errors.sizes && (
+                      <p className="text-[11px] text-red-500 mt-1">{errors.sizes}</p>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -951,13 +1084,20 @@ function ProductModal({
 // ═══════════════════════════════════════════════════════════════
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<ClothingProduct[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [store, setStore]       = useState<any>(null);
   const [loading, setLoading]   = useState(true);
 
   useEffect(() => {
-    async function fetchProducts() {
+    async function fetchData() {
       try {
         setLoading(true);
+        const storeId = localStorage.getItem('activeStoreId');
+        if (storeId) {
+          const storeRes = await api.get(`/stores/${storeId}`);
+          setStore(storeRes.data);
+        }
+
         const res = await api.get('/products');
         const mapped = res.data.map((p: any) => ({
           id: p.id,
@@ -967,6 +1107,11 @@ export default function ProductsPage() {
           brand: p.brand,
           fabric: p.fabric,
           color: p.color,
+          unit: p.unit,
+          expiryDate: p.expiry_date,
+          mfgDate: p.mfg_date,
+          hsnCode: p.hsn_code,
+          stockQuantity: p.stock_quantity,
           purchasePrice: parseFloat(p.purchase_price),
           sellingPrice: parseFloat(p.selling_price),
           gstPercent: parseFloat(p.gst_percent),
@@ -979,12 +1124,12 @@ export default function ProductsPage() {
         }));
         setProducts(mapped);
       } catch (error) {
-        console.error("Failed to fetch products", error);
+        console.error("Failed to fetch data", error);
       } finally {
         setLoading(false);
       }
     }
-    fetchProducts();
+    fetchData();
   }, []);
   const [search, setSearch]     = useState("");
   const [catFilter, setCatFilter]   = useState("All");
@@ -994,8 +1139,10 @@ export default function ProductsPage() {
   const [sortDir, setSortDir]   = useState<"asc" | "desc">("desc");
   const [viewMode, setViewMode] = useState<ViewMode>("table");
   const [modal, setModal]       = useState<ModalMode>(null);
-  const [selected, setSelected] = useState<ClothingProduct | null>(null);
+  const [selected, setSelected] = useState<Product | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const isGrocery = store?.category === "GROCERY";
 
   // ── Derived stats ─────────────────────────────────────────────
   const inStockCount = products.filter((p) => getStockBadge(p).label === "In Stock").length;
@@ -1016,11 +1163,11 @@ export default function ProductsPage() {
         const matchSearch =
           !q ||
           p.name.toLowerCase().includes(q) ||
-          p.brand.toLowerCase().includes(q) ||
-          p.sku.toLowerCase().includes(q) ||
-          p.color.toLowerCase().includes(q);
+          p.brand?.toLowerCase().includes(q) ||
+          p.sku?.toLowerCase().includes(q) ||
+          p.color?.toLowerCase().includes(q);
         const matchCat    = catFilter === "All" || p.category === catFilter;
-        const matchGender = genderFilter === "All" || p.gender === genderFilter;
+        const matchGender = isGrocery || genderFilter === "All" || p.gender === genderFilter;
         const badge       = getStockBadge(p).label;
         const matchStock  = stockFilter === "All" || badge === stockFilter;
         return matchSearch && matchCat && matchGender && matchStock;
@@ -1043,7 +1190,7 @@ export default function ProductsPage() {
     else { setSortKey(key); setSortDir("asc"); }
   }
 
-  function handleSave(p: ClothingProduct) {
+  function handleSave(p: Product) {
     setProducts((prev) => {
       const idx = prev.findIndex((x) => x.id === p.id);
       if (idx >= 0) {
@@ -1085,9 +1232,9 @@ export default function ProductsPage() {
         {/* Page Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Clothing Products</h1>
+            <h1 className="text-xl font-bold text-slate-900">{isGrocery ? "Grocery Inventory" : "Clothing Products"}</h1>
             <p className="text-sm text-slate-500 mt-0.5">
-              {products.length} products · {fmt(totalValue)} inventory value
+              {products.length} items · {fmt(totalValue)} inventory value
             </p>
           </div>
           <button
@@ -1164,16 +1311,18 @@ export default function ProductsPage() {
             <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           </div>
 
-          <div className="relative">
-            <select
-              value={genderFilter}
-              onChange={(e) => setGenderFilter(e.target.value)}
-              className={inputCls + " w-32 appearance-none pr-8 cursor-pointer"}
-            >
-              {["All", ...GENDERS].map((g) => <option key={g}>{g}</option>)}
-            </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-          </div>
+          {!isGrocery && (
+            <div className="relative">
+              <select
+                value={genderFilter}
+                onChange={(e) => setGenderFilter(e.target.value)}
+                className={inputCls + " w-32 appearance-none pr-8 cursor-pointer"}
+              >
+                {["All", ...GENDERS].map((g) => <option key={g}>{g}</option>)}
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            </div>
+          )}
 
           <div className="relative">
             <select
@@ -1217,14 +1366,14 @@ export default function ProductsPage() {
                         Product <ArrowUpDown size={12} className={sortKey === "name" ? "text-blue-500" : ""} />
                       </button>
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Category / Gender</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Fabric / Color</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">{isGrocery ? "Category / Unit" : "Category / Gender"}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">{isGrocery ? "Brand / HSN" : "Fabric / Color"}</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">
                       <button onClick={() => toggleSort("sellingPrice")} className="flex items-center gap-1 hover:text-slate-700">
                         Pricing <ArrowUpDown size={12} className={sortKey === "sellingPrice" ? "text-blue-500" : ""} />
                       </button>
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Sizes</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">{isGrocery ? "Dates" : "Sizes"}</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">
                       <button onClick={() => toggleSort("totalStock")} className="flex items-center gap-1 hover:text-slate-700">
                         Stock <ArrowUpDown size={12} className={sortKey === "totalStock" ? "text-blue-500" : ""} />
@@ -1267,13 +1416,13 @@ export default function ProductsPage() {
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
                             <p className="text-sm text-slate-700">{p.category}</p>
-                            <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-100 font-medium">
-                              {p.gender}
+                            <span className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${isGrocery ? "bg-blue-50 text-blue-700 border border-blue-100" : "bg-purple-50 text-purple-700 border border-purple-100"}`}>
+                              {isGrocery ? p.unit : p.gender}
                             </span>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <p className="text-sm text-slate-700">{p.fabric}</p>
-                            <p className="text-xs text-slate-400">{p.color}</p>
+                            <p className="text-sm text-slate-700">{isGrocery ? p.brand : p.fabric}</p>
+                            <p className="text-xs text-slate-400">{isGrocery ? `HSN: ${p.hsnCode || 'N/A'}` : p.color}</p>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
                             <p className="font-bold text-slate-900">{fmt(p.sellingPrice)}</p>
@@ -1283,25 +1432,36 @@ export default function ProductsPage() {
                             </p>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="flex flex-wrap gap-1">
-                              {p.sizes.slice(0, 4).map((s) => (
-                                <span
-                                  key={s.size}
-                                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
-                                    s.qty === 0
-                                      ? "bg-red-50 text-red-400 border-red-200"
-                                      : "bg-slate-50 text-slate-600 border-slate-200"
-                                  }`}
-                                >
-                                  {s.size}
-                                </span>
-                              ))}
-                              {p.sizes.length > 4 && (
-                                <span className="text-[10px] text-slate-400 px-1">
-                                  +{p.sizes.length - 4}
-                                </span>
-                              )}
-                            </div>
+                            {isGrocery ? (
+                              <div className="space-y-0.5">
+                                {p.mfgDate && <p className="text-[10px] text-slate-400">MFG: {p.mfgDate}</p>}
+                                {p.expiryDate && (
+                                  <p className={`text-[10px] font-bold ${new Date(p.expiryDate) < new Date() ? 'text-red-500' : 'text-amber-600'}`}>
+                                    EXP: {p.expiryDate}
+                                  </p>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="flex flex-wrap gap-1">
+                                {p.sizes?.slice(0, 4).map((s) => (
+                                  <span
+                                    key={s.size}
+                                    className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
+                                      s.qty === 0
+                                        ? "bg-red-50 text-red-400 border-red-200"
+                                        : "bg-slate-50 text-slate-600 border-slate-200"
+                                    }`}
+                                  >
+                                    {s.size}
+                                  </span>
+                                ))}
+                                {p.sizes && p.sizes.length > 4 && (
+                                  <span className="text-[10px] text-slate-400 px-1">
+                                    +{p.sizes.length - 4}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
                             <p className={`font-bold ${badge.label === "Out of Stock" ? "text-red-500" : badge.label === "Low Stock" ? "text-amber-600" : "text-slate-900"}`}>
@@ -1392,36 +1552,49 @@ export default function ProductsPage() {
                         <span className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-semibold border ${badge.cls}`}>
                           {badge.label}
                         </span>
-                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
-                          {p.gender}
-                        </span>
+                        {!isGrocery && (
+                          <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
+                            {p.gender}
+                          </span>
+                        )}
                       </div>
                       <div className="p-4 space-y-3">
                         <div>
                           <p className="font-bold text-slate-900 leading-tight line-clamp-2">{p.name}</p>
                           <div className="flex items-center gap-2 mt-1">
                             <span className="text-xs text-slate-400">{p.category}</span>
-                            <span className="text-slate-200">·</span>
-                            <span className="text-xs text-slate-500">{p.fabric}</span>
+                            {!isGrocery && (
+                              <>
+                                <span className="text-slate-200">·</span>
+                                <span className="text-xs text-slate-500">{p.fabric}</span>
+                              </>
+                            )}
                           </div>
-                          <p className="text-xs text-slate-400 mt-0.5">{p.color}</p>
+                          {!isGrocery && <p className="text-xs text-slate-400 mt-0.5">{p.color}</p>}
+                          {isGrocery && p.expiryDate && (
+                            <p className={`text-[10px] font-bold mt-1 ${new Date(p.expiryDate) < new Date() ? 'text-red-500' : 'text-amber-600'}`}>
+                              EXP: {p.expiryDate}
+                            </p>
+                          )}
                         </div>
 
-                        {/* Size chips */}
-                        <div className="flex flex-wrap gap-1">
-                          {p.sizes.map((s) => (
-                            <span
-                              key={s.size}
-                              className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
-                                s.qty === 0
-                                  ? "bg-red-50 text-red-400 border-red-200"
-                                  : "bg-slate-50 text-slate-600 border-slate-200"
-                              }`}
-                            >
-                              {s.size}
-                            </span>
-                          ))}
-                        </div>
+                        {/* Size chips (Garments) */}
+                        {!isGrocery && p.sizes && (
+                          <div className="flex flex-wrap gap-1">
+                            {p.sizes.map((s) => (
+                              <span
+                                key={s.size}
+                                className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
+                                  s.qty === 0
+                                    ? "bg-red-50 text-red-400 border-red-200"
+                                    : "bg-slate-50 text-slate-600 border-slate-200"
+                                }`}
+                              >
+                                {s.size}
+                              </span>
+                            ))}
+                          </div>
+                        )}
 
                         <div className="grid grid-cols-2 gap-2">
                           <div className="bg-slate-50 rounded-lg p-2 text-center">
@@ -1431,7 +1604,7 @@ export default function ProductsPage() {
                           <div className="bg-slate-50 rounded-lg p-2 text-center">
                             <p className="text-xs text-slate-400">Stock</p>
                             <p className={`text-sm font-bold ${badge.label === "Out of Stock" ? "text-red-500" : badge.label === "Low Stock" ? "text-amber-600" : "text-slate-900"}`}>
-                              {tot} pcs
+                              {tot} {isGrocery ? p.unit : "pcs"}
                             </p>
                           </div>
                         </div>
@@ -1483,6 +1656,7 @@ export default function ProductsPage() {
           product={selected}
           onSave={handleSave}
           onClose={() => { setModal(null); setSelected(null); }}
+          storeCategory={store?.category || "GARMENTS"}
         />
       )}
 
