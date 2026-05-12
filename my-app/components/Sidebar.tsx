@@ -952,15 +952,17 @@ export default function Sidebar() {
   const [showCreateStore, setShowCreateStore] = useState(false);
   const [showSwitcher, setShowSwitcher]       = useState(false);
   const [editShop, setEditShop]               = useState<Shop | null>(null);
-  const [user]                                = useState<StoredUser | null>(() => {
-    if (typeof window === "undefined") return null;
+  const [user, setUser]                       = useState<StoredUser | null>(null);
+
+  useEffect(() => {
+    // Load user only on client side to avoid hydration mismatch
     try {
       const raw = localStorage.getItem("user");
-      return raw ? JSON.parse(raw) as StoredUser : null;
-    } catch {
-      return null;
+      if (raw) setUser(JSON.parse(raw));
+    } catch (err) {
+      console.error("Failed to parse user from localStorage", err);
     }
-  });
+  }, []);
 
   // Map backend store to frontend Shop type
   const mapStore = (s: BackendStore): Shop => ({
@@ -982,25 +984,33 @@ export default function Sidebar() {
   });
 
   useEffect(() => {
-    const fetchStores = async () => {
+    const fetchInitialData = async () => {
       try {
+        // Fetch profile first to get last_active_store_id
+        const profileRes = await api.get('/users/profile');
+        const dbLastActiveId = profileRes.data.last_active_store_id?.toString();
+
         const response = await api.get('/stores');
         const mappedStores = (response.data as BackendStore[]).map(mapStore);
         setShops(mappedStores);
         
-        const savedId = localStorage.getItem('activeStoreId');
+        const savedId = localStorage.getItem('activeStoreId') || dbLastActiveId;
+        
         if (savedId && mappedStores.some((s: Shop) => s.id === savedId)) {
           setActiveShopId(savedId);
+          localStorage.setItem('activeStoreId', savedId);
         } else if (mappedStores.length > 0) {
           const firstId = mappedStores[0].id;
           setActiveShopId(firstId);
           localStorage.setItem('activeStoreId', firstId);
+          // Sync default store to DB if not already there
+          await api.patch('/users/active-store', { storeId: Number(firstId) });
         }
       } catch (err) {
-        console.error('Failed to fetch stores:', err);
+        console.error('Failed to fetch stores or profile:', err);
       }
     };
-    fetchStores();
+    fetchInitialData();
   }, []);
 
   const activeShop = shops.find((s) => s.id === activeShopId) ?? null;
@@ -1012,11 +1022,19 @@ export default function Sidebar() {
     router.push("/");
   }
 
-  function switchStore(id: string) {
-    setActiveShopId(id);
-    localStorage.setItem('activeStoreId', id);
-    // Optional: Refresh page or trigger a global state update to reload data for new store
-    window.location.reload(); 
+  async function switchStore(id: string) {
+    try {
+      setActiveShopId(id);
+      localStorage.setItem('activeStoreId', id);
+      // Persist to database
+      await api.patch('/users/active-store', { storeId: Number(id) });
+      // Optional: Refresh page or trigger a global state update to reload data for new store
+      window.location.reload(); 
+    } catch (err) {
+      console.error('Failed to sync active store to DB:', err);
+      // Still reload to update UI state from localStorage
+      window.location.reload();
+    }
   }
 
   async function handleCreateStore(shopData: Shop) {

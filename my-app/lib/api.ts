@@ -16,7 +16,12 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
     headers,
   });
 
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch (err) {
+    data = { message: 'Unexpected server response.' };
+  }
 
   if (!response.ok) {
     if (response.status === 401) {
@@ -35,5 +40,6 @@ export const api = {
   get: (endpoint: string) => apiFetch(endpoint, { method: 'GET' }),
   post: (endpoint: string, body: any) => apiFetch(endpoint, { method: 'POST', body: JSON.stringify(body) }),
   put: (endpoint: string, body: any) => apiFetch(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
+  patch: (endpoint: string, body: any) => apiFetch(endpoint, { method: 'PATCH', body: JSON.stringify(body) }),
   delete: (endpoint: string) => apiFetch(endpoint, { method: 'DELETE' }),
 };
