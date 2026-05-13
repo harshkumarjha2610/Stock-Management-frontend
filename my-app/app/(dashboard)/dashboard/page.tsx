@@ -20,7 +20,7 @@ const C = {
   greenLight: "#86efac",
   purple:     "#7c3aed",
   amber:      "#d97706",
-  red:        "#dc2626",
+  red1:        "#dc2626",
   teal:       "#0891b2",
   slate:      "#94a3b8",
   grid:       "#f1f5f9",
