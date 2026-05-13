@@ -957,8 +957,16 @@ export default function Sidebar() {
   useEffect(() => {
     // Load user only on client side to avoid hydration mismatch
     try {
-      const raw = localStorage.getItem("user");
-      if (raw) setUser(JSON.parse(raw));
+      const u = localStorage.getItem("user");
+      if (u) {
+        const parsed = JSON.parse(u);
+        setUser(parsed);
+        
+        // Staff redirection logic
+        if (parsed.role === "STAFF" && window.location.pathname !== "/attendance") {
+          window.location.href = "/attendance";
+        }
+      }
     } catch (err) {
       console.error("Failed to parse user from localStorage", err);
     }

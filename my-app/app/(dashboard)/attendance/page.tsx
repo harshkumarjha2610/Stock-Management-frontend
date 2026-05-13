@@ -43,9 +43,9 @@ export default function AttendancePage() {
   const fetchAttendance = async (userId: number) => {
     try {
       setLoading(true);
-      // We need the staff ID linked to this user
-      const staffRes = await api.get('/staff');
-      const staffMember = staffRes.data.find((s: any) => s.user_id === userId);
+      // Get own staff profile
+      const staffRes = await api.get('/staff/me');
+      const staffMember = staffRes.data;
       
       if (staffMember) {
         const res = await api.get(`/staff/${staffMember.id}/attendance`);

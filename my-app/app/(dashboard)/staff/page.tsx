@@ -142,6 +142,14 @@ export default function StaffManagementPage() {
     password: ""
   });
 
+  const [showMarkModal, setShowMarkModal] = useState(false);
+  const [markForm, setMarkForm] = useState({
+    staffId: "",
+    dates: [TODAY],
+    status: "PRESENT" as "PRESENT" | "ABSENT" | "HALF_DAY"
+  });
+  const [dateInput, setDateInput] = useState(TODAY);
+
   // ── Attendance State ─────────────────────────────────────────
   const [attendance, setAttendance]   = useState<Attendance[]>([]);
   const [attDate, setAttDate]         = useState(TODAY);
@@ -506,6 +514,42 @@ export default function StaffManagementPage() {
     }
   }
 
+  async function bulkMarkAttendance() {
+    if (!markForm.staffId || markForm.dates.length === 0) return;
+    setLoading(true);
+    try {
+      // Loop through dates and mark attendance
+      for (const date of markForm.dates) {
+        await api.post("/attendance/mark", {
+          staff_id: markForm.staffId,
+          date: date,
+          status: markForm.status
+        });
+      }
+      
+      // Refresh attendance list
+      const res = await api.get("/attendance/all");
+      setAttendance(res.data.map((a: any) => ({
+        id: a.id,
+        staffId: a.staff_id,
+        staffName: a.staff?.name || "Unknown",
+        date: a.date,
+        checkIn: a.check_in ? new Date(a.check_in).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "-",
+        checkOut: a.check_out ? new Date(a.check_out).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "-",
+        workingHours: a.working_hours || 0,
+        present: a.status === "PRESENT",
+        status: a.status
+      })));
+
+      setShowMarkModal(false);
+      setMarkForm({ staffId: "", dates: [TODAY], status: "PRESENT" });
+    } catch (error: any) {
+      alert(error.message || "Failed to mark attendance");
+    } finally {
+      setLoading(false);
+    }
+  }
+
 
   // ═══════════════════════════════════════════════════════════════
   // RENDER
@@ -711,6 +755,13 @@ export default function StaffManagementPage() {
               </select>
               <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
             </div>
+
+            <div className="flex-1" />
+
+            <button onClick={() => setShowMarkModal(true)}
+              className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm shadow-red-200 whitespace-nowrap">
+              <Plus size={16} /> Mark Attendance
+            </button>
           </div>
 
           {/* ── Daily Report ── */}
@@ -1326,6 +1377,90 @@ export default function StaffManagementPage() {
               Cancel
             </button>
           </div>
+        </Modal>
+      )}
+
+      {/* ── Bulk Attendance Modal ── */}
+      {showMarkModal && (
+        <Modal title="Mark Attendance" sub="Bulk mark attendance for a staff member" onClose={() => setShowMarkModal(false)} maxW="max-w-lg">
+          <div className="p-6 space-y-6">
+            <Field label="Choose Staff *">
+              <div className="relative">
+                <select 
+                  value={markForm.staffId} 
+                  onChange={(e) => setMarkForm(p => ({ ...p, staffId: e.target.value }))}
+                  className={inputCls}
+                >
+                  <option value="">Select Staff</option>
+                  {staffList.map(s => (
+                    <option key={s.id} value={s.id}>{s.name} ({s.id})</option>
+                  ))}
+                </select>
+              </div>
+            </Field>
+
+            <Field label="Selected Dates *">
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <input 
+                    type="date" 
+                    value={dateInput} 
+                    onChange={(e) => setDateInput(e.target.value)}
+                    className={inputCls} 
+                  />
+                  <button 
+                    onClick={() => {
+                      if (!markForm.dates.includes(dateInput)) {
+                        setMarkForm(p => ({ ...p, dates: [...p.dates, dateInput] }));
+                      }
+                    }}
+                    className="px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold transition-colors"
+                  >
+                    Add
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {markForm.dates.map(date => (
+                    <div key={date} className="flex items-center gap-1.5 px-2.5 py-1 bg-red-50 text-red-600 border border-red-100 rounded-lg text-xs font-medium">
+                      {date}
+                      <button onClick={() => setMarkForm(p => ({ ...p, dates: p.dates.filter(d => d !== date) }))}>
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ))}
+                  {markForm.dates.length === 0 && (
+                    <p className="text-xs text-slate-400 italic">No dates selected</p>
+                  )}
+                </div>
+              </div>
+            </Field>
+
+            <Field label="Attendance Status *">
+              <div className="flex gap-2 p-1 bg-slate-100 rounded-xl">
+                {(["PRESENT", "ABSENT", "HALF_DAY"] as const).map((st) => (
+                  <button
+                    key={st}
+                    onClick={() => setMarkForm(p => ({ ...p, status: st }))}
+                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
+                      markForm.status === st
+                        ? st === "PRESENT" ? "bg-green-600 text-white shadow-sm" : 
+                          st === "ABSENT" ? "bg-red-600 text-white shadow-sm" : 
+                          "bg-amber-500 text-white shadow-sm"
+                        : "text-slate-500 hover:bg-slate-200"
+                    }`}
+                  >
+                    {st}
+                  </button>
+                ))}
+              </div>
+            </Field>
+          </div>
+          <ModalFooter 
+            onCancel={() => setShowMarkModal(false)} 
+            onConfirm={bulkMarkAttendance}
+            confirmLabel="Mark Attendance"
+            disabled={!markForm.staffId || markForm.dates.length === 0}
+          />
         </Modal>
       )}
 
