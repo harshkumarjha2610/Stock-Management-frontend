@@ -20,6 +20,10 @@ type PaymentMethod = "cash" | "upi" | "card";
 type OrderItem = {
   productId:   string;
   name:        string;
+  category?:   string;
+  brand?:      string;
+  sku?:        string;
+  variant?:    string;
   qty:         number;
   rate:        number;
   gstPercent:  number;
@@ -52,7 +56,7 @@ type Order = {
 
 const ORDER_STATUSES: { key: OrderStatus; label: string; color: string; bg: string; icon: React.ElementType }[] = [
   { key:"pending",   label:"Pending",   color:"text-amber-700",  bg:"bg-amber-50",  icon:Clock        },
-  { key:"confirmed", label:"Confirmed", color:"text-blue-700",   bg:"bg-blue-50",   icon:RefreshCw    },
+  { key:"confirmed", label:"Confirmed", color:"text-red-700",   bg:"bg-red-50",   icon:RefreshCw    },
   { key:"delivered", label:"Delivered", color:"text-green-700",  bg:"bg-green-50",  icon:CheckCircle  },
   { key:"cancelled", label:"Cancelled", color:"text-red-600",    bg:"bg-red-50",    icon:XCircle      },
 ];
@@ -64,7 +68,7 @@ const PAYMENT_STATUSES: { key: PaymentStatus; label: string; color: string; bg: 
 ];
 
 const inputCls =
-  "h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 transition-colors";
+  "h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/20 transition-colors";
 
 function fmt(n: number) {
   return "₹" + n.toLocaleString("en-IN");
@@ -96,7 +100,7 @@ function OrderDetailModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col">
+      <div className="w-[80%] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col">
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
@@ -114,8 +118,10 @@ function OrderDetailModal({
             <p className="text-xs text-slate-400 mt-0.5 font-mono">{order.id} · {order.createdAt}</p>
           </div>
           <button onClick={onClose}
-            className="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 flex items-center justify-center transition-colors">
-            <X size={16} />
+            className="w-10 h-10 rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-600 flex items-center justify-center transition-all bg-slate-50"
+            title="Close"
+          >
+            <X size={20} />
           </button>
         </div>
 
@@ -164,14 +170,22 @@ function OrderDetailModal({
                     return (
                       <tr key={i} className="border-b border-slate-50 last:border-0">
                         <td className="px-4 py-3">
-                          <p className="font-semibold text-slate-800">{item.name}</p>
-                          <p className="text-xs text-slate-400 font-mono">{item.productId}</p>
+                          <div className="flex flex-col">
+                            <p className="font-bold text-slate-900">{item.name}</p>
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1">
+                              {item.category && <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{item.category}</span>}
+                              {item.brand && <span className="text-[10px] font-bold uppercase tracking-wider text-red-500">· {item.brand}</span>}
+                              {item.sku && <span className="text-[10px] font-mono text-slate-400">· {item.sku}</span>}
+                              {item.variant && <span className="text-[10px] font-semibold text-amber-600">· {item.variant}</span>}
+                            </div>
+                            <p className="text-[10px] text-slate-300 font-mono mt-1">ID: {item.productId}</p>
+                          </div>
                         </td>
-                        <td className="px-4 py-3 text-slate-600 tabular-nums">{item.qty}</td>
+                        <td className="px-4 py-3 text-slate-700 font-semibold tabular-nums text-base">{item.qty}</td>
                         <td className="px-4 py-3 text-slate-700 tabular-nums">{fmt(item.rate)}</td>
-                        <td className="px-4 py-3 text-amber-600 tabular-nums text-xs">{item.gstPercent}%</td>
-                        <td className="px-4 py-3 text-green-600 tabular-nums">{disc > 0 ? fmt(disc) : "—"}</td>
-                        <td className="px-4 py-3 font-bold text-slate-900 tabular-nums">{fmt(total)}</td>
+                        <td className="px-4 py-3 text-amber-600 tabular-nums text-xs font-bold">{item.gstPercent}%</td>
+                        <td className="px-4 py-3 text-green-600 tabular-nums font-medium">{disc > 0 ? fmt(disc) : "—"}</td>
+                        <td className="px-4 py-3 font-bold text-slate-900 tabular-nums text-base">{fmt(total)}</td>
                       </tr>
                     );
                   })}
@@ -194,7 +208,7 @@ function OrderDetailModal({
             ))}
             <div className="border-t border-slate-200 pt-2 flex items-center justify-between">
               <p className="text-sm font-bold text-slate-900">Grand Total</p>
-              <p className="text-lg font-bold text-blue-700 tabular-nums">{fmt(order.grandTotal)}</p>
+              <p className="text-lg font-bold text-red-700 tabular-nums">{fmt(order.grandTotal)}</p>
             </div>
           </div>
 
@@ -256,6 +270,10 @@ export default function OrdersPage() {
           items: b.items?.map((i: any) => ({
             productId: i.product_id,
             name: i.product?.name || "Unknown",
+            category: i.product?.category,
+            brand: i.product?.brand,
+            sku: i.product?.sku,
+            variant: i.size || i.product?.color || i.product?.hsn_code,
             qty: i.quantity,
             rate: parseFloat(i.unit_price),
             gstPercent: parseFloat(i.gst_percent || 0),
@@ -367,7 +385,7 @@ export default function OrdersPage() {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-red-600" />
           <p className="text-sm font-medium text-slate-500">Loading orders...</p>
         </div>
       </div>
@@ -424,7 +442,7 @@ export default function OrdersPage() {
             { label:"Total Orders",  value: stats.total,        sub:"All time",    icon:ShoppingCart, bg:"bg-slate-100", ic:"text-slate-600" },
             { label:"Pending",       value: stats.pending,      sub:"Need action", icon:Clock,        bg:"bg-amber-50",  ic:"text-amber-600", highlight: stats.pending > 0 },
             { label:"Delivered",     value: stats.delivered,    sub:"Completed",   icon:CheckCircle,  bg:"bg-green-50",  ic:"text-green-600" },
-            { label:"Total Revenue", value:`₹${(stats.revenue/1000).toFixed(1)}K`, sub:"Excl. cancelled", icon:IndianRupee, bg:"bg-blue-50", ic:"text-blue-600" },
+            { label:"Total Revenue", value:`₹${(stats.revenue/1000).toFixed(1)}K`, sub:"Excl. cancelled", icon:IndianRupee, bg:"bg-red-50", ic:"text-red-600" },
           ].map((k) => (
             <div key={k.label} className={`rounded-xl border p-5 ${k.highlight ? "bg-amber-50 border-amber-200" : "bg-white border-slate-200"}`}>
               <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${k.bg} mb-3`}>
@@ -507,7 +525,7 @@ export default function OrdersPage() {
                   onClick={() => setStatusF(s)}
                   className={`flex items-center gap-1.5 h-7 px-3 rounded-full text-xs font-semibold border transition-all ${
                     statusF === s
-                      ? cfg ? `${cfg.bg} ${cfg.color} border-current/20` : "bg-blue-600 text-white border-blue-600"
+                      ? cfg ? `${cfg.bg} ${cfg.color} border-current/20` : "bg-red-600 text-white border-red-600"
                       : "border-slate-200 text-slate-500 hover:border-slate-300"
                   }`}>
                   {cfg && <cfg.icon size={11} />}
@@ -539,7 +557,7 @@ export default function OrdersPage() {
                       onClick={() => k && toggleSort(k as typeof sortKey)}
                       className={`px-5 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap ${k ? "cursor-pointer hover:text-slate-600 select-none" : ""}`}>
                       {label}
-                      {k && <ArrowUpDown size={11} className={`inline ml-1 ${sortKey === k ? "text-blue-500" : "text-slate-300"}`} />}
+                      {k && <ArrowUpDown size={11} className={`inline ml-1 ${sortKey === k ? "text-red-500" : "text-slate-300"}`} />}
                     </th>
                   ))}
                 </tr>
@@ -608,7 +626,7 @@ export default function OrdersPage() {
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => setViewing(order)}
-                            className="w-8 h-8 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 flex items-center justify-center transition-colors"
+                            className="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 flex items-center justify-center transition-colors"
                             title="View details"
                           >
                             <Eye size={14} />
@@ -634,7 +652,7 @@ export default function OrdersPage() {
                     <td colSpan={3} className="px-5 py-3 text-xs font-bold text-slate-600">
                       {filtered.length} orders shown
                     </td>
-                    <td className="px-5 py-3 font-bold text-blue-700 tabular-nums">
+                    <td className="px-5 py-3 font-bold text-red-700 tabular-nums">
                       {fmt(filtered.reduce((t, o) => t + o.grandTotal, 0))}
                     </td>
                     <td colSpan={4} />
@@ -650,7 +668,7 @@ export default function OrdersPage() {
                 <p className="text-xs text-slate-400">Try adjusting your filters</p>
                 {hasFilters && (
                   <button onClick={clearFilters}
-                    className="mt-1 text-xs text-blue-600 font-semibold hover:underline">
+                    className="mt-1 text-xs text-red-600 font-semibold hover:underline">
                     Clear all filters
                   </button>
                 )}

@@ -14,8 +14,8 @@ import { api } from "@/lib/api";
 
 // ─── Palette ────────────────────────────────────────────────────────────────────
 const C = {
-  blue:       "#2563eb",
-  blueLight:  "#93c5fd",
+  red:        "#dc2626",
+  redLight:   "#fecaca",
   green:      "#16a34a",
   greenLight: "#86efac",
   purple:     "#7c3aed",
@@ -155,7 +155,7 @@ export default function DashboardPage() {
   }, []);
 
   const stats = [
-    { label: "Today's Revenue",  value: `₹${summary.today_sales.toLocaleString()}`,  sub: "Updated live", icon: BadgeIndianRupee, color: "text-blue-600",   bg: "bg-blue-50"   },
+    { label: "Today's Revenue",  value: `₹${summary.today_sales.toLocaleString()}`,  sub: "Updated live", icon: BadgeIndianRupee, color: "text-red-600",   bg: "bg-red-50"   },
     { label: "Today's Profit",   value: `₹${summary.today_profit.toLocaleString()}`,  sub: "Gross margin",         icon: TrendingUp,       color: "text-green-600",  bg: "bg-green-50"  },
     { label: "Stock Items",      value: summary.total_products.toString(),     sub: `${summary.low_stock_count} low / OOS`,  icon: Package,          color: "text-purple-600", bg: "bg-purple-50" },
     { label: "Staff Present",    value: `${summary.staff_present}/${summary.staff_total}`,     sub: "Active staff",     icon: Users,            color: "text-amber-600",  bg: "bg-amber-50"  },
@@ -187,7 +187,7 @@ export default function DashboardPage() {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-red-600" />
           <p className="text-sm font-medium text-slate-500">Loading your dashboard...</p>
         </div>
       </div>
@@ -228,7 +228,7 @@ export default function DashboardPage() {
             <select
               value={salesView}
               onChange={(e) => setSalesView(e.target.value as "daily" | "monthly")}
-              className="h-8 pl-3 pr-8 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600 outline-none focus:border-blue-400 appearance-none cursor-pointer"
+              className="h-8 pl-3 pr-8 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600 outline-none focus:border-red-400 appearance-none cursor-pointer"
             >
               <option value="daily">Daily</option>
               <option value="monthly">Monthly</option>
@@ -241,8 +241,8 @@ export default function DashboardPage() {
           <AreaChart data={salesChartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="gradSales" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%"  stopColor={C.blue}  stopOpacity={0.15} />
-                <stop offset="95%" stopColor={C.blue}  stopOpacity={0}    />
+                <stop offset="5%"  stopColor={C.red}  stopOpacity={0.15} />
+                <stop offset="95%" stopColor={C.red}  stopOpacity={0}    />
               </linearGradient>
               <linearGradient id="gradProfit" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%"  stopColor={C.green} stopOpacity={0.12} />
@@ -267,11 +267,11 @@ export default function DashboardPage() {
               type="monotone"
               dataKey="sales"
               name="Sales"
-              stroke={C.blue}
+              stroke={C.red}
               strokeWidth={2.5}
               fill="url(#gradSales)"
               dot={false}
-              activeDot={{ r: 5, fill: C.blue }}
+              activeDot={{ r: 5, fill: C.red }}
             />
             <Area
               type="monotone"
@@ -315,7 +315,7 @@ export default function DashboardPage() {
               <Bar
                 dataKey="sales"
                 name="Sales"
-                fill={C.blueLight}
+                fill={C.redLight}
                 radius={[5, 5, 0, 0]}
               />
             </BarChart>

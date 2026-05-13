@@ -136,10 +136,10 @@ function getSizesForCategory(category: string, gender: string): string[] {
 // ═══════════════════════════════════════════════════════════════
 
 const inputCls =
-  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-colors";
+  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
 
 const textareaCls =
-  "w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-colors resize-none";
+  "w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors resize-none";
 
 const selectCls = inputCls + " appearance-none pr-8 cursor-pointer";
 
@@ -310,8 +310,8 @@ function SizeStockEditor({
               onClick={() => toggleSize(size)}
               className={`h-8 min-w-[2.5rem] px-2.5 rounded-lg text-xs font-bold border transition-all ${
                 isActive
-                  ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                  : "bg-slate-50 text-slate-500 border-slate-200 hover:border-blue-300 hover:text-blue-600"
+                  ? "bg-red-600 text-white border-red-600 shadow-sm"
+                  : "bg-slate-50 text-slate-500 border-slate-200 hover:border-red-300 hover:text-red-600"
               }`}
             >
               {size}
@@ -416,8 +416,8 @@ function ImageUploader({
           }}
           className={`flex flex-col items-center justify-center gap-3 w-full aspect-[3/4] rounded-xl border-2 border-dashed cursor-pointer transition-all ${
             dragging
-              ? "border-blue-400 bg-blue-50"
-              : "border-slate-200 bg-slate-50 hover:border-blue-300 hover:bg-blue-50/50"
+              ? "border-red-400 bg-red-50"
+              : "border-slate-200 bg-slate-50 hover:border-red-300 hover:bg-red-50/50"
           }`}
         >
           <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
@@ -605,7 +605,7 @@ function ProductModal({
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-        <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col">
+        <div className="w-[80%] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col">
 
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
@@ -624,7 +624,7 @@ function ProductModal({
                     </span>
                   )}
                   {isGrocery && (
-                    <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold">
+                    <span className="px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 text-xs font-semibold">
                       {product.unit}
                     </span>
                   )}
@@ -633,9 +633,10 @@ function ProductModal({
             </div>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 flex items-center justify-center"
+              className="w-10 h-10 rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-600 flex items-center justify-center transition-all bg-slate-50"
+              title="Close"
             >
-              <X size={16} />
+              <X size={20} />
             </button>
           </div>
 
@@ -655,7 +656,7 @@ function ProductModal({
             <div className="grid grid-cols-3 gap-3">
               {[
                 { label: "Purchase Price", value: fmt(product.purchasePrice), color: "text-slate-800" },
-                { label: "Selling Price",  value: fmt(product.sellingPrice),  color: "text-blue-700"  },
+                { label: "Selling Price",  value: fmt(product.sellingPrice),  color: "text-red-700"  },
                 { label: "With GST",       value: fmt(sellingWithGST(product)), color: "text-indigo-700" },
                 { label: "Margin",         value: `${marginPct(product)}%`,   color: marginPct(product) >= 0 ? "text-green-700" : "text-red-600" },
                 { label: "Total Stock",    value: `${total} ${isGrocery ? product.unit : 'pcs'}`, color: total === 0 ? "text-red-600" : total <= product.minStockAlert ? "text-amber-600" : "text-green-700" },
@@ -741,7 +742,7 @@ function ProductModal({
   // ── ADD / EDIT FORM ───────────────────────────────────────────
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[94vh] flex flex-col">
+      <div className="w-[80%] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[94vh] flex flex-col">
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
@@ -757,9 +758,10 @@ function ProductModal({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 flex items-center justify-center"
+            className="w-10 h-10 rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-600 flex items-center justify-center transition-all bg-slate-50"
+            title="Close"
           >
-            <X size={16} />
+            <X size={20} />
           </button>
         </div>
 
@@ -895,7 +897,7 @@ function ProductModal({
                     {isGrocery ? "Stock Quantity *" : "Sizes & Stock *"}
                   </p>
                   {totalQty > 0 && (
-                    <span className="text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+                    <span className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
                       Total: {totalQty} {isGrocery ? (form.unit || "pcs") : "pcs"}
                     </span>
                   )}
@@ -1067,7 +1069,7 @@ function ProductModal({
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 h-10 rounded-lg bg-blue-600 hover:bg-blue-700 text-sm font-semibold text-white transition-colors shadow-sm shadow-blue-200 flex items-center justify-center gap-2"
+            className="flex-1 h-10 rounded-lg bg-red-600 hover:bg-red-700 text-sm font-semibold text-white transition-colors shadow-sm shadow-red-200 flex items-center justify-center gap-2"
           >
             <CheckCircle size={15} />
             {mode === "add" ? "Add Product" : "Save Changes"}
@@ -1218,7 +1220,7 @@ export default function ProductsPage() {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-red-600" />
           <p className="text-sm font-medium text-slate-500">Loading products...</p>
         </div>
       </div>
@@ -1239,7 +1241,7 @@ export default function ProductsPage() {
           </div>
           <button
             onClick={() => { setSelected(null); setModal("add"); }}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200"
+            className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm shadow-red-200"
           >
             <Plus size={16} /> Add Product
           </button>
@@ -1247,7 +1249,7 @@ export default function ProductsPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-          <StatCard label="Total Products"  value={products.length} sub="All categories"    icon={Package}       bg="bg-blue-50"   ic="text-blue-600"   />
+          <StatCard label="Total Products"  value={products.length} sub="All categories"    icon={Package}       bg="bg-red-50"   ic="text-red-600"   />
           <StatCard label="In Stock"        value={inStockCount}    sub="Available"          icon={CheckCircle}   bg="bg-green-50"  ic="text-green-600"  />
           <StatCard label="Low / Out"       value={`${lowCount} / ${outCount}`} sub="Need attention" icon={AlertTriangle} bg="bg-amber-50"  ic="text-amber-600"  highlight={lowCount + outCount > 0} />
           <StatCard label="Inventory Value" value={fmt(totalValue)} sub="At purchase price" icon={BarChart3}      bg="bg-purple-50" ic="text-purple-600" />
@@ -1340,13 +1342,13 @@ export default function ProductsPage() {
           <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
             <button
               onClick={() => setViewMode("table")}
-              className={`w-9 h-8 rounded-md flex items-center justify-center transition-all ${viewMode === "table" ? "bg-white text-blue-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
+              className={`w-9 h-8 rounded-md flex items-center justify-center transition-all ${viewMode === "table" ? "bg-white text-red-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
             >
               <List size={15} />
             </button>
             <button
               onClick={() => setViewMode("grid")}
-              className={`w-9 h-8 rounded-md flex items-center justify-center transition-all ${viewMode === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
+              className={`w-9 h-8 rounded-md flex items-center justify-center transition-all ${viewMode === "grid" ? "bg-white text-red-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
             >
               <Grid3X3 size={15} />
             </button>
@@ -1363,20 +1365,20 @@ export default function ProductsPage() {
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Image</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">
                       <button onClick={() => toggleSort("name")} className="flex items-center gap-1 hover:text-slate-700">
-                        Product <ArrowUpDown size={12} className={sortKey === "name" ? "text-blue-500" : ""} />
+                        Product <ArrowUpDown size={12} className={sortKey === "name" ? "text-red-500" : ""} />
                       </button>
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">{isGrocery ? "Category / Unit" : "Category / Gender"}</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">{isGrocery ? "Brand / HSN" : "Fabric / Color"}</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">
                       <button onClick={() => toggleSort("sellingPrice")} className="flex items-center gap-1 hover:text-slate-700">
-                        Pricing <ArrowUpDown size={12} className={sortKey === "sellingPrice" ? "text-blue-500" : ""} />
+                        Pricing <ArrowUpDown size={12} className={sortKey === "sellingPrice" ? "text-red-500" : ""} />
                       </button>
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">{isGrocery ? "Dates" : "Sizes"}</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">
                       <button onClick={() => toggleSort("totalStock")} className="flex items-center gap-1 hover:text-slate-700">
-                        Stock <ArrowUpDown size={12} className={sortKey === "totalStock" ? "text-blue-500" : ""} />
+                        Stock <ArrowUpDown size={12} className={sortKey === "totalStock" ? "text-red-500" : ""} />
                       </button>
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Status</th>
@@ -1392,7 +1394,7 @@ export default function ProductsPage() {
                           <p className="text-sm font-medium">No products found</p>
                           <button
                             onClick={() => { setSearch(""); setCatFilter("All"); setGenderFilter("All"); setStockFilter("All"); }}
-                            className="text-xs text-blue-600 hover:underline"
+                            className="text-xs text-red-600 hover:underline"
                           >
                             Clear filters
                           </button>
@@ -1416,7 +1418,7 @@ export default function ProductsPage() {
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
                             <p className="text-sm text-slate-700">{p.category}</p>
-                            <span className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${isGrocery ? "bg-blue-50 text-blue-700 border border-blue-100" : "bg-purple-50 text-purple-700 border border-purple-100"}`}>
+                            <span className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${isGrocery ? "bg-red-50 text-red-700 border border-red-100" : "bg-purple-50 text-purple-700 border border-purple-100"}`}>
                               {isGrocery ? p.unit : p.gender}
                             </span>
                           </td>
@@ -1478,7 +1480,7 @@ export default function ProductsPage() {
                             <div className="flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
                               <button
                                 onClick={() => { setSelected(p); setModal("view"); }}
-                                className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800"
+                                className="flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-800"
                               >
                                 <Eye size={13} /> View
                               </button>
@@ -1524,7 +1526,7 @@ export default function ProductsPage() {
                 <p className="text-sm font-medium">No products found</p>
                 <button
                   onClick={() => { setSearch(""); setCatFilter("All"); setGenderFilter("All"); setStockFilter("All"); }}
-                  className="text-xs text-blue-600 hover:underline"
+                  className="text-xs text-red-600 hover:underline"
                 >
                   Clear filters
                 </button>
@@ -1538,7 +1540,7 @@ export default function ProductsPage() {
                   return (
                     <div
                       key={p.id}
-                      className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:border-blue-200 hover:shadow-md transition-all group"
+                      className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:border-red-200 hover:shadow-md transition-all group"
                     >
                       <div className="relative w-full aspect-[3/4] bg-slate-50 border-b border-slate-100">
                         {p.image ? (
@@ -1621,7 +1623,7 @@ export default function ProductsPage() {
                         <div className="flex gap-2 pt-1 border-t border-slate-100">
                           <button
                             onClick={() => { setSelected(p); setModal("view"); }}
-                            className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg bg-slate-50 hover:bg-blue-50 text-xs font-semibold text-slate-600 hover:text-blue-700 transition-colors"
+                            className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg bg-slate-50 hover:bg-red-50 text-xs font-semibold text-slate-600 hover:text-red-700 transition-colors"
                           >
                             <Eye size={13} /> View
                           </button>

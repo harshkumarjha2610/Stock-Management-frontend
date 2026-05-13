@@ -29,6 +29,7 @@ type Staff = {
   joiningDate: string;
   salary:      number;
   status:      StaffStatus;
+  password?:   string;
 };
 
 type Attendance = {
@@ -40,6 +41,7 @@ type Attendance = {
   checkOut:     string;
   workingHours: number;
   present:      boolean;
+  status:       "PRESENT" | "ABSENT" | "HALF_DAY";
 };
 
 type SalaryRecord = {
@@ -85,7 +87,7 @@ function nowTime() {
 }
 
 const inputCls =
-  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-colors";
+  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
 
 // ═══════════════════════════════════════════════════════════════
 // SUB-COMPONENTS
@@ -134,8 +136,10 @@ export default function StaffManagementPage() {
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
   const [deleteStaffId, setDeleteStaffId]   = useState<string | null>(null);
   const [viewStaff, setViewStaff]       = useState<Staff | null>(null);
-  const [staffForm, setStaffForm]       = useState({
-    name: "", phone: "", address: "", aadharCard: "", emailId: "", photoUrl: "", joiningDate: "", salary: 0, status: "Active" as StaffStatus,
+  const [staffForm, setStaffForm] = useState<Staff>({
+    id: "", name: "", phone: "", address: "", aadharCard: "",
+    emailId: "", photoUrl: "", joiningDate: TODAY, salary: 0, status: "Active",
+    password: ""
   });
 
   // ── Attendance State ─────────────────────────────────────────
@@ -146,6 +150,7 @@ export default function StaffManagementPage() {
   const [attMonth, setAttMonth]       = useState(TODAY.slice(0, 7));
   const [checkinModal, setCheckinModal]   = useState<Staff | null>(null);
   const [checkoutModal, setCheckoutModal] = useState<Attendance | null>(null);
+  const [markModal, setMarkModal]         = useState<{ staffId: string; staffName: string; status: string } | null>(null);
   const [manualTime, setManualTime]   = useState("");
 
   // ── Salary State ─────────────────────────────────────────────
@@ -155,6 +160,19 @@ export default function StaffManagementPage() {
   const [salaryStatusFilter, setSalaryStatusFilter] = useState("All");
   const [payModal, setPayModal]         = useState<SalaryRecord | null>(null);
   const [payForm, setPayForm]           = useState({ paidDate: TODAY, paymentMethod: "Bank Transfer" as PayMethod });
+  const [successModal, setSuccessModal] = useState<{ email: string; password: string } | null>(null);
+  const [userRole, setUserRole] = useState<string>("");
+
+  useEffect(() => {
+    const u = localStorage.getItem("user");
+    if (u) {
+      const parsed = JSON.parse(u);
+      setUserRole(parsed.role);
+      if (parsed.role === "STAFF") {
+        window.location.href = "/attendance";
+      }
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -187,7 +205,8 @@ export default function StaffManagementPage() {
           checkIn: a.check_in,
           checkOut: a.check_out,
           workingHours: parseFloat(a.working_hours || 0),
-          present: a.status === 'Present'
+          present: a.status === 'PRESENT',
+          status: a.status || 'ABSENT'
         })));
 
         setSalaryList(salRes.data.map((s: any) => ({
@@ -210,6 +229,32 @@ export default function StaffManagementPage() {
     fetchData();
   }, []);
 
+  const dailyRecords = useMemo(() => {
+    return attendance.filter((a) => a.date === attDate && (attStaffFilter === "All" || a.staffId === attStaffFilter));
+  }, [attendance, attDate, attStaffFilter]);
+
+  const monthlyAttSummary = useMemo(() => {
+    const month = attMonth;
+    const filtered = attendance.filter((a) => a.date.startsWith(month));
+    
+    const summaryMap: Record<string, any> = {};
+    staffList.forEach(s => {
+      if (attStaffFilter !== "All" && s.id !== attStaffFilter) return;
+      summaryMap[s.id] = { staffId: s.id, name: s.name, present: 0, absent: 0, halfDay: 0, hours: 0 };
+    });
+
+    filtered.forEach(a => {
+      if (summaryMap[a.staffId]) {
+        if (a.status === "PRESENT") summaryMap[a.staffId].present++;
+        else if (a.status === "ABSENT") summaryMap[a.staffId].absent++;
+        else if (a.status === "HALF_DAY") summaryMap[a.staffId].halfDay++;
+        summaryMap[a.staffId].hours += a.workingHours;
+      }
+    });
+
+    return Object.values(summaryMap);
+  }, [attendance, attMonth, attStaffFilter, staffList]);
+
   // ═══════════════════════════════════════════════════════════════
   // ── STAFF LOGIC ──────────────────────────────────────────────
   // ═══════════════════════════════════════════════════════════════
@@ -225,13 +270,25 @@ export default function StaffManagementPage() {
 
   function openAddStaff() {
     setEditingStaff(null);
-    setStaffForm({ name: "", phone: "", address: "", aadharCard: "", emailId: "", photoUrl: "", joiningDate: "", salary: 0, status: "Active" });
+    setStaffForm({ id: "", name: "", phone: "", address: "", aadharCard: "", emailId: "", photoUrl: "", joiningDate: TODAY, salary: 0, status: "Active", password: "" });
     setShowStaffModal(true);
   }
 
   function openEditStaff(s: Staff) {
     setEditingStaff(s);
-    setStaffForm({ name: s.name, phone: s.phone, address: s.address, aadharCard: s.aadharCard || "", emailId: s.emailId || "", photoUrl: s.photoUrl || "", joiningDate: s.joiningDate, salary: s.salary, status: s.status });
+    setStaffForm({ 
+      id: s.id, 
+      name: s.name, 
+      phone: s.phone, 
+      address: s.address, 
+      aadharCard: s.aadharCard || "", 
+      emailId: s.emailId || "", 
+      photoUrl: s.photoUrl || "", 
+      joiningDate: s.joiningDate, 
+      salary: s.salary, 
+      status: s.status,
+      password: "" // Don't show existing password hash
+    });
     setShowStaffModal(true);
   }
 
@@ -248,7 +305,8 @@ export default function StaffManagementPage() {
         photo_url: staffForm.photoUrl,
         joining_date: staffForm.joiningDate,
         base_salary: staffForm.salary,
-        status: staffForm.status
+        status: staffForm.status,
+        password: staffForm.password
       };
 
       if (editingStaff) {
@@ -262,8 +320,16 @@ export default function StaffManagementPage() {
           joiningDate: res.data.joining_date?.split('T')[0] 
         };
         setStaffList((p) => [newStaff, ...p]);
+        
+        if (staffForm.emailId) {
+          setSuccessModal({ 
+            email: staffForm.emailId, 
+            password: staffForm.password || staffForm.phone || "Staff@123" 
+          });
+        }
+
         // Auto-create unpaid salary record for current month
-        const salRes = await api.get('/salaries'); // Refresh salaries as backend might auto-gen
+        const salRes = await api.get('/salaries');
         setSalaryList(salRes.data.map((s: any) => ({
           id: s.id,
           staffId: s.staff_id,
@@ -283,6 +349,44 @@ export default function StaffManagementPage() {
     }
   }
 
+  async function updateStatus(staffId: string, status: string) {
+    setLoading(true);
+    try {
+      const res = await api.post('/staff/attendance', {
+        staff_id: staffId,
+        date: attDate,
+        status: status
+      });
+
+      const newAtt: Attendance = {
+        id: res.data.id,
+        staffId: res.data.staff_id,
+        staffName: staffList.find(s => s.id === staffId)?.name || "Unknown",
+        date: res.data.date?.split('T')[0],
+        checkIn: res.data.check_in || "",
+        checkOut: res.data.check_out || "",
+        workingHours: parseFloat(res.data.working_hours || 0),
+        present: res.data.status === 'PRESENT',
+        status: res.data.status
+      };
+
+      setAttendance((p) => {
+        const idx = p.findIndex(a => a.staffId === staffId && a.date === attDate);
+        if (idx >= 0) {
+          const next = [...p];
+          next[idx] = newAtt;
+          return next;
+        }
+        return [...p, newAtt];
+      });
+    } catch (error: any) {
+      alert(error.message || "Failed to update status");
+    } finally {
+      setLoading(false);
+      setMarkModal(null);
+    }
+  }
+
   async function deleteStaff(id: string) {
     if (!confirm("Are you sure you want to delete this staff member?")) return;
     setLoading(true);
@@ -294,82 +398,6 @@ export default function StaffManagementPage() {
       alert(error.message || "Failed to delete staff");
     } finally {
       setLoading(false);
-    }
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // ── ATTENDANCE LOGIC ─────────────────────────────────────────
-  // ═══════════════════════════════════════════════════════════════
-
-  // Daily records for selected date
-  const dailyRecords = useMemo(() => {
-    const base = attendance.filter((a) => a.date === attDate);
-    // Ensure every active staff has a record slot
-    const activeStaff = staffList.filter((s) => s.status === "Active");
-    const existing    = base.map((a) => a.staffId);
-    const missing     = activeStaff
-      .filter((s) => !existing.includes(s.id))
-      .map((s): Attendance => ({
-        id: `ATT-TEMP-${s.id}`, staffId: s.id, staffName: s.name,
-        date: attDate, checkIn: "", checkOut: "", workingHours: 0, present: false,
-      }));
-    return [...base, ...missing].filter((a) =>
-      attStaffFilter === "All" || a.staffId === attStaffFilter
-    );
-  }, [attendance, attDate, staffList, attStaffFilter]);
-
-  // Monthly summary per staff
-  const monthlyAttSummary = useMemo(() => {
-    const recs = attendance.filter((a) => a.date.startsWith(attMonth));
-    const map: Record<string, { staffId: string; name: string; present: number; absent: number; totalHours: number }> = {};
-    staffList.forEach((s) => {
-      map[s.id] = { staffId: s.id, name: s.name, present: 0, absent: 0, totalHours: 0 };
-    });
-    recs.forEach((a) => {
-      if (!map[a.staffId]) return;
-      if (a.present) { map[a.staffId].present++; map[a.staffId].totalHours += a.workingHours; }
-      else map[a.staffId].absent++;
-    });
-    return Object.values(map).filter((r) =>
-      attStaffFilter === "All" || r.staffId === attStaffFilter
-    );
-  }, [attendance, attMonth, staffList, attStaffFilter]);
-
-  async function doCheckIn(staff: Staff, time: string) {
-    setLoading(true);
-    try {
-      const res = await api.post('/attendance', {
-        staff_id: staff.id,
-        date: attDate,
-        check_in: time,
-        status: 'Present'
-      });
-      
-      const newAtt: Attendance = {
-        id: res.data.id,
-        staffId: res.data.staff_id,
-        staffName: staff.name,
-        date: res.data.date?.split('T')[0],
-        checkIn: res.data.check_in,
-        checkOut: "",
-        workingHours: 0,
-        present: true
-      };
-
-      setAttendance((p) => {
-        const idx = p.findIndex(a => a.staffId === staff.id && a.date === attDate);
-        if (idx >= 0) {
-          const next = [...p];
-          next[idx] = newAtt;
-          return next;
-        }
-        return [...p, newAtt];
-      });
-    } catch (error: any) {
-      alert(error.message || "Failed to check in");
-    } finally {
-      setLoading(false);
-      setCheckinModal(null);
     }
   }
 
@@ -394,6 +422,46 @@ export default function StaffManagementPage() {
       setCheckoutModal(null);
     }
   }
+
+  async function doCheckIn(staff: Staff, time: string) {
+    setLoading(true);
+    try {
+      const res = await api.post('/staff/attendance', {
+        staff_id: staff.id,
+        date: attDate,
+        check_in: time,
+        status: 'PRESENT'
+      });
+      
+      const newAtt: Attendance = {
+        id: res.data.id,
+        staffId: res.data.staff_id,
+        staffName: staff.name,
+        date: res.data.date?.split('T')[0],
+        checkIn: res.data.check_in,
+        checkOut: res.data.check_out || "",
+        workingHours: parseFloat(res.data.working_hours || 0),
+        present: true,
+        status: 'PRESENT'
+      };
+
+      setAttendance((p) => {
+        const idx = p.findIndex(a => a.staffId === staff.id && a.date === attDate);
+        if (idx >= 0) {
+          const next = [...p];
+          next[idx] = newAtt;
+          return next;
+        }
+        return [...p, newAtt];
+      });
+    } catch (error: any) {
+      alert(error.message || "Failed to check in");
+    } finally {
+      setLoading(false);
+      setCheckinModal(null);
+    }
+  }
+
 
   // ═══════════════════════════════════════════════════════════════
   // ── SALARY LOGIC ─────────────────────────────────────────────
@@ -438,6 +506,7 @@ export default function StaffManagementPage() {
     }
   }
 
+
   // ═══════════════════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════════════════
@@ -446,7 +515,7 @@ export default function StaffManagementPage() {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-red-600" />
           <p className="text-sm font-medium text-slate-500">Loading staff data...</p>
         </div>
       </div>
@@ -472,7 +541,7 @@ export default function StaffManagementPage() {
             onClick={() => setMainTab(tab)}
             className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all capitalize ${
               mainTab === tab
-                ? "bg-white text-blue-600 shadow-sm"
+                ? "bg-white text-red-600 shadow-sm"
                 : "text-slate-500 hover:text-slate-700"
             }`}
           >
@@ -489,7 +558,7 @@ export default function StaffManagementPage() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-            <StatCard label="Total Staff"    value={staffList.length}                                          sub="All records"             icon={Users}            bg="bg-blue-50"   ic="text-blue-600"   />
+            <StatCard label="Total Staff"    value={staffList.length}                                          sub="All records"             icon={Users}            bg="bg-red-50"   ic="text-red-600"   />
             <StatCard label="Active Staff"   value={staffList.filter((s) => s.status === "Active").length}    sub="Currently working"       icon={UserCheck}        bg="bg-green-50"  ic="text-green-600"  />
             <StatCard label="Inactive Staff" value={staffList.filter((s) => s.status === "Inactive").length}  sub="On leave / resigned"     icon={AlertCircle}      bg="bg-amber-50"  ic="text-amber-600"  />
             <StatCard label="Monthly Payroll" value={fmt(staffList.filter((s) => s.status === "Active").reduce((t, s) => t + s.salary, 0))} sub="Active staff total" icon={BadgeIndianRupee} bg="bg-purple-50" ic="text-purple-600" />
@@ -510,7 +579,7 @@ export default function StaffManagementPage() {
               <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
             </div>
             <button onClick={openAddStaff}
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200 whitespace-nowrap">
+              className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm shadow-red-200 whitespace-nowrap">
               <Plus size={16} /> Add Staff
             </button>
           </div>
@@ -534,7 +603,7 @@ export default function StaffManagementPage() {
                       <td className="px-4 py-3.5 font-mono text-xs text-slate-500">{s.id}</td>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center text-xs font-bold shrink-0">
                             {s.name.slice(0, 2).toUpperCase()}
                           </div>
                           <span className="font-semibold text-slate-800 whitespace-nowrap">{s.name}</span>
@@ -559,7 +628,7 @@ export default function StaffManagementPage() {
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
                         <div className="flex items-center gap-3">
-                          <button onClick={() => setViewStaff(s)} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors">
+                          <button onClick={() => setViewStaff(s)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-800 transition-colors">
                             <Eye size={13} /> View
                           </button>
                           <button onClick={() => openEditStaff(s)} className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors">
@@ -603,7 +672,7 @@ export default function StaffManagementPage() {
               const absent    = staffList.filter((s) => s.status === "Active").length - present;
               return [
                 { label: "Present Today",   value: present,    icon: CheckCircle,  bg: "bg-green-50",  ic: "text-green-600"  },
-                { label: "Checked In",      value: checkedIn,  icon: LogIn,        bg: "bg-blue-50",   ic: "text-blue-600"   },
+                { label: "Checked In",      value: checkedIn,  icon: LogIn,        bg: "bg-red-50",   ic: "text-red-600"   },
                 { label: "Checked Out",     value: checkedOut, icon: LogOut,       bg: "bg-teal-50",   ic: "text-teal-600"   },
                 { label: "Absent Today",    value: absent < 0 ? 0 : absent, icon: XCircle, bg: "bg-red-50", ic: "text-red-500" },
               ];
@@ -619,7 +688,7 @@ export default function StaffManagementPage() {
               {(["daily", "monthly"] as const).map((v) => (
                 <button key={v} onClick={() => setAttView(v)}
                   className={`px-4 py-1.5 rounded-md text-xs font-semibold capitalize transition-all ${
-                    attView === v ? "bg-white text-blue-600 shadow-sm" : "text-slate-500"
+                    attView === v ? "bg-white text-red-600 shadow-sm" : "text-slate-500"
                   }`}>{v === "daily" ? "Daily Report" : "Monthly Summary"}</button>
               ))}
             </div>
@@ -627,16 +696,16 @@ export default function StaffManagementPage() {
             {/* Date / Month picker */}
             {attView === "daily" ? (
               <input type="date" value={attDate} onChange={(e) => setAttDate(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 transition-colors" />
+                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/20 transition-colors" />
             ) : (
               <input type="month" value={attMonth} onChange={(e) => setAttMonth(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 transition-colors" />
+                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/20 transition-colors" />
             )}
 
             {/* Staff filter */}
             <div className="relative">
               <select value={attStaffFilter} onChange={(e) => setAttStaffFilter(e.target.value)}
-                className="h-9 pl-3 pr-8 rounded-lg border border-slate-200 bg-white text-sm text-slate-700 outline-none focus:border-blue-400 appearance-none cursor-pointer">
+                className="h-9 pl-3 pr-8 rounded-lg border border-slate-200 bg-white text-sm text-slate-700 outline-none focus:border-red-400 appearance-none cursor-pointer">
                 <option value="All">All Staff</option>
                 {staffList.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
@@ -670,7 +739,7 @@ export default function StaffManagementPage() {
                         <td className="px-4 py-3.5 font-mono text-xs text-slate-500">{a.staffId}</td>
                         <td className="px-4 py-3.5">
                           <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
+                            <div className="w-7 h-7 rounded-full bg-red-100 text-red-700 flex items-center justify-center text-xs font-bold shrink-0">
                               {a.staffName.slice(0, 2).toUpperCase()}
                             </div>
                             <span className="font-semibold text-slate-800 whitespace-nowrap">{a.staffName}</span>
@@ -684,20 +753,30 @@ export default function StaffManagementPage() {
                         </td>
                         <td className="px-4 py-3.5">
                           {a.checkOut
-                            ? <span className="flex items-center gap-1 text-blue-600 font-semibold whitespace-nowrap"><LogOut size={13} />{a.checkOut}</span>
+                            ? <span className="flex items-center gap-1 text-red-600 font-semibold whitespace-nowrap"><LogOut size={13} />{a.checkOut}</span>
                             : <span className="text-slate-300">—</span>}
                         </td>
                         <td className="px-4 py-3.5 font-semibold text-slate-700">
                           {a.workingHours > 0 ? `${a.workingHours}h` : "—"}
                         </td>
                         <td className="px-4 py-3.5">
-                          {a.present
-                            ? <span className="flex items-center gap-1 text-xs font-semibold text-green-600"><CheckCircle size={13} /> Present</span>
-                            : <span className="flex items-center gap-1 text-xs font-semibold text-red-500"><XCircle size={13} /> Absent</span>}
+                          {a.status === "PRESENT" ? (
+                            <span className="flex items-center gap-1 text-xs font-semibold text-green-600"><CheckCircle size={13} /> Present</span>
+                          ) : a.status === "HALF_DAY" ? (
+                            <span className="flex items-center gap-1 text-xs font-semibold text-amber-600"><Clock size={13} /> Half Day</span>
+                          ) : (
+                            <span className="flex items-center gap-1 text-xs font-semibold text-red-500"><XCircle size={13} /> Absent</span>
+                          )}
                         </td>
                         <td className="px-4 py-3.5 whitespace-nowrap">
                           <div className="flex items-center gap-2">
-                            {!a.checkIn && (
+                            <button
+                              onClick={() => setMarkModal({ staffId: a.staffId, staffName: a.staffName, status: a.status })}
+                              className="flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap"
+                            >
+                              <Pencil size={12} /> Mark Status
+                            </button>
+                            {!a.checkIn && a.status === "PRESENT" && (
                               <button
                                 onClick={() => {
                                   const s = staffList.find((st) => st.id === a.staffId);
@@ -711,13 +790,10 @@ export default function StaffManagementPage() {
                             {a.checkIn && !a.checkOut && (
                               <button
                                 onClick={() => { setCheckoutModal(a); setManualTime(nowTime()); }}
-                                className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap"
+                                className="flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap"
                               >
                                 <LogOut size={12} /> Check Out
                               </button>
-                            )}
-                            {a.checkIn && a.checkOut && (
-                              <span className="text-xs text-slate-400">Done</span>
                             )}
                           </div>
                         </td>
@@ -758,7 +834,7 @@ export default function StaffManagementPage() {
                           <td className="px-5 py-3.5 font-mono text-xs text-slate-500">{r.staffId}</td>
                           <td className="px-5 py-3.5">
                             <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
+                              <div className="w-7 h-7 rounded-full bg-red-100 text-red-700 flex items-center justify-center text-xs font-bold shrink-0">
                                 {r.name.slice(0, 2).toUpperCase()}
                               </div>
                               <span className="font-semibold text-slate-800">{r.name}</span>
@@ -805,7 +881,7 @@ export default function StaffManagementPage() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-            <StatCard label="Total Payable"  value={fmt(totalPayable)}  sub={`${filteredSalary.length} records`}   icon={BadgeIndianRupee} bg="bg-blue-50"   ic="text-blue-600"   />
+            <StatCard label="Total Payable"  value={fmt(totalPayable)}  sub={`${filteredSalary.length} records`}   icon={BadgeIndianRupee} bg="bg-red-50"   ic="text-red-600"   />
             <StatCard label="Total Paid"     value={fmt(totalPaid)}     sub="This period"                           icon={CheckCircle}      bg="bg-green-50"  ic="text-green-600"  />
             <StatCard label="Total Pending"  value={fmt(totalPending)}  sub={`${unpaidCount} unpaid`}               icon={Clock}            bg="bg-amber-50"  ic="text-amber-600"  />
             <StatCard label="Staff Count"    value={filteredSalary.length} sub="In selected month"                  icon={Users}            bg="bg-purple-50" ic="text-purple-600" />
@@ -819,7 +895,7 @@ export default function StaffManagementPage() {
                 onChange={(e) => setSalarySearch(e.target.value)} className={inputCls + " pl-9"} />
             </div>
             <input type="month" value={salaryMonth} onChange={(e) => setSalaryMonth(e.target.value)}
-              className="h-10 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 transition-colors" />
+              className="h-10 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/20 transition-colors" />
             <div className="relative">
               <select value={salaryStatusFilter} onChange={(e) => setSalaryStatusFilter(e.target.value)}
                 className={inputCls + " w-40 appearance-none pr-8 cursor-pointer"}>
@@ -857,7 +933,7 @@ export default function StaffManagementPage() {
                       <td className="px-4 py-3.5 font-mono text-xs text-slate-500">{r.staffId}</td>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-red-100 text-red-700 flex items-center justify-center text-xs font-bold shrink-0">
                             {r.staffName.slice(0, 2).toUpperCase()}
                           </div>
                           <span className="font-semibold text-slate-800 whitespace-nowrap">{r.staffName}</span>
@@ -952,6 +1028,7 @@ export default function StaffManagementPage() {
       {showStaffModal && (
         <Modal title={editingStaff ? "Edit Staff" : "Add New Staff"}
           sub={editingStaff ? `Editing ${editingStaff.id}` : "Fill in the staff details"}
+          maxW="max-w-4xl"
           onClose={() => setShowStaffModal(false)}>
           <div className="px-6 py-5 space-y-4">
             <div className="flex flex-col sm:flex-row gap-6">
@@ -970,7 +1047,7 @@ export default function StaffManagementPage() {
                     <input type="tel" placeholder="e.g. 9876543210" value={staffForm.phone}
                       onChange={(e) => setStaffForm((p) => ({ ...p, phone: e.target.value }))} className={inputCls} />
                   </Field>
-                  <Field label="Email ID">
+                  <Field label="Email ID *">
                     <input type="email" placeholder="e.g. aditi@example.com" value={staffForm.emailId}
                       onChange={(e) => setStaffForm((p) => ({ ...p, emailId: e.target.value }))} className={inputCls} />
                   </Field>
@@ -1002,6 +1079,12 @@ export default function StaffManagementPage() {
                     </div>
                   </Field>
                 </div>
+                {!editingStaff && (
+                  <Field label="Password *">
+                    <input type="password" placeholder="Set login password for staff" value={staffForm.password || ""}
+                      onChange={(e) => setStaffForm((p) => ({ ...p, password: e.target.value }))} className={inputCls} />
+                  </Field>
+                )}
                 <Field label="Address">
                   <textarea placeholder="e.g. 22, Rajouri Garden, Delhi" value={staffForm.address}
                     onChange={(e) => setStaffForm((p) => ({ ...p, address: e.target.value }))}
@@ -1014,7 +1097,7 @@ export default function StaffManagementPage() {
             onCancel={() => setShowStaffModal(false)}
             onConfirm={saveStaff}
             confirmLabel={editingStaff ? "Save Changes" : "Add Staff"}
-            disabled={!staffForm.name.trim() || !staffForm.phone.trim()}
+            disabled={!staffForm.name.trim() || !staffForm.phone.trim() || !staffForm.emailId?.trim() || (!editingStaff && !staffForm.password?.trim())}
           />
         </Modal>
       )}
@@ -1062,7 +1145,7 @@ export default function StaffManagementPage() {
                     {[
                       { label: "Present",    value: `${present} days`, color: "text-green-600" },
                       { label: "Absent",     value: `${absent} days`,  color: "text-red-500"   },
-                      { label: "Total Hrs",  value: `${hours.toFixed(1)}h`, color: "text-blue-600" },
+                      { label: "Total Hrs",  value: `${hours.toFixed(1)}h`, color: "text-red-600" },
                     ].map((m) => (
                       <div key={m.label} className="bg-slate-50 rounded-lg p-3 text-center border border-slate-100">
                         <p className={`text-base font-bold ${m.color}`}>{m.value}</p>
@@ -1132,7 +1215,7 @@ export default function StaffManagementPage() {
             </div>
             {manualTime && checkoutModal.checkIn && (
               <p className="text-xs text-slate-500">
-                Working hours: <span className="font-bold text-blue-600">{calcHours(checkoutModal.checkIn, manualTime)}h</span>
+                Working hours: <span className="font-bold text-red-600">{calcHours(checkoutModal.checkIn, manualTime)}h</span>
               </p>
             )}
           </div>
@@ -1149,9 +1232,9 @@ export default function StaffManagementPage() {
       {payModal && (
         <Modal title="Mark Salary as Paid" sub={`${payModal.staffName} · ${fmtMonth(payModal.month)}`} onClose={() => setPayModal(null)}>
           <div className="px-6 py-5 space-y-4">
-            <div className="bg-blue-50 rounded-xl px-4 py-3 border border-blue-100 flex items-center justify-between">
-              <span className="text-sm text-blue-700 font-medium">Salary Amount</span>
-              <span className="text-lg font-bold text-blue-800">{fmt(payModal.amount)}</span>
+            <div className="bg-red-50 rounded-xl px-4 py-3 border border-red-100 flex items-center justify-between">
+              <span className="text-sm text-red-700 font-medium">Salary Amount</span>
+              <span className="text-lg font-bold text-red-800">{fmt(payModal.amount)}</span>
             </div>
             <Field label="Payment Date">
               <input type="date" value={payForm.paidDate}
@@ -1197,6 +1280,85 @@ export default function StaffManagementPage() {
               </button>
               <button onClick={() => deleteStaff(deleteStaffId)} className="flex-1 h-10 rounded-lg bg-red-500 text-sm font-semibold text-white hover:bg-red-600 transition-colors">
                 Yes, Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Mark Status Modal ── */}
+      {markModal && (
+        <Modal title="Mark Attendance Status" sub={markModal.staffName} onClose={() => setMarkModal(null)}>
+          <div className="px-6 py-5 space-y-4">
+            <div className="grid grid-cols-1 gap-2">
+              {[
+                { label: "Present", value: "PRESENT", icon: CheckCircle, color: "text-green-600", bg: "bg-green-50" },
+                { label: "Half Day", value: "HALF_DAY", icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
+                { label: "Absent", value: "ABSENT", icon: XCircle, color: "text-red-500", bg: "bg-red-50" },
+              ].map((s) => (
+                <button
+                  key={s.value}
+                  onClick={() => updateStatus(markModal.staffId, s.value)}
+                  className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${
+                    markModal.status === s.value
+                      ? "border-red-500 bg-red-50 shadow-sm"
+                      : "border-slate-100 hover:border-slate-200 hover:bg-slate-50"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-lg ${s.bg} flex items-center justify-center ${s.color}`}>
+                      <s.icon size={18} />
+                    </div>
+                    <span className="font-bold text-slate-800">{s.label}</span>
+                  </div>
+                  {markModal.status === s.value && (
+                    <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center text-white">
+                      <CheckCircle size={12} />
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-slate-400 text-center">Date: <span className="font-semibold text-slate-600">{attDate}</span></p>
+          </div>
+          <div className="px-6 py-4 border-t border-slate-100">
+            <button onClick={() => setMarkModal(null)} className="w-full h-10 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+              Cancel
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* ── Success Modal (Credentials) ── */}
+      {successModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md px-4">
+          <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+            <div className="bg-green-600 p-8 flex flex-col items-center text-white">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4">
+                <CheckCircle size={32} />
+              </div>
+              <h2 className="text-xl font-bold">Staff Added Successfully!</h2>
+              <p className="text-green-100 text-sm mt-1">Login credentials generated</p>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="space-y-3">
+                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Email / Username</p>
+                  <p className="text-sm font-bold text-slate-800">{successModal.email}</p>
+                </div>
+                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Temporary Password</p>
+                  <p className="text-sm font-bold text-slate-800 font-mono tracking-wider">{successModal.password}</p>
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-400 text-center leading-relaxed">
+                The staff can now login using these credentials to view their attendance.
+              </p>
+              <button 
+                onClick={() => setSuccessModal(null)}
+                className="w-full h-12 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
+              >
+                Got it
               </button>
             </div>
           </div>
@@ -1269,8 +1431,8 @@ function ImageUploader({
           }}
           className={`flex flex-col items-center justify-center gap-3 w-full aspect-square rounded-xl border-2 border-dashed cursor-pointer transition-all ${
             dragging
-              ? "border-blue-400 bg-blue-50"
-              : "border-slate-200 bg-slate-50 hover:border-blue-300 hover:bg-blue-50/50"
+              ? "border-red-400 bg-red-50"
+              : "border-slate-200 bg-slate-50 hover:border-red-300 hover:bg-red-50/50"
           }`}
         >
           <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
@@ -1329,7 +1491,7 @@ function Modal({
 }
 
 function ModalFooter({
-  onCancel, onConfirm, confirmLabel, confirmColor = "bg-blue-600 hover:bg-blue-700 shadow-blue-200", disabled = false,
+  onCancel, onConfirm, confirmLabel, confirmColor = "bg-red-600 hover:bg-red-700 shadow-red-200", disabled = false,
 }: {
   onCancel: () => void; onConfirm: () => void;
   confirmLabel: string; confirmColor?: string; disabled?: boolean;

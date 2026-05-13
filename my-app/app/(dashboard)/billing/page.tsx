@@ -45,7 +45,7 @@ const PAYMENT_METHODS: { key: PaymentMethod; label: string; icon: string }[] = [
 let invoiceCounter = 1001;
 
 const inputCls =
-  "h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 transition-colors";
+  "h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/20 transition-colors";
 
 function fmt(n: number) {
   return "₹" + n.toLocaleString("en-IN");
@@ -89,7 +89,7 @@ function printInvoice(
       * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
       body { padding: 32px; font-size: 13px; color: #1e293b; }
       .header { display: flex; justify-content: space-between; margin-bottom: 24px; }
-      .shop { font-size: 20px; font-weight: 700; color: #1e40af; }
+      .shop { font-size: 20px; font-weight: 700; color: #dc2626; }
       .inv  { text-align: right; }
       .inv p { font-size: 12px; color: #64748b; }
       .inv strong { font-size: 15px; color: #1e293b; }
@@ -103,7 +103,7 @@ function printInvoice(
       .totals { margin-left: auto; width: 280px; }
       .totals tr td { padding: 4px 0; font-size: 13px; }
       .totals tr td:last-child { text-align: right; font-weight: 600; }
-      .grand td { font-size: 15px; font-weight: 700; color: #1e40af; border-top: 2px solid #e2e8f0; padding-top: 8px; }
+      .grand td { font-size: 15px; font-weight: 700; color: #dc2626; border-top: 2px solid #e2e8f0; padding-top: 8px; }
       .footer { text-align: center; margin-top: 24px; font-size: 11px; color: #94a3b8; }
       @media print { body { padding: 16px; } }
     </style>
@@ -169,7 +169,9 @@ export default function BillingPage() {
           brand: p.brand || "",
           sellingPrice: parseFloat(p.selling_price),
           gstPercent: parseFloat(p.gst_percent),
-          stock: p.sizes?.reduce((s: number, x: any) => s + x.quantity, 0) || 0,
+          stock: p.sizes && p.sizes.length > 0 
+            ? p.sizes.reduce((s: number, x: any) => s + (parseInt(x.quantity) || 0), 0)
+            : (parseInt(p.stock_quantity) || 0),
           barcode: p.sku || ""
         }));
         setProducts(mapped);
@@ -199,6 +201,7 @@ export default function BillingPage() {
   const [billDiscount, setBillDiscount] = useState(0); // overall bill discount %
 
   // State
+  const [mode, setMode]       = useState<"sale" | "return">("sale");
   const [success, setSuccess] = useState(false);
   const [lastInvoice, setLastInvoice] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -259,6 +262,7 @@ export default function BillingPage() {
     setBillDiscount(0);
     setPayMethod("cash");
     setSuccess(false);
+    setMode("sale");
   }
 
   // ── Totals ──
@@ -295,7 +299,8 @@ export default function BillingPage() {
           price: item.sellingPrice,
           discount: item.discount, // flat discount per unit
           gst_percent: item.gstPercent
-        }))
+        })),
+        type: mode.toUpperCase()
       };
 
       const res = await api.post('/bills', payload);
@@ -321,8 +326,8 @@ export default function BillingPage() {
           <CheckCircle className="w-10 h-10 text-green-600" />
         </div>
         <div className="text-center">
-          <h2 className="text-xl font-bold text-slate-900">Bill Generated!</h2>
-          <p className="text-slate-500 mt-1 text-sm">Invoice <span className="font-mono font-semibold text-blue-600">{lastInvoice}</span> printed successfully.</p>
+          <h2 className="text-xl font-bold text-slate-900">{mode === 'sale' ? 'Bill Generated!' : 'Return Processed!'}</h2>
+          <p className="text-slate-500 mt-1 text-sm">{mode === 'sale' ? 'Invoice' : 'Return Ref'} <span className={`font-mono font-semibold ${mode === 'sale' ? 'text-red-600' : 'text-amber-600'}`}>{lastInvoice}</span> {mode === 'sale' ? 'printed successfully.' : 'recorded successfully.'}</p>
           <p className="text-2xl font-bold text-slate-900 mt-3">{fmt(totals.grandTotal)}</p>
           {payMethod === "cash" && totals.change > 0 && (
             <p className="text-sm text-green-600 font-semibold mt-1">Change to return: {fmt(totals.change)}</p>
@@ -330,8 +335,8 @@ export default function BillingPage() {
         </div>
         <div className="flex gap-3">
           <button onClick={clearCart}
-            className="flex items-center gap-2 h-10 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors shadow-sm">
-            <RotateCcw size={16} /> New Bill
+            className={`flex items-center gap-2 h-10 px-6 rounded-xl text-white text-sm font-semibold transition-colors shadow-sm ${mode === 'sale' ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700'}`}>
+            <RotateCcw size={16} /> New {mode === 'sale' ? 'Bill' : 'Transaction'}
           </button>
           <button
             onClick={() => printInvoice(cart, { name: custName, phone: custPhone }, payMethod, lastInvoice, { ...totals, cashReceived })}
@@ -353,19 +358,35 @@ export default function BillingPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-slate-900">Billing</h1>
-            <p className="text-sm text-slate-500 mt-0.5">Create new invoice / POS bill</p>
+            <p className="text-sm text-slate-500 mt-0.5">{mode === 'sale' ? 'Create new invoice / POS bill' : 'Process product return / refund'}</p>
           </div>
-          {cart.length > 0 && (
-            <button onClick={clearCart}
-              className="flex items-center gap-1.5 h-8 px-3 rounded-lg border border-red-200 bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors">
-              <RotateCcw size={13} /> Clear Bill
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            <div className="flex p-1 bg-slate-100 rounded-lg">
+              <button
+                onClick={() => setMode("sale")}
+                className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${mode === 'sale' ? 'bg-red-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                Sale
+              </button>
+              <button
+                onClick={() => setMode("return")}
+                className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${mode === 'return' ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                Return
+              </button>
+            </div>
+            {cart.length > 0 && (
+              <button onClick={clearCart}
+                className="flex items-center gap-1.5 h-8 px-3 rounded-lg border border-red-200 bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors">
+                <RotateCcw size={13} /> Clear
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Product Search */}
         <div className="relative">
-          <div className="flex items-center gap-2 h-11 bg-white border border-slate-200 rounded-xl px-4 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
+          <div className={`flex items-center gap-2 h-11 bg-white border border-slate-200 rounded-xl px-4 focus-within:border-${mode === 'sale' ? 'red' : 'amber'}-400 focus-within:ring-2 focus-within:ring-${mode === 'sale' ? 'red' : 'amber'}-500/20 transition-all`}>
             <Search className="w-4 h-4 text-slate-400 shrink-0" />
             <input
               type="text"
@@ -380,7 +401,7 @@ export default function BillingPage() {
                 <X size={14} className="text-slate-400 hover:text-slate-600" />
               </button>
             )}
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-colors">
+            <button className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-${mode === 'sale' ? 'red' : 'amber'}-50 text-${mode === 'sale' ? 'red' : 'amber'}-700 text-xs font-semibold hover:bg-${mode === 'sale' ? 'red' : 'amber'}-100 transition-colors`}>
               <ScanLine size={14} /> Scan
             </button>
           </div>
@@ -391,7 +412,7 @@ export default function BillingPage() {
               {searchResults.map((p) => (
                 <button key={p.id}
                   onClick={() => addToCart(p)}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left border-b border-slate-50 last:border-0">
+                  className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-${mode === 'sale' ? 'red' : 'amber'}-50 transition-colors text-left border-b border-slate-50 last:border-0`}>
                   <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
                     <Package size={14} className="text-slate-400" />
                   </div>
@@ -400,7 +421,7 @@ export default function BillingPage() {
                     <p className="text-xs text-slate-400">{p.brand} · {p.category} · Stock: {p.stock}</p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-sm font-bold text-blue-700">{fmt(p.sellingPrice)}</p>
+                    <p className={`text-sm font-bold text-${mode === 'sale' ? 'red' : 'amber'}-700`}>{fmt(p.sellingPrice)}</p>
                     <p className="text-xs text-slate-400">+{p.gstPercent}% GST</p>
                   </div>
                 </button>
@@ -552,8 +573,8 @@ export default function BillingPage() {
                 onClick={() => setPayMethod(m.key)}
                 className={`flex flex-col items-center gap-1 py-2.5 rounded-xl border text-xs font-semibold transition-all ${
                   payMethod === m.key
-                    ? "bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-200"
-                    : "border-slate-200 text-slate-600 hover:border-blue-200 hover:bg-blue-50"
+                    ? `bg-${mode === 'sale' ? 'red' : 'amber'}-600 border-${mode === 'sale' ? 'red' : 'amber'}-600 text-white shadow-sm shadow-${mode === 'sale' ? 'red' : 'amber'}-200`
+                    : `border-slate-200 text-slate-600 hover:border-${mode === 'sale' ? 'red' : 'amber'}-200 hover:bg-${mode === 'sale' ? 'red' : 'amber'}-50`
                 }`}>
                 <span className="text-lg">{m.icon}</span>
                 {m.label}
@@ -623,8 +644,8 @@ export default function BillingPage() {
             ))}
 
             <div className="border-t border-slate-200 pt-2.5 mt-1 flex items-center justify-between">
-              <p className="text-sm font-bold text-slate-900">Grand Total</p>
-              <p className="text-xl font-bold text-blue-700 tabular-nums">{fmt(totals.grandTotal)}</p>
+              <p className="text-sm font-bold text-slate-900">{mode === 'sale' ? 'Grand Total' : 'Total Refund'}</p>
+              <p className={`text-xl font-bold tabular-nums text-${mode === 'sale' ? 'red' : 'amber'}-700`}>{fmt(totals.grandTotal)}</p>
             </div>
           </div>
         </div>
@@ -633,10 +654,10 @@ export default function BillingPage() {
         <button
           onClick={handleCheckout}
           disabled={cart.length === 0 || submitting || (payMethod === "cash" && cashReceived > 0 && cashReceived < totals.grandTotal)}
-          className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm shadow-blue-200"
+          className={`w-full h-12 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm ${mode === 'sale' ? 'bg-red-600 hover:bg-red-700 shadow-red-200' : 'bg-amber-600 hover:bg-amber-700 shadow-amber-200'}`}
         >
-          {submitting ? <Loader2 size={18} className="animate-spin" /> : <Receipt size={18} />}
-          {submitting ? "Processing..." : "Generate Bill & Print"}
+          {submitting ? <Loader2 size={18} className="animate-spin" /> : (mode === 'sale' ? <Receipt size={18} /> : <RotateCcw size={18} />)}
+          {submitting ? "Processing..." : (mode === 'sale' ? "Generate Bill & Print" : "Process Return & Print")}
         </button>
 
         <p className="text-xs text-center text-slate-400 -mt-1">Bill will open in a print dialog</p>

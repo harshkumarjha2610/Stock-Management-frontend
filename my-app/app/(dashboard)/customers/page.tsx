@@ -40,7 +40,7 @@ const CITIES = ["Delhi", "Mumbai", "Bangalore", "Chennai", "Hyderabad", "Kolkata
 
 const TAG_CONFIG = {
   vip:     { label:"VIP",     cls:"bg-amber-50 text-amber-700",  dot:"bg-amber-500"  },
-  regular: { label:"Regular", cls:"bg-blue-50 text-blue-700",    dot:"bg-blue-500"   },
+  regular: { label:"Regular", cls:"bg-red-50 text-red-700",    dot:"bg-red-500"   },
   new:     { label:"New",     cls:"bg-green-50 text-green-700",  dot:"bg-green-500"  },
 };
 
@@ -50,7 +50,7 @@ const EMPTY_FORM: Omit<Customer, "id" | "totalOrders" | "totalSpent" | "lastPurc
 };
 
 const inputCls =
-  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-colors";
+  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
 
 const labelCls = "text-xs font-semibold text-slate-500 uppercase tracking-wide";
 
@@ -112,8 +112,8 @@ function CustomerModal({
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
-                <span className="text-base font-bold text-blue-700">
+              <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
+                <span className="text-base font-bold text-red-700">
                   {customer.name.charAt(0)}
                 </span>
               </div>
@@ -141,7 +141,7 @@ function CustomerModal({
             {/* Stats */}
             <div className="grid grid-cols-3 gap-3">
               {[
-                { label:"Total Orders",  value: customer.totalOrders,      icon:ShoppingCart, color:"text-blue-600",   bg:"bg-blue-50"  },
+                { label:"Total Orders",  value: customer.totalOrders,      icon:ShoppingCart, color:"text-red-600",   bg:"bg-red-50"  },
                 { label:"Total Spent",   value: fmt(customer.totalSpent),   icon:IndianRupee,  color:"text-green-700",  bg:"bg-green-50" },
                 { label:"Avg/Order",     value: customer.totalOrders > 0 ? fmt(Math.round(customer.totalSpent / customer.totalOrders)) : "—", icon:TrendingUp, color:"text-purple-700", bg:"bg-purple-50" },
               ].map((s) => (
@@ -296,7 +296,7 @@ function CustomerModal({
             className={`flex-1 h-10 rounded-lg text-sm font-semibold text-white transition-all flex items-center justify-center gap-2 ${
               saved
                 ? "bg-green-500"
-                : "bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                : "bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
             }`}>
             {saved
               ? <><CheckCircle size={16} /> Saved!</>
@@ -452,14 +452,14 @@ export default function CustomersPage() {
   const allCities  = ["All", ...Array.from(new Set(customers.map((c) => c.city))).sort()];
 
   const SortIcon = ({ k }: { k: typeof sortKey }) => (
-    <ArrowUpDown size={11} className={`inline ml-1 ${sortKey === k ? "text-blue-500" : "text-slate-300"}`} />
+    <ArrowUpDown size={11} className={`inline ml-1 ${sortKey === k ? "text-red-500" : "text-slate-300"}`} />
   );
 
   if (loading) {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-red-600" />
           <p className="text-sm font-medium text-slate-500">Loading customers...</p>
         </div>
       </div>
@@ -516,7 +516,7 @@ export default function CustomersPage() {
           </div>
           <button
             onClick={() => openModal("add")}
-            className="flex items-center gap-2 h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-sm font-semibold text-white transition-colors shadow-sm shadow-blue-200"
+            className="flex items-center gap-2 h-9 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-sm font-semibold text-white transition-colors shadow-sm shadow-red-200"
           >
             <Plus size={16} /> Add Customer
           </button>
@@ -528,7 +528,7 @@ export default function CustomersPage() {
             { label:"Total Customers", value: stats.total,    sub:"All registered",    icon:Users,      bg:"bg-slate-100", ic:"text-slate-600"  },
             { label:"Active",          value: stats.active,   sub:"Currently active",  icon:CheckCircle, bg:"bg-green-50", ic:"text-green-600"  },
             { label:"VIP Customers",   value: stats.vip,      sub:"High-value buyers", icon:Star,        bg:"bg-amber-50", ic:"text-amber-600"  },
-            { label:"Total Revenue",   value:`₹${(stats.revenue/1000).toFixed(1)}K`, sub:"All time", icon:IndianRupee, bg:"bg-blue-50", ic:"text-blue-600" },
+            { label:"Total Revenue",   value:`₹${(stats.revenue/1000).toFixed(1)}K`, sub:"All time", icon:IndianRupee, bg:"bg-red-50", ic:"text-red-600" },
           ].map((k) => (
             <div key={k.label} className="bg-white rounded-xl border border-slate-200 p-5">
               <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${k.bg} mb-3`}>
@@ -556,7 +556,7 @@ export default function CustomersPage() {
             <div className="relative">
               <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
               <select value={tagFilter} onChange={(e) => setTagFilter(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white pl-8 pr-8 text-sm text-slate-700 outline-none focus:border-blue-400 appearance-none cursor-pointer">
+                className="h-9 rounded-lg border border-slate-200 bg-white pl-8 pr-8 text-sm text-slate-700 outline-none focus:border-red-400 appearance-none cursor-pointer">
                 <option>All</option>
                 <option value="new">New</option>
                 <option value="regular">Regular</option>
@@ -568,7 +568,7 @@ export default function CustomersPage() {
             {/* Status */}
             <div className="relative">
               <select value={stFilter} onChange={(e) => setStFilter(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 pr-8 text-sm text-slate-700 outline-none focus:border-blue-400 appearance-none cursor-pointer">
+                className="h-9 rounded-lg border border-slate-200 bg-white px-3 pr-8 text-sm text-slate-700 outline-none focus:border-red-400 appearance-none cursor-pointer">
                 <option>All</option>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
@@ -580,7 +580,7 @@ export default function CustomersPage() {
             <div className="relative">
               <MapPin className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
               <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white pl-8 pr-8 text-sm text-slate-700 outline-none focus:border-blue-400 appearance-none cursor-pointer">
+                className="h-9 rounded-lg border border-slate-200 bg-white pl-8 pr-8 text-sm text-slate-700 outline-none focus:border-red-400 appearance-none cursor-pointer">
                 {allCities.map((c) => <option key={c}>{c}</option>)}
               </select>
               <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -633,8 +633,8 @@ export default function CustomersPage() {
                       {/* Customer */}
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-                            <span className="text-xs font-bold text-blue-700">{c.name.charAt(0)}</span>
+                          <div className="w-8 h-8 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
+                            <span className="text-xs font-bold text-red-700">{c.name.charAt(0)}</span>
                           </div>
                           <div>
                             <p className="font-semibold text-slate-800 whitespace-nowrap">{c.name}</p>
@@ -706,7 +706,7 @@ export default function CustomersPage() {
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-1.5">
                           <button onClick={() => openModal("view", c)}
-                            className="w-8 h-8 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 flex items-center justify-center transition-colors" title="View">
+                            className="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 flex items-center justify-center transition-colors" title="View">
                             <Eye size={14} />
                           </button>
                           <button onClick={() => openModal("edit", c)}
@@ -730,7 +730,7 @@ export default function CustomersPage() {
                     <td colSpan={5} className="px-4 py-3 text-xs font-bold text-slate-600">
                       {filtered.length} customers
                     </td>
-                    <td className="px-4 py-3 font-bold text-blue-700 tabular-nums">
+                    <td className="px-4 py-3 font-bold text-red-700 tabular-nums">
                       {fmt(filtered.reduce((t, c) => t + c.totalSpent, 0))}
                     </td>
                     <td colSpan={4} />
@@ -745,7 +745,7 @@ export default function CustomersPage() {
                 <p className="text-sm font-semibold text-slate-500">No customers found</p>
                 <p className="text-xs text-slate-400">Try adjusting your search or filters</p>
                 {hasFilters && (
-                  <button onClick={clearFilters} className="mt-1 text-xs text-blue-600 font-semibold hover:underline">
+                  <button onClick={clearFilters} className="mt-1 text-xs text-red-600 font-semibold hover:underline">
                     Clear all filters
                   </button>
                 )}

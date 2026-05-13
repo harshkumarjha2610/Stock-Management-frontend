@@ -41,7 +41,7 @@ function fmt(n: number) {
 
 const pmColor: Record<PaymentMethod, string> = {
   Cash: "bg-green-50 text-green-700",
-  UPI:  "bg-blue-50 text-blue-700",
+  UPI:  "bg-red-50 text-red-700",
   Card: "bg-purple-50 text-purple-700",
 };
 
@@ -121,7 +121,7 @@ export default function SalesPage() {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-red-600" />
           <p className="text-sm font-medium text-slate-500">Loading sales report...</p>
         </div>
       </div>
@@ -200,7 +200,7 @@ export default function SalesPage() {
       {/* ── Summary Cards ── */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         {[
-          { label: "Total Revenue",   value: fmt(totalRevenue),  icon: BadgeIndianRupee, bg: "bg-blue-50",   iconColor: "text-blue-600"  },
+          { label: "Total Revenue",   value: fmt(totalRevenue),  icon: BadgeIndianRupee, bg: "bg-red-50",   iconColor: "text-red-600"  },
           { label: "Total Invoices",  value: totalBills,          icon: ShoppingBag,      bg: "bg-green-50",  iconColor: "text-green-600" },
           { label: "Total GST",       value: fmt(totalGST),       icon: TrendingUp,       bg: "bg-purple-50", iconColor: "text-purple-600"},
           { label: "Total Discounts", value: fmt(totalDiscount),  icon: CalendarDays,     bg: "bg-amber-50",  iconColor: "text-amber-600" },
@@ -288,7 +288,7 @@ export default function SalesPage() {
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
               activeTab === tab
-                ? "bg-white text-blue-600 shadow-sm"
+                ? "bg-white text-red-600 shadow-sm"
                 : "text-slate-500 hover:text-slate-700"
             }`}
           >
@@ -331,7 +331,7 @@ export default function SalesPage() {
                 ) : (
                   filtered.map((sale) => (
                     <tr key={sale.invoiceNumber} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3.5 font-mono text-xs text-blue-600 font-semibold whitespace-nowrap">
+                      <td className="px-4 py-3.5 font-mono text-xs text-red-600 font-semibold whitespace-nowrap">
                         {sale.invoiceNumber}
                       </td>
                       <td className="px-4 py-3.5 font-medium text-slate-800 whitespace-nowrap">{sale.customerName}</td>
@@ -352,7 +352,7 @@ export default function SalesPage() {
                       <td className="px-4 py-3.5 whitespace-nowrap">
                         <button
                           onClick={() => setViewSale(sale)}
-                          className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                          className="flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-800 transition-colors"
                         >
                           <Eye size={13} /> View
                         </button>
@@ -370,7 +370,7 @@ export default function SalesPage() {
                 <span className="font-semibold text-slate-600">{allSales.length}</span> invoices
               </p>
               <p className="text-xs font-semibold text-slate-600">
-                Total: <span className="text-blue-600">{fmt(totalRevenue)}</span>
+                Total: <span className="text-red-600">{fmt(totalRevenue)}</span>
               </p>
             </div>
           )}
@@ -403,7 +403,7 @@ export default function SalesPage() {
                     <tr key={d.date} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
                       <td className="px-5 py-3.5 font-medium text-slate-800">{d.date}</td>
                       <td className="px-5 py-3.5 text-slate-600">
-                        <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">
+                        <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 text-xs font-semibold">
                           {d.bills} bill{d.bills !== 1 && "s"}
                         </span>
                       </td>
@@ -418,7 +418,7 @@ export default function SalesPage() {
           {dayWise.length > 0 && (
             <div className="px-5 py-3 border-t border-slate-100 bg-slate-50 flex justify-between">
               <p className="text-xs text-slate-400">{dayWise.length} days</p>
-              <p className="text-xs font-semibold text-blue-600">{fmt(totalRevenue)}</p>
+              <p className="text-xs font-semibold text-red-600">{fmt(totalRevenue)}</p>
             </div>
           )}
         </div>
@@ -445,7 +445,7 @@ export default function SalesPage() {
                           {fmt(m.revenue)}
                         </span>
                         <div
-                          className="w-full rounded-t-md bg-blue-600 hover:bg-blue-700 transition-colors cursor-default"
+                          className="w-full rounded-t-md bg-red-600 hover:bg-red-700 transition-colors cursor-default"
                           style={{ height: `${Math.max(8, (m.revenue / maxRev) * 100)}%` }}
                           title={`${m.month}: ${fmt(m.revenue)}`}
                         />
@@ -480,7 +480,7 @@ export default function SalesPage() {
                         {new Date(m.month + "-01").toLocaleString("en-IN", { month: "long", year: "numeric" })}
                       </td>
                       <td className="px-5 py-3.5 text-slate-600">
-                        <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">
+                        <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 text-xs font-semibold">
                           {m.bills} bill{m.bills !== 1 && "s"}
                         </span>
                       </td>
@@ -522,7 +522,7 @@ export default function SalesPage() {
                       <td className="px-5 py-3.5 text-slate-400 text-xs font-semibold">{idx + 1}</td>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center text-xs font-bold shrink-0">
                             {c.name.slice(0, 2).toUpperCase()}
                           </div>
                           <span className="font-semibold text-slate-800">{c.name}</span>
@@ -530,7 +530,7 @@ export default function SalesPage() {
                       </td>
                       <td className="px-5 py-3.5 text-slate-500">{c.phone || "—"}</td>
                       <td className="px-5 py-3.5">
-                        <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">
+                        <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 text-xs font-semibold">
                           {c.bills} bill{c.bills !== 1 && "s"}
                         </span>
                       </td>
@@ -544,7 +544,7 @@ export default function SalesPage() {
           {customerWise.length > 0 && (
             <div className="px-5 py-3 border-t border-slate-100 bg-slate-50 flex justify-between">
               <p className="text-xs text-slate-400">{customerWise.length} customers</p>
-              <p className="text-xs font-semibold text-blue-600">{fmt(totalRevenue)} total</p>
+              <p className="text-xs font-semibold text-red-600">{fmt(totalRevenue)} total</p>
             </div>
           )}
         </div>
@@ -593,7 +593,7 @@ export default function SalesPage() {
           {productWise.length > 0 && (
             <div className="px-5 py-3 border-t border-slate-100 bg-slate-50 flex justify-between">
               <p className="text-xs text-slate-400">{productWise.length} products sold</p>
-              <p className="text-xs font-semibold text-blue-600">{fmt(totalRevenue)} total</p>
+              <p className="text-xs font-semibold text-red-600">{fmt(totalRevenue)} total</p>
             </div>
           )}
         </div>
@@ -610,7 +610,7 @@ export default function SalesPage() {
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
               <div>
                 <h2 className="text-base font-bold text-slate-900">Invoice Details</h2>
-                <p className="text-xs font-mono text-blue-600 mt-0.5">{viewSale.invoiceNumber}</p>
+                <p className="text-xs font-mono text-red-600 mt-0.5">{viewSale.invoiceNumber}</p>
               </div>
               <button
                 onClick={() => setViewSale(null)}
@@ -670,7 +670,7 @@ export default function SalesPage() {
                     label="Total Paid"
                     value={fmt(viewSale.finalTotal)}
                     labelClass="font-bold text-slate-900"
-                    valueClass="text-lg font-bold text-blue-600"
+                    valueClass="text-lg font-bold text-red-600"
                   />
                 </div>
               </div>
@@ -686,7 +686,7 @@ export default function SalesPage() {
               </button>
               <button
                 onClick={() => window.print()}
-                className="flex-1 flex items-center justify-center gap-2 h-10 rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 h-10 rounded-lg bg-red-600 text-sm font-semibold text-white hover:bg-red-700 transition-colors"
               >
                 <Printer size={14} />
                 Print
@@ -729,4 +729,4 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 const inputCls =
-  "h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-colors";
+  "h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";

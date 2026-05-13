@@ -70,14 +70,14 @@ const statusStyle: Record<StockStatus, string> = {
 };
 
 const reasonStyle: Record<StockOutReason | "", string> = {
-  "Sold":    "bg-blue-50 text-blue-700",
+  "Sold":    "bg-red-50 text-red-700",
   "Damaged": "bg-red-50 text-red-600",
   "Return":  "bg-purple-50 text-purple-700",
   "":        "bg-slate-100 text-slate-500",
 };
 
 const inputCls =
-  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-colors";
+  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
 
 // ═══════════════════════════════════════════════════════════════
 // SUB-COMPONENTS
@@ -135,7 +135,7 @@ function Modal({
 
 function ModalFooter({
   onCancel, onConfirm, confirmLabel,
-  confirmColor = "bg-blue-600 hover:bg-blue-700 shadow-blue-200",
+  confirmColor = "bg-red-600 hover:bg-red-700 shadow-red-200",
   disabled = false,
 }: {
   onCancel: () => void; onConfirm: () => void;
@@ -421,7 +421,7 @@ export default function StockPage() {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-red-600" />
           <p className="text-sm font-medium text-slate-500">Loading stock data...</p>
         </div>
       </div>
@@ -446,7 +446,7 @@ export default function StockPage() {
           </button>
           <button
             onClick={() => openStockIn()}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200"
+            className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm shadow-red-200"
           >
             <ArrowUpCircle size={16} /> Stock In
           </button>
@@ -458,7 +458,7 @@ export default function StockPage() {
         <StatCard label="Available"     value={available}       sub="Products in stock"      icon={Package}       bg="bg-green-50"  ic="text-green-600"  />
         <StatCard label="Low Stock"     value={lowStock}        sub="Below reorder level"    icon={AlertTriangle} bg="bg-amber-50"  ic="text-amber-600"  highlight={lowStock > 0} />
         <StatCard label="Sold Out"      value={soldOut}         sub="Zero stock items"       icon={X}             bg="bg-red-50"    ic="text-red-500"    highlight={soldOut > 0}  />
-        <StatCard label="Inventory Value" value={fmt(totalValue)} sub="At purchase price"    icon={TrendingUp}    bg="bg-blue-50"   ic="text-blue-600"   />
+        <StatCard label="Inventory Value" value={fmt(totalValue)} sub="At purchase price"    icon={TrendingUp}    bg="bg-red-50"   ic="text-red-600"   />
       </div>
 
       {/* ── Low Stock Alert Banner ── */}
@@ -499,7 +499,7 @@ export default function StockPage() {
           <button key={t.key} onClick={() => setMainTab(t.key as MainTab)}
             className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
               mainTab === t.key
-                ? "bg-white text-blue-600 shadow-sm"
+                ? "bg-white text-red-600 shadow-sm"
                 : "text-slate-500 hover:text-slate-700"
             }`}
           >
@@ -606,7 +606,7 @@ export default function StockPage() {
                             </button>
                             <button
                               onClick={() => openStockIn(p)}
-                              className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-lg transition-colors"
+                              className="flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-lg transition-colors"
                             >
                               <ArrowUpCircle size={13} /> In
                             </button>
@@ -632,7 +632,7 @@ export default function StockPage() {
                   <span className="font-semibold text-slate-600">{products.length}</span> products
                 </p>
                 <p className="text-xs font-semibold text-slate-500">
-                  Total Value: <span className="text-blue-600">{fmt(filteredProducts.reduce((t, p) => t + p.currentStock * p.purchasePrice, 0))}</span>
+                  Total Value: <span className="text-red-600">{fmt(filteredProducts.reduce((t, p) => t + p.currentStock * p.purchasePrice, 0))}</span>
                 </p>
               </div>
             )}
@@ -660,7 +660,7 @@ export default function StockPage() {
                     </div>
                     <button
                       onClick={() => openStockIn(p)}
-                      className="flex items-center gap-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg transition-colors"
+                      className="flex items-center gap-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg transition-colors"
                     >
                       <ArrowUpCircle size={13} /> Restock
                     </button>
@@ -681,7 +681,7 @@ export default function StockPage() {
           {/* History Stats */}
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
             <StatCard label="Total Records"  value={history.length}  sub="All time"            icon={History}       bg="bg-slate-100" ic="text-slate-600" />
-            <StatCard label="Stock In"       value={totalStockIn}    sub="Total units added"   icon={ArrowUpCircle} bg="bg-blue-50"   ic="text-blue-600" />
+            <StatCard label="Stock In"       value={totalStockIn}    sub="Total units added"   icon={ArrowUpCircle} bg="bg-red-50"   ic="text-red-600" />
             <StatCard label="Stock Out"      value={totalStockOut}   sub="Total units removed" icon={ArrowDownCircle} bg="bg-red-50"  ic="text-red-500"  />
             <StatCard label="Filtered Records" value={filteredHistory.length} sub="Current filter" icon={Filter} bg="bg-purple-50" ic="text-purple-600" />
           </div>
@@ -709,7 +709,7 @@ export default function StockPage() {
               <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
             </div>
             <input type="date" value={histDate} onChange={(e) => setHistDate(e.target.value)}
-              className="h-10 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 transition-colors" />
+              className="h-10 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/20 transition-colors" />
             {(histSearch || histType !== "All" || histDate || histProduct !== "All") && (
               <button
                 onClick={() => { setHistSearch(""); setHistType("All"); setHistDate(""); setHistProduct("All"); }}
@@ -749,7 +749,7 @@ export default function StockPage() {
                       <td className="px-4 py-3.5">
                         <span className={`flex items-center gap-1.5 text-xs font-bold w-fit px-2.5 py-0.5 rounded-full ${
                           h.type === "IN"
-                            ? "bg-blue-50 text-blue-700"
+                            ? "bg-red-50 text-red-700"
                             : "bg-red-50 text-red-600"
                         }`}>
                           {h.type === "IN"
@@ -759,7 +759,7 @@ export default function StockPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className={`font-bold ${h.type === "IN" ? "text-blue-700" : "text-red-600"}`}>
+                        <span className={`font-bold ${h.type === "IN" ? "text-red-700" : "text-red-600"}`}>
                           {h.type === "IN" ? "+" : "−"}{h.quantity}
                         </span>
                       </td>
@@ -790,7 +790,7 @@ export default function StockPage() {
                   <span className="font-semibold text-slate-600">{filteredHistory.length}</span> records
                 </p>
                 <div className="flex items-center gap-4 text-xs">
-                  <span className="text-blue-600 font-semibold">
+                  <span className="text-red-600 font-semibold">
                     IN: {filteredHistory.filter((h) => h.type === "IN").reduce((t, h) => t + h.quantity, 0)} units
                   </span>
                   <span className="text-red-500 font-semibold">
@@ -870,17 +870,17 @@ export default function StockPage() {
             {inForm.productId && inForm.quantity > 0 && (() => {
               const prod = products.find((p) => p.id === inForm.productId);
               return prod ? (
-                <div className="bg-blue-50 rounded-xl border border-blue-100 px-4 py-3 flex items-center justify-between">
+                <div className="bg-red-50 rounded-xl border border-red-100 px-4 py-3 flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-blue-600 font-medium">After this stock-in</p>
-                    <p className="text-sm font-bold text-blue-800 mt-0.5">
+                    <p className="text-xs text-red-600 font-medium">After this stock-in</p>
+                    <p className="text-sm font-bold text-red-800 mt-0.5">
                       {prod.currentStock} → {prod.currentStock + inForm.quantity} {prod.unit}
                     </p>
                   </div>
                   {inForm.purchasePrice > 0 && (
                     <div className="text-right">
-                      <p className="text-xs text-blue-600 font-medium">Total Cost</p>
-                      <p className="text-sm font-bold text-blue-800">{fmt(inForm.purchasePrice * inForm.quantity)}</p>
+                      <p className="text-xs text-red-600 font-medium">Total Cost</p>
+                      <p className="text-sm font-bold text-red-800">{fmt(inForm.purchasePrice * inForm.quantity)}</p>
                     </div>
                   )}
                 </div>
@@ -892,7 +892,7 @@ export default function StockPage() {
             onCancel={() => setModal(null)}
             onConfirm={handleStockIn}
             confirmLabel="Confirm Stock In"
-            confirmColor="bg-blue-600 hover:bg-blue-700 shadow-blue-200"
+            confirmColor="bg-red-600 hover:bg-red-700 shadow-red-200"
             disabled={!inForm.productId || inForm.quantity <= 0}
           />
         </Modal>
@@ -1011,7 +1011,7 @@ export default function StockPage() {
               {[
                 { label: "Current Stock",  value: `${viewProduct.currentStock} ${viewProduct.unit}`, color: viewProduct.currentStock === 0 ? "text-red-600" : viewProduct.currentStock <= viewProduct.lowStockAt ? "text-amber-600" : "text-green-600" },
                 { label: "Purchase Price", value: fmt(viewProduct.purchasePrice), color: "text-slate-800" },
-                { label: "Selling Price",  value: fmt(viewProduct.sellingPrice),  color: "text-blue-700"  },
+                { label: "Selling Price",  value: fmt(viewProduct.sellingPrice),  color: "text-red-700"  },
               ].map((r) => (
                 <div key={r.label} className="bg-slate-50 rounded-xl border border-slate-100 p-3 text-center">
                   <p className={`text-base font-bold ${r.color}`}>{r.value}</p>
@@ -1023,7 +1023,7 @@ export default function StockPage() {
             {/* Quick Actions */}
             <div className="flex gap-3">
               <button onClick={() => { setViewProduct(null); openStockIn(viewProduct); }}
-                className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg bg-blue-50 border border-blue-100 text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-colors">
+                className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg bg-red-50 border border-red-100 text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors">
                 <ArrowUpCircle size={15} /> Stock In
               </button>
               <button onClick={() => { setViewProduct(null); openStockOut(viewProduct); }}
@@ -1058,13 +1058,13 @@ export default function StockPage() {
                         <tr key={h.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
                           <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{h.date}</td>
                           <td className="px-4 py-3">
-                            <span className={`flex items-center gap-1 text-xs font-bold w-fit px-2 py-0.5 rounded-full ${h.type === "IN" ? "bg-blue-50 text-blue-700" : "bg-red-50 text-red-600"}`}>
+                            <span className={`flex items-center gap-1 text-xs font-bold w-fit px-2 py-0.5 rounded-full ${h.type === "IN" ? "bg-red-50 text-red-700" : "bg-red-50 text-red-600"}`}>
                               {h.type === "IN" ? <ArrowUpCircle size={11} /> : <ArrowDownCircle size={11} />}
                               {h.type}
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`text-sm font-bold ${h.type === "IN" ? "text-blue-700" : "text-red-600"}`}>
+                            <span className={`text-sm font-bold ${h.type === "IN" ? "text-red-700" : "text-red-600"}`}>
                               {h.type === "IN" ? "+" : "−"}{h.quantity}
                             </span>
                           </td>

@@ -44,9 +44,9 @@ function fmtK(n: number) {
 }
 
 const CHART_COLORS = {
-  blue:   "#3b82f6",
-  green:  "#22c55e",
   red:    "#ef4444",
+  green:  "#22c55e",
+  blue:   "#3b82f6",
   amber:  "#f59e0b",
   purple: "#8b5cf6",
   teal:   "#14b8a6",
@@ -55,14 +55,14 @@ const CHART_COLORS = {
 };
 
 const inputCls =
-  "h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 transition-colors";
+  "h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/20 transition-colors";
 
 // ═══════════════════════════════════════════════════════════════
 // REPORT MENU CONFIG
 // ═══════════════════════════════════════════════════════════════
 
 const REPORTS: { key: ReportType; label: string; icon: React.ElementType; color: string; bg: string }[] = [
-  { key: "daily-sales",       label: "Day-wise Sales",        icon: TrendingUp,       color: "text-blue-600",   bg: "bg-blue-50"   },
+  { key: "daily-sales",       label: "Day-wise Sales",        icon: TrendingUp,       color: "text-red-600",   bg: "bg-red-50"   },
   { key: "monthly-sales",     label: "Monthly Sales",         icon: BarChart3,        color: "text-indigo-600", bg: "bg-indigo-50" },
   { key: "profit",            label: "Profit Report",         icon: IndianRupee,      color: "text-green-600",  bg: "bg-green-50"  },
   { key: "gst",               label: "GST Monthly",           icon: Receipt,          color: "text-amber-600",  bg: "bg-amber-50"  },
@@ -141,7 +141,7 @@ function DailySalesReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <KpiCard label="Total Sales"    value={fmtK(totalSales)}   sub="Selected period"  icon={TrendingUp}  bg="bg-blue-50"   ic="text-blue-600"  />
+        <KpiCard label="Total Sales"    value={fmtK(totalSales)}   sub="Selected period"  icon={TrendingUp}  bg="bg-red-50"   ic="text-red-600"  />
         <KpiCard label="Total Orders"   value={String(totalOrders)} sub="Transactions"    icon={Receipt}     bg="bg-green-50"  ic="text-green-600" />
         <KpiCard label="Avg Order Value" value={fmt(avgOrder)}      sub="Per transaction" icon={IndianRupee} bg="bg-purple-50" ic="text-purple-600"/>
         <KpiCard label="Returns"        value={fmtK(totalReturns)} sub="Refunded amount" icon={TrendingDown} bg="bg-red-50"   ic="text-red-500"   />
@@ -160,8 +160,8 @@ function DailySalesReport({ data }: { data: any[] }) {
               labelFormatter={(label) => label}
             />
             <Legend />
-            <Bar dataKey="sales"   name="Sales"   fill={CHART_COLORS.blue}  radius={[4, 4, 0, 0]} />
-            <Bar dataKey="returns" name="Returns" fill={CHART_COLORS.red}   radius={[4, 4, 0, 0]} />
+            <Bar dataKey="sales"   name="Sales"   fill={CHART_COLORS.red}  radius={[4, 4, 0, 0]} />
+            <Bar dataKey="returns" name="Returns" fill={CHART_COLORS.amber}   radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -206,7 +206,7 @@ function MonthlySalesReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <KpiCard label="Total Revenue" value={fmtK(totalSales)}    sub="Selected Period" icon={TrendingUp}  bg="bg-blue-50"   ic="text-blue-600"  />
+        <KpiCard label="Total Revenue" value={fmtK(totalSales)}    sub="Selected Period" icon={TrendingUp}  bg="bg-red-50"   ic="text-red-600"  />
         <KpiCard label="Total Orders"  value={String(totalOrders)} sub="Transactions"    icon={Receipt}     bg="bg-green-50"  ic="text-green-600" />
         <KpiCard label="Customers"     value={String(totalCustomers)} sub="Unique"      icon={Users}       bg="bg-purple-50" ic="text-purple-600"/>
         <KpiCard label="Growth"        value="+12%"                sub="vs last month"   icon={BarChart3}   bg="bg-amber-50"  ic="text-amber-600" />
@@ -220,7 +220,7 @@ function MonthlySalesReport({ data }: { data: any[] }) {
               <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
               <YAxis tickFormatter={fmtK} tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
               <Tooltip formatter={(v: any) => typeof v === "number" ? [fmt(v), "Revenue"] : v} contentStyle={customTooltipStyle} cursor={{ fill: "#f8fafc" }} />
-              <Bar dataKey="sales" fill={CHART_COLORS.blue} radius={[6, 6, 0, 0]} />
+              <Bar dataKey="sales" fill={CHART_COLORS.red} radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -233,7 +233,7 @@ function MonthlySalesReport({ data }: { data: any[] }) {
               <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
               <Tooltip contentStyle={customTooltipStyle} />
               <Legend />
-              <Line type="monotone" dataKey="orders"    stroke={CHART_COLORS.blue}   strokeWidth={2.5} dot={{ r: 4 }} name="Orders"    />
+              <Line type="monotone" dataKey="orders"    stroke={CHART_COLORS.red}   strokeWidth={2.5} dot={{ r: 4 }} name="Orders"    />
               <Line type="monotone" dataKey="customers" stroke={CHART_COLORS.purple} strokeWidth={2.5} dot={{ r: 4 }} name="Customers" />
             </LineChart>
           </ResponsiveContainer>
@@ -253,7 +253,7 @@ function ProfitReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <KpiCard label="Total Revenue" value={fmtK(totalRevenue)} icon={TrendingUp}   bg="bg-blue-50"   ic="text-blue-600"  />
+        <KpiCard label="Total Revenue" value={fmtK(totalRevenue)} icon={TrendingUp}   bg="bg-red-50"   ic="text-red-600"  />
         <KpiCard label="Total Cost"    value={fmtK(totalCost)}    icon={TrendingDown} bg="bg-red-50"    ic="text-red-500"   />
         <KpiCard label="Net Profit"    value={fmtK(totalProfit)}  icon={IndianRupee}  bg="bg-green-50"  ic="text-green-600" />
         <KpiCard label="Avg Margin"    value={`${avgMargin}%`}    icon={BarChart3}    bg="bg-purple-50" ic="text-purple-600"/>
@@ -267,7 +267,7 @@ function ProfitReport({ data }: { data: any[] }) {
             <YAxis tickFormatter={fmtK} tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
             <Tooltip formatter={(v) => typeof v === "number" ? fmt(v) : v} contentStyle={customTooltipStyle} cursor={{ fill: "#f8fafc" }} />
             <Legend />
-            <Bar dataKey="revenue" name="Revenue" fill={CHART_COLORS.blue}  radius={[4, 4, 0, 0]} />
+            <Bar dataKey="revenue" name="Revenue" fill={CHART_COLORS.red}  radius={[4, 4, 0, 0]} />
             <Bar dataKey="cost"    name="Cost"    fill={CHART_COLORS.red}   radius={[4, 4, 0, 0]} />
             <Bar dataKey="profit"  name="Profit"  fill={CHART_COLORS.green} radius={[4, 4, 0, 0]} />
           </BarChart>
@@ -285,7 +285,7 @@ function GstReport({ data }: { data: any[] }) {
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         <KpiCard label="Total GST"   value={fmtK(totalGST)} icon={Receipt}     bg="bg-amber-50"  ic="text-amber-600"  />
-        <KpiCard label="Taxable"     value={fmtK(data.reduce((t: number, d: any) => t + d.taxable, 0))} icon={IndianRupee} bg="bg-blue-50" ic="text-blue-600" />
+        <KpiCard label="Taxable"     value={fmtK(data.reduce((t: number, d: any) => t + d.taxable, 0))} icon={IndianRupee} bg="bg-red-50" ic="text-red-600" />
       </div>
 
       <ChartCard title="GST Collection by Slab">
@@ -296,7 +296,7 @@ function GstReport({ data }: { data: any[] }) {
             <YAxis tickFormatter={fmtK} tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
             <Tooltip formatter={(v: any) => typeof v === "number" ? fmt(v) : v} contentStyle={customTooltipStyle} cursor={{ fill: "#f8fafc" }} />
             <Legend />
-            <Bar dataKey="gst5"  name="5%"  fill={CHART_COLORS.blue}   radius={[3, 3, 0, 0]} stackId="a" />
+            <Bar dataKey="gst5"  name="5%"  fill={CHART_COLORS.red}   radius={[3, 3, 0, 0]} stackId="a" />
             <Bar dataKey="gst12" name="12%" fill={CHART_COLORS.teal}   radius={[0, 0, 0, 0]} stackId="a" />
             <Bar dataKey="gst18" name="18%" fill={CHART_COLORS.amber}  radius={[0, 0, 0, 0]} stackId="a" />
             <Bar dataKey="gst28" name="28%" fill={CHART_COLORS.red}    radius={[3, 3, 0, 0]} stackId="a" />
@@ -323,7 +323,7 @@ function CustomerPurchaseReport({ data }: { data: any[] }) {
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         <KpiCard label="Total Customers" value={String(data.length)} icon={Users} bg="bg-purple-50" ic="text-purple-600" />
-        <KpiCard label="Total Revenue"   value={fmtK(totalRevenue)}   icon={IndianRupee} bg="bg-blue-50" ic="text-blue-600" />
+        <KpiCard label="Total Revenue"   value={fmtK(totalRevenue)}   icon={IndianRupee} bg="bg-red-50" ic="text-red-600" />
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
@@ -392,9 +392,9 @@ function StaffAttendanceReport({ data }: { data: any[] }) {
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-2">
                       <div className="w-20 bg-slate-100 rounded-full h-1.5">
-                        <div className="h-1.5 rounded-full bg-blue-500" style={{ width: `${s.attendancePct}%` }} />
+                        <div className="h-1.5 rounded-full bg-red-500" style={{ width: `${s.attendancePct}%` }} />
                       </div>
-                      <span className="text-xs font-bold text-blue-600">{s.attendancePct}%</span>
+                      <span className="text-xs font-bold text-red-600">{s.attendancePct}%</span>
                     </div>
                   </td>
                 </tr>
@@ -415,7 +415,7 @@ function SalaryPaidReport({ data }: { data: any[] }) {
     <div className="space-y-6">
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <KpiCard label="Total Salary Paid" value={fmtK(totalPaid)} icon={IndianRupee} bg="bg-green-50" ic="text-green-600" />
-        <KpiCard label="Staff Count"      value={String(data.length)} icon={Users}       bg="bg-blue-50"  ic="text-blue-600"  />
+        <KpiCard label="Staff Count"      value={String(data.length)} icon={Users}       bg="bg-red-50"  ic="text-red-600"  />
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
@@ -676,7 +676,7 @@ export default function ReportsPage() {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
+          <Loader2 className="h-10 w-10 animate-spin text-red-600" />
           <p className="text-sm font-medium text-slate-500">Generating live reports...</p>
         </div>
       </div>
@@ -703,7 +703,7 @@ export default function ReportsPage() {
             <Download size={15} /> Export CSV
           </button>
           <button onClick={handlePrint}
-            className="flex items-center gap-2 h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-sm font-semibold text-white transition-colors shadow-sm shadow-blue-200">
+            className="flex items-center gap-2 h-9 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-sm font-semibold text-white transition-colors shadow-sm shadow-red-200">
             <Printer size={15} /> Print
           </button>
         </div>
@@ -726,7 +726,7 @@ export default function ReportsPage() {
                     onClick={() => setActive(r.key)}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all ${
                       active === r.key
-                        ? "bg-blue-50 text-blue-700"
+                        ? "bg-red-50 text-red-700"
                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                   >
@@ -735,11 +735,11 @@ export default function ReportsPage() {
                     }`}>
                       <Icon className={`w-3.5 h-3.5 ${active === r.key ? r.color : "text-slate-400"}`} />
                     </div>
-                    <span className={`text-xs font-semibold leading-tight ${active === r.key ? "text-blue-700" : "text-slate-600"}`}>
+                    <span className={`text-xs font-semibold leading-tight ${active === r.key ? "text-red-700" : "text-slate-600"}`}>
                       {r.label}
                     </span>
                     {active === r.key && (
-                      <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600" />
+                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-red-600" />
                     )}
                   </button>
                 );

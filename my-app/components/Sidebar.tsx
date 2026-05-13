@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutDashboard, Package, Receipt, ShoppingCart,
-  Users, UserCheck, BarChart3, Settings, LogOut,
-  Store, Plus, X, Check, ArrowLeftRight,
-  AlertCircle, Pencil, UserPlus, Wallet,
-  Phone, Mail, ShoppingBag, Salad, Upload,
+  Phone, Mail, ShoppingBag, Salad, Upload, Calendar,
+  LayoutDashboard, Package, Receipt, ShoppingCart, Users, UserCheck,
+  BarChart3, Settings, AlertCircle, UserPlus, X, Pencil, Wallet,
+  Check, Store, ArrowLeftRight, Plus, LogOut
 } from "lucide-react";
 import { type LucideIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
@@ -86,6 +85,7 @@ const navItems: NavItem[] = [
   { label: "Customers", href: "/customers", icon: Users                   },
   { label: "Staff",     href: "/staff",     icon: UserCheck               },
   { label: "Reports",   href: "/reports",   icon: BarChart3               },
+  { label: "Attendance", href: "/attendance", icon: Calendar              },
   { label: "Settings",  href: "/settings",  icon: Settings                },
 ];
 
@@ -97,7 +97,7 @@ const CATEGORY_META: Record<StoreCategory, { label: string; icon: LucideIcon; co
 // ─── Shared UI helpers ─────────────────────────────────────────────────────────
 
 const inputCls = (err?: string) =>
-  `w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+  `w-full px-3 py-2 text-sm text-slate-900 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${
     err ? "border-red-400 bg-red-50" : "border-slate-200"
   }`;
 
@@ -144,7 +144,7 @@ function LogoUploader({ value, onChange }: {
     <div className="flex items-center gap-3">
       <div
         onClick={() => inputRef.current?.click()}
-        className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors overflow-hidden shrink-0"
+        className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex items-center justify-center cursor-pointer hover:border-red-400 hover:bg-red-50 transition-colors overflow-hidden shrink-0"
       >
         {value ? (
           <img src={value} alt="logo" className="w-full h-full object-cover" />
@@ -162,7 +162,7 @@ function LogoUploader({ value, onChange }: {
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="text-[11px] font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg transition-colors"
+            className="text-[11px] font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg transition-colors"
           >
             {value ? "Change" : "Upload"}
           </button>
@@ -275,8 +275,8 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
-              <UserPlus size={15} className="text-indigo-600" />
+            <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+              <UserPlus size={15} className="text-red-600" />
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900">Add Admin</h2>
@@ -310,7 +310,7 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
                 placeholder="admin@store.com"
                 value={form.email}
                 onChange={(e) => { setForm({ ...form, email: e.target.value }); setErrors({ ...errors, email: "" }); }}
-                className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${
                   errors.email ? "border-red-400 bg-red-50" : "border-slate-200"
                 }`}
               />
@@ -326,7 +326,7 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
                 maxLength={10}
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })}
-                className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
           </Field>
@@ -353,7 +353,7 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <UserPlus size={14} /> {isSubmitting ? "Adding..." : "Add Admin"}
             </button>
@@ -438,7 +438,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 ${
                   activeTab === tab
-                    ? "text-blue-600 border-blue-600 bg-blue-50"
+                    ? "text-red-600 border-red-600 bg-red-50"
                     : "text-slate-500 border-transparent hover:text-slate-700"
                 }`}
               >
@@ -515,7 +515,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
                         maxLength={10}
                         value={form.phone}
                         onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })}
-                        className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                       />
                     </div>
                   </Field>
@@ -528,7 +528,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
                         placeholder="yourname@upi"
                         value={form.upiId}
                         onChange={(e) => setForm({ ...form, upiId: e.target.value })}
-                        className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                       />
                     </div>
                   </Field>
@@ -550,7 +550,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
               <div className="space-y-3">
                 <button
                   onClick={() => setShowAddAdmin(true)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors"
                 >
                   <UserPlus size={15} /> Add Admin
                 </button>
@@ -568,7 +568,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
                         key={admin.id}
                         className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50"
                       >
-                        <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs font-bold shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center text-red-700 text-xs font-bold shrink-0">
                           {admin.name.slice(0, 2).toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -582,7 +582,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
                             </div>
                           )}
                         </div>
-                        <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
                           ADMIN
                         </span>
                       </div>
@@ -607,7 +607,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
               <button
                 type="submit"
                 form="edit-store-form"
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
               >
                 <Check size={14} /> Save Changes
               </button>
@@ -682,8 +682,8 @@ function CreateStoreModal({ onClose, onSave }: {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-              <Store size={16} className="text-blue-600" />
+            <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+              <Store size={16} className="text-red-600" />
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900">Create New Store</h2>
@@ -735,7 +735,7 @@ function CreateStoreModal({ onClose, onSave }: {
                     placeholder="store@example.com"
                     value={form.email}
                     onChange={(e) => { setForm({ ...form, email: e.target.value }); setErrors({ ...errors, email: "" }); }}
-                    className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${
                       errors.email ? "border-red-400 bg-red-50" : "border-slate-200"
                     }`}
                   />
@@ -751,7 +751,7 @@ function CreateStoreModal({ onClose, onSave }: {
                     maxLength={10}
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })}
-                    className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                   />
                 </div>
               </Field>
@@ -764,7 +764,7 @@ function CreateStoreModal({ onClose, onSave }: {
                     placeholder="yourname@upi"
                     value={form.upiId}
                     onChange={(e) => setForm({ ...form, upiId: e.target.value })}
-                    className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                   />
                 </div>
               </Field>
@@ -802,13 +802,13 @@ function CreateStoreModal({ onClose, onSave }: {
           >
             Cancel
           </button>
-          <button
-            type="submit"
-            form="create-store-form"
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Store size={14} /> Create Store
-          </button>
+            <button
+              type="submit"
+              form="create-store-form"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              <Store size={14} /> Create Store
+            </button>
         </div>
 
       </div>
@@ -829,7 +829,7 @@ function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-auto">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <ArrowLeftRight size={16} className="text-blue-600" />
+            <ArrowLeftRight size={16} className="text-red-600" />
             <h2 className="text-sm font-bold text-slate-900">Switch Store</h2>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
@@ -850,7 +850,7 @@ function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
                   onClick={() => { onSwitch(shop.id); onClose(); }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${
                     isActive
-                      ? "bg-blue-600 text-white shadow-md shadow-blue-100"
+                      ? "bg-red-600 text-white shadow-md shadow-red-100"
                       : "hover:bg-slate-50 text-slate-700"
                   }`}
                 >
@@ -897,13 +897,13 @@ function ActiveStoreBanner({ shop, onSwitch, onEdit, isSuperAdmin }: {
   const CatIcon = catMeta.icon;
 
   return (
-    <div className="mx-3 mb-3 rounded-xl border border-blue-100 bg-blue-50 p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-blue-400 mb-2">Active Store</p>
+    <div className="mx-3 mb-3 rounded-xl border border-red-100 bg-red-50 p-3">
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-red-400 mb-2">Active Store</p>
       <div className="flex items-center gap-2.5">
-        <div className="w-10 h-10 rounded-lg bg-white border border-blue-100 flex items-center justify-center overflow-hidden shrink-0">
+        <div className="w-10 h-10 rounded-lg bg-white border border-red-100 flex items-center justify-center overflow-hidden shrink-0">
           {shop.logoUrl
             ? <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
-            : <CatIcon size={17} className="text-blue-500" />}
+            : <CatIcon size={17} className="text-red-500" />}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-slate-800 truncate">{shop.name}</p>
@@ -930,7 +930,7 @@ function ActiveStoreBanner({ shop, onSwitch, onEdit, isSuperAdmin }: {
           </button>
           <button
             onClick={onSwitch}
-            className="flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800 bg-white hover:bg-blue-50 border border-blue-200 px-2 py-1 rounded-lg transition-colors"
+            className="flex items-center gap-1 text-[11px] font-semibold text-red-600 hover:text-red-800 bg-white hover:bg-red-50 border border-red-200 px-2 py-1 rounded-lg transition-colors"
           >
             <ArrowLeftRight size={10} /> Switch
           </button>
@@ -1086,14 +1086,21 @@ export default function Sidebar() {
 
   const isSuperAdmin = !user || user.role === "SUPER_ADMIN";
   const isAdmin = user?.role === "ADMIN";
+  const isStaff = user?.role === "STAFF";
 
   // Filter navigation items based on role
   const visibleNavItems = navItems.filter((item) => {
-    if (isSuperAdmin) return true;
-    if (isAdmin) {
-      return ["Products", "Billing", "Orders", "Staff"].includes(item.label);
+    if (isStaff) {
+      return ["Attendance"].includes(item.label);
     }
-    return false; // Hide everything else or add staff rules later
+    if (isAdmin) {
+      // Admin restricted items
+      if (["Dashboard", "Reports", "Settings", "Attendance"].includes(item.label)) return false;
+      return true;
+    }
+    // Superadmin (only hide Attendance as they manage it in Staff)
+    if (item.label === "Attendance") return false;
+    return true;
   });
 
   return (
@@ -1102,17 +1109,17 @@ export default function Sidebar() {
 
         {/* Brand */}
         <div className="flex items-center gap-3 px-5 py-5 border-b border-slate-100 shrink-0">
-          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-blue-600 shrink-0">
+          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-red-600 shrink-0">
             <Package className="w-5 h-5 text-white" />
           </div>
           <div>
             <p className="text-sm font-bold text-slate-900 leading-tight">Stock</p>
-            <p className="text-xs text-blue-600 font-semibold leading-tight">Management</p>
+            <p className="text-xs text-red-600 font-semibold leading-tight">Management</p>
           </div>
         </div>
 
         {/* Active Store Banner */}
-        {activeShop && (
+        {activeShop && !isStaff && (
           <div className="pt-3">
             <ActiveStoreBanner
               shop={activeShop}
@@ -1135,20 +1142,20 @@ export default function Sidebar() {
                 href={item.href}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all group ${
                   isActive
-                    ? "bg-blue-600 text-white shadow-sm shadow-blue-200"
-                    : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
+                    ? "bg-red-600 text-white shadow-sm shadow-red-200"
+                    : "text-slate-600 hover:bg-red-50 hover:text-red-700"
                 }`}
               >
                 <Icon
                   size={18}
                   className={`shrink-0 transition-colors ${
-                    isActive ? "text-white" : "text-slate-400 group-hover:text-blue-600"
+                    isActive ? "text-white" : "text-slate-400 group-hover:text-red-600"
                   }`}
                 />
                 <span className="flex-1">{item.label}</span>
                 {item.badge != null && (
                   <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
-                    isActive ? "bg-white/20 text-white" : "bg-blue-100 text-blue-600"
+                    isActive ? "bg-white/20 text-white" : "bg-red-100 text-red-600"
                   }`}>
                     {item.badge}
                   </span>
@@ -1171,7 +1178,7 @@ export default function Sidebar() {
                 {shops.length > 1 && (
                   <button
                     onClick={() => setShowSwitcher(true)}
-                    className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-blue-600 bg-slate-50 hover:bg-blue-50 px-2 py-0.5 rounded-full transition-colors"
+                    className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-red-600 bg-slate-50 hover:bg-red-50 px-2 py-0.5 rounded-full transition-colors"
                   >
                     <ArrowLeftRight size={10} /> Switch
                   </button>
@@ -1179,7 +1186,7 @@ export default function Sidebar() {
                 {isSuperAdmin && (
                   <button
                     onClick={() => setShowCreateStore(true)}
-                    className="flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded-full transition-colors"
+                    className="flex items-center gap-1 text-[11px] font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors"
                   >
                     <Plus size={11} /> New
                   </button>
@@ -1193,7 +1200,7 @@ export default function Sidebar() {
                 {isSuperAdmin && (
                   <button
                     onClick={() => setShowCreateStore(true)}
-                    className="text-blue-500 hover:underline font-semibold"
+                    className="text-red-500 hover:underline font-semibold"
                   >
                     Create one
                   </button>
@@ -1211,7 +1218,7 @@ export default function Sidebar() {
                         onClick={() => switchStore(shop.id)}
                         className={`flex-1 flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all ${
                           isActive
-                            ? "bg-blue-600 text-white shadow-sm"
+                            ? "bg-red-600 text-white shadow-sm"
                             : "hover:bg-slate-50 text-slate-700"
                         }`}
                       >
@@ -1244,6 +1251,31 @@ export default function Sidebar() {
                       >
                         <Pencil size={12} />
                       </button>
+                      
+                      {isSuperAdmin && (
+                        <button
+                          onClick={async () => {
+                            if (window.confirm(`Are you sure you want to delete "${shop.name}"? This will delete ALL data (products, staff, bills) for this store and CANNOT be undone.`)) {
+                              try {
+                                await api.delete(`/stores/${shop.id}`);
+                                window.location.reload();
+                              } catch (err) {
+                                alert("Failed to delete store: " + getErrorMessage(err, "Unknown error"));
+                              }
+                            }
+                          }}
+                          className={`p-1.5 rounded-lg transition-colors ${
+                            isActive
+                              ? "text-white/70 hover:text-white hover:bg-white/10"
+                              : "text-slate-400 hover:text-red-600 hover:bg-red-50"
+                          }`}
+                          title="Delete store"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
                   );
                 })}
@@ -1257,7 +1289,7 @@ export default function Sidebar() {
         {/* User Footer */}
         <div className="border-t border-slate-100 p-4 shrink-0">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-xs font-bold shrink-0">
+            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-700 text-xs font-bold shrink-0">
               {user?.name ? user.name.slice(0, 2).toUpperCase() : "SA"}
             </div>
             <div className="min-w-0">
