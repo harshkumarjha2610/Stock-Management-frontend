@@ -686,7 +686,7 @@ export const Design = (): React.JSX.Element => {
             {/* Right side buttons */}
             <div className="flex items-center gap-2 sm:gap-3">
               {/* ✅ Language Toggle */}
-              <button
+              {/* <button
                 onClick={handleLanguageSwitch}
                 className={`relative w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 cursor-pointer group ${
                   isWhiteTheme
@@ -716,7 +716,7 @@ export const Design = (): React.JSX.Element => {
                 >
                   {t.header.switchLabel}
                 </span>
-              </button>
+              </button> */}
 
               {/* Theme Toggle */}
               {/* <button

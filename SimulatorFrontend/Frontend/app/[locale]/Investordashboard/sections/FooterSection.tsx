@@ -93,9 +93,9 @@ export function FooterSection() {
             </h4>
             <ul className="space-y-1.5 sm:space-y-2">
               <li>
-                <Link href="/help" className={`text-gray-400 hover:text-orange-500 transition-colors duration-200 text-xs sm:text-sm block ${isRtl ? 'lg:text-left' : 'lg:text-right'}`}>
-                  {t('support.helpCenter')}
-                </Link>
+                <span className={`text-gray-400 transition-colors duration-200 text-xs sm:text-sm block select-all ${isRtl ? 'lg:text-left' : 'lg:text-right'}`}>
+                  support@cobuild.capital
+                </span>
               </li>
               <li>
                 <Link href="/privacy" className={`text-gray-400 hover:text-orange-500 transition-colors duration-200 text-xs sm:text-sm block ${isRtl ? 'lg:text-left' : 'lg:text-right'}`}>
