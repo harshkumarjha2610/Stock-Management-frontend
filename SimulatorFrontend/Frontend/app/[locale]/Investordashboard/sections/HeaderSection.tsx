@@ -506,7 +506,7 @@ export const HeaderSection = (): JSX.Element => {
           <div className="hidden md:flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
 
             {/* Language Toggle */}
-            <LangToggleButton t={t} onSwitch={handleLanguageSwitch} />
+            {/* <LangToggleButton t={t} onSwitch={handleLanguageSwitch} /> */}
 
             {/* Bell */}
             <Button
@@ -588,11 +588,11 @@ export const HeaderSection = (): JSX.Element => {
             <div className="md:hidden flex items-center justify-center gap-3 px-4 py-3 border-t border-white/10">
 
               {/* Language Toggle */}
-              <LangToggleButton
+              {/* <LangToggleButton
                 t={t}
                 onSwitch={handleLanguageSwitch}
                 className="w-[45px] h-[45px] rounded-full hover:bg-[#4a4a4a] relative flex items-center justify-center"
-              />
+              /> */}
 
               {/* ✅ Mobile Bell — own ref, opens above */}
               <Button

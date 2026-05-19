@@ -177,6 +177,7 @@ const glassPill =
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
 export default function ElementDashboard() {
   const [activeNav, setActiveNav] = useState("Investor Dashboard");
+  const [hoveredMenuIndex, setHoveredMenuIndex] = useState<number | null>(null);
   const router  = useRouter();
   const locale  = useLocale();
   const isAr    = locale === "ar";
@@ -227,24 +228,35 @@ export default function ElementDashboard() {
         {/* ── Action buttons: 2-col grid on mobile, flex row on sm+ ── */}
         <div className="grid grid-cols-2 gap-[10px] sm:flex sm:items-center sm:gap-[15px] sm:justify-end">
           {menuItems.map((item, i) => (
-            <div
-              key={i}
-              onClick={() => item.route && router.push(item.route)}
-              className={
-                "relative flex items-center gap-[10px] px-7 py-0 sm:py-4 rounded-[14px] flex-shrink-0 " +
-                "bg-[linear-gradient(135deg,var(--color-orange-highlight),var(--color-primary-orange))] shadow-[0_3px_0_0_var(--color-orange-dark)] " +
-                (item.route ? "cursor-pointer" : "cursor-default opacity-80")
-              }
+            <div 
+              key={i} 
+              className="relative flex"
+              onMouseEnter={() => setHoveredMenuIndex(i)}
+              onMouseLeave={() => setHoveredMenuIndex(null)}
             >
-              <img
-                src={item.icon}
-                className="flex-shrink-0 w-7 h-7"
-                alt=""
-                onError={(e) => (e.currentTarget.style.display = "none")}
-              />
-              <span className="[font-family:'Dubai-Medium',Helvetica] text-white text-base md:text-[17px] leading-normal">
-                {isAr ? item.labelAr : item.label}
-              </span>
+              <div
+                onClick={() => item.route && router.push(item.route)}
+                className={
+                  "relative flex items-center gap-[10px] px-7 py-0 sm:py-4 rounded-[14px] flex-shrink-0 w-full sm:w-auto " +
+                  "bg-[linear-gradient(135deg,var(--color-orange-highlight),var(--color-primary-orange))] shadow-[0_3px_0_0_var(--color-orange-dark)] " +
+                  (item.route ? "cursor-pointer" : "cursor-default opacity-80")
+                }
+              >
+                <img
+                  src={item.icon}
+                  className="flex-shrink-0 w-7 h-7"
+                  alt=""
+                  onError={(e) => (e.currentTarget.style.display = "none")}
+                />
+                <span className="[font-family:'Dubai-Medium',Helvetica] text-white text-base md:text-[17px] leading-normal whitespace-nowrap">
+                  {isAr ? item.labelAr : item.label}
+                </span>
+              </div>
+              {item.label === "Smart Contact (Log)" && hoveredMenuIndex === i && (
+                <div className="absolute top-[110%] left-1/2 -translate-x-1/2 px-3 py-2 bg-[#2a2a2a] text-white text-xs sm:text-sm rounded-md whitespace-nowrap z-[9999] border border-white/10 shadow-xl pointer-events-none">
+                  This feature will be available in live mode.
+                </div>
+              )}
             </div>
           ))}
         </div>
