@@ -52,7 +52,7 @@ const t = {
     whatHappensNext:        'What happens next',
     verifyEmail:            'Verify your email',
     otpSentTo:              (email: string) => `OTP sent to ${email}`,
-    idReview:               'ID verification review',
+    idReview:               'Email verification review',
     idReviewDesc:           'Our team will verify your submitted documents',
     registrationComplete:   'Registration complete',
     registrationCompleteDesc: "You'll gain full access to your investor dashboard",

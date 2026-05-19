@@ -304,12 +304,12 @@ export default function FAQPage() {
           </h1>
           <p className="text-gray-400 text-base sm:text-lg max-w-xl mx-auto">
             {tx.pageSubtitle}{" "}
-            <a
+            {/* <a
               href="/community"
               className="text-[#ef6b23] hover:text-[#d95e1f] transition-colors underline underline-offset-2"
             >
               {tx.askCommunity}
-            </a>
+            </a> */}
           </p>
         </div>
 
@@ -467,12 +467,12 @@ export default function FAQPage() {
               {tx.supportReply}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <a
+              {/* <a
                 href="/community"
                 className="w-full sm:w-auto px-6 py-3 rounded-[12px] bg-[#ef6b23] hover:bg-[#d95e1f] text-white font-medium text-sm transition-colors duration-200"
               >
                 {tx.askTheCommunity}
-              </a>
+              </a> */}
               <a
                 href="mailto:support@cobuild.com"
                 className="w-full sm:w-auto px-6 py-3 rounded-[12px] bg-[#2a2a2a] border border-white/10 hover:bg-[#4a4a4a] text-white font-medium text-sm transition-colors duration-200"
