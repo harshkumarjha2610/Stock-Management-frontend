@@ -65,6 +65,63 @@ function fmt(n: number) {
   return "₹" + n.toLocaleString("en-IN");
 }
 
+function normalizeSalaryStatus(status: string) {
+  return status === 'PAID' ? 'Paid' : 'Unpaid';
+}
+
+function normalizePaymentMethod(method: string) {
+  if (!method) return "";
+  return method
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function normalizeSalaryRecord(s: any): SalaryRecord {
+  return {
+    id: s.id,
+    staffId: s.staff_id,
+    staffName: s.staff?.name || "Unknown",
+    month: s.month,
+    amount: parseFloat(s.amount),
+    paidDate: s.paid_date?.split('T')[0],
+    paymentMethod: normalizePaymentMethod(s.payment_method),
+    status: normalizeSalaryStatus(s.status)
+  };
+}
+
+function getDaysInMonth(month: string) {
+  const [year, mon] = month.split('-').map(Number);
+  return new Date(year, mon, 0).getDate();
+}
+
+function calculateSalaryDetails(staff: Staff, month: string, attendanceRecords: Attendance[]) {
+  const monthRecords = attendanceRecords.filter((a) => a.staffId === staff.id && a.date.startsWith(month));
+  const absentDays = monthRecords.filter((a) => a.status === 'ABSENT').length;
+  const halfDays = monthRecords.filter((a) => a.status === 'HALF_DAY').length;
+  const daysInMonth = getDaysInMonth(month);
+  const allowedOffDays = Math.ceil(daysInMonth / 7);
+  const paidDays = Math.max(1, daysInMonth - allowedOffDays);
+  const absenceValue = absentDays + halfDays * 0.5;
+  const extraLeaveDays = Math.max(0, absenceValue - allowedOffDays);
+  const dailyRate = Math.round((staff.salary / paidDays) * 100) / 100;
+  const deduction = Math.round(extraLeaveDays * dailyRate * 100) / 100;
+  const netPay = Math.max(0, Math.round((staff.salary - deduction) * 100) / 100);
+
+  return {
+    baseSalary: staff.salary,
+    daysInMonth,
+    allowedOffDays,
+    absentDays,
+    halfDays,
+    absenceValue,
+    extraLeaveDays,
+    dailyRate,
+    deduction,
+    netPay,
+  };
+}
+
 function calcHours(checkIn: string, checkOut: string): number {
   if (!checkIn || !checkOut) return 0;
   const [ih, im] = checkIn.split(":").map(Number);
@@ -167,6 +224,7 @@ export default function StaffManagementPage() {
   const [salarySearch, setSalarySearch] = useState("");
   const [salaryStatusFilter, setSalaryStatusFilter] = useState("All");
   const [payModal, setPayModal]         = useState<SalaryRecord | null>(null);
+  const [payStaffModal, setPayStaffModal] = useState<{ staff: Staff; month: string } | null>(null);
   const [payForm, setPayForm]           = useState({ paidDate: TODAY, paymentMethod: "Bank Transfer" as PayMethod });
   const [successModal, setSuccessModal] = useState<{ email: string; password: string } | null>(null);
   const [userRole, setUserRole] = useState<string>("");
@@ -217,16 +275,7 @@ export default function StaffManagementPage() {
           status: a.status || 'ABSENT'
         })));
 
-        setSalaryList(salRes.data.map((s: any) => ({
-          id: s.id,
-          staffId: s.staff_id,
-          staffName: s.staff?.name || "Unknown",
-          month: s.month,
-          amount: parseFloat(s.amount),
-          paidDate: s.paid_date?.split('T')[0],
-          paymentMethod: s.payment_method,
-          status: s.status
-        })));
+        setSalaryList(salRes.data.map((s: any) => normalizeSalaryRecord(s)));
 
       } catch (error) {
         console.error("Failed to fetch staff data", error);
@@ -338,16 +387,7 @@ export default function StaffManagementPage() {
 
         // Auto-create unpaid salary record for current month
         const salRes = await api.get('/salaries');
-        setSalaryList(salRes.data.map((s: any) => ({
-          id: s.id,
-          staffId: s.staff_id,
-          staffName: s.staff?.name || "Unknown",
-          month: s.month,
-          amount: parseFloat(s.amount),
-          paidDate: s.paid_date?.split('T')[0],
-          paymentMethod: s.payment_method,
-          status: s.status
-        })));
+        setSalaryList(salRes.data.map((s: any) => normalizeSalaryRecord(s)));
       }
       setShowStaffModal(false);
     } catch (error: any) {
@@ -514,6 +554,39 @@ export default function StaffManagementPage() {
     }
   }
 
+  const payStaffSummary = useMemo(() => {
+    if (!payStaffModal) return null;
+    return calculateSalaryDetails(payStaffModal.staff, payStaffModal.month, attendance);
+  }, [payStaffModal, attendance]);
+
+  function mapPaymentMethod(method: PayMethod) {
+    return method === "Bank Transfer" ? "BANK_TRANSFER" : method.toUpperCase();
+  }
+
+  async function createSalaryPayment() {
+    if (!payStaffModal || !payStaffSummary) return;
+    setLoading(true);
+    try {
+      const staffId = Number(payStaffModal.staff.id);
+      const payload = {
+        staff_id: Number.isNaN(staffId) ? payStaffModal.staff.id : staffId,
+        month: payStaffModal.month,
+        amount: payStaffSummary.netPay,
+        payment_method: mapPaymentMethod(payForm.paymentMethod),
+        paid_date: payForm.paidDate,
+        status: 'PAID'
+      };
+
+      const res = await api.post('/salaries', payload);
+      setSalaryList((p) => [normalizeSalaryRecord(res.data), ...p]);
+      setPayStaffModal(null);
+    } catch (error: any) {
+      alert(error.message || "Failed to process salary payment");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function bulkMarkAttendance() {
     if (!markForm.staffId || markForm.dates.length === 0) return;
     setLoading(true);
@@ -671,7 +744,7 @@ export default function StaffManagementPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-3">
                           <button onClick={() => setViewStaff(s)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-800 transition-colors">
                             <Eye size={13} /> View
                           </button>
@@ -681,6 +754,14 @@ export default function StaffManagementPage() {
                           <button onClick={() => setDeleteStaffId(s.id)} className="flex items-center gap-1 text-xs font-medium text-red-400 hover:text-red-600 transition-colors">
                             <Trash2 size={13} /> Delete
                           </button>
+                          {userRole === 'SUPER_ADMIN' && (
+                            <button
+                              onClick={() => setPayStaffModal({ staff: s, month: salaryMonth })}
+                              className="flex items-center gap-1 text-xs font-semibold text-white bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                            >
+                              <BadgeIndianRupee size={12} /> Pay Salary
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -1003,12 +1084,16 @@ export default function StaffManagementPage() {
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
                         {r.status === "Unpaid" ? (
-                          <button
-                            onClick={() => { setPayModal(r); setPayForm({ paidDate: TODAY, paymentMethod: "Bank Transfer" }); }}
-                            className="flex items-center gap-1 text-xs font-semibold text-white bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
-                          >
-                            <BadgeIndianRupee size={12} /> Mark Paid
-                          </button>
+                          userRole === 'SUPER_ADMIN' ? (
+                            <button
+                              onClick={() => { setPayModal(r); setPayForm({ paidDate: TODAY, paymentMethod: "Bank Transfer" }); }}
+                              className="flex items-center gap-1 text-xs font-semibold text-white bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                            >
+                              <BadgeIndianRupee size={12} /> Mark Paid
+                            </button>
+                          ) : (
+                            <span className="text-xs font-semibold text-amber-700">Pending</span>
+                          )
                         ) : (
                           <span className="flex items-center gap-1 text-xs text-green-600 font-semibold">
                             <CheckCircle size={13} /> Paid
@@ -1308,6 +1393,74 @@ export default function StaffManagementPage() {
             onCancel={() => setPayModal(null)}
             onConfirm={() => markPaid(payModal)}
             confirmLabel="Confirm Payment"
+            confirmColor="bg-green-600 hover:bg-green-700 shadow-green-200"
+            disabled={!payForm.paidDate}
+          />
+        </Modal>
+      )}
+
+      {payStaffModal && payStaffSummary && (
+        <Modal title="Pay Staff Salary" sub={`${payStaffModal.staff.name} · ${fmtMonth(payStaffModal.month)}`} onClose={() => setPayStaffModal(null)}>
+          <div className="px-6 py-5 space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                <p className="text-xs text-slate-400 uppercase tracking-wide">Base Salary</p>
+                <p className="mt-2 text-lg font-bold text-slate-900">{fmt(payStaffSummary.baseSalary)}</p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                <p className="text-xs text-slate-400 uppercase tracking-wide">Net Payable</p>
+                <p className="mt-2 text-lg font-bold text-red-800">{fmt(payStaffSummary.netPay)}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-xs text-slate-500">Days in month</p>
+                <p className="text-base font-semibold text-slate-900">{payStaffSummary.daysInMonth}</p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-xs text-slate-500">Allowed off days</p>
+                <p className="text-base font-semibold text-slate-900">{payStaffSummary.allowedOffDays}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-xs text-slate-500">Absent days</p>
+                <p className="text-base font-semibold text-slate-900">{payStaffSummary.absentDays}</p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-xs text-slate-500">Half days</p>
+                <p className="text-base font-semibold text-slate-900">{payStaffSummary.halfDays}</p>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-rose-50 p-4">
+              <p className="text-xs text-rose-600 uppercase tracking-wide">Extra leave deduction</p>
+              <div className="mt-3 text-sm text-slate-600 space-y-1">
+                <p>Extra leave days: <span className="font-semibold text-slate-800">{payStaffSummary.extraLeaveDays}</span></p>
+                <p>Daily rate: <span className="font-semibold text-slate-800">{fmt(payStaffSummary.dailyRate)}</span></p>
+                <p>Deduction: <span className="font-semibold text-slate-800">{fmt(payStaffSummary.deduction)}</span></p>
+              </div>
+            </div>
+            <Field label="Payment Date">
+              <input type="date" value={payForm.paidDate}
+                onChange={(e) => setPayForm((p) => ({ ...p, paidDate: e.target.value }))} className={inputCls} />
+            </Field>
+            <Field label="Payment Method">
+              <div className="relative">
+                <select value={payForm.paymentMethod}
+                  onChange={(e) => setPayForm((p) => ({ ...p, paymentMethod: e.target.value as PayMethod }))}
+                  className={inputCls + " appearance-none pr-8 cursor-pointer"}>
+                  <option>Bank Transfer</option>
+                  <option>Cash</option>
+                  <option>UPI</option>
+                </select>
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              </div>
+            </Field>
+          </div>
+          <ModalFooter
+            onCancel={() => setPayStaffModal(null)}
+            onConfirm={createSalaryPayment}
+            confirmLabel="Pay Salary"
             confirmColor="bg-green-600 hover:bg-green-700 shadow-green-200"
             disabled={!payForm.paidDate}
           />
