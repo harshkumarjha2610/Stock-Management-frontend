@@ -649,13 +649,106 @@ function CreateStoreModal({ onClose, onSave }: {
   });
   const [logoUrl, setLogoUrl]   = useState<string | null>(null);
   const [errors, setErrors]     = useState<Partial<typeof form>>({});
+  const [locationStatus, setLocationStatus] = useState<string | null>(null);
+  const [mapPreview, setMapPreview] = useState<{ lat: number; lng: number } | null>(null);
+  const [isResolvingLocation, setIsResolvingLocation] = useState(false);
 
   function validate() {
     const e: Partial<typeof form> = {};
-    if (!form.name.trim())  e.name  = "Required";
-    if (!form.email.trim()) e.email = "Required";
+    if (!form.name.trim())    e.name    = "Required";
+    if (!form.email.trim())   e.email   = "Required";
+    if (!form.address.trim()) e.address = "Required";
     setErrors(e);
     return Object.keys(e).length === 0;
+  }
+
+  function parseLatLng(value: string) {
+    const parts = value.split(",").map((p) => p.trim());
+    if (parts.length !== 2) return null;
+    const lat = Number(parts[0]);
+    const lng = Number(parts[1]);
+    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      return { lat, lng };
+    }
+    return null;
+  }
+
+  async function resolveAddressToCoords(address: string) {
+    const direct = parseLatLng(address);
+    if (direct) {
+      return direct;
+    }
+
+    setLocationStatus("Resolving address...");
+    setIsResolvingLocation(true);
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`,
+      );
+      const results = await response.json();
+      if (!Array.isArray(results) || results.length === 0) {
+        setLocationStatus("Location not found.");
+        return null;
+      }
+
+      const first = results[0];
+      const lat = Number(first.lat);
+      const lng = Number(first.lon);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        setLocationStatus("Location could not be resolved.");
+        return null;
+      }
+
+      return { lat, lng };
+    } catch (err) {
+      setLocationStatus("Unable to resolve location.");
+      return null;
+    } finally {
+      setIsResolvingLocation(false);
+    }
+  }
+
+  function buildEmbedUrl(lat: number, lng: number) {
+    const delta = 0.01;
+    const minLng = lng - delta;
+    const minLat = lat - delta;
+    const maxLng = lng + delta;
+    const maxLat = lat + delta;
+    return `https://www.openstreetmap.org/export/embed.html?bbox=${minLng},${minLat},${maxLng},${maxLat}&layer=mapnik&marker=${lat},${lng}`;
+  }
+
+  async function openLocationInMap() {
+    if (!form.address.trim()) return;
+    const coords = await resolveAddressToCoords(form.address.trim());
+    if (!coords) return;
+
+    setMapPreview(coords);
+    setLocationStatus("Location preview updated.");
+    const url = `https://www.openstreetmap.org/?mlat=${coords.lat}&mlon=${coords.lng}#map=16/${coords.lat}/${coords.lng}`;
+    window.open(url, "_blank");
+  }
+
+  function handleUseCurrentLocation() {
+    if (!navigator.geolocation) {
+      setLocationStatus("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setLocationStatus("Fetching current location...");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = Number(position.coords.latitude.toFixed(6));
+        const lng = Number(position.coords.longitude.toFixed(6));
+        setForm((prev) => ({ ...prev, address: `${lat}, ${lng}` }));
+        setMapPreview({ lat, lng });
+        setErrors((prev) => ({ ...prev, address: "" }));
+        setLocationStatus("Current location set. You can verify it on the map.");
+      },
+      () => {
+        setLocationStatus("Unable to access current location.");
+      },
+    );
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -769,14 +862,57 @@ function CreateStoreModal({ onClose, onSave }: {
                 </div>
               </Field>
 
-              <Field label="Address">
-                <input
-                  type="text"
-                  placeholder="e.g. 123 Main St, Delhi"
-                  value={form.address}
-                  onChange={(e) => setForm({ ...form, address: e.target.value })}
-                  className={inputCls()}
-                />
+              <Field label="Location" required error={errors.address}>
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    placeholder="e.g. 123 Main St, Delhi"
+                    value={form.address}
+                    onChange={(e) => {
+                      setForm({ ...form, address: e.target.value });
+                      setErrors({ ...errors, address: "" });
+                      setLocationStatus(null);
+                      setMapPreview(null);
+                    }}
+                    className={inputCls(errors.address)}
+                  />
+
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={handleUseCurrentLocation}
+                      className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
+                    >
+                      Use my current location
+                    </button>
+                    <button
+                      type="button"
+                      onClick={openLocationInMap}
+                      disabled={!form.address.trim() || isResolvingLocation}
+                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isResolvingLocation ? "Resolving..." : "View on map"}
+                    </button>
+                  </div>
+
+                  {locationStatus && (
+                    <p className="text-[11px] text-slate-500">{locationStatus}</p>
+                  )}
+
+                  <div className="overflow-hidden rounded-xl border border-slate-200">
+                    {mapPreview ? (
+                      <iframe
+                        title="Location preview"
+                        src={buildEmbedUrl(mapPreview.lat, mapPreview.lng)}
+                        className="w-full h-44"
+                      />
+                    ) : (
+                      <div className="flex h-44 items-center justify-center bg-slate-50 p-4 text-sm text-slate-500">
+                        Enter a location and click View on map to preview it here.
+                      </div>
+                    )}
+                  </div>
+                </div>
               </Field>
 
               <div>
