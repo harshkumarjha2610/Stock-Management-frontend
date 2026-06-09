@@ -366,6 +366,7 @@ function ImageUploader({
   onChange: (dataUrl: string) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
   function handleFile(file: File) {
@@ -393,12 +394,20 @@ function ImageUploader({
           >
             <X size={13} />
           </button>
-          <button
-            onClick={() => inputRef.current?.click()}
-            className="absolute bottom-2 right-2 flex items-center gap-1.5 px-3 py-1.5 bg-white/90 hover:bg-white rounded-lg text-xs font-semibold text-slate-700 shadow-sm border border-slate-200"
-          >
-            <Upload size={12} /> Replace
-          </button>
+          <div className="absolute bottom-2 right-2 flex items-center gap-2">
+            <button
+              onClick={() => inputRef.current?.click()}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/90 hover:bg-white rounded-lg text-xs font-semibold text-slate-700 shadow-sm border border-slate-200"
+            >
+              <Upload size={12} /> Replace
+            </button>
+            <button
+              onClick={() => cameraRef.current?.click()}
+              className="flex items-center gap-1 px-3 py-1.5 bg-white/90 hover:bg-white rounded-lg text-xs font-semibold text-slate-700 shadow-sm border border-slate-200"
+            >
+              <Camera size={12} /> Camera
+            </button>
+          </div>
         </div>
       ) : (
         <div
@@ -428,6 +437,20 @@ function ImageUploader({
               Click or drag image here
             </p>
             <p className="text-xs text-slate-400 mt-0.5">PNG, JPG up to 5MB</p>
+            <div className="mt-3 flex items-center justify-center gap-2">
+              <button
+                onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}
+                className="flex items-center gap-1 px-3 py-1.5 bg-white rounded-lg text-xs font-semibold text-slate-700 shadow-sm border border-slate-200"
+              >
+                <Upload size={12} /> Upload
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); cameraRef.current?.click(); }}
+                className="flex items-center gap-1 px-3 py-1.5 bg-white rounded-lg text-xs font-semibold text-slate-700 shadow-sm border border-slate-200"
+              >
+                <Camera size={12} /> Camera
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -435,6 +458,18 @@ function ImageUploader({
         ref={inputRef}
         type="file"
         accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) handleFile(f);
+          e.target.value = "";
+        }}
+      />
+      <input
+        ref={cameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
         className="hidden"
         onChange={(e) => {
           const f = e.target.files?.[0];

@@ -3,13 +3,126 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --panel: #ffffff;
+  --surface: #f8fafc;
+  --surface-2: #f1f5f9;
+  --border: #e2e8f0;
+  --muted: #475569;
+  --accent: #ef4444;
+  --accent-soft: #fef2f2;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+.theme-classic {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --panel: #ffffff;
+  --surface: #f8fafc;
+  --surface-2: #f1f5f9;
+  --border: #e2e8f0;
+  --muted: #475569;
+  --accent: #ef4444;
+  --accent-soft: #fef2f2;
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+}
+
+.theme-sunrise {
+  --background: #fff7ed;
+  --foreground: #7c2d12;
+  --panel: #ffffff;
+  --surface: #fff1e7;
+  --surface-2: #fee7d8;
+  --border: #f5c0a6;
+  --muted: #92400e;
+  --accent: #db2777;
+  --accent-soft: #fce7f3;
+  --font-sans: var(--font-poppins);
+}
+
+.theme-ocean {
+  --background: #eff6ff;
+  --foreground: #0f172a;
+  --panel: #ffffff;
+  --surface: #e0f2fe;
+  --surface-2: #bae6fd;
+  --border: #93c5fd;
+  --muted: #334155;
+  --accent: #0369a1;
+  --accent-soft: #dbeafe;
+  --font-sans: var(--font-inter);
+}
+
+.theme-mint {
+  --background: #f0fdf4;
+  --foreground: #14532d;
+  --panel: #ffffff;
+  --surface: #dcfce7;
+  --surface-2: #bbf7d0;
+  --border: #86efac;
+  --muted: #166534;
+  --accent: #15803d;
+  --accent-soft: #d1fae5;
+  --font-sans: var(--font-space-grotesk);
+}
+
+.theme-aurora {
+  --background: #f8fafc;
+  --foreground: #111827;
+  --panel: #ffffff;
+  --surface: #eef2ff;
+  --surface-2: #e9d5ff;
+  --border: #c7d2fe;
+  --muted: #4f46e5;
+  --accent: #8b5cf6;
+  --accent-soft: #ede9fe;
+  --font-sans: var(--font-roboto-slab);
+}
+
+.theme-violet {
+  --background: #faf5ff;
+  --foreground: #4c1d95;
+  --panel: #ffffff;
+  --surface: #f5dbff;
+  --surface-2: #ede9fe;
+  --border: #d8b4fe;
+  --muted: #6d28d9;
+  --accent: #9333ea;
+  --accent-soft: #f3e8ff;
+  --font-sans: var(--font-poppins);
+}
+
+.theme-earth {
+  --background: #fefce8;
+  --foreground: #92400e;
+  --panel: #ffffff;
+  --surface: #fef3c7;
+  --surface-2: #fde68a;
+  --border: #fbcf79;
+  --muted: #a16207;
+  --accent: #ca8a04;
+  --accent-soft: #ffedd5;
+  --font-sans: var(--font-inter);
+}
+
+.theme-midnight {
+  --background: #0f172a;
+  --foreground: #e2e8f0;
+  --panel: #111827;
+  --surface: #1e293b;
+  --surface-2: #273449;
+  --border: #334155;
+  --muted: #94a3b8;
+  --accent: #38bdf8;
+  --accent-soft: #0f172a;
+  --font-sans: var(--font-jetbrains-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,8 +132,87 @@
   }
 }
 
+html,
+body {
+  min-height: 100%;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+:is(.theme-classic, .theme-sunrise, .theme-ocean, .theme-mint, .theme-aurora, .theme-violet, .theme-earth, .theme-midnight) .bg-white {
+  background-color: var(--panel) !important;
+}
+
+:is(.theme-classic, .theme-sunrise, .theme-ocean, .theme-mint, .theme-aurora, .theme-violet, .theme-earth, .theme-midnight) .bg-slate-50 {
+  background-color: var(--surface) !important;
+}
+
+:is(.theme-classic, .theme-sunrise, .theme-ocean, .theme-mint, .theme-aurora, .theme-violet, .theme-earth, .theme-midnight) .bg-slate-100 {
+  background-color: var(--surface-2) !important;
+}
+
+:is(.theme-classic, .theme-sunrise, .theme-ocean, .theme-mint, .theme-aurora, .theme-violet, .theme-earth, .theme-midnight) .border-slate-200,
+:is(.theme-classic, .theme-sunrise, .theme-ocean, .theme-mint, .theme-aurora, .theme-violet, .theme-earth, .theme-midnight) .border-slate-100,
+:is(.theme-classic, .theme-sunrise, .theme-ocean, .theme-mint, .theme-aurora, .theme-violet, .theme-earth, .theme-midnight) .border-slate-300 {
+  border-color: var(--border) !important;
+}
+
+:is(.theme-classic, .theme-sunrise, .theme-ocean, .theme-mint, .theme-aurora, .theme-violet, .theme-earth, .theme-midnight) .text-slate-900,
+:is(.theme-classic, .theme-sunrise, .theme-ocean, .theme-mint, .theme-aurora, .theme-violet, .theme-earth, .theme-midnight) .text-slate-800 {
+  color: var(--foreground) !important;
+}
+
+:is(.theme-classic, .theme-sunrise, .theme-ocean, .theme-mint, .theme-aurora, .theme-violet, .theme-earth, .theme-midnight) .text-slate-700,
+:is(.theme-classic, .theme-sunrise, .theme-ocean, .theme-mint, .theme-aurora, .theme-violet, .theme-earth, .theme-midnight) .text-slate-600,
+:is(.theme-classic, .theme-sunrise, .theme-ocean, .theme-mint, .theme-aurora, .theme-violet, .theme-earth, .theme-midnight) .text-slate-500,
+:is(.theme-classic, .theme-sunrise, .theme-ocean, .theme-mint, .theme-aurora, .theme-violet, .theme-earth, .theme-midnight) .text-slate-400 {
+  color: var(--muted) !important;
+}
+
+.theme-aurora .fixed.inset-0.z-50 {
+  align-items: stretch !important;
+  justify-content: flex-end !important;
+  padding-left: 0 !important;
+}
+
+.theme-aurora .fixed.inset-0.z-50 > div {
+  width: min(520px, 100%) !important;
+  height: 100% !important;
+  max-height: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  animation: slide-in-right 0.28s ease-out forwards;
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Theme-aware utility helpers */
+.bg-accent { background-color: var(--accent) !important; }
+.bg-accent-soft { background-color: var(--accent-soft) !important; }
+.text-accent { color: var(--accent) !important; }
+.border-accent { border-color: var(--accent) !important; }
+.bg-panel { background-color: var(--panel) !important; }
+.ring-accent { box-shadow: 0 0 0 4px rgba(0,0,0,0.04), 0 0 0 4px var(--accent-soft); }
+
+/* small helpers for hover states that reference accent */
+.hover\:bg-accent-soft:hover { background-color: var(--accent-soft) !important; }
+.hover\:text-accent:hover { color: var(--accent) !important; }

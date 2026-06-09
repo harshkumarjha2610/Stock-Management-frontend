@@ -97,8 +97,8 @@ const CATEGORY_META: Record<StoreCategory, { label: string; icon: LucideIcon; co
 // ─── Shared UI helpers ─────────────────────────────────────────────────────────
 
 const inputCls = (err?: string) =>
-  `w-full px-3 py-2 text-sm text-slate-900 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${
-    err ? "border-red-400 bg-red-50" : "border-slate-200"
+  `w-full px-3 py-2 text-sm text-slate-900 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${
+    err ? "border-accent bg-accent-soft" : "border-slate-200"
   }`;
 
 function Field({ label, required, error, children }: {
@@ -107,19 +107,19 @@ function Field({ label, required, error, children }: {
   return (
     <div>
       <label className="block text-xs font-medium text-slate-600 mb-1">
-        {label} {required && <span className="text-red-500">*</span>}
+        {label} {required && <span className="text-accent">*</span>}
       </label>
       {children}
-      {error && <p className="text-[11px] text-red-500 mt-0.5">{error}</p>}
+      {error && <p className="text-[11px] text-accent mt-0.5">{error}</p>}
     </div>
   );
 }
 
 function ErrorBanner({ msg }: { msg: string }) {
   return (
-    <div className="flex items-start gap-2 mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-      <AlertCircle size={15} className="text-red-500 mt-0.5 shrink-0" />
-      <p className="text-xs text-red-600">{msg}</p>
+    <div className="flex items-start gap-2 mb-4 bg-accent-soft border border-accent rounded-xl px-4 py-3">
+      <AlertCircle size={15} className="text-accent mt-0.5 shrink-0" />
+      <p className="text-xs text-accent">{msg}</p>
     </div>
   );
 }
@@ -144,7 +144,7 @@ function LogoUploader({ value, onChange }: {
     <div className="flex items-center gap-3">
       <div
         onClick={() => inputRef.current?.click()}
-        className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex items-center justify-center cursor-pointer hover:border-red-400 hover:bg-red-50 transition-colors overflow-hidden shrink-0"
+        className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex items-center justify-center cursor-pointer hover:border-accent hover:bg-accent-soft transition-colors overflow-hidden shrink-0"
       >
         {value ? (
           <img src={value} alt="logo" className="w-full h-full object-cover" />
@@ -162,7 +162,7 @@ function LogoUploader({ value, onChange }: {
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="text-[11px] font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg transition-colors"
+            className="text-[11px] font-semibold text-accent bg-accent-soft hover:bg-accent px-2.5 py-1 rounded-lg transition-colors"
           >
             {value ? "Change" : "Upload"}
           </button>
@@ -170,7 +170,7 @@ function LogoUploader({ value, onChange }: {
             <button
               type="button"
               onClick={() => onChange(null)}
-              className="text-[11px] font-semibold text-red-400 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg transition-colors"
+              className="text-[11px] font-semibold text-accent bg-accent-soft hover:bg-accent px-2.5 py-1 rounded-lg transition-colors"
             >
               Remove
             </button>
@@ -275,9 +275,9 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
-              <UserPlus size={15} className="text-red-600" />
-            </div>
+              <div className="w-8 h-8 rounded-lg bg-accent-soft flex items-center justify-center">
+                <UserPlus size={15} className="text-accent" />
+              </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900">Add Admin</h2>
               <p className="text-[11px] text-slate-400 truncate max-w-[160px]">{shopName}</p>
@@ -310,8 +310,8 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
                 placeholder="admin@store.com"
                 value={form.email}
                 onChange={(e) => { setForm({ ...form, email: e.target.value }); setErrors({ ...errors, email: "" }); }}
-                className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                  errors.email ? "border-red-400 bg-red-50" : "border-slate-200"
+                className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${
+                  errors.email ? "border-accent bg-accent-soft" : "border-slate-200"
                 }`}
               />
             </div>
@@ -326,7 +326,7 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
                 maxLength={10}
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })}
-                className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
               />
             </div>
           </Field>
@@ -353,7 +353,7 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-accent rounded-lg hover:opacity-95 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <UserPlus size={14} /> {isSubmitting ? "Adding..." : "Add Admin"}
             </button>
@@ -438,7 +438,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 ${
                   activeTab === tab
-                    ? "text-red-600 border-red-600 bg-red-50"
+                    ? "text-accent border-accent bg-accent-soft"
                     : "text-slate-500 border-transparent hover:text-slate-700"
                 }`}
               >
@@ -515,7 +515,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
                         maxLength={10}
                         value={form.phone}
                         onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })}
-                        className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                        className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                       />
                     </div>
                   </Field>
@@ -528,7 +528,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
                         placeholder="yourname@upi"
                         value={form.upiId}
                         onChange={(e) => setForm({ ...form, upiId: e.target.value })}
-                        className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                        className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                       />
                     </div>
                   </Field>
@@ -550,7 +550,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
               <div className="space-y-3">
                 <button
                   onClick={() => setShowAddAdmin(true)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-accent rounded-xl hover:opacity-95 transition-colors"
                 >
                   <UserPlus size={15} /> Add Admin
                 </button>
@@ -568,7 +568,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
                         key={admin.id}
                         className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50"
                       >
-                        <div className="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center text-red-700 text-xs font-bold shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-accent-soft flex items-center justify-center text-accent text-xs font-bold shrink-0">
                           {admin.name.slice(0, 2).toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -582,7 +582,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
                             </div>
                           )}
                         </div>
-                        <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-bold text-accent bg-accent-soft border border-accent px-2 py-0.5 rounded-full">
                           ADMIN
                         </span>
                       </div>
@@ -607,7 +607,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
               <button
                 type="submit"
                 form="edit-store-form"
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-accent rounded-lg hover:opacity-95 transition-colors"
               >
                 <Check size={14} /> Save Changes
               </button>
@@ -681,9 +681,9 @@ function CreateStoreModal({ onClose, onSave }: {
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
-              <Store size={16} className="text-red-600" />
+            <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-accent-soft flex items-center justify-center">
+              <Store size={16} className="text-accent" />
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900">Create New Store</h2>
@@ -735,8 +735,8 @@ function CreateStoreModal({ onClose, onSave }: {
                     placeholder="store@example.com"
                     value={form.email}
                     onChange={(e) => { setForm({ ...form, email: e.target.value }); setErrors({ ...errors, email: "" }); }}
-                    className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                      errors.email ? "border-red-400 bg-red-50" : "border-slate-200"
+                    className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${
+                      errors.email ? "border-accent bg-accent-soft" : "border-slate-200"
                     }`}
                   />
                 </div>
@@ -751,7 +751,7 @@ function CreateStoreModal({ onClose, onSave }: {
                     maxLength={10}
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })}
-                    className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                   />
                 </div>
               </Field>
@@ -764,7 +764,7 @@ function CreateStoreModal({ onClose, onSave }: {
                     placeholder="yourname@upi"
                     value={form.upiId}
                     onChange={(e) => setForm({ ...form, upiId: e.target.value })}
-                    className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                   />
                 </div>
               </Field>
@@ -780,8 +780,8 @@ function CreateStoreModal({ onClose, onSave }: {
               </Field>
 
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-2">
-                  Store Category <span className="text-red-500">*</span>
+                  <label className="block text-xs font-medium text-slate-600 mb-2">
+                  Store Category <span className="text-accent">*</span>
                 </label>
                 <CategorySelector
                   value={form.category}
@@ -805,7 +805,7 @@ function CreateStoreModal({ onClose, onSave }: {
             <button
               type="submit"
               form="create-store-form"
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-accent rounded-lg hover:opacity-95 transition-colors"
             >
               <Store size={14} /> Create Store
             </button>
@@ -829,7 +829,7 @@ function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-auto">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <ArrowLeftRight size={16} className="text-red-600" />
+            <ArrowLeftRight size={16} className="text-accent" />
             <h2 className="text-sm font-bold text-slate-900">Switch Store</h2>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
@@ -850,7 +850,7 @@ function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
                   onClick={() => { onSwitch(shop.id); onClose(); }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${
                     isActive
-                      ? "bg-red-600 text-white shadow-md shadow-red-100"
+                      ? "bg-accent text-white shadow-md"
                       : "hover:bg-slate-50 text-slate-700"
                   }`}
                 >
@@ -897,13 +897,13 @@ function ActiveStoreBanner({ shop, onSwitch, onEdit, isSuperAdmin }: {
   const CatIcon = catMeta.icon;
 
   return (
-    <div className="mx-3 mb-3 rounded-xl border border-red-100 bg-red-50 p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-red-400 mb-2">Active Store</p>
+    <div className="mx-3 mb-3 rounded-xl border border-accent bg-accent-soft p-3">
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-accent mb-2">Active Store</p>
       <div className="flex items-center gap-2.5">
-        <div className="w-10 h-10 rounded-lg bg-white border border-red-100 flex items-center justify-center overflow-hidden shrink-0">
+        <div className="w-10 h-10 rounded-lg bg-white border border-accent flex items-center justify-center overflow-hidden shrink-0">
           {shop.logoUrl
             ? <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
-            : <CatIcon size={17} className="text-red-500" />}
+            : <CatIcon size={17} className="text-accent" />}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-slate-800 truncate">{shop.name}</p>
@@ -930,7 +930,7 @@ function ActiveStoreBanner({ shop, onSwitch, onEdit, isSuperAdmin }: {
           </button>
           <button
             onClick={onSwitch}
-            className="flex items-center gap-1 text-[11px] font-semibold text-red-600 hover:text-red-800 bg-white hover:bg-red-50 border border-red-200 px-2 py-1 rounded-lg transition-colors"
+            className="flex items-center gap-1 text-[11px] font-semibold text-accent hover:text-accent bg-white hover:bg-accent-soft border border-accent px-2 py-1 rounded-lg transition-colors"
           >
             <ArrowLeftRight size={10} /> Switch
           </button>
@@ -1113,16 +1113,16 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="flex h-screen w-64 flex-col border-r border-slate-200 bg-white overflow-y-auto">
+      <aside className="flex h-screen w-64 flex-col border-r border-slate-200 bg-panel overflow-y-auto">
 
         {/* Brand */}
         <div className="flex items-center gap-3 px-5 py-5 border-b border-slate-100 shrink-0">
-          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-red-600 shrink-0">
+          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-accent shrink-0">
             <Package className="w-5 h-5 text-white" />
           </div>
           <div>
             <p className="text-sm font-bold text-slate-900 leading-tight">Stock</p>
-            <p className="text-xs text-red-600 font-semibold leading-tight">Management</p>
+            <p className="text-xs text-accent font-semibold leading-tight">Management</p>
           </div>
         </div>
 
@@ -1150,20 +1150,20 @@ export default function Sidebar() {
                 href={item.href}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all group ${
                   isActive
-                    ? "bg-red-600 text-white shadow-sm shadow-red-200"
-                    : "text-slate-600 hover:bg-red-50 hover:text-red-700"
+                    ? "bg-accent text-white shadow-sm"
+                    : "text-slate-600 hover:bg-accent-soft hover:text-accent"
                 }`}
               >
                 <Icon
                   size={18}
                   className={`shrink-0 transition-colors ${
-                    isActive ? "text-white" : "text-slate-400 group-hover:text-red-600"
+                    isActive ? "text-white" : "text-slate-400 group-hover:text-accent"
                   }`}
                 />
                 <span className="flex-1">{item.label}</span>
                 {item.badge != null && (
                   <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
-                    isActive ? "bg-white/20 text-white" : "bg-red-100 text-red-600"
+                    isActive ? "bg-white/20 text-white" : "bg-accent-soft text-accent"
                   }`}>
                     {item.badge}
                   </span>
@@ -1186,7 +1186,7 @@ export default function Sidebar() {
                 {shops.length > 1 && (
                   <button
                     onClick={() => setShowSwitcher(true)}
-                    className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-red-600 bg-slate-50 hover:bg-red-50 px-2 py-0.5 rounded-full transition-colors"
+                    className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-accent bg-panel hover:bg-accent-soft px-2 py-0.5 rounded-full transition-colors"
                   >
                     <ArrowLeftRight size={10} /> Switch
                   </button>
@@ -1194,7 +1194,7 @@ export default function Sidebar() {
                 {isSuperAdmin && (
                   <button
                     onClick={() => setShowCreateStore(true)}
-                    className="flex items-center gap-1 text-[11px] font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors"
+                    className="flex items-center gap-1 text-[11px] font-semibold text-accent hover:text-accent bg-accent-soft hover:bg-accent-soft px-2 py-0.5 rounded-full transition-colors"
                   >
                     <Plus size={11} /> New
                   </button>
@@ -1208,7 +1208,7 @@ export default function Sidebar() {
                 {isSuperAdmin && (
                   <button
                     onClick={() => setShowCreateStore(true)}
-                    className="text-red-500 hover:underline font-semibold"
+                    className="text-accent hover:underline font-semibold"
                   >
                     Create one
                   </button>
@@ -1226,8 +1226,8 @@ export default function Sidebar() {
                         onClick={() => switchStore(shop.id)}
                         className={`flex-1 flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all ${
                           isActive
-                            ? "bg-red-600 text-white shadow-sm"
-                            : "hover:bg-slate-50 text-slate-700"
+                            ? "bg-accent text-white shadow-sm"
+                            : "hover:bg-accent-soft text-slate-700"
                         }`}
                       >
                         <div className={`w-7 h-7 rounded-md shrink-0 overflow-hidden flex items-center justify-center ${
@@ -1273,9 +1273,9 @@ export default function Sidebar() {
                             }
                           }}
                           className={`p-1.5 rounded-lg transition-colors ${
-                            isActive
-                              ? "text-white/70 hover:text-white hover:bg-white/10"
-                              : "text-slate-400 hover:text-red-600 hover:bg-red-50"
+                              isActive
+                                ? "text-white/70 hover:text-white hover:bg-white/10"
+                                : "text-slate-400 hover:text-accent hover:bg-accent-soft"
                           }`}
                           title="Delete store"
                         >
@@ -1297,7 +1297,7 @@ export default function Sidebar() {
         {/* User Footer */}
         <div className="border-t border-slate-100 p-4 shrink-0">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-700 text-xs font-bold shrink-0">
+            <div className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-accent text-xs font-bold shrink-0">
               {user?.name ? user.name.slice(0, 2).toUpperCase() : "SA"}
             </div>
             <div className="min-w-0">
@@ -1307,7 +1307,7 @@ export default function Sidebar() {
           </div>
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-500 hover:bg-accent-soft hover:text-accent transition-colors"
           >
             <LogOut size={16} /> Sign out
           </button>
