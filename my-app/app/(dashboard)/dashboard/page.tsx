@@ -86,7 +86,7 @@ function ChartCard({
     <div className="bg-white rounded-2xl border border-slate-200 p-5 flex flex-col gap-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-sm font-bold text-slate-900">{title}</h2>
+          <h2 className="text-sm font-bold text-gray-500">{title}</h2>
           {subtitle && <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>}
         </div>
         {action}
@@ -199,7 +199,7 @@ export default function DashboardPage() {
 
       {/* ── Page Header ── */}
       <div>
-        <h1 className="text-xl font-bold text-slate-900">Dashboard</h1>
+        <h1 className="text-xl font-bold text-gray-500">Dashboard</h1>
         <p className="text-sm text-slate-500 mt-0.5">Overview of your business at a glance</p>
       </div>
 
@@ -210,7 +210,7 @@ export default function DashboardPage() {
             <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${s.bg} mb-3`}>
               <s.icon className={`w-4 h-4 ${s.color}`} />
             </div>
-            <p className="text-2xl font-bold text-slate-900">{s.value}</p>
+            <p className="text-2xl font-bold text-gray-500">{s.value}</p>
             <p className="text-xs font-semibold text-slate-700 mt-0.5">{s.label}</p>
             <p className="text-xs text-slate-400 mt-0.5">{s.sub}</p>
           </div>

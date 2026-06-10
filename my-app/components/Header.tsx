@@ -33,7 +33,7 @@ export default function Header() {
   return (
     <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4 h-16 shrink-0">
       <div>
-        <h2 className="text-base font-semibold text-slate-900">
+        <h2 className="text-base font-semibold text-gray-500">
           {getPageTitle(pathname)}
         </h2>
         <p className="text-xs text-slate-400 leading-tight">
@@ -64,7 +64,7 @@ export default function Header() {
                   }}
                   className={`w-full px-4 py-2 text-left text-sm transition-colors ${
                     item.id === theme
-                      ? "bg-slate-100 text-slate-900"
+                      ? "bg-slate-100 text-gray-500"
                       : "text-slate-600 hover:bg-slate-50"
                   }`}
                 >

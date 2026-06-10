@@ -5,9 +5,10 @@ import {
   Search, Plus, Eye, Pencil, Trash2, X, ChevronDown,
   Package, Tag, AlertTriangle, Camera, Upload,
   IndianRupee, Percent, BarChart3, ImageOff, CheckCircle,
-  ArrowUpDown, Grid3X3, List, XCircle, Shirt, Loader2,
+  ArrowUpDown, Grid3X3, List, XCircle, Shirt, Loader2, Printer,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import Barcode from "@/components/Barcode";
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -38,6 +39,8 @@ type Product = {
   minStockAlert: number;
   description?: string;
   sku?: string;
+  barcode?: string;
+  barcodeImageUrl?: string;
   image?: string;
   createdDate: string;
 };
@@ -136,10 +139,10 @@ function getSizesForCategory(category: string, gender: string): string[] {
 // ═══════════════════════════════════════════════════════════════
 
 const inputCls =
-  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
+  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-gray-500 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
 
 const textareaCls =
-  "w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors resize-none";
+  "w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-gray-500 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors resize-none";
 
 const selectCls = inputCls + " appearance-none pr-8 cursor-pointer";
 
@@ -225,7 +228,7 @@ function StatCard({
       >
         <Icon className={`w-4 h-4 ${ic}`} />
       </div>
-      <p className="text-2xl font-bold text-slate-900">{value}</p>
+      <p className="text-2xl font-bold text-gray-500">{value}</p>
       <p className="text-xs font-semibold text-slate-700 mt-0.5">{label}</p>
       {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
     </div>
@@ -495,6 +498,8 @@ const EMPTY_FORM: Omit<Product, "id" | "createdDate"> = {
   minStockAlert: 5,
   description: "",
   sku: "",
+  barcode: "",
+  barcodeImageUrl: "",
   image: "",
   
   // Garment defaults
@@ -521,12 +526,14 @@ function ProductModal({
   onSave,
   onClose,
   storeCategory,
+  store,
 }: {
   mode: "add" | "edit" | "view";
   product: Product | null;
   onSave: (p: Product) => void;
   onClose: () => void;
   storeCategory: "GARMENTS" | "GROCERY";
+  store?: any;
 }) {
   const isView = mode === "view";
   const isGrocery = storeCategory === "GROCERY";
@@ -582,7 +589,6 @@ function ProductModal({
         gst_percent: form.gstPercent,
         min_stock_level: form.minStockAlert,
         description: form.description,
-        sku: form.sku,
         image_url: form.image,
       };
 
@@ -610,6 +616,8 @@ function ProductModal({
         ...product,
         ...form,
         id: res.data.id,
+        barcode: res.data.barcode,
+        barcodeImageUrl: res.data.barcode_image_url,
         createdDate: res.data.created_at?.split('T')[0] || new Date().toISOString().split('T')[0]
       } as Product;
 
@@ -633,6 +641,73 @@ function ProductModal({
   );
   const totalQty = form.sizes?.reduce((s, x) => s + (x.qty || 0), 0) || 0;
 
+  function printBarcodeLabel(p: Product) {
+    const barcodeValue = p.barcode;
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api";
+    const backendBase = apiBaseUrl.replace(/\/api\/?$/, "");
+    const fullImageUrl = p.barcodeImageUrl ? `${backendBase}${p.barcodeImageUrl}` : "";
+
+    const html = `
+      <html><head><title>Print Barcode - ${barcodeValue}</title>
+      <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+        body { display: flex; flex-direction: column; items: center; justify-content: center; height: 100vh; padding: 20px; text-align: center; }
+        .label-box { border: 2px dashed #ccc; padding: 15px; border-radius: 8px; width: 300px; display: flex; flex-direction: column; items: center; background: white; }
+        .store-name { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #666; margin-bottom: 4px; }
+        .product-name { font-size: 14px; font-weight: 700; color: #111; margin-bottom: 8px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .barcode-container { margin-bottom: 8px; }
+        .price { font-size: 16px; font-weight: 800; color: #dc2626; }
+        @media print {
+          body { padding: 0; }
+          .label-box { border: none; }
+        }
+      </style>
+      </head><body>
+      <div class="label-box">
+        <div class="store-name">🏪 ${store?.name || 'Stock Management'}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="barcode-container">
+          ${fullImageUrl ? 
+            `<img src="${fullImageUrl}" style="max-width:100%; height:auto;" />` : 
+            `<svg id="barcode-print"></svg>`
+          }
+        </div>
+        <div class="price">₹${p.sellingPrice.toLocaleString("en-IN")}</div>
+      </div>
+      ${!fullImageUrl ? `
+      <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+      <script>
+        try {
+          JsBarcode("#barcode-print", "${barcodeValue}", {
+            format: "CODE128",
+            width: 2,
+            height: 60,
+            displayValue: true,
+            fontSize: 12
+          });
+        } catch(e) {
+          document.body.innerHTML += "<p style='color:red;'>Failed to draw barcode</p>";
+        }
+      </script>
+      ` : ''}
+      <script>
+        window.onload = function() {
+          setTimeout(function() {
+            window.print();
+            window.close();
+          }, 500);
+        }
+      </script>
+      </body></html>
+    `;
+
+    const w = window.open("", "_blank", "width=450,height=400");
+    if (!w) return;
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+  }
+
   // ── VIEW MODE ─────────────────────────────────────────────────
   if (isView && product) {
     const badge = getStockBadge(product);
@@ -647,7 +722,7 @@ function ProductModal({
             <div className="flex items-center gap-3">
               <ProductImage src={product.image} name={product.name} size="md" />
               <div>
-                <h2 className="text-base font-bold text-slate-900">{product.name}</h2>
+                <h2 className="text-base font-bold text-gray-500">{product.name}</h2>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-xs font-mono text-slate-400">#{product.id}</span>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-semibold border ${badge.cls}`}>
@@ -753,6 +828,24 @@ function ProductModal({
               </div>
             )}
 
+            {/* Barcodes Section */}
+            {product.barcodeImageUrl && (
+              <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Product Barcode</p>
+                <div className="bg-white rounded-lg border border-slate-100 p-4 flex flex-col items-center justify-center text-center max-w-md mx-auto">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">System Barcode (From Backend)</p>
+                  <Barcode value={product.barcode || ""} imageUrl={product.barcodeImageUrl} useBackendImage={true} className="h-12" />
+                  <p className="text-xs font-mono text-slate-500 mt-2 font-semibold">{product.barcode}</p>
+                  <button
+                    onClick={() => printBarcodeLabel(product)}
+                    className="mt-3 flex items-center gap-1.5 px-4 py-2 bg-slate-50 hover:bg-red-50 text-[11px] font-bold text-slate-600 hover:text-red-700 rounded-lg border border-slate-200 transition-colors cursor-pointer"
+                  >
+                    <Printer size={12} /> Print Label
+                  </button>
+                </div>
+              </div>
+            )}
+
             {product.description && (
               <div>
                 <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">Description</p>
@@ -782,7 +875,7 @@ function ProductModal({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
           <div>
-            <h2 className="text-base font-bold text-slate-900">
+            <h2 className="text-base font-bold text-gray-500">
               {mode === "add" ? "Add New Product" : `Edit — ${product?.name}`}
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
@@ -913,15 +1006,6 @@ function ProductModal({
                     </>
                   )}
 
-                  <Field label="SKU / Barcode">
-                    <input
-                      type="text"
-                      placeholder={isGrocery ? "e.g. 8901234567890" : "e.g. LV-JNS-032"}
-                      value={form.sku}
-                      onChange={(e) => set("sku", e.target.value)}
-                      className={inputCls}
-                    />
-                  </Field>
                 </div>
               </div>
 
@@ -1155,6 +1239,8 @@ export default function ProductsPage() {
           minStockAlert: p.min_stock_level,
           description: p.description,
           sku: p.sku,
+          barcode: p.barcode,
+          barcodeImageUrl: p.barcode_image_url,
           image: p.image_url,
           createdDate: p.created_at?.split('T')[0],
           sizes: p.sizes?.map((s: any) => ({ size: s.size, qty: s.quantity })) || []
@@ -1269,7 +1355,7 @@ export default function ProductsPage() {
         {/* Page Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-xl font-bold text-slate-900">{isGrocery ? "Grocery Inventory" : "Clothing Products"}</h1>
+            <h1 className="text-xl font-bold text-gray-500">{isGrocery ? "Grocery Inventory" : "Clothing Products"}</h1>
             <p className="text-sm text-slate-500 mt-0.5">
               {products.length} items · {fmt(totalValue)} inventory value
             </p>
@@ -1449,7 +1535,17 @@ export default function ProductsPage() {
                           <td className="px-4 py-3">
                             <p className="font-semibold text-slate-800 whitespace-nowrap">{p.name}</p>
                             <p className="text-xs font-mono text-slate-400 mt-0.5">#{p.id}</p>
-                            {p.sku && <p className="text-xs text-slate-400 mt-0.5"><Tag size={9} className="inline mr-1" />{p.sku}</p>}
+                            {p.sku && (
+                              <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+                                <Tag size={9} />
+                                <span className="font-mono">{p.sku}</span>
+                              </p>
+                            )}
+                            {p.barcodeImageUrl && (
+                              <div className="mt-1.5" title={`System Barcode: ${p.barcode}`}>
+                                <Barcode value={p.barcode || ""} imageUrl={p.barcodeImageUrl} useBackendImage={true} className="h-6" />
+                              </div>
+                            )}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
                             <p className="text-sm text-slate-700">{p.category}</p>
@@ -1462,7 +1558,7 @@ export default function ProductsPage() {
                             <p className="text-xs text-slate-400">{isGrocery ? `HSN: ${p.hsnCode || 'N/A'}` : p.color}</p>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <p className="font-bold text-slate-900">{fmt(p.sellingPrice)}</p>
+                            <p className="font-bold text-gray-500">{fmt(p.sellingPrice)}</p>
                             <p className="text-xs text-slate-400">Cost: {fmt(p.purchasePrice)}</p>
                             <p className={`text-xs font-semibold ${m >= 0 ? "text-green-600" : "text-red-500"}`}>
                               {m >= 0 ? "+" : ""}{m}% margin
@@ -1501,7 +1597,7 @@ export default function ProductsPage() {
                             )}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <p className={`font-bold ${badge.label === "Out of Stock" ? "text-red-500" : badge.label === "Low Stock" ? "text-amber-600" : "text-slate-900"}`}>
+                            <p className={`font-bold ${badge.label === "Out of Stock" ? "text-red-500" : badge.label === "Low Stock" ? "text-amber-600" : "text-gray-500"}`}>
                               {tot} pcs
                             </p>
                             <p className="text-xs text-slate-400">Alert at {p.minStockAlert}</p>
@@ -1597,7 +1693,7 @@ export default function ProductsPage() {
                       </div>
                       <div className="p-4 space-y-3">
                         <div>
-                          <p className="font-bold text-slate-900 leading-tight line-clamp-2">{p.name}</p>
+                          <p className="font-bold text-gray-500 leading-tight line-clamp-2">{p.name}</p>
                           <div className="flex items-center gap-2 mt-1">
                             <span className="text-xs text-slate-400">{p.category}</span>
                             {!isGrocery && (
@@ -1636,11 +1732,11 @@ export default function ProductsPage() {
                         <div className="grid grid-cols-2 gap-2">
                           <div className="bg-slate-50 rounded-lg p-2 text-center">
                             <p className="text-xs text-slate-400">Selling</p>
-                            <p className="text-sm font-bold text-slate-900">{fmt(p.sellingPrice)}</p>
+                            <p className="text-sm font-bold text-gray-500">{fmt(p.sellingPrice)}</p>
                           </div>
                           <div className="bg-slate-50 rounded-lg p-2 text-center">
                             <p className="text-xs text-slate-400">Stock</p>
-                            <p className={`text-sm font-bold ${badge.label === "Out of Stock" ? "text-red-500" : badge.label === "Low Stock" ? "text-amber-600" : "text-slate-900"}`}>
+                            <p className={`text-sm font-bold ${badge.label === "Out of Stock" ? "text-red-500" : badge.label === "Low Stock" ? "text-amber-600" : "text-gray-500"}`}>
                               {tot} {isGrocery ? p.unit : "pcs"}
                             </p>
                           </div>
@@ -1654,6 +1750,12 @@ export default function ProductsPage() {
                             {p.gstPercent}% GST
                           </span>
                         </div>
+
+                        {p.barcodeImageUrl && (
+                          <div className="py-1.5 flex justify-center bg-slate-50/50 rounded-lg border border-slate-100">
+                            <Barcode value={p.barcode || ""} imageUrl={p.barcodeImageUrl} useBackendImage={true} className="h-8" />
+                          </div>
+                        )}
 
                         <div className="flex gap-2 pt-1 border-t border-slate-100">
                           <button
@@ -1694,6 +1796,7 @@ export default function ProductsPage() {
           onSave={handleSave}
           onClose={() => { setModal(null); setSelected(null); }}
           storeCategory={store?.category || "GARMENTS"}
+          store={store}
         />
       )}
 
@@ -1709,7 +1812,7 @@ export default function ProductsPage() {
                     <Trash2 size={20} className="text-red-600" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-slate-900">Delete Product?</h3>
+                    <h3 className="text-base font-bold text-gray-500">Delete Product?</h3>
                     <p className="text-sm text-slate-500 mt-1">
                       <span className="font-semibold text-slate-700">{p?.name}</span> will be permanently removed.
                     </p>

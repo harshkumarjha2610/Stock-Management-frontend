@@ -192,7 +192,7 @@ export default function SalesPage() {
       {/* ── Page Header ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Sales Report</h1>
+          <h1 className="text-xl font-bold text-gray-500">Sales Report</h1>
           <p className="text-sm text-slate-500 mt-0.5">Track revenue, GST, and customer purchases</p>
         </div>
       </div>
@@ -209,7 +209,7 @@ export default function SalesPage() {
             <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${s.bg} mb-3`}>
               <s.icon className={`w-4 h-4 ${s.iconColor}`} />
             </div>
-            <p className="text-2xl font-bold text-slate-900">{s.value}</p>
+            <p className="text-2xl font-bold text-gray-500">{s.value}</p>
             <p className="text-xs text-slate-500 mt-0.5 font-medium">{s.label}</p>
           </div>
         ))}
@@ -342,7 +342,7 @@ export default function SalesPage() {
                       <td className="px-4 py-3.5 text-green-600 whitespace-nowrap">
                         {sale.discount > 0 ? `− ${fmt(sale.discount)}` : "—"}
                       </td>
-                      <td className="px-4 py-3.5 font-bold text-slate-900 whitespace-nowrap">{fmt(sale.finalTotal)}</td>
+                      <td className="px-4 py-3.5 font-bold text-gray-500 whitespace-nowrap">{fmt(sale.finalTotal)}</td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
                         <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${pmColor[sale.paymentMethod]}`}>
                           {sale.paymentMethod}
@@ -408,7 +408,7 @@ export default function SalesPage() {
                         </span>
                       </td>
                       <td className="px-5 py-3.5 text-slate-600">{fmt(d.gst)}</td>
-                      <td className="px-5 py-3.5 font-bold text-slate-900">{fmt(d.revenue)}</td>
+                      <td className="px-5 py-3.5 font-bold text-gray-500">{fmt(d.revenue)}</td>
                     </tr>
                   ))
                 )}
@@ -431,7 +431,7 @@ export default function SalesPage() {
         <div className="space-y-4">
           {/* Bar Chart */}
           <div className="bg-white rounded-xl border border-slate-200 p-5">
-            <h3 className="text-sm font-bold text-slate-900 mb-5">Monthly Revenue</h3>
+            <h3 className="text-sm font-bold text-gray-500 mb-5">Monthly Revenue</h3>
             {monthWise.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-8">No data for selected filters</p>
             ) : (
@@ -485,7 +485,7 @@ export default function SalesPage() {
                         </span>
                       </td>
                       <td className="px-5 py-3.5 text-slate-600">{fmt(m.gst)}</td>
-                      <td className="px-5 py-3.5 font-bold text-slate-900">{fmt(m.revenue)}</td>
+                      <td className="px-5 py-3.5 font-bold text-gray-500">{fmt(m.revenue)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -534,7 +534,7 @@ export default function SalesPage() {
                           {c.bills} bill{c.bills !== 1 && "s"}
                         </span>
                       </td>
-                      <td className="px-5 py-3.5 font-bold text-slate-900">{fmt(c.spent)}</td>
+                      <td className="px-5 py-3.5 font-bold text-gray-500">{fmt(c.spent)}</td>
                     </tr>
                   ))
                 )}
@@ -583,7 +583,7 @@ export default function SalesPage() {
                         </span>
                       </td>
                       <td className="px-5 py-3.5 text-slate-600">{fmt(p.gst)}</td>
-                      <td className="px-5 py-3.5 font-bold text-slate-900">{fmt(p.revenue)}</td>
+                      <td className="px-5 py-3.5 font-bold text-gray-500">{fmt(p.revenue)}</td>
                     </tr>
                   ))
                 )}
@@ -609,7 +609,7 @@ export default function SalesPage() {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
               <div>
-                <h2 className="text-base font-bold text-slate-900">Invoice Details</h2>
+                <h2 className="text-base font-bold text-gray-500">Invoice Details</h2>
                 <p className="text-xs font-mono text-red-600 mt-0.5">{viewSale.invoiceNumber}</p>
               </div>
               <button
@@ -669,7 +669,7 @@ export default function SalesPage() {
                   <SummaryRow
                     label="Total Paid"
                     value={fmt(viewSale.finalTotal)}
-                    labelClass="font-bold text-slate-900"
+                    labelClass="font-bold text-gray-500"
                     valueClass="text-lg font-bold text-red-600"
                   />
                 </div>
@@ -729,4 +729,4 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 const inputCls =
-  "h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
+  "h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-gray-500 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";

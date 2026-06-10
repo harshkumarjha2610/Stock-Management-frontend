@@ -61,7 +61,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${poppins.variable} ${robotoSlab.variable} ${jetBrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-slate-50 text-slate-900">
+      <body className="min-h-full bg-slate-50 text-gray-500">
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

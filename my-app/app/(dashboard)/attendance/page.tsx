@@ -101,7 +101,7 @@ export default function AttendancePage() {
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">My Attendance</h1>
+          <h1 className="text-2xl font-bold text-gray-500">My Attendance</h1>
           <p className="text-sm text-slate-500 mt-1">Track your daily presence and working hours</p>
         </div>
         <div className="flex items-center gap-4 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
@@ -109,7 +109,7 @@ export default function AttendancePage() {
             <ChevronLeft size={20} className="text-slate-600" />
           </button>
           <div className="px-4 flex flex-col items-center min-w-[140px]">
-            <span className="text-sm font-bold text-slate-900">{currentDate.format("MMMM YYYY")}</span>
+            <span className="text-sm font-bold text-gray-500">{currentDate.format("MMMM YYYY")}</span>
           </div>
           <button onClick={nextMonth} className="p-2 hover:bg-slate-50 rounded-lg transition-colors">
             <ChevronRight size={20} className="text-slate-600" />
@@ -127,7 +127,7 @@ export default function AttendancePage() {
               </div>
               <div>
                 <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Present Days</p>
-                <p className="text-xl font-bold text-slate-900">
+                <p className="text-xl font-bold text-gray-500">
                   {Object.values(attendance).filter(a => a.status === "PRESENT" && dayjs(a.date).isSame(currentDate, 'month')).length}
                 </p>
               </div>
@@ -138,7 +138,7 @@ export default function AttendancePage() {
               </div>
               <div>
                 <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Half Days</p>
-                <p className="text-xl font-bold text-slate-900">
+                <p className="text-xl font-bold text-gray-500">
                   {Object.values(attendance).filter(a => a.status === "HALF_DAY" && dayjs(a.date).isSame(currentDate, 'month')).length}
                 </p>
               </div>
@@ -149,7 +149,7 @@ export default function AttendancePage() {
               </div>
               <div>
                 <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Absent Days</p>
-                <p className="text-xl font-bold text-slate-900">
+                <p className="text-xl font-bold text-gray-500">
                   {Object.values(attendance).filter(a => a.status === "ABSENT" && dayjs(a.date).isSame(currentDate, 'month')).length}
                 </p>
               </div>

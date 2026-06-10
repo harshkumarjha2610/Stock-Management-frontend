@@ -169,7 +169,7 @@ select {
   border-color: var(--border) !important;
 }
 
-:is(.theme-classic, .theme-sunrise, .theme-ocean, .theme-mint, .theme-aurora, .theme-violet, .theme-earth, .theme-midnight) .text-slate-900,
+:is(.theme-classic, .theme-sunrise, .theme-ocean, .theme-mint, .theme-aurora, .theme-violet, .theme-earth, .theme-midnight) .text-gray-500,
 :is(.theme-classic, .theme-sunrise, .theme-ocean, .theme-mint, .theme-aurora, .theme-violet, .theme-earth, .theme-midnight) .text-slate-800 {
   color: var(--foreground) !important;
 }

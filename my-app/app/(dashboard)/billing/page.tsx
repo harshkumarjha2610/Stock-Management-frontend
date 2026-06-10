@@ -45,7 +45,7 @@ const PAYMENT_METHODS: { key: PaymentMethod; label: string; icon: string }[] = [
 let invoiceCounter = 1001;
 
 const inputCls =
-  "h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/20 transition-colors";
+  "h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-gray-500 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/20 transition-colors";
 
 function fmt(n: number) {
   return "₹" + n.toLocaleString("en-IN");
@@ -172,7 +172,7 @@ export default function BillingPage() {
           stock: p.sizes && p.sizes.length > 0 
             ? p.sizes.reduce((s: number, x: any) => s + (parseInt(x.quantity) || 0), 0)
             : (parseInt(p.stock_quantity) || 0),
-          barcode: p.sku || ""
+          barcode: p.barcode || p.sku || ""
         }));
         setProducts(mapped);
       } catch (error) {
@@ -304,6 +304,7 @@ export default function BillingPage() {
       };
 
       const res = await api.post('/bills', payload);
+      console.log("BILLING RESPONSE DATA:", res.data);
       const invNo = res.data.invoice_no;
       setLastInvoice(invNo);
       printInvoice(cart, { name: custName, phone: custPhone }, payMethod, invNo, {
@@ -326,9 +327,9 @@ export default function BillingPage() {
           <CheckCircle className="w-10 h-10 text-green-600" />
         </div>
         <div className="text-center">
-          <h2 className="text-xl font-bold text-slate-900">{mode === 'sale' ? 'Bill Generated!' : 'Return Processed!'}</h2>
+          <h2 className="text-xl font-bold text-gray-500">{mode === 'sale' ? 'Bill Generated!' : 'Return Processed!'}</h2>
           <p className="text-slate-500 mt-1 text-sm">{mode === 'sale' ? 'Invoice' : 'Return Ref'} <span className={`font-mono font-semibold ${mode === 'sale' ? 'text-red-600' : 'text-amber-600'}`}>{lastInvoice}</span> {mode === 'sale' ? 'printed successfully.' : 'recorded successfully.'}</p>
-          <p className="text-2xl font-bold text-slate-900 mt-3">{fmt(totals.grandTotal)}</p>
+          <p className="text-2xl font-bold text-gray-500 mt-3">{fmt(totals.grandTotal)}</p>
           {payMethod === "cash" && totals.change > 0 && (
             <p className="text-sm text-green-600 font-semibold mt-1">Change to return: {fmt(totals.change)}</p>
           )}
@@ -357,7 +358,7 @@ export default function BillingPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Billing</h1>
+            <h1 className="text-xl font-bold text-gray-500">Billing</h1>
             <p className="text-sm text-slate-500 mt-0.5">{mode === 'sale' ? 'Create new invoice / POS bill' : 'Process product return / refund'}</p>
           </div>
           <div className="flex items-center gap-3">
@@ -499,7 +500,7 @@ export default function BillingPage() {
                           className="w-6 h-6 rounded-md border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors text-slate-500">
                           <Minus size={12} />
                         </button>
-                        <span className="w-7 text-center text-sm font-bold text-slate-900 tabular-nums">{item.qty}</span>
+                        <span className="w-7 text-center text-sm font-bold text-gray-500 tabular-nums">{item.qty}</span>
                         <button onClick={() => updateQty(item.id, 1)}
                           disabled={item.qty >= item.stock}
                           className="w-6 h-6 rounded-md border border-slate-200 flex items-center justify-center hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-slate-500">
@@ -526,7 +527,7 @@ export default function BillingPage() {
 
                       {/* Line Total */}
                       <div className="text-right">
-                        <p className="text-sm font-bold text-slate-900 tabular-nums">{fmt(lineTotal)}</p>
+                        <p className="text-sm font-bold text-gray-500 tabular-nums">{fmt(lineTotal)}</p>
                         {lineGST > 0 && (
                           <p className="text-xs text-slate-400 tabular-nums">incl. {fmt(lineGST)} GST</p>
                         )}
@@ -644,7 +645,7 @@ export default function BillingPage() {
             ))}
 
             <div className="border-t border-slate-200 pt-2.5 mt-1 flex items-center justify-between">
-              <p className="text-sm font-bold text-slate-900">{mode === 'sale' ? 'Grand Total' : 'Total Refund'}</p>
+              <p className="text-sm font-bold text-gray-500">{mode === 'sale' ? 'Grand Total' : 'Total Refund'}</p>
               <p className={`text-xl font-bold tabular-nums text-${mode === 'sale' ? 'red' : 'amber'}-700`}>{fmt(totals.grandTotal)}</p>
             </div>
           </div>
