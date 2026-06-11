@@ -144,7 +144,7 @@ function nowTime() {
 }
 
 const inputCls =
-  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
+  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-gray-500 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
 
 // ═══════════════════════════════════════════════════════════════
 // SUB-COMPONENTS
@@ -170,7 +170,7 @@ function StatCard({
       <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${bg} mb-3`}>
         <Icon className={`w-4 h-4 ${ic}`} />
       </div>
-      <p className="text-2xl font-bold text-slate-900">{value}</p>
+      <p className="text-2xl font-bold text-gray-500">{value}</p>
       <p className="text-xs font-semibold text-slate-700 mt-0.5">{label}</p>
       {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
     </div>
@@ -645,7 +645,7 @@ export default function StaffManagementPage() {
       {/* ── Page Header ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Staff Management</h1>
+          <h1 className="text-xl font-bold text-gray-500">Staff Management</h1>
           <p className="text-sm text-slate-500 mt-0.5">Manage staff, attendance and salary in one place</p>
         </div>
       </div>
@@ -737,7 +737,7 @@ export default function StaffManagementPage() {
                           <CalendarDays size={12} className="text-slate-400" />{s.joiningDate}
                         </div>
                       </td>
-                      <td className="px-4 py-3.5 font-bold text-slate-900 whitespace-nowrap">{fmt(s.salary)}</td>
+                      <td className="px-4 py-3.5 font-bold text-gray-500 whitespace-nowrap">{fmt(s.salary)}</td>
                       <td className="px-4 py-3.5">
                         <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${s.status === "Active" ? "bg-green-50 text-green-700" : "bg-slate-100 text-slate-500"}`}>
                           {s.status}
@@ -850,7 +850,7 @@ export default function StaffManagementPage() {
             <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
               <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
                 <div>
-                  <h2 className="text-sm font-bold text-slate-900">Daily Attendance Report</h2>
+                  <h2 className="text-sm font-bold text-gray-500">Daily Attendance Report</h2>
                   <p className="text-xs text-slate-400 mt-0.5">{attDate}</p>
                 </div>
               </div>
@@ -942,7 +942,7 @@ export default function StaffManagementPage() {
             <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
               <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
                 <div>
-                  <h2 className="text-sm font-bold text-slate-900">Monthly Attendance Summary</h2>
+                  <h2 className="text-sm font-bold text-gray-500">Monthly Attendance Summary</h2>
                   <p className="text-xs text-slate-400 mt-0.5">{fmtMonth(attMonth)}</p>
                 </div>
               </div>
@@ -1041,7 +1041,7 @@ export default function StaffManagementPage() {
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
               <div>
-                <h2 className="text-sm font-bold text-slate-900">Salary Records</h2>
+                <h2 className="text-sm font-bold text-gray-500">Salary Records</h2>
                 <p className="text-xs text-slate-400 mt-0.5">{salaryMonth ? fmtMonth(salaryMonth) : "All Months"}</p>
               </div>
               <div className="flex items-center gap-2 text-xs">
@@ -1072,7 +1072,7 @@ export default function StaffManagementPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3.5 text-slate-600 whitespace-nowrap">{fmtMonth(r.month)}</td>
-                      <td className="px-4 py-3.5 font-bold text-slate-900 whitespace-nowrap">{fmt(r.amount)}</td>
+                      <td className="px-4 py-3.5 font-bold text-gray-500 whitespace-nowrap">{fmt(r.amount)}</td>
                       <td className="px-4 py-3.5 text-slate-500 whitespace-nowrap">{r.paidDate || "—"}</td>
                       <td className="px-4 py-3.5 text-slate-500 whitespace-nowrap">{r.paymentMethod || "—"}</td>
                       <td className="px-4 py-3.5">
@@ -1121,7 +1121,7 @@ export default function StaffManagementPage() {
           {/* Monthly Report Summary Cards */}
           {salaryMonth && (
             <div className="bg-white rounded-xl border border-slate-200 p-5">
-              <h3 className="text-sm font-bold text-slate-900 mb-4">
+              <h3 className="text-sm font-bold text-gray-500 mb-4">
                 Monthly Salary Report — {fmtMonth(salaryMonth)}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -1143,7 +1143,7 @@ export default function StaffManagementPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold text-slate-900">{fmt(r.amount)}</p>
+                      <p className="text-sm font-bold text-gray-500">{fmt(r.amount)}</p>
                       <span className={`text-xs font-semibold ${r.status === "Paid" ? "text-green-600" : "text-amber-600"}`}>
                         {r.status}
                       </span>
@@ -1405,7 +1405,7 @@ export default function StaffManagementPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-2xl border border-slate-200 bg-white p-4">
                 <p className="text-xs text-slate-400 uppercase tracking-wide">Base Salary</p>
-                <p className="mt-2 text-lg font-bold text-slate-900">{fmt(payStaffSummary.baseSalary)}</p>
+                <p className="mt-2 text-lg font-bold text-gray-500">{fmt(payStaffSummary.baseSalary)}</p>
               </div>
               <div className="rounded-2xl border border-slate-200 bg-white p-4">
                 <p className="text-xs text-slate-400 uppercase tracking-wide">Net Payable</p>
@@ -1415,21 +1415,21 @@ export default function StaffManagementPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <p className="text-xs text-slate-500">Days in month</p>
-                <p className="text-base font-semibold text-slate-900">{payStaffSummary.daysInMonth}</p>
+                <p className="text-base font-semibold text-gray-500">{payStaffSummary.daysInMonth}</p>
               </div>
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <p className="text-xs text-slate-500">Allowed off days</p>
-                <p className="text-base font-semibold text-slate-900">{payStaffSummary.allowedOffDays}</p>
+                <p className="text-base font-semibold text-gray-500">{payStaffSummary.allowedOffDays}</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <p className="text-xs text-slate-500">Absent days</p>
-                <p className="text-base font-semibold text-slate-900">{payStaffSummary.absentDays}</p>
+                <p className="text-base font-semibold text-gray-500">{payStaffSummary.absentDays}</p>
               </div>
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <p className="text-xs text-slate-500">Half days</p>
-                <p className="text-base font-semibold text-slate-900">{payStaffSummary.halfDays}</p>
+                <p className="text-base font-semibold text-gray-500">{payStaffSummary.halfDays}</p>
               </div>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-rose-50 p-4">
@@ -1474,7 +1474,7 @@ export default function StaffManagementPage() {
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-50 mx-auto mb-4">
               <Trash2 className="w-5 h-5 text-red-500" />
             </div>
-            <h2 className="text-base font-bold text-slate-900 text-center">Remove Staff Member?</h2>
+            <h2 className="text-base font-bold text-gray-500 text-center">Remove Staff Member?</h2>
             <p className="text-sm text-slate-500 text-center mt-1 mb-6">
               This will permanently remove the staff member and all their records.
             </p>
@@ -1764,7 +1764,7 @@ function Modal({
       <div className={`w-full ${maxW} bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col`}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
           <div>
-            <h2 className="text-base font-bold text-slate-900">{title}</h2>
+            <h2 className="text-base font-bold text-gray-500">{title}</h2>
             {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
           </div>
           <button onClick={onClose}

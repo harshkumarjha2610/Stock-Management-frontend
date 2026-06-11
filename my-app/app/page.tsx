@@ -55,7 +55,7 @@ export default function LoginPage() {
             </svg>
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Stock Management</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-500">Stock Management</h1>
             <p className="mt-1 text-sm text-slate-500">Sign in to your admin account</p>
           </div>
         </div>
@@ -83,7 +83,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@stockmgmt.com"
-                className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors"
+                className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-gray-500 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors"
               />
             </div>
 
@@ -101,7 +101,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 pr-10 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 pr-10 text-sm text-gray-500 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors"
                 />
                 <button
                   type="button"

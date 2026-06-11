@@ -46,6 +46,7 @@ type Order = {
   createdAt:     string;
   updatedAt:     string;
   note:          string;
+  billedBy:      string;
 };
 
 // Orders (Bills) are fetched from backend API
@@ -89,12 +90,11 @@ function getPayStatus(key: PaymentStatus) {
 function OrderDetailModal({
   order,
   onClose,
-  onStatusChange,
 }: {
   order:          Order;
   onClose:        () => void;
-  onStatusChange: (id: string, status: OrderStatus) => void;
 }) {
+  console.log("OrderDetailModal - Selected Order:", order);
   const orderSt = getOrderStatus(order.status);
   const paySt   = getPayStatus(order.paymentStatus);
 
@@ -106,7 +106,7 @@ function OrderDetailModal({
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
           <div>
             <div className="flex items-center gap-2.5">
-              <h2 className="text-base font-bold text-slate-900">{order.invoiceNo}</h2>
+              <h2 className="text-base font-bold text-gray-500">{order.invoiceNo}</h2>
               <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${orderSt.bg} ${orderSt.color}`}>
                 <orderSt.icon size={11} />
                 {orderSt.label}
@@ -141,8 +141,13 @@ function OrderDetailModal({
               </div>
             </div>
             <div className="bg-slate-50 rounded-xl border border-slate-100 px-4 py-3">
-              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-2">Payment</p>
+              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-2">Payment & Staff</p>
               <p className="text-sm font-semibold text-slate-800 capitalize">{order.paymentMethod}</p>
+              {order.billedBy && (
+                <p className="text-xs text-slate-500 mt-1">
+                  Billed By: <span className="font-semibold text-slate-700">{order.billedBy}</span>
+                </p>
+              )}
               <p className="text-xs text-slate-400 mt-1">Created: {order.createdAt}</p>
               <p className="text-xs text-slate-400">Updated: {order.updatedAt}</p>
             </div>
@@ -171,7 +176,7 @@ function OrderDetailModal({
                       <tr key={i} className="border-b border-slate-50 last:border-0">
                         <td className="px-4 py-3">
                           <div className="flex flex-col">
-                            <p className="font-bold text-slate-900">{item.name}</p>
+                            <p className="font-bold text-gray-500">{item.name}</p>
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1">
                               {item.category && <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{item.category}</span>}
                               {item.brand && <span className="text-[10px] font-bold uppercase tracking-wider text-red-500">· {item.brand}</span>}
@@ -185,7 +190,7 @@ function OrderDetailModal({
                         <td className="px-4 py-3 text-slate-700 tabular-nums">{fmt(item.rate)}</td>
                         <td className="px-4 py-3 text-amber-600 tabular-nums text-xs font-bold">{item.gstPercent}%</td>
                         <td className="px-4 py-3 text-green-600 tabular-nums font-medium">{disc > 0 ? fmt(disc) : "—"}</td>
-                        <td className="px-4 py-3 font-bold text-slate-900 tabular-nums text-base">{fmt(total)}</td>
+                        <td className="px-4 py-3 font-bold text-gray-500 tabular-nums text-base">{fmt(total)}</td>
                       </tr>
                     );
                   })}
@@ -207,7 +212,7 @@ function OrderDetailModal({
               </div>
             ))}
             <div className="border-t border-slate-200 pt-2 flex items-center justify-between">
-              <p className="text-sm font-bold text-slate-900">Grand Total</p>
+              <p className="text-sm font-bold text-gray-500">Grand Total</p>
               <p className="text-lg font-bold text-red-700 tabular-nums">{fmt(order.grandTotal)}</p>
             </div>
           </div>
@@ -220,22 +225,7 @@ function OrderDetailModal({
             </div>
           )}
 
-          {/* Status Update */}
-          {order.status !== "cancelled" && order.status !== "delivered" && (
-            <div>
-              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-2">Update Status</p>
-              <div className="flex flex-wrap gap-2">
-                {ORDER_STATUSES.filter((s) => s.key !== order.status && s.key !== "pending").map((s) => (
-                  <button key={s.key}
-                    onClick={() => { onStatusChange(order.id, s.key); onClose(); }}
-                    className={`flex items-center gap-2 h-9 px-4 rounded-lg border text-sm font-semibold transition-all ${s.bg} ${s.color} border-current/20 hover:opacity-80`}>
-                    <s.icon size={14} />
-                    Mark as {s.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+
         </div>
 
         <div className="px-6 py-4 border-t border-slate-100 shrink-0">
@@ -262,6 +252,7 @@ export default function OrdersPage() {
       try {
         setLoading(true);
         const res = await api.get('/bills');
+        console.log("FETCHED BILLS DATA:", res.data);
         setOrders(res.data.map((b: any) => ({
           id: b.id,
           invoiceNo: b.invoice_no,
@@ -288,7 +279,8 @@ export default function OrdersPage() {
           status: (b.status || "pending").toLowerCase() as OrderStatus,
           createdAt: b.createdAt?.replace('T',' ').slice(0, 16),
           updatedAt: b.updatedAt?.replace('T',' ').slice(0, 16),
-          note: b.note || ""
+          note: b.note || "",
+          billedBy: b.billed_by || b.created_by || b.staff?.name || b.user?.name || b.billedBy || b.createdBy || ""
         })));
       } catch (error) {
         console.error("Failed to fetch orders", error);
@@ -347,19 +339,6 @@ export default function OrdersPage() {
     else { setSortKey(key); setSortDir("desc"); }
   }
 
-  async function handleStatusChange(id: string, status: OrderStatus) {
-    setLoading(true);
-    try {
-      await api.put(`/bills/${id}`, { status });
-      setOrders((prev) => prev.map((o) =>
-        o.id === id ? { ...o, status, updatedAt: new Date().toISOString().replace('T',' ').slice(0, 16) } : o
-      ));
-    } catch (error: any) {
-      alert(error.message || "Failed to update status");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function handleDelete(id: string) {
     setLoading(true);
@@ -399,7 +378,6 @@ export default function OrdersPage() {
         <OrderDetailModal
           order={viewing}
           onClose={() => setViewing(null)}
-          onStatusChange={handleStatusChange}
         />
       )}
 
@@ -411,7 +389,7 @@ export default function OrdersPage() {
               <Trash2 className="w-5 h-5 text-red-500" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">Delete Order?</h3>
+              <h3 className="text-base font-bold text-gray-500">Delete Order?</h3>
               <p className="text-sm text-slate-500 mt-1">This will permanently remove <span className="font-semibold font-mono text-slate-700">{deleteId}</span>. This cannot be undone.</p>
             </div>
             <div className="flex gap-3">
@@ -432,7 +410,7 @@ export default function OrdersPage() {
 
         {/* ── Page Header ── */}
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Orders</h1>
+          <h1 className="text-xl font-bold text-gray-500">Orders</h1>
           <p className="text-sm text-slate-500 mt-0.5">Manage all customer orders & invoices</p>
         </div>
 
@@ -448,7 +426,7 @@ export default function OrdersPage() {
               <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${k.bg} mb-3`}>
                 <k.icon className={`w-4 h-4 ${k.ic}`} />
               </div>
-              <p className="text-2xl font-bold text-slate-900 tabular-nums">{k.value}</p>
+              <p className="text-2xl font-bold text-gray-500 tabular-nums">{k.value}</p>
               <p className="text-xs font-semibold text-slate-700 mt-0.5">{k.label}</p>
               <p className="text-xs text-slate-400 mt-0.5">{k.sub}</p>
             </div>
@@ -573,6 +551,11 @@ export default function OrdersPage() {
                       <td className="px-5 py-4">
                         <p className="font-semibold text-slate-800 text-xs font-mono">{order.invoiceNo}</p>
                         <p className="text-xs text-slate-400 mt-0.5">{order.id}</p>
+                        {order.billedBy && (
+                          <p className="text-[10px] text-slate-500 mt-1">
+                            By: <span className="font-semibold text-slate-700">{order.billedBy}</span>
+                          </p>
+                        )}
                       </td>
 
                       {/* Customer */}
@@ -594,7 +577,7 @@ export default function OrdersPage() {
 
                       {/* Amount */}
                       <td className="px-5 py-4">
-                        <p className="font-bold text-slate-900 tabular-nums">{fmt(order.grandTotal)}</p>
+                        <p className="font-bold text-gray-500 tabular-nums">{fmt(order.grandTotal)}</p>
                         {order.totalDiscount > 0 && (
                           <p className="text-xs text-green-600 mt-0.5">−{fmt(order.totalDiscount)} off</p>
                         )}

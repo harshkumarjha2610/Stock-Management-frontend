@@ -97,7 +97,7 @@ const CATEGORY_META: Record<StoreCategory, { label: string; icon: LucideIcon; co
 // ─── Shared UI helpers ─────────────────────────────────────────────────────────
 
 const inputCls = (err?: string) =>
-  `w-full px-3 py-2 text-sm text-slate-900 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${
+  `w-full px-3 py-2 text-sm text-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${
     err ? "border-accent bg-accent-soft" : "border-slate-200"
   }`;
 
@@ -279,7 +279,7 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
                 <UserPlus size={15} className="text-accent" />
               </div>
             <div>
-              <h2 className="text-sm font-bold text-slate-900">Add Admin</h2>
+              <h2 className="text-sm font-bold text-gray-500">Add Admin</h2>
               <p className="text-[11px] text-slate-400 truncate max-w-[160px]">{shopName}</p>
             </div>
           </div>
@@ -421,7 +421,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
                 <Pencil size={15} className="text-amber-600" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900">Edit Store</h2>
+                <h2 className="text-sm font-bold text-gray-500">Edit Store</h2>
                 <p className="text-[11px] text-slate-400 truncate max-w-[200px]">{shop.name}</p>
               </div>
             </div>
@@ -779,7 +779,7 @@ function CreateStoreModal({ onClose, onSave }: {
               <Store size={16} className="text-accent" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-slate-900">Create New Store</h2>
+              <h2 className="text-sm font-bold text-gray-500">Create New Store</h2>
               <p className="text-[11px] text-slate-400">Fill in store details to get started</p>
             </div>
           </div>
@@ -966,7 +966,7 @@ function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <ArrowLeftRight size={16} className="text-accent" />
-            <h2 className="text-sm font-bold text-slate-900">Switch Store</h2>
+            <h2 className="text-sm font-bold text-gray-500">Switch Store</h2>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
             <X size={18} />
@@ -1257,7 +1257,7 @@ export default function Sidebar() {
             <Package className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="text-sm font-bold text-slate-900 leading-tight">Stock</p>
+            <p className="text-sm font-bold text-gray-500 leading-tight">Stock</p>
             <p className="text-xs text-accent font-semibold leading-tight">Management</p>
           </div>
         </div>
@@ -1437,7 +1437,7 @@ export default function Sidebar() {
               {user?.name ? user.name.slice(0, 2).toUpperCase() : "SA"}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-slate-900 truncate">{user?.name || "Super Admin"}</p>
+              <p className="text-sm font-semibold text-gray-500 truncate">{user?.name || "Super Admin"}</p>
               <p className="text-xs text-slate-400 truncate">{user?.email || "admin@stockmgmt.com"}</p>
             </div>
           </div>

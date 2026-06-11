@@ -50,7 +50,7 @@ const EMPTY_FORM: Omit<Customer, "id" | "totalOrders" | "totalSpent" | "lastPurc
 };
 
 const inputCls =
-  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
+  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-gray-500 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
 
 const labelCls = "text-xs font-semibold text-slate-500 uppercase tracking-wide";
 
@@ -118,7 +118,7 @@ function CustomerModal({
                 </span>
               </div>
               <div>
-                <h2 className="text-base font-bold text-slate-900">{customer.name}</h2>
+                <h2 className="text-base font-bold text-gray-500">{customer.name}</h2>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-xs font-mono text-slate-400">{customer.id}</span>
                   <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${tag.cls}`}>
@@ -195,7 +195,7 @@ function CustomerModal({
 
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
           <div>
-            <h2 className="text-base font-bold text-slate-900">
+            <h2 className="text-base font-bold text-gray-500">
               {mode === "add" ? "Add New Customer" : `Edit — ${customer?.id}`}
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
@@ -487,7 +487,7 @@ export default function CustomersPage() {
               <Trash2 className="w-5 h-5 text-red-500" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">Delete Customer?</h3>
+              <h3 className="text-base font-bold text-gray-500">Delete Customer?</h3>
               <p className="text-sm text-slate-500 mt-1">
                 <span className="font-semibold text-slate-700">{customers.find((c) => c.id === deleteId)?.name}</span> and all their data will be permanently removed.
               </p>
@@ -511,7 +511,7 @@ export default function CustomersPage() {
         {/* ── Page Header ── */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Customers</h1>
+            <h1 className="text-xl font-bold text-gray-500">Customers</h1>
             <p className="text-sm text-slate-500 mt-0.5">Manage customer profiles & purchase history</p>
           </div>
           <button
@@ -534,7 +534,7 @@ export default function CustomersPage() {
               <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${k.bg} mb-3`}>
                 <k.icon className={`w-4 h-4 ${k.ic}`} />
               </div>
-              <p className="text-2xl font-bold text-slate-900 tabular-nums">{k.value}</p>
+              <p className="text-2xl font-bold text-gray-500 tabular-nums">{k.value}</p>
               <p className="text-xs font-semibold text-slate-700 mt-0.5">{k.label}</p>
               <p className="text-xs text-slate-400 mt-0.5">{k.sub}</p>
             </div>
@@ -677,7 +677,7 @@ export default function CustomersPage() {
                       </td>
 
                       {/* Total Spent */}
-                      <td className="px-4 py-3.5 font-bold text-slate-900 tabular-nums">
+                      <td className="px-4 py-3.5 font-bold text-gray-500 tabular-nums">
                         {fmt(c.totalSpent)}
                       </td>
 

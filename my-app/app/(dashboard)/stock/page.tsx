@@ -77,7 +77,7 @@ const reasonStyle: Record<StockOutReason | "", string> = {
 };
 
 const inputCls =
-  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
+  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-gray-500 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
 
 // ═══════════════════════════════════════════════════════════════
 // SUB-COMPONENTS
@@ -101,7 +101,7 @@ function StatCard({ label, value, sub, icon: Icon, bg, ic, highlight = false }: 
       <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${bg} mb-3`}>
         <Icon className={`w-4 h-4 ${ic}`} />
       </div>
-      <p className="text-2xl font-bold text-slate-900">{value}</p>
+      <p className="text-2xl font-bold text-gray-500">{value}</p>
       <p className="text-xs font-semibold text-slate-700 mt-0.5">{label}</p>
       {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
     </div>
@@ -119,7 +119,7 @@ function Modal({
       <div className={`w-full ${maxW} bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col`}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
           <div>
-            <h2 className="text-base font-bold text-slate-900">{title}</h2>
+            <h2 className="text-base font-bold text-gray-500">{title}</h2>
             {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
           </div>
           <button onClick={onClose}
@@ -434,7 +434,7 @@ export default function StockPage() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Stock Management</h1>
+          <h1 className="text-xl font-bold text-gray-500">Stock Management</h1>
           <p className="text-sm text-slate-500 mt-0.5">Monitor inventory, record stock-in/out and view history</p>
         </div>
         <div className="flex items-center gap-3">
@@ -582,7 +582,7 @@ export default function StockPage() {
                               />
                             </div>
                             <span className={`font-bold whitespace-nowrap ${
-                              status === "Sold Out" ? "text-red-500" : status === "Low Stock" ? "text-amber-600" : "text-slate-900"
+                              status === "Sold Out" ? "text-red-500" : status === "Low Stock" ? "text-amber-600" : "text-gray-500"
                             }`}>
                               {p.currentStock} {p.unit}
                             </span>
