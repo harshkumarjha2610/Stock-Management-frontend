@@ -69,12 +69,13 @@ function normalizeSalaryStatus(status: string) {
   return status === 'PAID' ? 'Paid' : 'Unpaid';
 }
 
-function normalizePaymentMethod(method: string) {
+function normalizePaymentMethod(method: string): PayMethod | "" {
   if (!method) return "";
-  return method
-    .replace(/_/g, ' ')
-    .toLowerCase()
-    .replace(/\b\w/g, (char) => char.toUpperCase());
+  const m = method.replace(/_/g, ' ').trim().toLowerCase();
+  if (m === 'cash') return 'Cash';
+  if (m === 'bank transfer' || m === 'banktransfer' || m === 'bank_transfer') return 'Bank Transfer';
+  if (m === 'upi' || m === 'u p i') return 'UPI';
+  return "";
 }
 
 function normalizeSalaryRecord(s: any): SalaryRecord {
