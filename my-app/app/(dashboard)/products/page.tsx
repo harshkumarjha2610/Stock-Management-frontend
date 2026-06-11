@@ -48,6 +48,8 @@ type Product = {
 type SizeStock = {
   size: string;
   qty: number;
+  barcode?: string;
+  barcodeImageUrl?: string;
 };
 
 type ModalMode = "add" | "edit" | "view" | null;
@@ -713,6 +715,12 @@ function ProductModal({
     const badge = getStockBadge(product);
     const total = totalStock(product);
 
+    // Safe number coercion — API may return strings or null for price fields
+    const sellingPrice  = parseFloat(product.sellingPrice  as any) || 0;
+    const purchasePrice = parseFloat(product.purchasePrice as any) || 0;
+    const gstPercent    = parseFloat(product.gstPercent    as any) || 0;
+    const margin        = sellingPrice - purchasePrice;
+
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
         <div className="w-[80%] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col">
@@ -751,104 +759,162 @@ function ProductModal({
           </div>
 
           <div className="overflow-y-auto flex-1 px-6 py-5 space-y-6">
+
+            {/* Product Image */}
             {product.image && (
               <div className="w-full h-52 rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-contain"
-                />
+                <img src={product.image} alt={product.name} className="w-full h-full object-contain" />
               </div>
             )}
 
-            {/* Pricing grid */}
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { label: "Purchase Price", value: fmt(product.purchasePrice), color: "text-slate-800" },
-                { label: "Selling Price",  value: fmt(product.sellingPrice),  color: "text-red-700"  },
-                { label: "With GST",       value: fmt(sellingWithGST(product)), color: "text-indigo-700" },
-                { label: "Margin",         value: `${marginPct(product)}%`,   color: marginPct(product) >= 0 ? "text-green-700" : "text-red-600" },
-                { label: "Total Stock",    value: `${total} ${isGrocery ? product.unit : 'pcs'}`, color: total === 0 ? "text-red-600" : total <= product.minStockAlert ? "text-amber-600" : "text-green-700" },
-                { label: "GST Rate",       value: `${product.gstPercent}%`,   color: "text-slate-800" },
-              ].map((m) => (
-                <div key={m.label} className="bg-slate-50 rounded-xl border border-slate-100 px-3 py-3 text-center">
-                  <p className={`text-sm font-bold ${m.color}`}>{m.value}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{m.label}</p>
+            {/* ── Pricing ── */}
+            <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-100 p-4">
+              <p className="text-xs font-bold text-red-400 uppercase tracking-widest mb-3">Pricing</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div>
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Selling Price</p>
+                  <p className="text-xl font-bold text-red-600 mt-0.5">₹{sellingPrice.toLocaleString("en-IN")}</p>
                 </div>
-              ))}
+                <div>
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Purchase Price</p>
+                  <p className="text-xl font-bold text-slate-700 mt-0.5">₹{purchasePrice.toLocaleString("en-IN")}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">GST</p>
+                  <p className="text-xl font-bold text-amber-600 mt-0.5">{gstPercent}%</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Margin</p>
+                  <p className={`text-xl font-bold mt-0.5 ${margin >= 0 ? "text-green-600" : "text-red-600"}`}>
+                    ₹{margin.toLocaleString("en-IN")}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            {/* Details */}
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { label: "Category", value: product.category },
-                ...(isGrocery ? [
-                  { label: "Unit",   value: product.unit },
-                  { label: "HSN",    value: product.hsnCode || "—" },
-                  { label: "MFG",    value: product.mfgDate || "—" },
-                  { label: "EXP",    value: product.expiryDate || "—" },
-                ] : [
-                  { label: "Gender", value: product.gender },
-                  { label: "Fabric", value: product.fabric },
-                  { label: "Color",  value: product.color },
-                ]),
-                { label: "Brand",    value: product.brand || "—" },
-                { label: "SKU",      value: product.sku || "—" },
-                { label: "Min Alert",value: `${product.minStockAlert} ${isGrocery ? product.unit : 'pcs'}` },
-                { label: "Created",  value: product.createdDate },
-              ].map((d) => (
-                <div key={d.label}>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">{d.label}</p>
-                  <p className="text-sm text-slate-800 font-medium mt-0.5">{d.value}</p>
-                </div>
-              ))}
+            {/* ── General Info ── */}
+            <div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">General Information</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
+                {[
+                  { label: "Brand",    value: product.brand || "—" },
+                  { label: "Category", value: product.category },
+                  { label: "SKU",      value: product.sku || "—" },
+                  { label: "Min Stock Alert", value: `${product.minStockAlert} pcs` },
+                  { label: "Total Stock", value: `${total} pcs` },
+                  { label: "Added On", value: product.createdDate ? new Date(product.createdDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—" },
+                ].map((d) => (
+                  <div key={d.label}>
+                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{d.label}</p>
+                    <p className="text-sm text-slate-800 font-semibold mt-0.5">{d.value}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Size breakdown (Garments only) */}
+            {/* ── Garment Details ── */}
             {!isGrocery && (
               <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Size-wise Stock</p>
-                <div className="flex flex-wrap gap-2">
-                  {product.sizes?.map((s) => (
-                    <div
-                      key={s.size}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold ${
-                        s.qty === 0
-                          ? "bg-red-50 text-red-500 border-red-200"
-                          : "bg-slate-50 text-slate-700 border-slate-200"
-                      }`}
-                    >
-                      <span>{s.size}</span>
-                      <span className="text-slate-400">·</span>
-                      <span>{s.qty} pcs</span>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Garment Details</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
+                  {[
+                    { label: "Gender",  value: product.gender  || "—" },
+                    { label: "Fabric",  value: product.fabric  || "—" },
+                    { label: "Color",   value: product.color   || "—" },
+                  ].map((d) => (
+                    <div key={d.label}>
+                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{d.label}</p>
+                      <p className="text-sm text-slate-800 font-semibold mt-0.5">{d.value}</p>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Barcodes Section */}
-            {product.barcodeImageUrl && (
-              <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3">
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Product Barcode</p>
-                <div className="bg-white rounded-lg border border-slate-100 p-4 flex flex-col items-center justify-center text-center max-w-md mx-auto">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">System Barcode (From Backend)</p>
-                  <Barcode value={product.barcode || ""} imageUrl={product.barcodeImageUrl} useBackendImage={true} className="h-12" />
-                  <p className="text-xs font-mono text-slate-500 mt-2 font-semibold">{product.barcode}</p>
+            {/* ── Grocery Details ── */}
+            {isGrocery && (
+              <div>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Grocery Details</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
+                  {[
+                    { label: "Unit",         value: product.unit      || "—" },
+                    { label: "HSN Code",     value: product.hsnCode   || "—" },
+                    { label: "Stock Qty",    value: product.stockQuantity != null ? `${product.stockQuantity} units` : "—" },
+                    { label: "Mfg. Date",    value: product.mfgDate    ? new Date(product.mfgDate).toLocaleDateString("en-IN",    { day: "2-digit", month: "short", year: "numeric" }) : "—" },
+                    { label: "Expiry Date",  value: product.expiryDate ? new Date(product.expiryDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—" },
+                  ].map((d) => (
+                    <div key={d.label}>
+                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{d.label}</p>
+                      <p className="text-sm text-slate-800 font-semibold mt-0.5">{d.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── Size-wise Stock & Barcodes (Garments only) ── */}
+            {!isGrocery && product.sizes && product.sizes.length > 0 && (
+              <div>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Size-wise Stock &amp; Barcodes</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {product.sizes.map((s) => (
+                    <div
+                      key={s.size}
+                      className={`flex flex-col p-3 rounded-xl border text-xs ${
+                        s.qty === 0 ? "bg-red-50/60 border-red-200" : "bg-slate-50 border-slate-200"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-bold text-slate-800">{s.size}</span>
+                        <span className={`font-bold text-xs px-1.5 py-0.5 rounded-full ${s.qty === 0 ? "bg-red-100 text-red-600" : "bg-green-100 text-green-700"}`}>
+                          {s.qty} pcs
+                        </span>
+                      </div>
+                      {s.barcode && (
+                        <div className="mt-1.5 flex flex-col items-center bg-white rounded-lg border border-slate-100 p-2 text-center gap-1">
+                          <Barcode value={s.barcode} imageUrl={s.barcodeImageUrl} useBackendImage={true} className="h-9" />
+                          <p className="text-[9px] font-mono text-slate-400 break-all">{s.barcode}</p>
+                          <button
+                            onClick={() => printBarcodeLabel({
+                              ...product,
+                              name: `${product.name} (${s.size})`,
+                              barcode: s.barcode,
+                              barcodeImageUrl: s.barcodeImageUrl,
+                            })}
+                            className="flex items-center justify-center gap-1 w-full py-1 bg-slate-50 hover:bg-red-50 text-[10px] font-bold text-slate-600 hover:text-red-700 rounded border border-slate-200 transition-colors"
+                          >
+                            <Printer size={9} /> Print
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── Product Barcode (Grocery only) ── */}
+            {isGrocery && product.barcodeImageUrl && (
+              <div className="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Product Barcode</p>
+                <div className="bg-white rounded-lg border border-slate-100 p-4 flex flex-col items-center text-center max-w-xs mx-auto gap-2">
+                  <Barcode value={product.barcode || ""} imageUrl={product.barcodeImageUrl} useBackendImage={true} className="h-14" />
+                  <p className="text-xs font-mono text-slate-500 font-semibold">{product.barcode}</p>
                   <button
                     onClick={() => printBarcodeLabel(product)}
-                    className="mt-3 flex items-center gap-1.5 px-4 py-2 bg-slate-50 hover:bg-red-50 text-[11px] font-bold text-slate-600 hover:text-red-700 rounded-lg border border-slate-200 transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 px-4 py-2 bg-slate-50 hover:bg-red-50 text-xs font-bold text-slate-600 hover:text-red-700 rounded-lg border border-slate-200 transition-colors"
                   >
-                    <Printer size={12} /> Print Label
+                    <Printer size={13} /> Print Label
                   </button>
                 </div>
               </div>
             )}
 
+            {/* ── Description ── */}
             {product.description && (
               <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">Description</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Description</p>
                 <p className="text-sm text-slate-600 leading-relaxed">{product.description}</p>
               </div>
             )}
@@ -1243,7 +1309,12 @@ export default function ProductsPage() {
           barcodeImageUrl: p.barcode_image_url,
           image: p.image_url,
           createdDate: p.created_at?.split('T')[0],
-          sizes: p.sizes?.map((s: any) => ({ size: s.size, qty: s.quantity })) || []
+           sizes: p.sizes?.map((s: any) => ({
+             size: s.size,
+             qty: s.quantity,
+             barcode: s.barcode,
+             barcodeImageUrl: s.barcode_image_url,
+           })) || []
         }));
         setProducts(mapped);
       } catch (error) {
@@ -1288,7 +1359,9 @@ export default function ProductsPage() {
           p.name.toLowerCase().includes(q) ||
           p.brand?.toLowerCase().includes(q) ||
           p.sku?.toLowerCase().includes(q) ||
-          p.color?.toLowerCase().includes(q);
+          p.color?.toLowerCase().includes(q) ||
+          p.barcode?.toLowerCase().includes(q) ||
+          p.sizes?.some((s: any) => s.barcode?.toLowerCase().includes(q));
         const matchCat    = catFilter === "All" || p.category === catFilter;
         const matchGender = isGrocery || genderFilter === "All" || p.gender === genderFilter;
         const badge       = getStockBadge(p).label;
@@ -1541,10 +1614,15 @@ export default function ProductsPage() {
                                 <span className="font-mono">{p.sku}</span>
                               </p>
                             )}
-                            {p.barcodeImageUrl && (
+                            {isGrocery && p.barcodeImageUrl && (
                               <div className="mt-1.5" title={`System Barcode: ${p.barcode}`}>
                                 <Barcode value={p.barcode || ""} imageUrl={p.barcodeImageUrl} useBackendImage={true} className="h-6" />
                               </div>
+                            )}
+                            {!isGrocery && p.sizes?.some((s: any) => s.barcode) && (
+                              <span className="text-[10px] text-slate-500 font-semibold bg-slate-100 px-1.5 py-0.5 rounded mt-1.5 inline-block">
+                                🏷️ Barcodes per size
+                              </span>
                             )}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
@@ -1751,9 +1829,16 @@ export default function ProductsPage() {
                           </span>
                         </div>
 
-                        {p.barcodeImageUrl && (
+                        {isGrocery && p.barcodeImageUrl && (
                           <div className="py-1.5 flex justify-center bg-slate-50/50 rounded-lg border border-slate-100">
                             <Barcode value={p.barcode || ""} imageUrl={p.barcodeImageUrl} useBackendImage={true} className="h-8" />
+                          </div>
+                        )}
+                        {!isGrocery && p.sizes?.some((s: any) => s.barcode) && (
+                          <div className="py-1.5 flex justify-center bg-slate-50/50 rounded-lg border border-slate-100">
+                            <span className="text-[10px] text-slate-500 font-semibold">
+                              🏷️ Barcodes per size
+                            </span>
                           </div>
                         )}
 

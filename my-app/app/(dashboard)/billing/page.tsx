@@ -21,6 +21,8 @@ type Product = {
   gstPercent:   number;
   stock:        number;
   barcode:      string;
+  size?:        string;  // size label for garment products (e.g., "M", "L")
+  productId?:   string;  // original product id for size-based items
 };
 
 type CartItem = Product & {
@@ -162,18 +164,41 @@ export default function BillingPage() {
       try {
         setLoading(true);
         const res = await api.get('/products');
-        const mapped = res.data.map((p: any) => ({
-          id: String(p.id),
-          name: p.name,
-          category: p.category,
-          brand: p.brand || "",
-          sellingPrice: parseFloat(p.selling_price),
-          gstPercent: parseFloat(p.gst_percent),
-          stock: p.sizes && p.sizes.length > 0 
-            ? p.sizes.reduce((s: number, x: any) => s + (parseInt(x.quantity) || 0), 0)
-            : (parseInt(p.stock_quantity) || 0),
-          barcode: p.barcode || p.sku || ""
-        }));
+        const mapped: Product[] = [];
+
+        for (const p of res.data) {
+          const base = {
+            id: String(p.id),
+            name: p.name,
+            category: p.category,
+            brand: p.brand || "",
+            sellingPrice: parseFloat(p.selling_price),
+            gstPercent: parseFloat(p.gst_percent),
+          };
+
+          if (p.sizes && p.sizes.length > 0) {
+            // Garment product — create one virtual entry per size
+            for (const s of p.sizes) {
+              mapped.push({
+                ...base,
+                id: `${p.id}-${s.size}`,   // unique virtual id
+                productId: String(p.id),    // real product id for API
+                name: `${p.name} (${s.size})`,
+                size: s.size,
+                stock: parseInt(s.quantity) || 0,
+                barcode: s.barcode || p.barcode || p.sku || "",
+              });
+            }
+          } else {
+            // Non-garment product — single entry
+            mapped.push({
+              ...base,
+              stock: parseInt(p.stock_quantity) || 0,
+              barcode: p.barcode || p.sku || "",
+            });
+          }
+        }
+
         setProducts(mapped);
       } catch (error) {
         console.error("Failed to fetch products", error);
@@ -294,11 +319,13 @@ export default function BillingPage() {
         discount_percent: billDiscount,
         cash_received: cashReceived,
         items: cart.map(item => ({
-          product_id: item.id,
+          // For size-based products, send the real product id; otherwise send item.id
+          product_id: item.productId ?? item.id,
           quantity: item.qty,
           price: item.sellingPrice,
           discount: item.discount, // flat discount per unit
-          gst_percent: item.gstPercent
+          gst_percent: item.gstPercent,
+          ...(item.size ? { size: item.size } : {}),
         })),
         type: mode.toUpperCase()
       };
@@ -414,11 +441,18 @@ export default function BillingPage() {
                 <button key={p.id}
                   onClick={() => addToCart(p)}
                   className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-${mode === 'sale' ? 'red' : 'amber'}-50 transition-colors text-left border-b border-slate-50 last:border-0`}>
-                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
-                    <Package size={14} className="text-slate-400" />
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-bold text-xs ${p.size ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400'}`}>
+                    {p.size ? p.size : <Package size={14} />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-800 truncate">{p.name}</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-semibold text-slate-800 truncate">{p.name}</p>
+                      {p.size && (
+                        <span className="shrink-0 px-1.5 py-px rounded text-xs bg-blue-50 text-blue-600 font-semibold border border-blue-100">
+                          Size: {p.size}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-slate-400">{p.brand} · {p.category} · Stock: {p.stock}</p>
                   </div>
                   <div className="text-right shrink-0">
@@ -484,9 +518,16 @@ export default function BillingPage() {
 
                       {/* Product Info */}
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-slate-800 truncate">{item.name}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-sm font-semibold text-slate-800 truncate">{item.name}</p>
+                          {item.size && (
+                            <span className="shrink-0 px-1.5 py-px rounded text-xs bg-blue-50 text-blue-600 font-semibold border border-blue-100">
+                              {item.size}
+                            </span>
+                          )}
+                        </div>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-xs text-slate-400">{item.id}</span>
+                          <span className="text-xs text-slate-400">{item.productId ?? item.id}</span>
                           <span className="px-1.5 py-px rounded text-xs bg-slate-100 text-slate-500">{item.gstPercent}% GST</span>
                           {item.stock <= 5 && (
                             <span className="px-1.5 py-px rounded text-xs bg-amber-50 text-amber-600 font-semibold">Low stock</span>
