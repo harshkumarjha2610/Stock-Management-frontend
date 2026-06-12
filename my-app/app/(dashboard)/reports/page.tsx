@@ -55,17 +55,17 @@ const CHART_COLORS = {
 };
 
 const inputCls =
-  "h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/20 transition-colors";
+  "h-9 rounded-lg border border-border bg-surface px-3 text-sm text-text-primary outline-none focus:border-red-400 focus:ring-2 focus:ring-primary transition-colors";
 
 // ═══════════════════════════════════════════════════════════════
 // REPORT MENU CONFIG
 // ═══════════════════════════════════════════════════════════════
 
 const REPORTS: { key: ReportType; label: string; icon: React.ElementType; color: string; bg: string }[] = [
-  { key: "daily-sales",       label: "Day-wise Sales",        icon: TrendingUp,       color: "text-red-600",   bg: "bg-red-50"   },
+  { key: "daily-sales",       label: "Day-wise Sales",        icon: TrendingUp,       color: "text-primary",   bg: "bg-coral-light"   },
   { key: "monthly-sales",     label: "Monthly Sales",         icon: BarChart3,        color: "text-indigo-600", bg: "bg-indigo-50" },
-  { key: "profit",            label: "Profit Report",         icon: IndianRupee,      color: "text-green-600",  bg: "bg-green-50"  },
-  { key: "gst",               label: "GST Monthly",           icon: Receipt,          color: "text-amber-600",  bg: "bg-amber-50"  },
+  { key: "profit",            label: "Profit Report",         icon: IndianRupee,      color: "text-success",  bg: "bg-mint-light"  },
+  { key: "gst",               label: "GST Monthly",           icon: Receipt,          color: "text-warning",  bg: "bg-warning/10"  },
   { key: "customer-purchase", label: "Customer Purchase",     icon: Users,            color: "text-purple-600", bg: "bg-purple-50" },
   { key: "staff-attendance",  label: "Staff Attendance",      icon: UserCheck,        color: "text-teal-600",   bg: "bg-teal-50"   },
   { key: "salary-paid",       label: "Salary Paid",           icon: BadgeDollarSign,  color: "text-rose-600",   bg: "bg-rose-50"   },
@@ -81,15 +81,15 @@ function KpiCard({ label, value, sub, delta, icon: Icon, bg, ic }: {
   icon: React.ElementType; bg: string; ic: string;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5">
+    <div className="bg-surface rounded-xl border border-border p-5">
       <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${bg} mb-3`}>
         <Icon className={`w-4 h-4 ${ic}`} />
       </div>
-      <p className="text-2xl font-bold text-gray-500 tabular-nums">{value}</p>
-      <p className="text-xs font-semibold text-slate-700 mt-0.5">{label}</p>
-      {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+      <p className="text-2xl font-bold text-text-primary tabular-nums">{value}</p>
+      <p className="text-xs font-semibold text-text-primary mt-0.5">{label}</p>
+      {sub && <p className="text-xs text-text-secondary mt-0.5">{sub}</p>}
       {delta !== undefined && (
-        <div className={`flex items-center gap-1 mt-1.5 text-xs font-semibold ${delta >= 0 ? "text-green-600" : "text-red-500"}`}>
+        <div className={`flex items-center gap-1 mt-1.5 text-xs font-semibold ${delta >= 0 ? "text-success" : "text-coral"}`}>
           {delta >= 0 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
           {Math.abs(delta)}% vs last period
         </div>
@@ -102,8 +102,8 @@ function SectionHeader({ title, sub }: { title: string; sub?: string }) {
   return (
     <div className="flex items-center gap-3 mb-5">
       <div className="flex-1">
-        <h3 className="text-sm font-bold text-gray-500">{title}</h3>
-        {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+        <h3 className="text-sm font-bold text-text-primary">{title}</h3>
+        {sub && <p className="text-xs text-text-secondary mt-0.5">{sub}</p>}
       </div>
     </div>
   );
@@ -111,9 +111,9 @@ function SectionHeader({ title, sub }: { title: string; sub?: string }) {
 
 function ChartCard({ title, children, sub }: { title: string; children: React.ReactNode; sub?: string }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5">
-      <p className="text-sm font-bold text-slate-800 mb-1">{title}</p>
-      {sub && <p className="text-xs text-slate-400 mb-4">{sub}</p>}
+    <div className="bg-surface rounded-xl border border-border p-5">
+      <p className="text-sm font-bold text-text-primary mb-1">{title}</p>
+      {sub && <p className="text-xs text-text-secondary mb-4">{sub}</p>}
       {children}
     </div>
   );
@@ -141,10 +141,10 @@ function DailySalesReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <KpiCard label="Total Sales"    value={fmtK(totalSales)}   sub="Selected period"  icon={TrendingUp}  bg="bg-red-50"   ic="text-red-600"  />
-        <KpiCard label="Total Orders"   value={String(totalOrders)} sub="Transactions"    icon={Receipt}     bg="bg-green-50"  ic="text-green-600" />
+        <KpiCard label="Total Sales"    value={fmtK(totalSales)}   sub="Selected period"  icon={TrendingUp}  bg="bg-coral-light"   ic="text-primary"  />
+        <KpiCard label="Total Orders"   value={String(totalOrders)} sub="Transactions"    icon={Receipt}     bg="bg-mint-light"  ic="text-success" />
         <KpiCard label="Avg Order Value" value={fmt(avgOrder)}      sub="Per transaction" icon={IndianRupee} bg="bg-purple-50" ic="text-purple-600"/>
-        <KpiCard label="Returns"        value={fmtK(totalReturns)} sub="Refunded amount" icon={TrendingDown} bg="bg-red-50"   ic="text-red-500"   />
+        <KpiCard label="Returns"        value={fmtK(totalReturns)} sub="Refunded amount" icon={TrendingDown} bg="bg-coral-light"   ic="text-coral"   />
       </div>
 
       <ChartCard title="Daily Sales Trend">
@@ -166,27 +166,27 @@ function DailySalesReport({ data }: { data: any[] }) {
         </ResponsiveContainer>
       </ChartCard>
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-slate-100 bg-slate-50">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">Day-wise Breakdown</p>
+      <div className="bg-surface rounded-xl border border-border overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-border bg-background">
+          <p className="text-xs font-bold text-text-secondary uppercase tracking-wide">Day-wise Breakdown</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-100">
+              <tr className="border-b border-border">
                 {["Date", "Orders", "Gross Sales", "Returns", "Net Sales"].map((h) => (
-                  <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {data.map((d, i) => (
-                <tr key={i} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                  <td className="px-5 py-3 font-medium text-slate-700 whitespace-nowrap">{d.date}</td>
-                  <td className="px-5 py-3 text-slate-600 tabular-nums">{d.orders}</td>
-                  <td className="px-5 py-3 font-semibold text-gray-500 tabular-nums">{fmt(d.sales)}</td>
-                  <td className="px-5 py-3 text-red-500 tabular-nums">{fmt(d.returns)}</td>
-                  <td className="px-5 py-3 font-bold text-green-700 tabular-nums">{fmt(d.sales - d.returns)}</td>
+                <tr key={i} className="border-b border-slate-50 hover:bg-background transition-colors">
+                  <td className="px-5 py-3 font-medium text-text-primary whitespace-nowrap">{d.date}</td>
+                  <td className="px-5 py-3 text-text-primary tabular-nums">{d.orders}</td>
+                  <td className="px-5 py-3 font-semibold text-text-primary tabular-nums">{fmt(d.sales)}</td>
+                  <td className="px-5 py-3 text-coral tabular-nums">{fmt(d.returns)}</td>
+                  <td className="px-5 py-3 font-bold text-success tabular-nums">{fmt(d.sales - d.returns)}</td>
                 </tr>
               ))}
             </tbody>
@@ -206,10 +206,10 @@ function MonthlySalesReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <KpiCard label="Total Revenue" value={fmtK(totalSales)}    sub="Selected Period" icon={TrendingUp}  bg="bg-red-50"   ic="text-red-600"  />
-        <KpiCard label="Total Orders"  value={String(totalOrders)} sub="Transactions"    icon={Receipt}     bg="bg-green-50"  ic="text-green-600" />
+        <KpiCard label="Total Revenue" value={fmtK(totalSales)}    sub="Selected Period" icon={TrendingUp}  bg="bg-coral-light"   ic="text-primary"  />
+        <KpiCard label="Total Orders"  value={String(totalOrders)} sub="Transactions"    icon={Receipt}     bg="bg-mint-light"  ic="text-success" />
         <KpiCard label="Customers"     value={String(totalCustomers)} sub="Unique"      icon={Users}       bg="bg-purple-50" ic="text-purple-600"/>
-        <KpiCard label="Growth"        value="+12%"                sub="vs last month"   icon={BarChart3}   bg="bg-amber-50"  ic="text-amber-600" />
+        <KpiCard label="Growth"        value="+12%"                sub="vs last month"   icon={BarChart3}   bg="bg-warning/10"  ic="text-warning" />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
@@ -253,9 +253,9 @@ function ProfitReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <KpiCard label="Total Revenue" value={fmtK(totalRevenue)} icon={TrendingUp}   bg="bg-red-50"   ic="text-red-600"  />
-        <KpiCard label="Total Cost"    value={fmtK(totalCost)}    icon={TrendingDown} bg="bg-red-50"    ic="text-red-500"   />
-        <KpiCard label="Net Profit"    value={fmtK(totalProfit)}  icon={IndianRupee}  bg="bg-green-50"  ic="text-green-600" />
+        <KpiCard label="Total Revenue" value={fmtK(totalRevenue)} icon={TrendingUp}   bg="bg-coral-light"   ic="text-primary"  />
+        <KpiCard label="Total Cost"    value={fmtK(totalCost)}    icon={TrendingDown} bg="bg-coral-light"    ic="text-coral"   />
+        <KpiCard label="Net Profit"    value={fmtK(totalProfit)}  icon={IndianRupee}  bg="bg-mint-light"  ic="text-success" />
         <KpiCard label="Avg Margin"    value={`${avgMargin}%`}    icon={BarChart3}    bg="bg-purple-50" ic="text-purple-600"/>
       </div>
 
@@ -284,8 +284,8 @@ function GstReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <KpiCard label="Total GST"   value={fmtK(totalGST)} icon={Receipt}     bg="bg-amber-50"  ic="text-amber-600"  />
-        <KpiCard label="Taxable"     value={fmtK(data.reduce((t: number, d: any) => t + d.taxable, 0))} icon={IndianRupee} bg="bg-red-50" ic="text-red-600" />
+        <KpiCard label="Total GST"   value={fmtK(totalGST)} icon={Receipt}     bg="bg-warning/10"  ic="text-warning"  />
+        <KpiCard label="Taxable"     value={fmtK(data.reduce((t: number, d: any) => t + d.taxable, 0))} icon={IndianRupee} bg="bg-coral-light" ic="text-primary" />
       </div>
 
       <ChartCard title="GST Collection by Slab">
@@ -323,14 +323,14 @@ function CustomerPurchaseReport({ data }: { data: any[] }) {
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         <KpiCard label="Total Customers" value={String(data.length)} icon={Users} bg="bg-purple-50" ic="text-purple-600" />
-        <KpiCard label="Total Revenue"   value={fmtK(totalRevenue)}   icon={IndianRupee} bg="bg-red-50" ic="text-red-600" />
+        <KpiCard label="Total Revenue"   value={fmtK(totalRevenue)}   icon={IndianRupee} bg="bg-coral-light" ic="text-primary" />
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">Customer Purchase Details</p>
+      <div className="bg-surface rounded-xl border border-border overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-background">
+          <p className="text-xs font-bold text-text-secondary uppercase tracking-wide">Customer Purchase Details</p>
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
             <input type="text" placeholder="Search customer…" value={search}
               onChange={(e) => setSearch(e.target.value)}
               className={inputCls + " pl-8 w-52 text-xs"} />
@@ -339,19 +339,19 @@ function CustomerPurchaseReport({ data }: { data: any[] }) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-100">
+              <tr className="border-b border-border">
                 {["Name","Orders","Total Spent","Last Purchase"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.map((c, i) => (
-                <tr key={i} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                  <td className="px-4 py-3.5 font-semibold text-slate-800 whitespace-nowrap">{c.name}</td>
-                  <td className="px-4 py-3.5 text-slate-700 tabular-nums">{c.orders}</td>
-                  <td className="px-4 py-3.5 font-bold text-gray-500 tabular-nums">{fmt(c.totalSpent)}</td>
-                  <td className="px-4 py-3.5 text-slate-500 whitespace-nowrap">{c.lastPurchase}</td>
+                <tr key={i} className="border-b border-slate-50 hover:bg-background transition-colors">
+                  <td className="px-4 py-3.5 font-semibold text-text-primary whitespace-nowrap">{c.name}</td>
+                  <td className="px-4 py-3.5 text-text-primary tabular-nums">{c.orders}</td>
+                  <td className="px-4 py-3.5 font-bold text-text-primary tabular-nums">{fmt(c.totalSpent)}</td>
+                  <td className="px-4 py-3.5 text-text-secondary whitespace-nowrap">{c.lastPurchase}</td>
                 </tr>
               ))}
             </tbody>
@@ -366,35 +366,35 @@ function CustomerPurchaseReport({ data }: { data: any[] }) {
 function StaffAttendanceReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-slate-100 bg-slate-50">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">Staff Attendance Summary</p>
+      <div className="bg-surface rounded-xl border border-border overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-border bg-background">
+          <p className="text-xs font-bold text-text-secondary uppercase tracking-wide">Staff Attendance Summary</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-100">
+              <tr className="border-b border-border">
                 {["Name","Present","Absent","Attendance %"].map((h) => (
-                  <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {data.map((s, i) => (
-                <tr key={i} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                  <td className="px-5 py-3.5 font-semibold text-slate-800 whitespace-nowrap">{s.name}</td>
+                <tr key={i} className="border-b border-slate-50 hover:bg-background transition-colors">
+                  <td className="px-5 py-3.5 font-semibold text-text-primary whitespace-nowrap">{s.name}</td>
                   <td className="px-5 py-3.5">
-                    <span className="px-2.5 py-0.5 rounded-full bg-green-50 text-green-700 text-xs font-semibold">{s.presentDays} days</span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-mint-light text-success text-xs font-semibold">{s.presentDays} days</span>
                   </td>
                   <td className="px-5 py-3.5">
-                    <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 text-xs font-semibold">{s.absentDays} days</span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-coral-light text-primary text-xs font-semibold">{s.absentDays} days</span>
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-2">
-                      <div className="w-20 bg-slate-100 rounded-full h-1.5">
-                        <div className="h-1.5 rounded-full bg-red-500" style={{ width: `${s.attendancePct}%` }} />
+                      <div className="w-20 bg-background rounded-full h-1.5">
+                        <div className="h-1.5 rounded-full bg-primary" style={{ width: `${s.attendancePct}%` }} />
                       </div>
-                      <span className="text-xs font-bold text-red-600">{s.attendancePct}%</span>
+                      <span className="text-xs font-bold text-primary">{s.attendancePct}%</span>
                     </div>
                   </td>
                 </tr>
@@ -414,25 +414,25 @@ function SalaryPaidReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <KpiCard label="Total Salary Paid" value={fmtK(totalPaid)} icon={IndianRupee} bg="bg-green-50" ic="text-green-600" />
-        <KpiCard label="Staff Count"      value={String(data.length)} icon={Users}       bg="bg-red-50"  ic="text-red-600"  />
+        <KpiCard label="Total Salary Paid" value={fmtK(totalPaid)} icon={IndianRupee} bg="bg-mint-light" ic="text-success" />
+        <KpiCard label="Staff Count"      value={String(data.length)} icon={Users}       bg="bg-coral-light"  ic="text-primary"  />
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-surface rounded-xl border border-border overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-100 bg-slate-50">
+            <tr className="border-b border-border bg-background">
               {["Name","Total Paid","Last Payment"].map((h) => (
-                <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">{h}</th>
+                <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {data.map((s, i) => (
-              <tr key={i} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                <td className="px-5 py-3.5 font-semibold text-slate-800">{s.name}</td>
-                <td className="px-5 py-3.5 font-bold text-gray-500">{fmt(s.totalPaid)}</td>
-                <td className="px-5 py-3.5 text-slate-500">{s.lastPayment || "—"}</td>
+              <tr key={i} className="border-b border-slate-50 hover:bg-background transition-colors">
+                <td className="px-5 py-3.5 font-semibold text-text-primary">{s.name}</td>
+                <td className="px-5 py-3.5 font-bold text-text-primary">{fmt(s.totalPaid)}</td>
+                <td className="px-5 py-3.5 text-text-secondary">{s.lastPayment || "—"}</td>
               </tr>
             ))}
           </tbody>
@@ -446,28 +446,28 @@ function SalaryPaidReport({ data }: { data: any[] }) {
 function StockHistoryReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-surface rounded-xl border border-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50">
+              <tr className="border-b border-border bg-background">
                 {["Date","Product","Type","Qty","Supplier/Reason"].map((h) => (
-                  <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">{h}</th>
+                  <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {data.map((h, i) => (
-                <tr key={i} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                  <td className="px-5 py-3.5 text-slate-500 text-xs font-mono">{h.date}</td>
-                  <td className="px-5 py-3.5 font-semibold text-slate-800">{h.product}</td>
+                <tr key={i} className="border-b border-slate-50 hover:bg-background transition-colors">
+                  <td className="px-5 py-3.5 text-text-secondary text-xs font-mono">{h.date}</td>
+                  <td className="px-5 py-3.5 font-semibold text-text-primary">{h.product}</td>
                   <td className="px-5 py-3.5">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${h.type === "IN" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${h.type === "IN" ? "bg-green-100 text-success" : "bg-red-100 text-red-700"}`}>
                       {h.type}
                     </span>
                   </td>
                   <td className="px-5 py-3.5 font-bold tabular-nums">{h.qty}</td>
-                  <td className="px-5 py-3.5 text-slate-500 italic">{h.supplier || h.reason || "—"}</td>
+                  <td className="px-5 py-3.5 text-text-secondary italic">{h.supplier || h.reason || "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -676,8 +676,8 @@ export default function ReportsPage() {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-10 w-10 animate-spin text-red-600" />
-          <p className="text-sm font-medium text-slate-500">Generating live reports...</p>
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          <p className="text-sm font-medium text-text-secondary">Generating live reports...</p>
         </div>
       </div>
     );
@@ -689,21 +689,21 @@ export default function ReportsPage() {
       {/* ── Page Header ── */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-xl font-bold text-gray-500">Reports</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Business Intelligence Dashboard</p>
+          <h1 className="text-xl font-bold text-text-primary">Reports</h1>
+          <p className="text-sm text-text-secondary mt-0.5">Business Intelligence Dashboard</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 h-9 px-3 rounded-lg border border-slate-200 bg-white">
-            <Calendar size={14} className="text-slate-400" />
+          <div className="flex items-center gap-2 h-9 px-3 rounded-lg border border-border bg-surface">
+            <Calendar size={14} className="text-text-secondary" />
             <input type="month" value={month} onChange={(e) => setMonth(e.target.value)}
-              className="text-sm text-slate-700 outline-none bg-transparent" />
+              className="text-sm text-text-primary outline-none bg-transparent" />
           </div>
           <button onClick={handleExportCSV}
-            className="flex items-center gap-2 h-9 px-4 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-green-600 transition-colors">
+            className="flex items-center gap-2 h-9 px-4 rounded-lg border border-border bg-surface text-sm font-medium text-text-primary hover:bg-background hover:text-success transition-colors">
             <Download size={15} /> Export CSV
           </button>
           <button onClick={handlePrint}
-            className="flex items-center gap-2 h-9 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-sm font-semibold text-white transition-colors shadow-sm shadow-red-200">
+            className="flex items-center gap-2 h-9 px-4 rounded-lg bg-primary hover:bg-red-700 text-sm font-semibold text-white transition-colors shadow-sm shadow-red-200">
             <Printer size={15} /> Print
           </button>
         </div>
@@ -713,9 +713,9 @@ export default function ReportsPage() {
 
         {/* ── Sidebar Report Menu ── */}
         <div className="w-56 shrink-0">
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden sticky top-6">
-            <div className="px-4 py-3 border-b border-slate-100">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Report Types</p>
+          <div className="bg-surface rounded-xl border border-border overflow-hidden sticky top-6">
+            <div className="px-4 py-3 border-b border-border">
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Report Types</p>
             </div>
             <nav className="py-2">
               {REPORTS.map((r) => {
@@ -726,20 +726,20 @@ export default function ReportsPage() {
                     onClick={() => setActive(r.key)}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all ${
                       active === r.key
-                        ? "bg-red-50 text-red-700"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-gray-500"
+                        ? "bg-coral-light text-red-700"
+                        : "text-text-primary hover:bg-background hover:text-text-primary"
                     }`}
                   >
                     <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                      active === r.key ? r.bg : "bg-slate-100"
+                      active === r.key ? r.bg : "bg-background"
                     }`}>
-                      <Icon className={`w-3.5 h-3.5 ${active === r.key ? r.color : "text-slate-400"}`} />
+                      <Icon className={`w-3.5 h-3.5 ${active === r.key ? r.color : "text-text-secondary"}`} />
                     </div>
-                    <span className={`text-xs font-semibold leading-tight ${active === r.key ? "text-red-700" : "text-slate-600"}`}>
+                    <span className={`text-xs font-semibold leading-tight ${active === r.key ? "text-red-700" : "text-text-primary"}`}>
                       {r.label}
                     </span>
                     {active === r.key && (
-                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-red-600" />
+                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
                     )}
                   </button>
                 );
@@ -757,8 +757,8 @@ export default function ReportsPage() {
               <activeReport.icon className={`w-5 h-5 ${activeReport.color}`} />
             </div>
             <div>
-              <h2 className="text-base font-bold text-gray-500">{activeReport.label}</h2>
-              <p className="text-xs text-slate-400">
+              <h2 className="text-base font-bold text-text-primary">{activeReport.label}</h2>
+              <p className="text-xs text-text-secondary">
                 {fmtMonth(month)} &nbsp;·&nbsp; Live Data
               </p>
             </div>

@@ -47,7 +47,7 @@ const PAYMENT_METHODS: { key: PaymentMethod; label: string; icon: string }[] = [
 let invoiceCounter = 1001;
 
 const inputCls =
-  "h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-gray-500 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/20 transition-colors";
+  "h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm text-text-primary outline-none focus:border-red-400 focus:ring-2 focus:ring-primary transition-colors";
 
 function fmt(n: number) {
   return "₹" + n.toLocaleString("en-IN");
@@ -351,24 +351,24 @@ export default function BillingPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
         <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
-          <CheckCircle className="w-10 h-10 text-green-600" />
+          <CheckCircle className="w-10 h-10 text-success" />
         </div>
         <div className="text-center">
-          <h2 className="text-xl font-bold text-gray-500">{mode === 'sale' ? 'Bill Generated!' : 'Return Processed!'}</h2>
-          <p className="text-slate-500 mt-1 text-sm">{mode === 'sale' ? 'Invoice' : 'Return Ref'} <span className={`font-mono font-semibold ${mode === 'sale' ? 'text-red-600' : 'text-amber-600'}`}>{lastInvoice}</span> {mode === 'sale' ? 'printed successfully.' : 'recorded successfully.'}</p>
-          <p className="text-2xl font-bold text-gray-500 mt-3">{fmt(totals.grandTotal)}</p>
+          <h2 className="text-xl font-bold text-text-primary">{mode === 'sale' ? 'Bill Generated!' : 'Return Processed!'}</h2>
+          <p className="text-text-secondary mt-1 text-sm">{mode === 'sale' ? 'Invoice' : 'Return Ref'} <span className={`font-mono font-semibold ${mode === 'sale' ? 'text-primary' : 'text-warning'}`}>{lastInvoice}</span> {mode === 'sale' ? 'printed successfully.' : 'recorded successfully.'}</p>
+          <p className="text-2xl font-bold text-text-primary mt-3">{fmt(totals.grandTotal)}</p>
           {payMethod === "cash" && totals.change > 0 && (
-            <p className="text-sm text-green-600 font-semibold mt-1">Change to return: {fmt(totals.change)}</p>
+            <p className="text-sm text-success font-semibold mt-1">Change to return: {fmt(totals.change)}</p>
           )}
         </div>
         <div className="flex gap-3">
           <button onClick={clearCart}
-            className={`flex items-center gap-2 h-10 px-6 rounded-xl text-white text-sm font-semibold transition-colors shadow-sm ${mode === 'sale' ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700'}`}>
+            className={`flex items-center gap-2 h-10 px-6 rounded-xl text-white text-sm font-semibold transition-colors shadow-sm ${mode === 'sale' ? 'bg-primary hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700'}`}>
             <RotateCcw size={16} /> New {mode === 'sale' ? 'Bill' : 'Transaction'}
           </button>
           <button
             onClick={() => printInvoice(cart, { name: custName, phone: custPhone }, payMethod, lastInvoice, { ...totals, cashReceived })}
-            className="flex items-center gap-2 h-10 px-6 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors">
+            className="flex items-center gap-2 h-10 px-6 rounded-xl border border-border bg-surface text-text-primary text-sm font-semibold hover:bg-background transition-colors">
             <Printer size={16} /> Reprint
           </button>
         </div>
@@ -385,27 +385,27 @@ export default function BillingPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-500">Billing</h1>
-            <p className="text-sm text-slate-500 mt-0.5">{mode === 'sale' ? 'Create new invoice / POS bill' : 'Process product return / refund'}</p>
+            <h1 className="text-xl font-bold text-text-primary">Billing</h1>
+            <p className="text-sm text-text-secondary mt-0.5">{mode === 'sale' ? 'Create new invoice / POS bill' : 'Process product return / refund'}</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex p-1 bg-slate-100 rounded-lg">
+            <div className="flex p-1 bg-background rounded-lg">
               <button
                 onClick={() => setMode("sale")}
-                className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${mode === 'sale' ? 'bg-red-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${mode === 'sale' ? 'bg-primary text-white shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
               >
                 Sale
               </button>
               <button
                 onClick={() => setMode("return")}
-                className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${mode === 'return' ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${mode === 'return' ? 'bg-amber-600 text-white shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
               >
                 Return
               </button>
             </div>
             {cart.length > 0 && (
               <button onClick={clearCart}
-                className="flex items-center gap-1.5 h-8 px-3 rounded-lg border border-red-200 bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors">
+                className="flex items-center gap-1.5 h-8 px-3 rounded-lg border border-coral bg-coral-light text-primary text-xs font-semibold hover:bg-red-100 transition-colors">
                 <RotateCcw size={13} /> Clear
               </button>
             )}
@@ -414,19 +414,19 @@ export default function BillingPage() {
 
         {/* Product Search */}
         <div className="relative">
-          <div className={`flex items-center gap-2 h-11 bg-white border border-slate-200 rounded-xl px-4 focus-within:border-${mode === 'sale' ? 'red' : 'amber'}-400 focus-within:ring-2 focus-within:ring-${mode === 'sale' ? 'red' : 'amber'}-500/20 transition-all`}>
-            <Search className="w-4 h-4 text-slate-400 shrink-0" />
+          <div className={`flex items-center gap-2 h-11 bg-surface border border-border rounded-xl px-4 focus-within:border-${mode === 'sale' ? 'red' : 'amber'}-400 focus-within:ring-2 focus-within:ring-${mode === 'sale' ? 'red' : 'amber'}-500/20 transition-all`}>
+            <Search className="w-4 h-4 text-text-secondary shrink-0" />
             <input
               type="text"
               placeholder="Search product by name, barcode, brand or ID…"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setShowSearch(true); }}
               onFocus={() => setShowSearch(true)}
-              className="flex-1 text-sm text-slate-700 outline-none placeholder:text-slate-400 bg-transparent"
+              className="flex-1 text-sm text-text-primary outline-none placeholder:text-text-secondary bg-transparent"
             />
             {search && (
               <button onClick={() => { setSearch(""); setShowSearch(false); }}>
-                <X size={14} className="text-slate-400 hover:text-slate-600" />
+                <X size={14} className="text-text-secondary hover:text-text-primary" />
               </button>
             )}
             <button className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-${mode === 'sale' ? 'red' : 'amber'}-50 text-${mode === 'sale' ? 'red' : 'amber'}-700 text-xs font-semibold hover:bg-${mode === 'sale' ? 'red' : 'amber'}-100 transition-colors`}>
@@ -436,28 +436,28 @@ export default function BillingPage() {
 
           {/* Dropdown */}
           {showSearch && searchResults.length > 0 && (
-            <div className="absolute top-full left-0 right-0 z-30 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+            <div className="absolute top-full left-0 right-0 z-30 mt-1.5 bg-surface border border-border rounded-xl shadow-lg overflow-hidden">
               {searchResults.map((p) => (
                 <button key={p.id}
                   onClick={() => addToCart(p)}
                   className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-${mode === 'sale' ? 'red' : 'amber'}-50 transition-colors text-left border-b border-slate-50 last:border-0`}>
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-bold text-xs ${p.size ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400'}`}>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-bold text-xs ${p.size ? 'bg-blue-100 text-blue-700' : 'bg-background text-text-secondary'}`}>
                     {p.size ? p.size : <Package size={14} />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-semibold text-slate-800 truncate">{p.name}</p>
+                      <p className="text-sm font-semibold text-text-primary truncate">{p.name}</p>
                       {p.size && (
                         <span className="shrink-0 px-1.5 py-px rounded text-xs bg-blue-50 text-blue-600 font-semibold border border-blue-100">
                           Size: {p.size}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-400">{p.brand} · {p.category} · Stock: {p.stock}</p>
+                    <p className="text-xs text-text-secondary">{p.brand} · {p.category} · Stock: {p.stock}</p>
                   </div>
                   <div className="text-right shrink-0">
                     <p className={`text-sm font-bold text-${mode === 'sale' ? 'red' : 'amber'}-700`}>{fmt(p.sellingPrice)}</p>
-                    <p className="text-xs text-slate-400">+{p.gstPercent}% GST</p>
+                    <p className="text-xs text-text-secondary">+{p.gstPercent}% GST</p>
                   </div>
                 </button>
               ))}
@@ -471,18 +471,18 @@ export default function BillingPage() {
         </div>
 
         {/* Cart */}
-        <div className="flex-1 bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col">
+        <div className="flex-1 bg-surface rounded-xl border border-border overflow-hidden flex flex-col">
 
           {/* Cart Header */}
-          <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 bg-slate-50 shrink-0">
+          <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-background shrink-0">
             <div className="flex items-center gap-2">
-              <ShoppingCart size={15} className="text-slate-500" />
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+              <ShoppingCart size={15} className="text-text-secondary" />
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-wide">
                 Cart — {cart.length} item{cart.length !== 1 ? "s" : ""}
               </p>
             </div>
             {cart.length > 0 && (
-              <p className="text-xs text-slate-400">{cart.reduce((t, c) => t + c.qty, 0)} units total</p>
+              <p className="text-xs text-text-secondary">{cart.reduce((t, c) => t + c.qty, 0)} units total</p>
             )}
           </div>
 
@@ -491,13 +491,13 @@ export default function BillingPage() {
             {cart.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-3 text-center py-16">
                 <ShoppingCart size={36} className="text-slate-200" />
-                <p className="text-sm font-semibold text-slate-400">Cart is empty</p>
+                <p className="text-sm font-semibold text-text-secondary">Cart is empty</p>
                 <p className="text-xs text-slate-300">Search and add products above</p>
               </div>
             ) : (
               <div className="divide-y divide-slate-50">
                 {/* Column Headers */}
-                <div className="grid grid-cols-[1fr_100px_80px_120px_100px] gap-2 px-5 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wide bg-slate-50/50">
+                <div className="grid grid-cols-[1fr_100px_80px_120px_100px] gap-2 px-5 py-2 text-xs font-semibold text-text-secondary uppercase tracking-wide bg-background/50">
                   <span>Product</span>
                   <span className="text-center">Qty</span>
                   <span className="text-right">Rate</span>
@@ -514,12 +514,12 @@ export default function BillingPage() {
 
                   return (
                     <div key={item.id}
-                      className="grid grid-cols-[1fr_100px_80px_120px_100px] gap-2 items-center px-5 py-3.5 hover:bg-slate-50 transition-colors">
+                      className="grid grid-cols-[1fr_100px_80px_120px_100px] gap-2 items-center px-5 py-3.5 hover:bg-background transition-colors">
 
                       {/* Product Info */}
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <p className="text-sm font-semibold text-slate-800 truncate">{item.name}</p>
+                          <p className="text-sm font-semibold text-text-primary truncate">{item.name}</p>
                           {item.size && (
                             <span className="shrink-0 px-1.5 py-px rounded text-xs bg-blue-50 text-blue-600 font-semibold border border-blue-100">
                               {item.size}
@@ -527,10 +527,10 @@ export default function BillingPage() {
                           )}
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-xs text-slate-400">{item.productId ?? item.id}</span>
-                          <span className="px-1.5 py-px rounded text-xs bg-slate-100 text-slate-500">{item.gstPercent}% GST</span>
+                          <span className="text-xs text-text-secondary">{item.productId ?? item.id}</span>
+                          <span className="px-1.5 py-px rounded text-xs bg-background text-text-secondary">{item.gstPercent}% GST</span>
                           {item.stock <= 5 && (
-                            <span className="px-1.5 py-px rounded text-xs bg-amber-50 text-amber-600 font-semibold">Low stock</span>
+                            <span className="px-1.5 py-px rounded text-xs bg-warning/10 text-warning font-semibold">Low stock</span>
                           )}
                         </div>
                       </div>
@@ -538,42 +538,42 @@ export default function BillingPage() {
                       {/* Qty */}
                       <div className="flex items-center justify-center gap-1">
                         <button onClick={() => updateQty(item.id, -1)}
-                          className="w-6 h-6 rounded-md border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors text-slate-500">
+                          className="w-6 h-6 rounded-md border border-border flex items-center justify-center hover:bg-background transition-colors text-text-secondary">
                           <Minus size={12} />
                         </button>
-                        <span className="w-7 text-center text-sm font-bold text-gray-500 tabular-nums">{item.qty}</span>
+                        <span className="w-7 text-center text-sm font-bold text-text-primary tabular-nums">{item.qty}</span>
                         <button onClick={() => updateQty(item.id, 1)}
                           disabled={item.qty >= item.stock}
-                          className="w-6 h-6 rounded-md border border-slate-200 flex items-center justify-center hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-slate-500">
+                          className="w-6 h-6 rounded-md border border-border flex items-center justify-center hover:bg-background disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-text-secondary">
                           <Plus size={12} />
                         </button>
                       </div>
 
                       {/* Rate */}
-                      <p className="text-sm text-right text-slate-700 font-medium tabular-nums">{fmt(item.sellingPrice)}</p>
+                      <p className="text-sm text-right text-text-primary font-medium tabular-nums">{fmt(item.sellingPrice)}</p>
 
                       {/* Discount per unit */}
                       <div className="flex items-center justify-center">
                         <div className="relative">
-                          <IndianRupee className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
+                          <IndianRupee className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-text-secondary" />
                           <input
                             type="number" min={0} max={item.sellingPrice}
                             value={item.discount || ""}
                             placeholder="0"
                             onChange={(e) => setDiscount(item.id, Number(e.target.value))}
-                            className="h-7 w-20 rounded-lg border border-slate-200 pl-5 pr-2 text-xs text-green-700 font-semibold outline-none focus:border-green-400 focus:ring-2 focus:ring-green-500/20 transition-colors bg-green-50 text-center tabular-nums"
+                            className="h-7 w-20 rounded-lg border border-border pl-5 pr-2 text-xs text-success font-semibold outline-none focus:border-green-400 focus:ring-2 focus:ring-green-500/20 transition-colors bg-mint-light text-center tabular-nums"
                           />
                         </div>
                       </div>
 
                       {/* Line Total */}
                       <div className="text-right">
-                        <p className="text-sm font-bold text-gray-500 tabular-nums">{fmt(lineTotal)}</p>
+                        <p className="text-sm font-bold text-text-primary tabular-nums">{fmt(lineTotal)}</p>
                         {lineGST > 0 && (
-                          <p className="text-xs text-slate-400 tabular-nums">incl. {fmt(lineGST)} GST</p>
+                          <p className="text-xs text-text-secondary tabular-nums">incl. {fmt(lineGST)} GST</p>
                         )}
                         <button onClick={() => removeFromCart(item.id)}
-                          className="mt-1 text-red-400 hover:text-red-600 transition-colors">
+                          className="mt-1 text-coral hover:text-primary transition-colors">
                           <Trash2 size={12} />
                         </button>
                       </div>
@@ -590,16 +590,16 @@ export default function BillingPage() {
       <div className="w-80 shrink-0 flex flex-col gap-4 overflow-y-auto">
 
         {/* Customer Info */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Customer</p>
+        <div className="bg-surface rounded-xl border border-border p-4 space-y-3">
+          <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Customer</p>
           <div className="relative">
-            <User className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+            <User className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
             <input type="text" placeholder="Customer name (optional)"
               value={custName} onChange={(e) => setCustName(e.target.value)}
               className={inputCls + " pl-8"} />
           </div>
           <div className="relative">
-            <Phone className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+            <Phone className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
             <input type="text" placeholder="Phone number (optional)"
               value={custPhone} onChange={(e) => setCustPhone(e.target.value)}
               className={inputCls + " pl-8"} />
@@ -607,8 +607,8 @@ export default function BillingPage() {
         </div>
 
         {/* Payment Method */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Payment Method</p>
+        <div className="bg-surface rounded-xl border border-border p-4 space-y-3">
+          <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Payment Method</p>
           <div className="grid grid-cols-3 gap-2">
             {PAYMENT_METHODS.map((m) => (
               <button key={m.key}
@@ -616,7 +616,7 @@ export default function BillingPage() {
                 className={`flex flex-col items-center gap-1 py-2.5 rounded-xl border text-xs font-semibold transition-all ${
                   payMethod === m.key
                     ? `bg-${mode === 'sale' ? 'red' : 'amber'}-600 border-${mode === 'sale' ? 'red' : 'amber'}-600 text-white shadow-sm shadow-${mode === 'sale' ? 'red' : 'amber'}-200`
-                    : `border-slate-200 text-slate-600 hover:border-${mode === 'sale' ? 'red' : 'amber'}-200 hover:bg-${mode === 'sale' ? 'red' : 'amber'}-50`
+                    : `border-border text-text-primary hover:border-${mode === 'sale' ? 'red' : 'amber'}-200 hover:bg-${mode === 'sale' ? 'red' : 'amber'}-50`
                 }`}>
                 <span className="text-lg">{m.icon}</span>
                 {m.label}
@@ -628,22 +628,22 @@ export default function BillingPage() {
           {payMethod === "cash" && (
             <div className="space-y-2">
               <div className="relative">
-                <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
                 <input type="number" min={0} placeholder="Cash received"
                   value={cashReceived || ""}
                   onChange={(e) => setCashReceived(Number(e.target.value))}
                   className={inputCls + " pl-8"} />
               </div>
               {cashReceived > 0 && cashReceived >= totals.grandTotal && (
-                <div className="flex items-center justify-between bg-green-50 border border-green-100 rounded-lg px-3 py-2">
-                  <p className="text-xs text-green-700 font-semibold">Change to return</p>
-                  <p className="text-sm font-bold text-green-700">{fmt(totals.change)}</p>
+                <div className="flex items-center justify-between bg-mint-light border border-green-100 rounded-lg px-3 py-2">
+                  <p className="text-xs text-success font-semibold">Change to return</p>
+                  <p className="text-sm font-bold text-success">{fmt(totals.change)}</p>
                 </div>
               )}
               {cashReceived > 0 && cashReceived < totals.grandTotal && (
-                <div className="flex items-center justify-between bg-red-50 border border-red-100 rounded-lg px-3 py-2">
-                  <p className="text-xs text-red-600 font-semibold">Short by</p>
-                  <p className="text-sm font-bold text-red-600">{fmt(totals.grandTotal - cashReceived)}</p>
+                <div className="flex items-center justify-between bg-coral-light border border-coral rounded-lg px-3 py-2">
+                  <p className="text-xs text-primary font-semibold">Short by</p>
+                  <p className="text-sm font-bold text-primary">{fmt(totals.grandTotal - cashReceived)}</p>
                 </div>
               )}
             </div>
@@ -651,42 +651,42 @@ export default function BillingPage() {
         </div>
 
         {/* Discount on Bill */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Bill Discount</p>
+        <div className="bg-surface rounded-xl border border-border p-4 space-y-3">
+          <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Bill Discount</p>
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <Tag className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+              <Tag className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
               <input type="number" min={0} max={100} placeholder="0"
                 value={billDiscount || ""}
                 onChange={(e) => setBillDiscount(Math.min(100, Number(e.target.value)))}
                 className={inputCls + " pl-8"} />
             </div>
-            <span className="text-sm font-bold text-slate-500">%</span>
+            <span className="text-sm font-bold text-text-secondary">%</span>
           </div>
           {totals.billDisc > 0 && (
-            <p className="text-xs text-green-600 font-semibold">Saving: {fmt(totals.billDisc)}</p>
+            <p className="text-xs text-success font-semibold">Saving: {fmt(totals.billDisc)}</p>
           )}
         </div>
 
         {/* Bill Summary */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Bill Summary</p>
+        <div className="bg-surface rounded-xl border border-border p-4">
+          <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Bill Summary</p>
           <div className="space-y-2.5">
             {[
-              { label:"Subtotal",          value: fmt(totals.subtotal),      cls:"text-slate-700"  },
-              ...(totals.itemDiscount > 0 ? [{ label:"Item Discounts", value:`−${fmt(totals.itemDiscount)}`, cls:"text-green-600" }] : []),
-              ...(totals.billDisc > 0     ? [{ label:`Bill Discount (${billDiscount}%)`, value:`−${fmt(totals.billDisc)}`, cls:"text-green-600" }] : []),
-              { label:"Taxable Amount",    value: fmt(totals.taxableAmount), cls:"text-slate-700"  },
-              { label:"Total GST",         value: fmt(totals.totalGST),      cls:"text-amber-600"  },
+              { label:"Subtotal",          value: fmt(totals.subtotal),      cls:"text-text-primary"  },
+              ...(totals.itemDiscount > 0 ? [{ label:"Item Discounts", value:`−${fmt(totals.itemDiscount)}`, cls:"text-success" }] : []),
+              ...(totals.billDisc > 0     ? [{ label:`Bill Discount (${billDiscount}%)`, value:`−${fmt(totals.billDisc)}`, cls:"text-success" }] : []),
+              { label:"Taxable Amount",    value: fmt(totals.taxableAmount), cls:"text-text-primary"  },
+              { label:"Total GST",         value: fmt(totals.totalGST),      cls:"text-warning"  },
             ].map((row) => (
               <div key={row.label} className="flex items-center justify-between">
-                <p className="text-xs text-slate-500">{row.label}</p>
+                <p className="text-xs text-text-secondary">{row.label}</p>
                 <p className={`text-xs font-semibold tabular-nums ${row.cls}`}>{row.value}</p>
               </div>
             ))}
 
-            <div className="border-t border-slate-200 pt-2.5 mt-1 flex items-center justify-between">
-              <p className="text-sm font-bold text-gray-500">{mode === 'sale' ? 'Grand Total' : 'Total Refund'}</p>
+            <div className="border-t border-border pt-2.5 mt-1 flex items-center justify-between">
+              <p className="text-sm font-bold text-text-primary">{mode === 'sale' ? 'Grand Total' : 'Total Refund'}</p>
               <p className={`text-xl font-bold tabular-nums text-${mode === 'sale' ? 'red' : 'amber'}-700`}>{fmt(totals.grandTotal)}</p>
             </div>
           </div>
@@ -696,13 +696,13 @@ export default function BillingPage() {
         <button
           onClick={handleCheckout}
           disabled={cart.length === 0 || submitting || (payMethod === "cash" && cashReceived > 0 && cashReceived < totals.grandTotal)}
-          className={`w-full h-12 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm ${mode === 'sale' ? 'bg-red-600 hover:bg-red-700 shadow-red-200' : 'bg-amber-600 hover:bg-amber-700 shadow-amber-200'}`}
+          className={`w-full h-12 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm ${mode === 'sale' ? 'bg-primary hover:bg-red-700 shadow-red-200' : 'bg-amber-600 hover:bg-amber-700 shadow-amber-200'}`}
         >
           {submitting ? <Loader2 size={18} className="animate-spin" /> : (mode === 'sale' ? <Receipt size={18} /> : <RotateCcw size={18} />)}
           {submitting ? "Processing..." : (mode === 'sale' ? "Generate Bill & Print" : "Process Return & Print")}
         </button>
 
-        <p className="text-xs text-center text-slate-400 -mt-1">Bill will open in a print dialog</p>
+        <p className="text-xs text-center text-text-secondary -mt-1">Bill will open in a print dialog</p>
       </div>
     </div>
   );

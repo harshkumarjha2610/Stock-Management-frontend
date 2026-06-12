@@ -64,20 +64,20 @@ function genHistoryId(list: StockHistory[]) {
 }
 
 const statusStyle: Record<StockStatus, string> = {
-  "Available": "bg-green-50 text-green-700",
-  "Low Stock":  "bg-amber-50 text-amber-700",
-  "Sold Out":   "bg-red-50 text-red-600",
+  "Available": "bg-mint-light text-success",
+  "Low Stock":  "bg-warning/10 text-warning",
+  "Sold Out":   "bg-coral-light text-primary",
 };
 
 const reasonStyle: Record<StockOutReason | "", string> = {
-  "Sold":    "bg-red-50 text-red-700",
-  "Damaged": "bg-red-50 text-red-600",
+  "Sold":    "bg-coral-light text-red-700",
+  "Damaged": "bg-coral-light text-primary",
   "Return":  "bg-purple-50 text-purple-700",
-  "":        "bg-slate-100 text-slate-500",
+  "":        "bg-background text-text-secondary",
 };
 
 const inputCls =
-  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-gray-500 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
+  "h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-text-primary placeholder:text-text-secondary outline-none focus:border-primary focus:ring-2 focus:ring-primary transition-colors";
 
 // ═══════════════════════════════════════════════════════════════
 // SUB-COMPONENTS
@@ -86,7 +86,7 @@ const inputCls =
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{label}</label>
+      <label className="text-xs font-semibold text-text-secondary uppercase tracking-wide">{label}</label>
       {children}
     </div>
   );
@@ -97,13 +97,13 @@ function StatCard({ label, value, sub, icon: Icon, bg, ic, highlight = false }: 
   icon: React.ElementType; bg: string; ic: string; highlight?: boolean;
 }) {
   return (
-    <div className={`rounded-xl border p-5 ${highlight ? "border-amber-200 bg-amber-50" : "bg-white border-slate-200"}`}>
+    <div className={`rounded-xl border p-5 ${highlight ? "border-warning bg-warning/10" : "bg-surface border-border"}`}>
       <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${bg} mb-3`}>
         <Icon className={`w-4 h-4 ${ic}`} />
       </div>
-      <p className="text-2xl font-bold text-gray-500">{value}</p>
-      <p className="text-xs font-semibold text-slate-700 mt-0.5">{label}</p>
-      {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+      <p className="text-2xl font-bold text-text-primary">{value}</p>
+      <p className="text-xs font-semibold text-text-primary mt-0.5">{label}</p>
+      {sub && <p className="text-xs text-text-secondary mt-0.5">{sub}</p>}
     </div>
   );
 }
@@ -116,14 +116,14 @@ function Modal({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className={`w-full ${maxW} bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col`}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+      <div className={`w-full ${maxW} bg-surface rounded-2xl shadow-xl border border-border overflow-hidden max-h-[92vh] flex flex-col`}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
           <div>
-            <h2 className="text-base font-bold text-gray-500">{title}</h2>
-            {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+            <h2 className="text-base font-bold text-text-primary">{title}</h2>
+            {sub && <p className="text-xs text-text-secondary mt-0.5">{sub}</p>}
           </div>
           <button onClick={onClose}
-            className="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors">
+            className="w-8 h-8 rounded-lg hover:bg-background text-text-secondary hover:text-text-primary flex items-center justify-center transition-colors">
             <X size={16} />
           </button>
         </div>
@@ -135,16 +135,16 @@ function Modal({
 
 function ModalFooter({
   onCancel, onConfirm, confirmLabel,
-  confirmColor = "bg-red-600 hover:bg-red-700 shadow-red-200",
+  confirmColor = "bg-primary hover:bg-red-700 shadow-red-200",
   disabled = false,
 }: {
   onCancel: () => void; onConfirm: () => void;
   confirmLabel: string; confirmColor?: string; disabled?: boolean;
 }) {
   return (
-    <div className="flex gap-3 px-6 py-4 border-t border-slate-100 shrink-0">
+    <div className="flex gap-3 px-6 py-4 border-t border-border shrink-0">
       <button onClick={onCancel}
-        className="flex-1 h-10 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+        className="flex-1 h-10 rounded-lg border border-border text-sm font-medium text-text-primary hover:bg-background transition-colors">
         Cancel
       </button>
       <button onClick={onConfirm} disabled={disabled}
@@ -421,8 +421,8 @@ export default function StockPage() {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-red-600" />
-          <p className="text-sm font-medium text-slate-500">Loading stock data...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm font-medium text-text-secondary">Loading stock data...</p>
         </div>
       </div>
     );
@@ -434,19 +434,19 @@ export default function StockPage() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-xl font-bold text-gray-500">Stock Management</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Monitor inventory, record stock-in/out and view history</p>
+          <h1 className="text-xl font-bold text-text-primary">Stock Management</h1>
+          <p className="text-sm text-text-secondary mt-0.5">Monitor inventory, record stock-in/out and view history</p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => openStockOut()}
-            className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-100 transition-colors"
+            className="flex items-center gap-2 rounded-lg border border-coral bg-coral-light px-4 py-2.5 text-sm font-semibold text-primary hover:bg-red-100 transition-colors"
           >
             <ArrowDownCircle size={16} /> Stock Out
           </button>
           <button
             onClick={() => openStockIn()}
-            className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm shadow-red-200"
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm shadow-red-200"
           >
             <ArrowUpCircle size={16} /> Stock In
           </button>
@@ -455,15 +455,15 @@ export default function StockPage() {
 
       {/* ── Stats ── */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatCard label="Available"     value={available}       sub="Products in stock"      icon={Package}       bg="bg-green-50"  ic="text-green-600"  />
-        <StatCard label="Low Stock"     value={lowStock}        sub="Below reorder level"    icon={AlertTriangle} bg="bg-amber-50"  ic="text-amber-600"  highlight={lowStock > 0} />
-        <StatCard label="Sold Out"      value={soldOut}         sub="Zero stock items"       icon={X}             bg="bg-red-50"    ic="text-red-500"    highlight={soldOut > 0}  />
-        <StatCard label="Inventory Value" value={fmt(totalValue)} sub="At purchase price"    icon={TrendingUp}    bg="bg-red-50"   ic="text-red-600"   />
+        <StatCard label="Available"     value={available}       sub="Products in stock"      icon={Package}       bg="bg-mint-light"  ic="text-success"  />
+        <StatCard label="Low Stock"     value={lowStock}        sub="Below reorder level"    icon={AlertTriangle} bg="bg-warning/10"  ic="text-warning"  highlight={lowStock > 0} />
+        <StatCard label="Sold Out"      value={soldOut}         sub="Zero stock items"       icon={X}             bg="bg-coral-light"    ic="text-coral"    highlight={soldOut > 0}  />
+        <StatCard label="Inventory Value" value={fmt(totalValue)} sub="At purchase price"    icon={TrendingUp}    bg="bg-coral-light"   ic="text-primary"   />
       </div>
 
       {/* ── Low Stock Alert Banner ── */}
       {(lowStock > 0 || soldOut > 0) && (
-        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-5 py-4">
+        <div className="flex items-start gap-3 bg-warning/10 border border-warning rounded-xl px-5 py-4">
           <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
           <div className="flex-1">
             <p className="text-sm font-bold text-amber-800">Stock Alert</p>
@@ -473,7 +473,7 @@ export default function StockPage() {
                   className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                     p.currentStock === 0
                       ? "bg-red-100 text-red-700"
-                      : "bg-amber-100 text-amber-700"
+                      : "bg-amber-100 text-warning"
                   }`}
                 >
                   {p.name} — {p.currentStock === 0 ? "OUT OF STOCK" : `${p.currentStock} left`}
@@ -483,7 +483,7 @@ export default function StockPage() {
           </div>
           <button
             onClick={() => setStatusFilter("Low Stock")}
-            className="text-xs font-semibold text-amber-700 hover:text-amber-900 whitespace-nowrap transition-colors"
+            className="text-xs font-semibold text-warning hover:text-amber-900 whitespace-nowrap transition-colors"
           >
             View All →
           </button>
@@ -491,7 +491,7 @@ export default function StockPage() {
       )}
 
       {/* ── Main Tabs ── */}
-      <div className="flex gap-1 bg-slate-100 rounded-xl p-1 w-fit">
+      <div className="flex gap-1 bg-background rounded-xl p-1 w-fit">
         {[
           { key: "overview", label: "📦 Stock Overview" },
           { key: "history",  label: "📋 Stock History"  },
@@ -499,8 +499,8 @@ export default function StockPage() {
           <button key={t.key} onClick={() => setMainTab(t.key as MainTab)}
             className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
               mainTab === t.key
-                ? "bg-white text-red-600 shadow-sm"
-                : "text-slate-500 hover:text-slate-700"
+                ? "bg-surface text-primary shadow-sm"
+                : "text-text-secondary hover:text-text-primary"
             }`}
           >
             {t.label}
@@ -517,7 +517,7 @@ export default function StockPage() {
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
               <input type="text" placeholder="Search by name, ID, category…" value={search}
                 onChange={(e) => setSearch(e.target.value)} className={inputCls + " pl-9"} />
             </div>
@@ -526,25 +526,25 @@ export default function StockPage() {
                 className={inputCls + " w-44 appearance-none pr-8 cursor-pointer"}>
                 {categories.map((c) => <option key={c}>{c}</option>)}
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
             <div className="relative">
               <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
                 className={inputCls + " w-44 appearance-none pr-8 cursor-pointer"}>
                 {["All", "Available", "Low Stock", "Sold Out"].map((s) => <option key={s}>{s}</option>)}
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
           </div>
 
           {/* Stock Table */}
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div className="bg-surface rounded-xl border border-border overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50">
+                  <tr className="border-b border-border bg-background">
                     {["Product ID","Product Name","Category","Current Stock","Reorder At","Purchase Price","Selling Price","Status","Actions"].map((h) => (
-                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -552,7 +552,7 @@ export default function StockPage() {
                   {filteredProducts.length === 0 ? (
                     <tr>
                       <td colSpan={9} className="py-16 text-center">
-                        <div className="flex flex-col items-center gap-2 text-slate-400">
+                        <div className="flex flex-col items-center gap-2 text-text-secondary">
                           <Package size={32} className="text-slate-300" />
                           <p className="text-sm font-medium">No products found</p>
                         </div>
@@ -561,36 +561,36 @@ export default function StockPage() {
                   ) : filteredProducts.map((p) => {
                     const status = getStatus(p);
                     return (
-                      <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                        <td className="px-4 py-3.5 font-mono text-xs text-slate-500">{p.id}</td>
+                      <tr key={p.id} className="border-b border-slate-50 hover:bg-background transition-colors">
+                        <td className="px-4 py-3.5 font-mono text-xs text-text-secondary">{p.id}</td>
                         <td className="px-4 py-3.5">
-                          <p className="font-semibold text-slate-800 whitespace-nowrap">{p.name}</p>
-                          <p className="text-xs text-slate-400">{p.unit}</p>
+                          <p className="font-semibold text-text-primary whitespace-nowrap">{p.name}</p>
+                          <p className="text-xs text-text-secondary">{p.unit}</p>
                         </td>
-                        <td className="px-4 py-3.5 text-slate-500 whitespace-nowrap">{p.category}</td>
+                        <td className="px-4 py-3.5 text-text-secondary whitespace-nowrap">{p.category}</td>
                         <td className="px-4 py-3.5">
                           <div className="flex items-center gap-2">
                             {/* Mini stock bar */}
-                            <div className="w-16 bg-slate-100 rounded-full h-1.5 shrink-0">
+                            <div className="w-16 bg-background rounded-full h-1.5 shrink-0">
                               <div
                                 className={`h-1.5 rounded-full transition-all ${
-                                  status === "Available" ? "bg-green-500"
-                                  : status === "Low Stock" ? "bg-amber-500"
+                                  status === "Available" ? "bg-mint-light0"
+                                  : status === "Low Stock" ? "bg-warning/100"
                                   : "bg-red-400"
                                 }`}
                                 style={{ width: `${Math.min(100, (p.currentStock / Math.max(p.currentStock, 50)) * 100)}%` }}
                               />
                             </div>
                             <span className={`font-bold whitespace-nowrap ${
-                              status === "Sold Out" ? "text-red-500" : status === "Low Stock" ? "text-amber-600" : "text-gray-500"
+                              status === "Sold Out" ? "text-coral" : status === "Low Stock" ? "text-warning" : "text-text-primary"
                             }`}>
                               {p.currentStock} {p.unit}
                             </span>
                           </div>
                         </td>
-                        <td className="px-4 py-3.5 text-slate-500 whitespace-nowrap">{p.lowStockAt} {p.unit}</td>
-                        <td className="px-4 py-3.5 text-slate-600 whitespace-nowrap">{fmt(p.purchasePrice)}</td>
-                        <td className="px-4 py-3.5 font-semibold text-slate-800 whitespace-nowrap">{fmt(p.sellingPrice)}</td>
+                        <td className="px-4 py-3.5 text-text-secondary whitespace-nowrap">{p.lowStockAt} {p.unit}</td>
+                        <td className="px-4 py-3.5 text-text-primary whitespace-nowrap">{fmt(p.purchasePrice)}</td>
+                        <td className="px-4 py-3.5 font-semibold text-text-primary whitespace-nowrap">{fmt(p.sellingPrice)}</td>
                         <td className="px-4 py-3.5">
                           <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${statusStyle[status]}`}>
                             {status}
@@ -600,20 +600,20 @@ export default function StockPage() {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => setViewProduct(p)}
-                              className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors"
+                              className="flex items-center gap-1 text-xs font-medium text-text-secondary hover:text-text-primary transition-colors"
                             >
                               <Eye size={13} /> History
                             </button>
                             <button
                               onClick={() => openStockIn(p)}
-                              className="flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-lg transition-colors"
+                              className="flex items-center gap-1 text-xs font-semibold text-primary hover:text-red-800 bg-coral-light hover:bg-red-100 px-2 py-1 rounded-lg transition-colors"
                             >
                               <ArrowUpCircle size={13} /> In
                             </button>
                             <button
                               onClick={() => openStockOut(p)}
                               disabled={p.currentStock === 0}
-                              className="flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                              className="flex items-center gap-1 text-xs font-semibold text-primary hover:text-red-800 bg-coral-light hover:bg-red-100 px-2 py-1 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                               <ArrowDownCircle size={13} /> Out
                             </button>
@@ -626,13 +626,13 @@ export default function StockPage() {
               </table>
             </div>
             {filteredProducts.length > 0 && (
-              <div className="px-4 py-3 border-t border-slate-100 bg-slate-50 flex justify-between items-center">
-                <p className="text-xs text-slate-400">
-                  Showing <span className="font-semibold text-slate-600">{filteredProducts.length}</span> of{" "}
-                  <span className="font-semibold text-slate-600">{products.length}</span> products
+              <div className="px-4 py-3 border-t border-border bg-background flex justify-between items-center">
+                <p className="text-xs text-text-secondary">
+                  Showing <span className="font-semibold text-text-primary">{filteredProducts.length}</span> of{" "}
+                  <span className="font-semibold text-text-primary">{products.length}</span> products
                 </p>
-                <p className="text-xs font-semibold text-slate-500">
-                  Total Value: <span className="text-red-600">{fmt(filteredProducts.reduce((t, p) => t + p.currentStock * p.purchasePrice, 0))}</span>
+                <p className="text-xs font-semibold text-text-secondary">
+                  Total Value: <span className="text-primary">{fmt(filteredProducts.reduce((t, p) => t + p.currentStock * p.purchasePrice, 0))}</span>
                 </p>
               </div>
             )}
@@ -640,27 +640,27 @@ export default function StockPage() {
 
           {/* Sold Out Section */}
           {soldOut > 0 && (
-            <div className="bg-white rounded-xl border border-red-100 overflow-hidden">
-              <div className="px-5 py-3.5 border-b border-red-100 bg-red-50 flex items-center gap-2">
-                <AlertTriangle size={15} className="text-red-500" />
+            <div className="bg-surface rounded-xl border border-coral overflow-hidden">
+              <div className="px-5 py-3.5 border-b border-coral bg-coral-light flex items-center gap-2">
+                <AlertTriangle size={15} className="text-coral" />
                 <h2 className="text-sm font-bold text-red-700">Sold Out Products</h2>
                 <span className="ml-auto px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-bold">{soldOut}</span>
               </div>
               <div className="divide-y divide-red-50">
                 {products.filter((p) => p.currentStock === 0).map((p) => (
-                  <div key={p.id} className="flex items-center justify-between px-5 py-3.5 hover:bg-red-50 transition-colors">
+                  <div key={p.id} className="flex items-center justify-between px-5 py-3.5 hover:bg-primary-light transition-colors">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
-                        <Package size={15} className="text-red-500" />
+                        <Package size={15} className="text-coral" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-slate-800">{p.name}</p>
-                        <p className="text-xs text-slate-400">{p.id} · {p.category}</p>
+                        <p className="text-sm font-semibold text-text-primary">{p.name}</p>
+                        <p className="text-xs text-text-secondary">{p.id} · {p.category}</p>
                       </div>
                     </div>
                     <button
                       onClick={() => openStockIn(p)}
-                      className="flex items-center gap-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg transition-colors"
+                      className="flex items-center gap-1.5 text-xs font-semibold text-white bg-primary hover:bg-red-700 px-3 py-1.5 rounded-lg transition-colors"
                     >
                       <ArrowUpCircle size={13} /> Restock
                     </button>
@@ -680,16 +680,16 @@ export default function StockPage() {
 
           {/* History Stats */}
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-            <StatCard label="Total Records"  value={history.length}  sub="All time"            icon={History}       bg="bg-slate-100" ic="text-slate-600" />
-            <StatCard label="Stock In"       value={totalStockIn}    sub="Total units added"   icon={ArrowUpCircle} bg="bg-red-50"   ic="text-red-600" />
-            <StatCard label="Stock Out"      value={totalStockOut}   sub="Total units removed" icon={ArrowDownCircle} bg="bg-red-50"  ic="text-red-500"  />
+            <StatCard label="Total Records"  value={history.length}  sub="All time"            icon={History}       bg="bg-background" ic="text-text-primary" />
+            <StatCard label="Stock In"       value={totalStockIn}    sub="Total units added"   icon={ArrowUpCircle} bg="bg-coral-light"   ic="text-primary" />
+            <StatCard label="Stock Out"      value={totalStockOut}   sub="Total units removed" icon={ArrowDownCircle} bg="bg-coral-light"  ic="text-coral"  />
             <StatCard label="Filtered Records" value={filteredHistory.length} sub="Current filter" icon={Filter} bg="bg-purple-50" ic="text-purple-600" />
           </div>
 
           {/* History Filters */}
           <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
             <div className="relative flex-1 min-w-[180px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
               <input type="text" placeholder="Search product, supplier…" value={histSearch}
                 onChange={(e) => setHistSearch(e.target.value)} className={inputCls + " pl-9"} />
             </div>
@@ -698,7 +698,7 @@ export default function StockPage() {
                 className={inputCls + " w-36 appearance-none pr-8 cursor-pointer"}>
                 {["All", "IN", "OUT"].map((t) => <option key={t}>{t}</option>)}
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
             <div className="relative">
               <select value={histProduct} onChange={(e) => setHistProduct(e.target.value)}
@@ -706,14 +706,14 @@ export default function StockPage() {
                 <option value="All">All Products</option>
                 {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
             <input type="date" value={histDate} onChange={(e) => setHistDate(e.target.value)}
-              className="h-10 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/20 transition-colors" />
+              className="h-10 rounded-lg border border-border bg-background px-3 text-sm text-text-primary outline-none focus:border-red-400 focus:ring-2 focus:ring-primary transition-colors" />
             {(histSearch || histType !== "All" || histDate || histProduct !== "All") && (
               <button
                 onClick={() => { setHistSearch(""); setHistType("All"); setHistDate(""); setHistProduct("All"); }}
-                className="flex items-center gap-1.5 h-10 px-4 rounded-lg border border-slate-200 text-sm font-medium text-slate-500 hover:bg-slate-50 hover:text-red-500 transition-colors whitespace-nowrap"
+                className="flex items-center gap-1.5 h-10 px-4 rounded-lg border border-border text-sm font-medium text-text-secondary hover:bg-background hover:text-coral transition-colors whitespace-nowrap"
               >
                 <X size={14} /> Clear
               </button>
@@ -721,13 +721,13 @@ export default function StockPage() {
           </div>
 
           {/* History Table */}
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div className="bg-surface rounded-xl border border-border overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50">
+                  <tr className="border-b border-border bg-background">
                     {["ID","Product ID","Product Name","Type","Qty","Purchase Price","Supplier","Reason","Date","Note"].map((h) => (
-                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -735,22 +735,22 @@ export default function StockPage() {
                   {filteredHistory.length === 0 ? (
                     <tr>
                       <td colSpan={10} className="py-16 text-center">
-                        <div className="flex flex-col items-center gap-2 text-slate-400">
+                        <div className="flex flex-col items-center gap-2 text-text-secondary">
                           <History size={32} className="text-slate-300" />
                           <p className="text-sm font-medium">No history records found</p>
                         </div>
                       </td>
                     </tr>
                   ) : filteredHistory.map((h) => (
-                    <tr key={h.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3.5 font-mono text-xs text-slate-400">{h.id}</td>
-                      <td className="px-4 py-3.5 font-mono text-xs text-slate-500">{h.productId}</td>
-                      <td className="px-4 py-3.5 font-semibold text-slate-800 whitespace-nowrap">{h.productName}</td>
+                    <tr key={h.id} className="border-b border-slate-50 hover:bg-background transition-colors">
+                      <td className="px-4 py-3.5 font-mono text-xs text-text-secondary">{h.id}</td>
+                      <td className="px-4 py-3.5 font-mono text-xs text-text-secondary">{h.productId}</td>
+                      <td className="px-4 py-3.5 font-semibold text-text-primary whitespace-nowrap">{h.productName}</td>
                       <td className="px-4 py-3.5">
                         <span className={`flex items-center gap-1.5 text-xs font-bold w-fit px-2.5 py-0.5 rounded-full ${
                           h.type === "IN"
-                            ? "bg-red-50 text-red-700"
-                            : "bg-red-50 text-red-600"
+                            ? "bg-coral-light text-red-700"
+                            : "bg-coral-light text-primary"
                         }`}>
                           {h.type === "IN"
                             ? <ArrowUpCircle size={12} />
@@ -759,14 +759,14 @@ export default function StockPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className={`font-bold ${h.type === "IN" ? "text-red-700" : "text-red-600"}`}>
+                        <span className={`font-bold ${h.type === "IN" ? "text-red-700" : "text-primary"}`}>
                           {h.type === "IN" ? "+" : "−"}{h.quantity}
                         </span>
                       </td>
-                      <td className="px-4 py-3.5 text-slate-600 whitespace-nowrap">
+                      <td className="px-4 py-3.5 text-text-primary whitespace-nowrap">
                         {h.purchasePrice > 0 ? fmt(h.purchasePrice) : "—"}
                       </td>
-                      <td className="px-4 py-3.5 text-slate-500 whitespace-nowrap max-w-[140px] truncate">
+                      <td className="px-4 py-3.5 text-text-secondary whitespace-nowrap max-w-[140px] truncate">
                         {h.supplier || "—"}
                       </td>
                       <td className="px-4 py-3.5">
@@ -775,8 +775,8 @@ export default function StockPage() {
                           : <span className="text-slate-300">—</span>
                         }
                       </td>
-                      <td className="px-4 py-3.5 text-slate-400 text-xs whitespace-nowrap">{h.date}</td>
-                      <td className="px-4 py-3.5 text-slate-500 text-xs max-w-[160px] truncate">
+                      <td className="px-4 py-3.5 text-text-secondary text-xs whitespace-nowrap">{h.date}</td>
+                      <td className="px-4 py-3.5 text-text-secondary text-xs max-w-[160px] truncate">
                         {h.note || "—"}
                       </td>
                     </tr>
@@ -785,15 +785,15 @@ export default function StockPage() {
               </table>
             </div>
             {filteredHistory.length > 0 && (
-              <div className="px-4 py-3 border-t border-slate-100 bg-slate-50 flex justify-between items-center">
-                <p className="text-xs text-slate-400">
-                  <span className="font-semibold text-slate-600">{filteredHistory.length}</span> records
+              <div className="px-4 py-3 border-t border-border bg-background flex justify-between items-center">
+                <p className="text-xs text-text-secondary">
+                  <span className="font-semibold text-text-primary">{filteredHistory.length}</span> records
                 </p>
                 <div className="flex items-center gap-4 text-xs">
-                  <span className="text-red-600 font-semibold">
+                  <span className="text-primary font-semibold">
                     IN: {filteredHistory.filter((h) => h.type === "IN").reduce((t, h) => t + h.quantity, 0)} units
                   </span>
-                  <span className="text-red-500 font-semibold">
+                  <span className="text-coral font-semibold">
                     OUT: {filteredHistory.filter((h) => h.type === "OUT").reduce((t, h) => t + h.quantity, 0)} units
                   </span>
                 </div>
@@ -827,7 +827,7 @@ export default function StockPage() {
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
               </div>
             </Field>
 
@@ -870,16 +870,16 @@ export default function StockPage() {
             {inForm.productId && inForm.quantity > 0 && (() => {
               const prod = products.find((p) => p.id === inForm.productId);
               return prod ? (
-                <div className="bg-red-50 rounded-xl border border-red-100 px-4 py-3 flex items-center justify-between">
+                <div className="bg-coral-light rounded-xl border border-coral px-4 py-3 flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-red-600 font-medium">After this stock-in</p>
+                    <p className="text-xs text-primary font-medium">After this stock-in</p>
                     <p className="text-sm font-bold text-red-800 mt-0.5">
                       {prod.currentStock} → {prod.currentStock + inForm.quantity} {prod.unit}
                     </p>
                   </div>
                   {inForm.purchasePrice > 0 && (
                     <div className="text-right">
-                      <p className="text-xs text-red-600 font-medium">Total Cost</p>
+                      <p className="text-xs text-primary font-medium">Total Cost</p>
                       <p className="text-sm font-bold text-red-800">{fmt(inForm.purchasePrice * inForm.quantity)}</p>
                     </div>
                   )}
@@ -892,7 +892,7 @@ export default function StockPage() {
             onCancel={() => setModal(null)}
             onConfirm={handleStockIn}
             confirmLabel="Confirm Stock In"
-            confirmColor="bg-red-600 hover:bg-red-700 shadow-red-200"
+            confirmColor="bg-primary hover:bg-red-700 shadow-red-200"
             disabled={!inForm.productId || inForm.quantity <= 0}
           />
         </Modal>
@@ -922,7 +922,7 @@ export default function StockPage() {
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
               </div>
             </Field>
 
@@ -942,7 +942,7 @@ export default function StockPage() {
                     <option>Damaged</option>
                     <option>Return</option>
                   </select>
-                  <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                  <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
                 </div>
               </Field>
             </div>
@@ -966,13 +966,13 @@ export default function StockPage() {
               const newQty = prod ? prod.currentStock - outForm.quantity : 0;
               return prod ? (
                 <div className={`rounded-xl border px-4 py-3 flex items-center justify-between ${
-                  newQty === 0 ? "bg-red-50 border-red-100" : newQty <= prod.lowStockAt ? "bg-amber-50 border-amber-100" : "bg-slate-50 border-slate-100"
+                  newQty === 0 ? "bg-coral-light border-coral" : newQty <= prod.lowStockAt ? "bg-warning/10 border-amber-100" : "bg-background border-border"
                 }`}>
                   <div>
-                    <p className={`text-xs font-medium ${newQty === 0 ? "text-red-600" : newQty <= prod.lowStockAt ? "text-amber-600" : "text-slate-500"}`}>
+                    <p className={`text-xs font-medium ${newQty === 0 ? "text-primary" : newQty <= prod.lowStockAt ? "text-warning" : "text-text-secondary"}`}>
                       {newQty === 0 ? "⚠ Will be OUT OF STOCK" : newQty <= prod.lowStockAt ? "⚠ Will be LOW STOCK" : "After this stock-out"}
                     </p>
-                    <p className={`text-sm font-bold mt-0.5 ${newQty === 0 ? "text-red-800" : newQty <= prod.lowStockAt ? "text-amber-800" : "text-slate-800"}`}>
+                    <p className={`text-sm font-bold mt-0.5 ${newQty === 0 ? "text-red-800" : newQty <= prod.lowStockAt ? "text-amber-800" : "text-text-primary"}`}>
                       {prod.currentStock} → {newQty} {prod.unit}
                     </p>
                   </div>
@@ -988,7 +988,7 @@ export default function StockPage() {
             onCancel={() => setModal(null)}
             onConfirm={handleStockOut}
             confirmLabel="Confirm Stock Out"
-            confirmColor="bg-red-500 hover:bg-red-600 shadow-red-200"
+            confirmColor="bg-primary hover:bg-primary shadow-red-200"
             disabled={!outForm.productId || outForm.quantity <= 0}
           />
         </Modal>
@@ -1009,13 +1009,13 @@ export default function StockPage() {
             {/* Product Info */}
             <div className="grid grid-cols-3 gap-3">
               {[
-                { label: "Current Stock",  value: `${viewProduct.currentStock} ${viewProduct.unit}`, color: viewProduct.currentStock === 0 ? "text-red-600" : viewProduct.currentStock <= viewProduct.lowStockAt ? "text-amber-600" : "text-green-600" },
-                { label: "Purchase Price", value: fmt(viewProduct.purchasePrice), color: "text-slate-800" },
+                { label: "Current Stock",  value: `${viewProduct.currentStock} ${viewProduct.unit}`, color: viewProduct.currentStock === 0 ? "text-primary" : viewProduct.currentStock <= viewProduct.lowStockAt ? "text-warning" : "text-success" },
+                { label: "Purchase Price", value: fmt(viewProduct.purchasePrice), color: "text-text-primary" },
                 { label: "Selling Price",  value: fmt(viewProduct.sellingPrice),  color: "text-red-700"  },
               ].map((r) => (
-                <div key={r.label} className="bg-slate-50 rounded-xl border border-slate-100 p-3 text-center">
+                <div key={r.label} className="bg-background rounded-xl border border-border p-3 text-center">
                   <p className={`text-base font-bold ${r.color}`}>{r.value}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{r.label}</p>
+                  <p className="text-xs text-text-secondary mt-0.5">{r.label}</p>
                 </div>
               ))}
             </div>
@@ -1023,59 +1023,59 @@ export default function StockPage() {
             {/* Quick Actions */}
             <div className="flex gap-3">
               <button onClick={() => { setViewProduct(null); openStockIn(viewProduct); }}
-                className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg bg-red-50 border border-red-100 text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors">
+                className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg bg-coral-light border border-coral text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors">
                 <ArrowUpCircle size={15} /> Stock In
               </button>
               <button onClick={() => { setViewProduct(null); openStockOut(viewProduct); }}
                 disabled={viewProduct.currentStock === 0}
-                className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg bg-red-50 border border-red-100 text-sm font-semibold text-red-600 hover:bg-red-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg bg-coral-light border border-coral text-sm font-semibold text-primary hover:bg-red-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                 <ArrowDownCircle size={15} /> Stock Out
               </button>
             </div>
 
             {/* History Table */}
             <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">
+              <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide mb-3">
                 Stock History ({productHistory.length} records)
               </p>
               {productHistory.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-10 gap-2 text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                <div className="flex flex-col items-center justify-center py-10 gap-2 text-text-secondary border border-dashed border-border rounded-xl">
                   <History size={24} className="text-slate-300" />
                   <p className="text-sm">No history records for this product</p>
                 </div>
               ) : (
-                <div className="border border-slate-100 rounded-xl overflow-hidden">
+                <div className="border border-border rounded-xl overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-slate-50 border-b border-slate-100">
+                      <tr className="bg-background border-b border-border">
                         {["Date","Type","Qty","Supplier / Reason","Note"].map((h) => (
-                          <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                          <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap">{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {productHistory.map((h) => (
-                        <tr key={h.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
-                          <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{h.date}</td>
+                        <tr key={h.id} className="border-b border-slate-50 last:border-0 hover:bg-background transition-colors">
+                          <td className="px-4 py-3 text-xs text-text-secondary whitespace-nowrap">{h.date}</td>
                           <td className="px-4 py-3">
-                            <span className={`flex items-center gap-1 text-xs font-bold w-fit px-2 py-0.5 rounded-full ${h.type === "IN" ? "bg-red-50 text-red-700" : "bg-red-50 text-red-600"}`}>
+                            <span className={`flex items-center gap-1 text-xs font-bold w-fit px-2 py-0.5 rounded-full ${h.type === "IN" ? "bg-coral-light text-red-700" : "bg-coral-light text-primary"}`}>
                               {h.type === "IN" ? <ArrowUpCircle size={11} /> : <ArrowDownCircle size={11} />}
                               {h.type}
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`text-sm font-bold ${h.type === "IN" ? "text-red-700" : "text-red-600"}`}>
+                            <span className={`text-sm font-bold ${h.type === "IN" ? "text-red-700" : "text-primary"}`}>
                               {h.type === "IN" ? "+" : "−"}{h.quantity}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">
+                          <td className="px-4 py-3 text-text-secondary text-xs whitespace-nowrap">
                             {h.type === "IN" ? (h.supplier || "—") : (
                               h.reason
                                 ? <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${reasonStyle[h.reason]}`}>{h.reason}</span>
                                 : "—"
                             )}
                           </td>
-                          <td className="px-4 py-3 text-slate-400 text-xs max-w-[160px] truncate">{h.note || "—"}</td>
+                          <td className="px-4 py-3 text-text-secondary text-xs max-w-[160px] truncate">{h.note || "—"}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1085,9 +1085,9 @@ export default function StockPage() {
             </div>
           </div>
 
-          <div className="px-6 py-4 border-t border-slate-100">
+          <div className="px-6 py-4 border-t border-border">
             <button onClick={() => setViewProduct(null)}
-              className="w-full h-10 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+              className="w-full h-10 rounded-lg border border-border text-sm font-medium text-text-primary hover:bg-background transition-colors">
               Close
             </button>
           </div>

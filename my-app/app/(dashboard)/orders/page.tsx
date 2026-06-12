@@ -56,20 +56,20 @@ type Order = {
 // ═══════════════════════════════════════════════════════════
 
 const ORDER_STATUSES: { key: OrderStatus; label: string; color: string; bg: string; icon: React.ElementType }[] = [
-  { key:"pending",   label:"Pending",   color:"text-amber-700",  bg:"bg-amber-50",  icon:Clock        },
-  { key:"confirmed", label:"Confirmed", color:"text-red-700",   bg:"bg-red-50",   icon:RefreshCw    },
-  { key:"delivered", label:"Delivered", color:"text-green-700",  bg:"bg-green-50",  icon:CheckCircle  },
-  { key:"cancelled", label:"Cancelled", color:"text-red-600",    bg:"bg-red-50",    icon:XCircle      },
+  { key:"pending",   label:"Pending",   color:"text-warning",  bg:"bg-warning/10",  icon:Clock        },
+  { key:"confirmed", label:"Confirmed", color:"text-red-700",   bg:"bg-coral-light",   icon:RefreshCw    },
+  { key:"delivered", label:"Delivered", color:"text-success",  bg:"bg-mint-light",  icon:CheckCircle  },
+  { key:"cancelled", label:"Cancelled", color:"text-primary",    bg:"bg-coral-light",    icon:XCircle      },
 ];
 
 const PAYMENT_STATUSES: { key: PaymentStatus; label: string; color: string; bg: string }[] = [
-  { key:"paid",    label:"Paid",    color:"text-green-700", bg:"bg-green-50" },
-  { key:"unpaid",  label:"Unpaid",  color:"text-red-600",   bg:"bg-red-50"   },
-  { key:"partial", label:"Partial", color:"text-amber-700", bg:"bg-amber-50" },
+  { key:"paid",    label:"Paid",    color:"text-success", bg:"bg-mint-light" },
+  { key:"unpaid",  label:"Unpaid",  color:"text-primary",   bg:"bg-coral-light"   },
+  { key:"partial", label:"Partial", color:"text-warning", bg:"bg-warning/10" },
 ];
 
 const inputCls =
-  "h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/20 transition-colors";
+  "h-9 rounded-lg border border-border bg-surface px-3 text-sm text-text-primary outline-none focus:border-red-400 focus:ring-2 focus:ring-primary transition-colors";
 
 function fmt(n: number) {
   return "₹" + n.toLocaleString("en-IN");
@@ -100,13 +100,13 @@ function OrderDetailModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className="w-[80%] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col">
+      <div className="w-[80%] bg-surface rounded-2xl shadow-xl border border-border overflow-hidden max-h-[92vh] flex flex-col">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
           <div>
             <div className="flex items-center gap-2.5">
-              <h2 className="text-base font-bold text-gray-500">{order.invoiceNo}</h2>
+              <h2 className="text-base font-bold text-text-primary">{order.invoiceNo}</h2>
               <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${orderSt.bg} ${orderSt.color}`}>
                 <orderSt.icon size={11} />
                 {orderSt.label}
@@ -115,10 +115,10 @@ function OrderDetailModal({
                 {paySt.label}
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5 font-mono">{order.id} · {order.createdAt}</p>
+            <p className="text-xs text-text-secondary mt-0.5 font-mono">{order.id} · {order.createdAt}</p>
           </div>
           <button onClick={onClose}
-            className="w-10 h-10 rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-600 flex items-center justify-center transition-all bg-slate-50"
+            className="w-10 h-10 rounded-xl hover:bg-primary-light text-text-secondary hover:text-primary flex items-center justify-center transition-all bg-background"
             title="Close"
           >
             <X size={20} />
@@ -129,39 +129,39 @@ function OrderDetailModal({
 
           {/* Customer */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-slate-50 rounded-xl border border-slate-100 px-4 py-3">
-              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-2">Customer</p>
+            <div className="bg-background rounded-xl border border-border px-4 py-3">
+              <p className="text-xs text-text-secondary font-semibold uppercase tracking-wide mb-2">Customer</p>
               <div className="flex items-center gap-2">
-                <User size={14} className="text-slate-400" />
-                <p className="text-sm font-semibold text-slate-800">{order.customer || "Walk-in"}</p>
+                <User size={14} className="text-text-secondary" />
+                <p className="text-sm font-semibold text-text-primary">{order.customer || "Walk-in"}</p>
               </div>
               <div className="flex items-center gap-2 mt-1.5">
-                <Phone size={14} className="text-slate-400" />
-                <p className="text-sm text-slate-600">{order.phone || "—"}</p>
+                <Phone size={14} className="text-text-secondary" />
+                <p className="text-sm text-text-primary">{order.phone || "—"}</p>
               </div>
             </div>
-            <div className="bg-slate-50 rounded-xl border border-slate-100 px-4 py-3">
-              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-2">Payment & Staff</p>
-              <p className="text-sm font-semibold text-slate-800 capitalize">{order.paymentMethod}</p>
+            <div className="bg-background rounded-xl border border-border px-4 py-3">
+              <p className="text-xs text-text-secondary font-semibold uppercase tracking-wide mb-2">Payment & Staff</p>
+              <p className="text-sm font-semibold text-text-primary capitalize">{order.paymentMethod}</p>
               {order.billedBy && (
-                <p className="text-xs text-slate-500 mt-1">
-                  Billed By: <span className="font-semibold text-slate-700">{order.billedBy}</span>
+                <p className="text-xs text-text-secondary mt-1">
+                  Billed By: <span className="font-semibold text-text-primary">{order.billedBy}</span>
                 </p>
               )}
-              <p className="text-xs text-slate-400 mt-1">Created: {order.createdAt}</p>
-              <p className="text-xs text-slate-400">Updated: {order.updatedAt}</p>
+              <p className="text-xs text-text-secondary mt-1">Created: {order.createdAt}</p>
+              <p className="text-xs text-text-secondary">Updated: {order.updatedAt}</p>
             </div>
           </div>
 
           {/* Items */}
           <div>
-            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-2">Order Items</p>
-            <div className="rounded-xl border border-slate-200 overflow-hidden">
+            <p className="text-xs text-text-secondary font-semibold uppercase tracking-wide mb-2">Order Items</p>
+            <div className="rounded-xl border border-border overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-100">
+                  <tr className="bg-background border-b border-border">
                     {["Product","Qty","Rate","GST","Discount","Amount"].map((h) => (
-                      <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                      <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -176,21 +176,21 @@ function OrderDetailModal({
                       <tr key={i} className="border-b border-slate-50 last:border-0">
                         <td className="px-4 py-3">
                           <div className="flex flex-col">
-                            <p className="font-bold text-gray-500">{item.name}</p>
+                            <p className="font-bold text-text-primary">{item.name}</p>
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1">
-                              {item.category && <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{item.category}</span>}
-                              {item.brand && <span className="text-[10px] font-bold uppercase tracking-wider text-red-500">· {item.brand}</span>}
-                              {item.sku && <span className="text-[10px] font-mono text-slate-400">· {item.sku}</span>}
-                              {item.variant && <span className="text-[10px] font-semibold text-amber-600">· {item.variant}</span>}
+                              {item.category && <span className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">{item.category}</span>}
+                              {item.brand && <span className="text-[10px] font-bold uppercase tracking-wider text-coral">· {item.brand}</span>}
+                              {item.sku && <span className="text-[10px] font-mono text-text-secondary">· {item.sku}</span>}
+                              {item.variant && <span className="text-[10px] font-semibold text-warning">· {item.variant}</span>}
                             </div>
                             <p className="text-[10px] text-slate-300 font-mono mt-1">ID: {item.productId}</p>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-slate-700 font-semibold tabular-nums text-base">{item.qty}</td>
-                        <td className="px-4 py-3 text-slate-700 tabular-nums">{fmt(item.rate)}</td>
-                        <td className="px-4 py-3 text-amber-600 tabular-nums text-xs font-bold">{item.gstPercent}%</td>
-                        <td className="px-4 py-3 text-green-600 tabular-nums font-medium">{disc > 0 ? fmt(disc) : "—"}</td>
-                        <td className="px-4 py-3 font-bold text-gray-500 tabular-nums text-base">{fmt(total)}</td>
+                        <td className="px-4 py-3 text-text-primary font-semibold tabular-nums text-base">{item.qty}</td>
+                        <td className="px-4 py-3 text-text-primary tabular-nums">{fmt(item.rate)}</td>
+                        <td className="px-4 py-3 text-warning tabular-nums text-xs font-bold">{item.gstPercent}%</td>
+                        <td className="px-4 py-3 text-success tabular-nums font-medium">{disc > 0 ? fmt(disc) : "—"}</td>
+                        <td className="px-4 py-3 font-bold text-text-primary tabular-nums text-base">{fmt(total)}</td>
                       </tr>
                     );
                   })}
@@ -202,25 +202,25 @@ function OrderDetailModal({
           {/* Totals */}
           <div className="ml-auto w-64 space-y-2">
             {[
-              { label:"Subtotal",        value: fmt(order.subtotal),       cls:"text-slate-700" },
-              ...(order.totalDiscount > 0 ? [{ label:"Discount", value:`−${fmt(order.totalDiscount)}`, cls:"text-green-600" }] : []),
-              { label:"GST",             value: fmt(order.totalGST),       cls:"text-amber-600" },
+              { label:"Subtotal",        value: fmt(order.subtotal),       cls:"text-text-primary" },
+              ...(order.totalDiscount > 0 ? [{ label:"Discount", value:`−${fmt(order.totalDiscount)}`, cls:"text-success" }] : []),
+              { label:"GST",             value: fmt(order.totalGST),       cls:"text-warning" },
             ].map((r) => (
               <div key={r.label} className="flex items-center justify-between">
-                <p className="text-xs text-slate-500">{r.label}</p>
+                <p className="text-xs text-text-secondary">{r.label}</p>
                 <p className={`text-xs font-semibold tabular-nums ${r.cls}`}>{r.value}</p>
               </div>
             ))}
-            <div className="border-t border-slate-200 pt-2 flex items-center justify-between">
-              <p className="text-sm font-bold text-gray-500">Grand Total</p>
+            <div className="border-t border-border pt-2 flex items-center justify-between">
+              <p className="text-sm font-bold text-text-primary">Grand Total</p>
               <p className="text-lg font-bold text-red-700 tabular-nums">{fmt(order.grandTotal)}</p>
             </div>
           </div>
 
           {/* Note */}
           {order.note && (
-            <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
-              <p className="text-xs font-semibold text-amber-700 mb-1">Note</p>
+            <div className="bg-warning/10 border border-amber-100 rounded-xl px-4 py-3">
+              <p className="text-xs font-semibold text-warning mb-1">Note</p>
               <p className="text-sm text-amber-800">{order.note}</p>
             </div>
           )}
@@ -228,9 +228,9 @@ function OrderDetailModal({
 
         </div>
 
-        <div className="px-6 py-4 border-t border-slate-100 shrink-0">
+        <div className="px-6 py-4 border-t border-border shrink-0">
           <button onClick={onClose}
-            className="w-full h-10 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+            className="w-full h-10 rounded-lg border border-border text-sm font-medium text-text-primary hover:bg-background transition-colors">
             Close
           </button>
         </div>
@@ -364,8 +364,8 @@ export default function OrdersPage() {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-red-600" />
-          <p className="text-sm font-medium text-slate-500">Loading orders...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm font-medium text-text-secondary">Loading orders...</p>
         </div>
       </div>
     );
@@ -384,21 +384,21 @@ export default function OrdersPage() {
       {/* ── Delete Confirm ── */}
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-200 p-6 text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto">
-              <Trash2 className="w-5 h-5 text-red-500" />
+          <div className="w-full max-w-sm bg-surface rounded-2xl shadow-xl border border-border p-6 text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-coral-light flex items-center justify-center mx-auto">
+              <Trash2 className="w-5 h-5 text-coral" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-gray-500">Delete Order?</h3>
-              <p className="text-sm text-slate-500 mt-1">This will permanently remove <span className="font-semibold font-mono text-slate-700">{deleteId}</span>. This cannot be undone.</p>
+              <h3 className="text-base font-bold text-text-primary">Delete Order?</h3>
+              <p className="text-sm text-text-secondary mt-1">This will permanently remove <span className="font-semibold font-mono text-text-primary">{deleteId}</span>. This cannot be undone.</p>
             </div>
             <div className="flex gap-3">
               <button onClick={() => setDeleteId(null)}
-                className="flex-1 h-10 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                className="flex-1 h-10 rounded-xl border border-border text-sm font-medium text-text-primary hover:bg-background transition-colors">
                 Cancel
               </button>
               <button onClick={() => handleDelete(deleteId)}
-                className="flex-1 h-10 rounded-xl bg-red-500 hover:bg-red-600 text-sm font-semibold text-white transition-colors">
+                className="flex-1 h-10 rounded-xl bg-primary hover:bg-primary text-sm font-semibold text-white transition-colors">
                 Delete
               </button>
             </div>
@@ -410,36 +410,36 @@ export default function OrdersPage() {
 
         {/* ── Page Header ── */}
         <div>
-          <h1 className="text-xl font-bold text-gray-500">Orders</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Manage all customer orders & invoices</p>
+          <h1 className="text-xl font-bold text-text-primary">Orders</h1>
+          <p className="text-sm text-text-secondary mt-0.5">Manage all customer orders & invoices</p>
         </div>
 
         {/* ── KPI Cards ── */}
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
           {[
-            { label:"Total Orders",  value: stats.total,        sub:"All time",    icon:ShoppingCart, bg:"bg-slate-100", ic:"text-slate-600" },
-            { label:"Pending",       value: stats.pending,      sub:"Need action", icon:Clock,        bg:"bg-amber-50",  ic:"text-amber-600", highlight: stats.pending > 0 },
-            { label:"Delivered",     value: stats.delivered,    sub:"Completed",   icon:CheckCircle,  bg:"bg-green-50",  ic:"text-green-600" },
-            { label:"Total Revenue", value:`₹${(stats.revenue/1000).toFixed(1)}K`, sub:"Excl. cancelled", icon:IndianRupee, bg:"bg-red-50", ic:"text-red-600" },
+            { label:"Total Orders",  value: stats.total,        sub:"All time",    icon:ShoppingCart, bg:"bg-background", ic:"text-text-primary" },
+            { label:"Pending",       value: stats.pending,      sub:"Need action", icon:Clock,        bg:"bg-warning/10",  ic:"text-warning", highlight: stats.pending > 0 },
+            { label:"Delivered",     value: stats.delivered,    sub:"Completed",   icon:CheckCircle,  bg:"bg-mint-light",  ic:"text-success" },
+            { label:"Total Revenue", value:`₹${(stats.revenue/1000).toFixed(1)}K`, sub:"Excl. cancelled", icon:IndianRupee, bg:"bg-coral-light", ic:"text-primary" },
           ].map((k) => (
-            <div key={k.label} className={`rounded-xl border p-5 ${k.highlight ? "bg-amber-50 border-amber-200" : "bg-white border-slate-200"}`}>
+            <div key={k.label} className={`rounded-xl border p-5 ${k.highlight ? "bg-warning/10 border-warning" : "bg-surface border-border"}`}>
               <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${k.bg} mb-3`}>
                 <k.icon className={`w-4 h-4 ${k.ic}`} />
               </div>
-              <p className="text-2xl font-bold text-gray-500 tabular-nums">{k.value}</p>
-              <p className="text-xs font-semibold text-slate-700 mt-0.5">{k.label}</p>
-              <p className="text-xs text-slate-400 mt-0.5">{k.sub}</p>
+              <p className="text-2xl font-bold text-text-primary tabular-nums">{k.value}</p>
+              <p className="text-xs font-semibold text-text-primary mt-0.5">{k.label}</p>
+              <p className="text-xs text-text-secondary mt-0.5">{k.sub}</p>
             </div>
           ))}
         </div>
 
         {/* ── Filters ── */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
+        <div className="bg-surface rounded-xl border border-border p-4">
           <div className="flex flex-wrap gap-3">
 
             {/* Search */}
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
               <input type="text" placeholder="Search order ID, invoice, customer, phone…"
                 value={search} onChange={(e) => setSearch(e.target.value)}
                 className={inputCls + " pl-8 w-full"} />
@@ -447,13 +447,13 @@ export default function OrdersPage() {
 
             {/* Order Status */}
             <div className="relative">
-              <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+              <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
               <select value={statusF} onChange={(e) => setStatusF(e.target.value)}
                 className={inputCls + " pl-8 w-36 appearance-none pr-8 cursor-pointer"}>
                 <option>All</option>
                 {ORDER_STATUSES.map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
 
             {/* Payment Status */}
@@ -463,7 +463,7 @@ export default function OrdersPage() {
                 <option>All</option>
                 {PAYMENT_STATUSES.map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
 
             {/* Payment Method */}
@@ -472,29 +472,29 @@ export default function OrdersPage() {
                 className={inputCls + " w-28 appearance-none pr-8 cursor-pointer"}>
                 {["All","cash","upi","card"].map((m) => <option key={m} value={m} className="capitalize">{m === "All" ? "All" : m.toUpperCase()}</option>)}
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
 
             {/* Date Range */}
             <div className="flex items-center gap-2">
-              <CalendarDays size={14} className="text-slate-400 shrink-0" />
+              <CalendarDays size={14} className="text-text-secondary shrink-0" />
               <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}
                 className={inputCls + " w-36"} />
-              <span className="text-xs text-slate-400">to</span>
+              <span className="text-xs text-text-secondary">to</span>
               <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
                 className={inputCls + " w-36"} />
             </div>
 
             {hasFilters && (
               <button onClick={clearFilters}
-                className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-red-200 bg-red-50 text-xs font-semibold text-red-600 hover:bg-red-100 transition-colors">
+                className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-coral bg-coral-light text-xs font-semibold text-primary hover:bg-red-100 transition-colors">
                 <X size={13} /> Clear
               </button>
             )}
           </div>
 
           {/* Status pills quick-filter */}
-          <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-100">
+          <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-border">
             {["All", ...ORDER_STATUSES.map((s) => s.key)].map((s) => {
               const cfg = ORDER_STATUSES.find((o) => o.key === s);
               const count = s === "All" ? orders.length : orders.filter((o) => o.status === s).length;
@@ -503,24 +503,24 @@ export default function OrdersPage() {
                   onClick={() => setStatusF(s)}
                   className={`flex items-center gap-1.5 h-7 px-3 rounded-full text-xs font-semibold border transition-all ${
                     statusF === s
-                      ? cfg ? `${cfg.bg} ${cfg.color} border-current/20` : "bg-red-600 text-white border-red-600"
-                      : "border-slate-200 text-slate-500 hover:border-slate-300"
+                      ? cfg ? `${cfg.bg} ${cfg.color} border-current/20` : "bg-primary text-white border-primary"
+                      : "border-border text-text-secondary hover:border-slate-300"
                   }`}>
                   {cfg && <cfg.icon size={11} />}
                   {s === "All" ? "All" : cfg!.label} ({count})
                 </button>
               );
             })}
-            <span className="ml-auto text-xs text-slate-400 self-center">{filtered.length} orders</span>
+            <span className="ml-auto text-xs text-text-secondary self-center">{filtered.length} orders</span>
           </div>
         </div>
 
         {/* ── Orders Table ── */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div className="bg-surface rounded-xl border border-border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50">
+                <tr className="border-b border-border bg-background">
                   {[
                     { label:"Order / Invoice", k:null            },
                     { label:"Customer",        k:null            },
@@ -533,9 +533,9 @@ export default function OrdersPage() {
                   ].map(({ label, k }) => (
                     <th key={label}
                       onClick={() => k && toggleSort(k as typeof sortKey)}
-                      className={`px-5 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap ${k ? "cursor-pointer hover:text-slate-600 select-none" : ""}`}>
+                      className={`px-5 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap ${k ? "cursor-pointer hover:text-text-primary select-none" : ""}`}>
                       {label}
-                      {k && <ArrowUpDown size={11} className={`inline ml-1 ${sortKey === k ? "text-red-500" : "text-slate-300"}`} />}
+                      {k && <ArrowUpDown size={11} className={`inline ml-1 ${sortKey === k ? "text-coral" : "text-slate-300"}`} />}
                     </th>
                   ))}
                 </tr>
@@ -545,41 +545,41 @@ export default function OrdersPage() {
                   const orderSt = getOrderStatus(order.status);
                   const paySt   = getPayStatus(order.paymentStatus);
                   return (
-                    <tr key={order.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                    <tr key={order.id} className="border-b border-slate-50 hover:bg-background transition-colors">
 
                       {/* Order ID */}
                       <td className="px-5 py-4">
-                        <p className="font-semibold text-slate-800 text-xs font-mono">{order.invoiceNo}</p>
-                        <p className="text-xs text-slate-400 mt-0.5">{order.id}</p>
+                        <p className="font-semibold text-text-primary text-xs font-mono">{order.invoiceNo}</p>
+                        <p className="text-xs text-text-secondary mt-0.5">{order.id}</p>
                         {order.billedBy && (
-                          <p className="text-[10px] text-slate-500 mt-1">
-                            By: <span className="font-semibold text-slate-700">{order.billedBy}</span>
+                          <p className="text-[10px] text-text-secondary mt-1">
+                            By: <span className="font-semibold text-text-primary">{order.billedBy}</span>
                           </p>
                         )}
                       </td>
 
                       {/* Customer */}
                       <td className="px-5 py-4">
-                        <p className="font-semibold text-slate-800 whitespace-nowrap">{order.customer || "Walk-in"}</p>
-                        <p className="text-xs text-slate-400 mt-0.5">{order.phone}</p>
+                        <p className="font-semibold text-text-primary whitespace-nowrap">{order.customer || "Walk-in"}</p>
+                        <p className="text-xs text-text-secondary mt-0.5">{order.phone}</p>
                       </td>
 
                       {/* Items */}
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1.5">
-                          <Package size={13} className="text-slate-400 shrink-0" />
-                          <span className="text-slate-700 text-xs font-semibold">{order.items.length} item{order.items.length > 1 ? "s" : ""}</span>
+                          <Package size={13} className="text-text-secondary shrink-0" />
+                          <span className="text-text-primary text-xs font-semibold">{order.items.length} item{order.items.length > 1 ? "s" : ""}</span>
                         </div>
-                        <p className="text-xs text-slate-400 mt-0.5 truncate max-w-[140px]">
+                        <p className="text-xs text-text-secondary mt-0.5 truncate max-w-[140px]">
                           {order.items.map((i) => i.name).join(", ")}
                         </p>
                       </td>
 
                       {/* Amount */}
                       <td className="px-5 py-4">
-                        <p className="font-bold text-gray-500 tabular-nums">{fmt(order.grandTotal)}</p>
+                        <p className="font-bold text-text-primary tabular-nums">{fmt(order.grandTotal)}</p>
                         {order.totalDiscount > 0 && (
-                          <p className="text-xs text-green-600 mt-0.5">−{fmt(order.totalDiscount)} off</p>
+                          <p className="text-xs text-success mt-0.5">−{fmt(order.totalDiscount)} off</p>
                         )}
                       </td>
 
@@ -588,7 +588,7 @@ export default function OrdersPage() {
                         <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${paySt.bg} ${paySt.color}`}>
                           {paySt.label}
                         </span>
-                        <p className="text-xs text-slate-400 mt-1 uppercase">{order.paymentMethod}</p>
+                        <p className="text-xs text-text-secondary mt-1 uppercase">{order.paymentMethod}</p>
                       </td>
 
                       {/* Order Status */}
@@ -600,7 +600,7 @@ export default function OrdersPage() {
                       </td>
 
                       {/* Date */}
-                      <td className="px-5 py-4 text-xs text-slate-400 whitespace-nowrap">
+                      <td className="px-5 py-4 text-xs text-text-secondary whitespace-nowrap">
                         {order.createdAt}
                       </td>
 
@@ -609,14 +609,14 @@ export default function OrdersPage() {
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => setViewing(order)}
-                            className="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 flex items-center justify-center transition-colors"
+                            className="w-8 h-8 rounded-lg bg-coral-light hover:bg-red-100 text-red-700 flex items-center justify-center transition-colors"
                             title="View details"
                           >
                             <Eye size={14} />
                           </button>
                           <button
                             onClick={() => setDeleteId(order.id)}
-                            className="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 flex items-center justify-center transition-colors"
+                            className="w-8 h-8 rounded-lg bg-coral-light hover:bg-red-100 text-coral flex items-center justify-center transition-colors"
                             title="Delete order"
                           >
                             <Trash2 size={14} />
@@ -631,8 +631,8 @@ export default function OrdersPage() {
               {/* Footer totals */}
               {filtered.length > 0 && (
                 <tfoot>
-                  <tr className="bg-slate-50 border-t-2 border-slate-200">
-                    <td colSpan={3} className="px-5 py-3 text-xs font-bold text-slate-600">
+                  <tr className="bg-background border-t-2 border-border">
+                    <td colSpan={3} className="px-5 py-3 text-xs font-bold text-text-primary">
                       {filtered.length} orders shown
                     </td>
                     <td className="px-5 py-3 font-bold text-red-700 tabular-nums">
@@ -647,11 +647,11 @@ export default function OrdersPage() {
             {filtered.length === 0 && (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <ShoppingCart size={36} className="text-slate-200" />
-                <p className="text-sm font-semibold text-slate-500">No orders found</p>
-                <p className="text-xs text-slate-400">Try adjusting your filters</p>
+                <p className="text-sm font-semibold text-text-secondary">No orders found</p>
+                <p className="text-xs text-text-secondary">Try adjusting your filters</p>
                 {hasFilters && (
                   <button onClick={clearFilters}
-                    className="mt-1 text-xs text-red-600 font-semibold hover:underline">
+                    className="mt-1 text-xs text-primary font-semibold hover:underline">
                     Clear all filters
                   </button>
                 )}

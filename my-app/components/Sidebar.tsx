@@ -97,8 +97,8 @@ const CATEGORY_META: Record<StoreCategory, { label: string; icon: LucideIcon; co
 // ─── Shared UI helpers ─────────────────────────────────────────────────────────
 
 const inputCls = (err?: string) =>
-  `w-full px-3 py-2 text-sm text-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${
-    err ? "border-accent bg-accent-soft" : "border-slate-200"
+  `w-full px-3 py-2 text-sm text-foreground border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${
+    err ? "border-primary bg-primary-light" : "border-white/10"
   }`;
 
 function Field({ label, required, error, children }: {
@@ -106,20 +106,20 @@ function Field({ label, required, error, children }: {
 }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-slate-600 mb-1">
-        {label} {required && <span className="text-accent">*</span>}
+      <label className="block text-xs font-medium text-muted mb-1">
+        {label} {required && <span className="text-primary">*</span>}
       </label>
       {children}
-      {error && <p className="text-[11px] text-accent mt-0.5">{error}</p>}
+      {error && <p className="text-[11px] text-primary mt-0.5">{error}</p>}
     </div>
   );
 }
 
 function ErrorBanner({ msg }: { msg: string }) {
   return (
-    <div className="flex items-start gap-2 mb-4 bg-accent-soft border border-accent rounded-xl px-4 py-3">
-      <AlertCircle size={15} className="text-accent mt-0.5 shrink-0" />
-      <p className="text-xs text-accent">{msg}</p>
+    <div className="flex items-start gap-2 mb-4 bg-primary-light border border-primary rounded-xl px-4 py-3">
+      <AlertCircle size={15} className="text-primary mt-0.5 shrink-0" />
+      <p className="text-xs text-primary">{msg}</p>
     </div>
   );
 }
@@ -144,25 +144,25 @@ function LogoUploader({ value, onChange }: {
     <div className="flex items-center gap-3">
       <div
         onClick={() => inputRef.current?.click()}
-        className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex items-center justify-center cursor-pointer hover:border-accent hover:bg-accent-soft transition-colors overflow-hidden shrink-0"
+        className="w-16 h-16 rounded-xl border-2 border-dashed border-white/10 bg-surface flex items-center justify-center cursor-pointer hover:border-primary hover:bg-primary-light transition-colors overflow-hidden shrink-0"
       >
         {value ? (
           <img src={value} alt="logo" className="w-full h-full object-cover" />
         ) : (
           <div className="flex flex-col items-center gap-1">
-            <Upload size={16} className="text-slate-400" />
-            <span className="text-[9px] text-slate-400 font-medium">Logo</span>
+            <Upload size={16} className="text-muted/70" />
+            <span className="text-[9px] text-muted/70 font-medium">Logo</span>
           </div>
         )}
       </div>
       <div className="flex-1">
-        <p className="text-xs font-medium text-slate-600 mb-1">Store Logo</p>
-        <p className="text-[11px] text-slate-400 mb-2">PNG, JPG up to 2MB</p>
+        <p className="text-xs font-medium text-muted mb-1">Store Logo</p>
+        <p className="text-[11px] text-muted/70 mb-2">PNG, JPG up to 2MB</p>
         <div className="flex gap-1.5">
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="text-[11px] font-semibold text-accent bg-accent-soft hover:bg-accent px-2.5 py-1 rounded-lg transition-colors"
+            className="text-[11px] font-semibold text-primary bg-primary-light hover:bg-primary-hover px-2.5 py-1 rounded-lg transition-colors"
           >
             {value ? "Change" : "Upload"}
           </button>
@@ -170,7 +170,7 @@ function LogoUploader({ value, onChange }: {
             <button
               type="button"
               onClick={() => onChange(null)}
-              className="text-[11px] font-semibold text-accent bg-accent-soft hover:bg-accent px-2.5 py-1 rounded-lg transition-colors"
+              className="text-[11px] font-semibold text-primary bg-primary-light hover:bg-primary-hover px-2.5 py-1 rounded-lg transition-colors"
             >
               Remove
             </button>
@@ -203,7 +203,7 @@ function CategorySelector({ value, onChange, disabled }: {
             className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all ${
               active
                 ? `${color} border-current shadow-sm`
-                : "border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50"
+                : "border-white/10 text-muted hover:border-white/20 hover:bg-surface"
             } disabled:opacity-50`}
           >
             <Icon size={15} /> {label}
@@ -270,20 +270,20 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-auto">
+      <div className="saas-card rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 w-full max-w-sm mx-auto">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
           <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-accent-soft flex items-center justify-center">
-                <UserPlus size={15} className="text-accent" />
+              <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center">
+                <UserPlus size={15} className="text-primary" />
               </div>
             <div>
-              <h2 className="text-sm font-bold text-gray-500">Add Admin</h2>
-              <p className="text-[11px] text-slate-400 truncate max-w-[160px]">{shopName}</p>
+              <h2 className="text-sm font-bold text-foreground">Add Admin</h2>
+              <p className="text-[11px] text-muted/70 truncate max-w-[160px]">{shopName}</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+          <button onClick={onClose} className="text-muted/70 hover:text-muted transition-colors">
             <X size={18} />
           </button>
         </div>
@@ -304,14 +304,14 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
 
           <Field label="Email" required error={errors.email}>
             <div className="relative">
-              <Mail size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Mail size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted/70" />
               <input
                 type="email"
                 placeholder="admin@store.com"
                 value={form.email}
                 onChange={(e) => { setForm({ ...form, email: e.target.value }); setErrors({ ...errors, email: "" }); }}
-                className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${
-                  errors.email ? "border-accent bg-accent-soft" : "border-slate-200"
+                className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${
+                  errors.email ? "border-primary bg-primary-light" : "border-white/10"
                 }`}
               />
             </div>
@@ -319,14 +319,14 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
 
           <Field label="Phone Number">
             <div className="relative">
-              <Phone size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Phone size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted/70" />
               <input
                 type="tel"
                 placeholder="9876543210"
                 maxLength={10}
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })}
-                className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                className="w-full pl-8 pr-3 py-2 text-sm border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
           </Field>
@@ -346,14 +346,14 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2 text-sm font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+              className="flex-1 px-4 py-2 text-sm font-medium text-muted border border-white/10 rounded-lg hover:bg-surface transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-accent rounded-lg hover:opacity-95 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-primary rounded-lg hover:opacity-95 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <UserPlus size={14} /> {isSubmitting ? "Adding..." : "Add Admin"}
             </button>
@@ -412,34 +412,34 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto flex flex-col max-h-[90vh]">
+        <div className="saas-card rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 w-full max-w-lg mx-auto flex flex-col max-h-[90vh]">
 
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
                 <Pencil size={15} className="text-amber-600" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-gray-500">Edit Store</h2>
-                <p className="text-[11px] text-slate-400 truncate max-w-[200px]">{shop.name}</p>
+                <h2 className="text-sm font-bold text-foreground">Edit Store</h2>
+                <p className="text-[11px] text-muted/70 truncate max-w-[200px]">{shop.name}</p>
               </div>
             </div>
-            <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+            <button onClick={onClose} className="text-muted/70 hover:text-muted transition-colors">
               <X size={18} />
             </button>
           </div>
 
           {/* Tabs */}
-          <div className="flex px-6 pt-3 gap-1 shrink-0 border-b border-slate-100">
+          <div className="flex px-6 pt-3 gap-1 shrink-0 border-b border-white/5">
             {(["details", "admins"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 ${
                   activeTab === tab
-                    ? "text-accent border-accent bg-accent-soft"
-                    : "text-slate-500 border-transparent hover:text-slate-700"
+                    ? "text-primary border-primary bg-primary-light"
+                    : "text-muted border-transparent hover:text-foreground/90"
                 }`}
               >
                 {tab === "admins" ? `Admins (${admins.length})` : "Store Details"}
@@ -455,14 +455,14 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
               <form id="edit-store-form" onSubmit={handleSave} className="space-y-4">
 
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">Store Logo</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted/70 mb-2">Store Logo</p>
                   <LogoUploader
                     value={form.logoUrl}
                     onChange={(v) => setForm({ ...form, logoUrl: v })}
                   />
                 </div>
 
-                <div className="border-t border-slate-100 pt-3 space-y-3">
+                <div className="border-t border-white/5 pt-3 space-y-3">
 
                   <Field label="Store Name" required error={errors.name}>
                     <input
@@ -485,14 +485,14 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
 
                   {/* Email — read only */}
                   <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">
-                      Email <span className="text-slate-400 font-normal">(not editable)</span>
+                    <label className="block text-xs font-medium text-muted mb-1">
+                      Email <span className="text-muted/70 font-normal">(not editable)</span>
                     </label>
                     <input
                       type="email"
                       value={shop.email}
                       disabled
-                      className="w-full px-3 py-2 text-sm border border-slate-100 rounded-lg bg-slate-50 text-slate-400 cursor-not-allowed"
+                      className="w-full px-3 py-2 text-sm border border-white/5 rounded-lg bg-surface text-muted/70 cursor-not-allowed"
                     />
                   </div>
 
@@ -508,33 +508,33 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
 
                   <Field label="Phone Number">
                     <div className="relative">
-                      <Phone size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <Phone size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted/70" />
                       <input
                         type="tel"
                         placeholder="9876543210"
                         maxLength={10}
                         value={form.phone}
                         onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })}
-                        className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                        className="w-full pl-8 pr-3 py-2 text-sm border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                   </Field>
 
                   <Field label="UPI ID">
                     <div className="relative">
-                      <Wallet size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <Wallet size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted/70" />
                       <input
                         type="text"
                         placeholder="yourname@upi"
                         value={form.upiId}
                         onChange={(e) => setForm({ ...form, upiId: e.target.value })}
-                        className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                        className="w-full pl-8 pr-3 py-2 text-sm border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                   </Field>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-2">Category</label>
+                    <label className="block text-xs font-medium text-muted mb-2">Category</label>
                     <CategorySelector
                       value={form.category}
                       onChange={(v) => setForm({ ...form, category: v })}
@@ -550,13 +550,13 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
               <div className="space-y-3">
                 <button
                   onClick={() => setShowAddAdmin(true)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-accent rounded-xl hover:opacity-95 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-primary rounded-xl hover:opacity-95 transition-colors"
                 >
                   <UserPlus size={15} /> Add Admin
                 </button>
 
                 {admins.length === 0 ? (
-                  <div className="text-center py-8 text-slate-400">
+                  <div className="text-center py-8 text-muted/70">
                     <UserCheck size={32} className="mx-auto mb-2 text-slate-300" />
                     <p className="text-sm">No admins yet.</p>
                     <p className="text-[11px]">Add an admin to manage this store.</p>
@@ -566,23 +566,23 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
                     {admins.map((admin) => (
                       <div
                         key={admin.id}
-                        className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50"
+                        className="flex items-center gap-3 p-3 rounded-xl border border-white/5 bg-surface"
                       >
-                        <div className="w-9 h-9 rounded-full bg-accent-soft flex items-center justify-center text-accent text-xs font-bold shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-primary-light flex items-center justify-center text-primary text-xs font-bold shrink-0">
                           {admin.name.slice(0, 2).toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-slate-800 truncate">{admin.name}</p>
-                          <div className="flex items-center gap-1 text-[11px] text-slate-500 truncate">
+                          <p className="text-sm font-semibold text-foreground truncate">{admin.name}</p>
+                          <div className="flex items-center gap-1 text-[11px] text-muted truncate">
                             <Mail size={9} /> {admin.email}
                           </div>
                           {admin.phone && (
-                            <div className="flex items-center gap-1 text-[10px] text-slate-400">
+                            <div className="flex items-center gap-1 text-[10px] text-muted/70">
                               <Phone size={9} /> +91 {admin.phone}
                             </div>
                           )}
                         </div>
-                        <span className="text-[10px] font-bold text-accent bg-accent-soft border border-accent px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-bold text-primary bg-primary-light border border-primary px-2 py-0.5 rounded-full">
                           ADMIN
                         </span>
                       </div>
@@ -595,11 +595,11 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-slate-100 flex gap-2 shrink-0">
+          <div className="px-6 py-4 border-t border-white/5 flex gap-2 shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 text-sm font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+              className="flex-1 px-4 py-2 text-sm font-medium text-muted border border-white/10 rounded-lg hover:bg-surface transition-colors"
             >
               Cancel
             </button>
@@ -607,7 +607,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
               <button
                 type="submit"
                 form="edit-store-form"
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-accent rounded-lg hover:opacity-95 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-primary rounded-lg hover:opacity-95 transition-colors"
               >
                 <Check size={14} /> Save Changes
               </button>
@@ -770,20 +770,20 @@ function CreateStoreModal({ onClose, onSave }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto flex flex-col max-h-[90vh]">
+      <div className="saas-card rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 w-full max-w-md mx-auto flex flex-col max-h-[90vh]">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
             <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-accent-soft flex items-center justify-center">
-              <Store size={16} className="text-accent" />
+            <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center">
+              <Store size={16} className="text-primary" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-gray-500">Create New Store</h2>
-              <p className="text-[11px] text-slate-400">Fill in store details to get started</p>
+              <h2 className="text-sm font-bold text-foreground">Create New Store</h2>
+              <p className="text-[11px] text-muted/70">Fill in store details to get started</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+          <button onClick={onClose} className="text-muted/70 hover:text-muted transition-colors">
             <X size={18} />
           </button>
         </div>
@@ -794,11 +794,11 @@ function CreateStoreModal({ onClose, onSave }: {
 
             {/* Logo */}
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">Store Logo</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted/70 mb-2">Store Logo</p>
               <LogoUploader value={logoUrl} onChange={setLogoUrl} />
             </div>
 
-            <div className="border-t border-slate-100 pt-3 space-y-3">
+            <div className="border-t border-white/5 pt-3 space-y-3">
 
               <Field label="Store Name" required error={errors.name}>
                 <input
@@ -822,14 +822,14 @@ function CreateStoreModal({ onClose, onSave }: {
 
               <Field label="Store Email" required error={errors.email}>
                 <div className="relative">
-                  <Mail size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Mail size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted/70" />
                   <input
                     type="email"
                     placeholder="store@example.com"
                     value={form.email}
                     onChange={(e) => { setForm({ ...form, email: e.target.value }); setErrors({ ...errors, email: "" }); }}
-                    className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${
-                      errors.email ? "border-accent bg-accent-soft" : "border-slate-200"
+                    className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${
+                      errors.email ? "border-primary bg-primary-light" : "border-white/10"
                     }`}
                   />
                 </div>
@@ -837,27 +837,27 @@ function CreateStoreModal({ onClose, onSave }: {
 
               <Field label="Phone Number">
                 <div className="relative">
-                  <Phone size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Phone size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted/70" />
                   <input
                     type="tel"
                     placeholder="9876543210"
                     maxLength={10}
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })}
-                    className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                    className="w-full pl-8 pr-3 py-2 text-sm border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
               </Field>
 
               <Field label="UPI ID">
                 <div className="relative">
-                  <Wallet size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Wallet size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted/70" />
                   <input
                     type="text"
                     placeholder="yourname@upi"
                     value={form.upiId}
                     onChange={(e) => setForm({ ...form, upiId: e.target.value })}
-                    className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                    className="w-full pl-8 pr-3 py-2 text-sm border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
               </Field>
@@ -881,7 +881,7 @@ function CreateStoreModal({ onClose, onSave }: {
                     <button
                       type="button"
                       onClick={handleUseCurrentLocation}
-                      className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
+                      className="rounded-lg border border-white/10 bg-surface px-3 py-2 text-xs font-semibold text-foreground/90 hover:bg-surface-2 transition-colors"
                     >
                       Use my current location
                     </button>
@@ -889,17 +889,17 @@ function CreateStoreModal({ onClose, onSave }: {
                       type="button"
                       onClick={openLocationInMap}
                       disabled={!form.address.trim() || isResolvingLocation}
-                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="rounded-lg border border-white/10 saas-card px-3 py-2 text-xs font-semibold text-foreground/90 hover:bg-surface transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isResolvingLocation ? "Resolving..." : "View on map"}
                     </button>
                   </div>
 
                   {locationStatus && (
-                    <p className="text-[11px] text-slate-500">{locationStatus}</p>
+                    <p className="text-[11px] text-muted">{locationStatus}</p>
                   )}
 
-                  <div className="overflow-hidden rounded-xl border border-slate-200">
+                  <div className="overflow-hidden rounded-xl border border-white/10">
                     {mapPreview ? (
                       <iframe
                         title="Location preview"
@@ -907,7 +907,7 @@ function CreateStoreModal({ onClose, onSave }: {
                         className="w-full h-44"
                       />
                     ) : (
-                      <div className="flex h-44 items-center justify-center bg-slate-50 p-4 text-sm text-slate-500">
+                      <div className="flex h-44 items-center justify-center bg-surface p-4 text-sm text-muted">
                         Enter a location and click View on map to preview it here.
                       </div>
                     )}
@@ -916,8 +916,8 @@ function CreateStoreModal({ onClose, onSave }: {
               </Field>
 
               <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-2">
-                  Store Category <span className="text-accent">*</span>
+                  <label className="block text-xs font-medium text-muted mb-2">
+                  Store Category <span className="text-primary">*</span>
                 </label>
                 <CategorySelector
                   value={form.category}
@@ -930,18 +930,18 @@ function CreateStoreModal({ onClose, onSave }: {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-slate-100 flex gap-2 shrink-0">
+        <div className="px-6 py-4 border-t border-white/5 flex gap-2 shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 px-4 py-2 text-sm font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+            className="flex-1 px-4 py-2 text-sm font-medium text-muted border border-white/10 rounded-lg hover:bg-surface transition-colors"
           >
             Cancel
           </button>
             <button
               type="submit"
               form="create-store-form"
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-accent rounded-lg hover:opacity-95 transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-primary rounded-lg hover:opacity-95 transition-colors"
             >
               <Store size={14} /> Create Store
             </button>
@@ -962,19 +962,19 @@ function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-auto">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <div className="saas-card rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 w-full max-w-sm mx-auto">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
           <div className="flex items-center gap-2">
-            <ArrowLeftRight size={16} className="text-accent" />
-            <h2 className="text-sm font-bold text-gray-500">Switch Store</h2>
+            <ArrowLeftRight size={16} className="text-primary" />
+            <h2 className="text-sm font-bold text-foreground">Switch Store</h2>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+          <button onClick={onClose} className="text-muted/70 hover:text-muted transition-colors">
             <X size={18} />
           </button>
         </div>
         <div className="p-3 space-y-1.5 max-h-80 overflow-y-auto">
           {shops.length === 0 ? (
-            <p className="text-sm text-slate-400 text-center py-6">No stores created yet.</p>
+            <p className="text-sm text-muted/70 text-center py-6">No stores created yet.</p>
           ) : (
             shops.map((shop) => {
               const isActive = shop.id === activeShopId;
@@ -986,26 +986,26 @@ function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
                   onClick={() => { onSwitch(shop.id); onClose(); }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${
                     isActive
-                      ? "bg-accent text-white shadow-md"
-                      : "hover:bg-slate-50 text-slate-700"
+                      ? "bg-primary text-white shadow-md"
+                      : "hover:bg-surface text-foreground/90"
                   }`}
                 >
                   <div className={`w-10 h-10 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${
-                    isActive ? "bg-white/20" : catMeta.color
+                    isActive ? "saas-card/20" : catMeta.color
                   }`}>
                     {shop.logoUrl
                       ? <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
                       : <CatIcon size={18} className={isActive ? "text-white" : ""} />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-semibold truncate ${isActive ? "text-white" : "text-slate-800"}`}>
+                    <p className={`text-sm font-semibold truncate ${isActive ? "text-white" : "text-foreground"}`}>
                       {shop.name}
                     </p>
-                    <p className={`text-[11px] truncate ${isActive ? "text-white/70" : "text-slate-400"}`}>
+                    <p className={`text-[11px] truncate ${isActive ? "text-white/70" : "text-muted/70"}`}>
                       {shop.ownerName ? `${shop.ownerName} · ` : ""}{catMeta.label}
                     </p>
                     {shop.phone && (
-                      <p className={`text-[10px] ${isActive ? "text-white/60" : "text-slate-400"}`}>
+                      <p className={`text-[10px] ${isActive ? "text-white/60" : "text-muted/70"}`}>
                         +91 {shop.phone}
                       </p>
                     )}
@@ -1033,40 +1033,40 @@ function ActiveStoreBanner({ shop, onSwitch, onEdit, isSuperAdmin }: {
   const CatIcon = catMeta.icon;
 
   return (
-    <div className="mx-3 mb-3 rounded-xl border border-accent bg-accent-soft p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-accent mb-2">Active Store</p>
+    <div className="mx-3 mb-3 rounded-xl border border-primary bg-primary-light p-3">
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-primary mb-2">Active Store</p>
       <div className="flex items-center gap-2.5">
-        <div className="w-10 h-10 rounded-lg bg-white border border-accent flex items-center justify-center overflow-hidden shrink-0">
+        <div className="w-10 h-10 rounded-lg saas-card border border-primary flex items-center justify-center overflow-hidden shrink-0">
           {shop.logoUrl
             ? <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
-            : <CatIcon size={17} className="text-accent" />}
+            : <CatIcon size={17} className="text-primary" />}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-slate-800 truncate">{shop.name}</p>
+          <p className="text-sm font-bold text-foreground truncate">{shop.name}</p>
           {shop.ownerName && (
-            <p className="text-[11px] text-slate-500 truncate">{shop.ownerName}</p>
+            <p className="text-[11px] text-muted truncate">{shop.ownerName}</p>
           )}
           <span className={`inline-flex items-center gap-1 text-[10px] font-semibold border px-1.5 py-0.5 rounded-full ${catMeta.color}`}>
             <CatIcon size={8} /> {catMeta.label}
           </span>
           {shop.phone && (
-            <p className="text-[10px] text-slate-400 truncate mt-0.5">📞 +91 {shop.phone}</p>
+            <p className="text-[10px] text-muted/70 truncate mt-0.5">📞 +91 {shop.phone}</p>
           )}
           {shop.upiId && (
-            <p className="text-[10px] text-slate-400 truncate">💳 {shop.upiId}</p>
+            <p className="text-[10px] text-muted/70 truncate">💳 {shop.upiId}</p>
           )}
         </div>
         {isSuperAdmin && (
         <div className="flex flex-col gap-1 shrink-0">
           <button
             onClick={onEdit}
-            className="flex items-center gap-1 text-[11px] font-semibold text-amber-600 hover:text-amber-800 bg-white hover:bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg transition-colors"
+            className="flex items-center gap-1 text-[11px] font-semibold text-amber-600 hover:text-amber-800 saas-card hover:bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg transition-colors"
           >
             <Pencil size={10} /> Edit
           </button>
           <button
             onClick={onSwitch}
-            className="flex items-center gap-1 text-[11px] font-semibold text-accent hover:text-accent bg-white hover:bg-accent-soft border border-accent px-2 py-1 rounded-lg transition-colors"
+            className="flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-primary saas-card hover:bg-primary-light border border-primary px-2 py-1 rounded-lg transition-colors"
           >
             <ArrowLeftRight size={10} /> Switch
           </button>
@@ -1249,16 +1249,16 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="flex h-screen w-64 flex-col border-r border-slate-200 bg-panel overflow-y-auto">
+      <aside className="flex h-screen w-64 flex-col bg-surface border-r border-border overflow-y-auto">
 
         {/* Brand */}
-        <div className="flex items-center gap-3 px-5 py-5 border-b border-slate-100 shrink-0">
-          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-accent shrink-0">
+        <div className="flex items-center gap-3 px-5 py-5 border-b border-border shrink-0">
+          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary shrink-0">
             <Package className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="text-sm font-bold text-gray-500 leading-tight">Stock</p>
-            <p className="text-xs text-accent font-semibold leading-tight">Management</p>
+            <p className="text-sm font-bold text-text-primary leading-tight">Stock</p>
+            <p className="text-xs text-primary font-semibold leading-tight">Management</p>
           </div>
         </div>
 
@@ -1275,8 +1275,9 @@ export default function Sidebar() {
         )}
 
         {/* Navigation */}
-        <nav className="px-3 py-4 space-y-0.5 shrink-0">
-          <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Main Menu</p>
+        {/* Navigation */}
+        <nav className="px-3 py-4 space-y-1 shrink-0">
+          <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-widest text-muted/70">Main Menu</p>
           {visibleNavItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             const Icon = item.icon;
@@ -1284,22 +1285,22 @@ export default function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all group ${
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all group ${
                   isActive
-                    ? "bg-accent text-white shadow-sm"
-                    : "text-slate-600 hover:bg-accent-soft hover:text-accent"
+                    ? "bg-[rgba(160,90,255,.12)] text-[#A05AFF]"
+                    : "text-text-secondary hover:bg-[#F2E8FF] hover:text-[#9250F2]"
                 }`}
               >
                 <Icon
                   size={18}
                   className={`shrink-0 transition-colors ${
-                    isActive ? "text-white" : "text-slate-400 group-hover:text-accent"
+                    isActive ? "text-[#A05AFF]" : "text-text-secondary group-hover:text-[#9250F2]"
                   }`}
                 />
                 <span className="flex-1">{item.label}</span>
                 {item.badge != null && (
-                  <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
-                    isActive ? "bg-white/20 text-white" : "bg-accent-soft text-accent"
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                    isActive ? "bg-[#A05AFF] text-white" : "bg-gray-100 text-text-primary"
                   }`}>
                     {item.badge}
                   </span>
@@ -1312,17 +1313,17 @@ export default function Sidebar() {
         {/* Stores Section (Super Admin Only) */}
         {isSuperAdmin && (
         <div className="px-3 pb-4 flex-1">
-          <div className="border-t border-slate-100 pt-4">
+          <div className="border-t border-white/5 pt-4">
 
             <div className="flex items-center justify-between px-1 mb-3">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted/70">
                 Stores ({shops.length})
               </p>
               <div className="flex items-center gap-1">
                 {shops.length > 1 && (
                   <button
                     onClick={() => setShowSwitcher(true)}
-                    className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-accent bg-panel hover:bg-accent-soft px-2 py-0.5 rounded-full transition-colors"
+                    className="flex items-center gap-1 text-[11px] font-semibold text-muted hover:text-primary saas-card hover:bg-primary-light px-2 py-0.5 rounded-full transition-colors"
                   >
                     <ArrowLeftRight size={10} /> Switch
                   </button>
@@ -1330,7 +1331,7 @@ export default function Sidebar() {
                 {isSuperAdmin && (
                   <button
                     onClick={() => setShowCreateStore(true)}
-                    className="flex items-center gap-1 text-[11px] font-semibold text-accent hover:text-accent bg-accent-soft hover:bg-accent-soft px-2 py-0.5 rounded-full transition-colors"
+                    className="flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-primary bg-primary-light hover:bg-primary-light px-2 py-0.5 rounded-full transition-colors"
                   >
                     <Plus size={11} /> New
                   </button>
@@ -1339,12 +1340,12 @@ export default function Sidebar() {
             </div>
 
             {shops.length === 0 ? (
-              <p className="text-[11px] text-slate-400 px-2 py-1">
+              <p className="text-[11px] text-muted/70 px-2 py-1">
                 No stores yet.{" "}
                 {isSuperAdmin && (
                   <button
                     onClick={() => setShowCreateStore(true)}
-                    className="text-accent hover:underline font-semibold"
+                    className="text-primary hover:underline font-semibold"
                   >
                     Create one
                   </button>
@@ -1362,22 +1363,22 @@ export default function Sidebar() {
                         onClick={() => switchStore(shop.id)}
                         className={`flex-1 flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all ${
                           isActive
-                            ? "bg-accent text-white shadow-sm"
-                            : "hover:bg-accent-soft text-slate-700"
+                            ? "bg-gradient-to-r from-primary-light to-transparent border-l-2 border-primary text-primary shadow-sm"
+                            : "hover:bg-primary-light text-foreground/90"
                         }`}
                       >
                         <div className={`w-7 h-7 rounded-md shrink-0 overflow-hidden flex items-center justify-center ${
-                          isActive ? "bg-white/20" : catMeta.color
+                          isActive ? "saas-card/20" : catMeta.color
                         }`}>
                           {shop.logoUrl
                             ? <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
                             : <CatIcon size={13} className={isActive ? "text-white" : ""} />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className={`text-xs font-semibold truncate ${isActive ? "text-white" : "text-slate-800"}`}>
+                          <p className={`text-xs font-semibold truncate ${isActive ? "text-white" : "text-foreground"}`}>
                             {shop.name}
                           </p>
-                          <p className={`text-[10px] truncate ${isActive ? "text-white/70" : "text-slate-400"}`}>
+                          <p className={`text-[10px] truncate ${isActive ? "text-white/70" : "text-muted/70"}`}>
                             {shop.ownerName || catMeta.label}{shop.phone ? ` · ${shop.phone}` : ""}
                           </p>
                         </div>
@@ -1388,8 +1389,8 @@ export default function Sidebar() {
                         onClick={() => setEditShop(shop)}
                         className={`p-1.5 rounded-lg transition-colors ${
                           isActive
-                            ? "text-white/70 hover:text-white hover:bg-white/10"
-                            : "text-slate-400 hover:text-amber-600 hover:bg-amber-50"
+                            ? "text-white/70 hover:text-white hover:saas-card/10"
+                            : "text-muted/70 hover:text-amber-600 hover:bg-amber-50"
                         }`}
                         title="Edit store"
                       >
@@ -1410,8 +1411,8 @@ export default function Sidebar() {
                           }}
                           className={`p-1.5 rounded-lg transition-colors ${
                               isActive
-                                ? "text-white/70 hover:text-white hover:bg-white/10"
-                                : "text-slate-400 hover:text-accent hover:bg-accent-soft"
+                                ? "text-white/70 hover:text-white hover:saas-card/10"
+                                : "text-muted/70 hover:text-primary hover:bg-primary-light"
                           }`}
                           title="Delete store"
                         >
@@ -1431,19 +1432,19 @@ export default function Sidebar() {
         )}
 
         {/* User Footer */}
-        <div className="border-t border-slate-100 p-4 shrink-0">
+        <div className="border-t border-white/5 p-4 shrink-0">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-accent text-xs font-bold shrink-0">
+            <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary text-xs font-bold shrink-0">
               {user?.name ? user.name.slice(0, 2).toUpperCase() : "SA"}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-gray-500 truncate">{user?.name || "Super Admin"}</p>
-              <p className="text-xs text-slate-400 truncate">{user?.email || "admin@stockmgmt.com"}</p>
+              <p className="text-sm font-semibold text-foreground truncate">{user?.name || "Super Admin"}</p>
+              <p className="text-xs text-muted/70 truncate">{user?.email || "admin@stockmgmt.com"}</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-500 hover:bg-accent-soft hover:text-accent transition-colors"
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted hover:bg-primary-light hover:text-primary transition-colors"
           >
             <LogOut size={16} /> Sign out
           </button>

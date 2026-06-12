@@ -145,7 +145,7 @@ function nowTime() {
 }
 
 const inputCls =
-  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-gray-500 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
+  "h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-text-primary placeholder:text-text-secondary outline-none focus:border-primary focus:ring-2 focus:ring-primary transition-colors";
 
 // ═══════════════════════════════════════════════════════════════
 // SUB-COMPONENTS
@@ -154,7 +154,7 @@ const inputCls =
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{label}</label>
+      <label className="text-xs font-semibold text-text-secondary uppercase tracking-wide">{label}</label>
       {children}
     </div>
   );
@@ -167,13 +167,13 @@ function StatCard({
   icon: React.ElementType; bg: string; ic: string;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5">
+    <div className="bg-surface rounded-xl border border-border p-5">
       <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${bg} mb-3`}>
         <Icon className={`w-4 h-4 ${ic}`} />
       </div>
-      <p className="text-2xl font-bold text-gray-500">{value}</p>
-      <p className="text-xs font-semibold text-slate-700 mt-0.5">{label}</p>
-      {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+      <p className="text-2xl font-bold text-text-primary">{value}</p>
+      <p className="text-xs font-semibold text-text-primary mt-0.5">{label}</p>
+      {sub && <p className="text-xs text-text-secondary mt-0.5">{sub}</p>}
     </div>
   );
 }
@@ -633,8 +633,8 @@ export default function StaffManagementPage() {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-red-600" />
-          <p className="text-sm font-medium text-slate-500">Loading staff data...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm font-medium text-text-secondary">Loading staff data...</p>
         </div>
       </div>
     );
@@ -646,21 +646,21 @@ export default function StaffManagementPage() {
       {/* ── Page Header ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-500">Staff Management</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Manage staff, attendance and salary in one place</p>
+          <h1 className="text-xl font-bold text-text-primary">Staff Management</h1>
+          <p className="text-sm text-text-secondary mt-0.5">Manage staff, attendance and salary in one place</p>
         </div>
       </div>
 
       {/* ── Main Tabs ── */}
-      <div className="flex gap-1 bg-slate-100 rounded-xl p-1 w-fit">
+      <div className="flex gap-1 bg-background rounded-xl p-1 w-fit">
         {(["staff", "attendance", "salary"] as MainTab[]).map((tab) => (
           <button
             key={tab}
             onClick={() => setMainTab(tab)}
             className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all capitalize ${
               mainTab === tab
-                ? "bg-white text-red-600 shadow-sm"
-                : "text-slate-500 hover:text-slate-700"
+                ? "bg-surface text-primary shadow-sm"
+                : "text-text-secondary hover:text-text-primary"
             }`}
           >
             {tab === "staff" ? "👤 Staff" : tab === "attendance" ? "🕐 Attendance" : "💰 Salary"}
@@ -676,16 +676,16 @@ export default function StaffManagementPage() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-            <StatCard label="Total Staff"    value={staffList.length}                                          sub="All records"             icon={Users}            bg="bg-red-50"   ic="text-red-600"   />
-            <StatCard label="Active Staff"   value={staffList.filter((s) => s.status === "Active").length}    sub="Currently working"       icon={UserCheck}        bg="bg-green-50"  ic="text-green-600"  />
-            <StatCard label="Inactive Staff" value={staffList.filter((s) => s.status === "Inactive").length}  sub="On leave / resigned"     icon={AlertCircle}      bg="bg-amber-50"  ic="text-amber-600"  />
+            <StatCard label="Total Staff"    value={staffList.length}                                          sub="All records"             icon={Users}            bg="bg-coral-light"   ic="text-primary"   />
+            <StatCard label="Active Staff"   value={staffList.filter((s) => s.status === "Active").length}    sub="Currently working"       icon={UserCheck}        bg="bg-mint-light"  ic="text-success"  />
+            <StatCard label="Inactive Staff" value={staffList.filter((s) => s.status === "Inactive").length}  sub="On leave / resigned"     icon={AlertCircle}      bg="bg-warning/10"  ic="text-warning"  />
             <StatCard label="Monthly Payroll" value={fmt(staffList.filter((s) => s.status === "Active").reduce((t, s) => t + s.salary, 0))} sub="Active staff total" icon={BadgeIndianRupee} bg="bg-purple-50" ic="text-purple-600" />
           </div>
 
           {/* Filters + Add */}
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
               <input type="text" placeholder="Search by name, phone, ID…" value={staffSearch}
                 onChange={(e) => setStaffSearch(e.target.value)} className={inputCls + " pl-9"} />
             </div>
@@ -694,65 +694,65 @@ export default function StaffManagementPage() {
                 className={inputCls + " w-40 appearance-none pr-8 cursor-pointer"}>
                 {["All", "Active", "Inactive"].map((s) => <option key={s}>{s}</option>)}
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
             <button onClick={openAddStaff}
-              className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm shadow-red-200 whitespace-nowrap">
+              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm shadow-red-200 whitespace-nowrap">
               <Plus size={16} /> Add Staff
             </button>
           </div>
 
           {/* Staff Table */}
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div className="bg-surface rounded-xl border border-border overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50">
+                  <tr className="border-b border-border bg-background">
                     {["Staff ID","Name","Phone","Address","Joining Date","Salary","Status","Actions"].map((h) => (
-                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {filteredStaff.length === 0 ? (
-                    <tr><td colSpan={8} className="py-16 text-center text-sm text-slate-400">No staff found</td></tr>
+                    <tr><td colSpan={8} className="py-16 text-center text-sm text-text-secondary">No staff found</td></tr>
                   ) : filteredStaff.map((s) => (
-                    <tr key={s.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3.5 font-mono text-xs text-slate-500">{s.id}</td>
+                    <tr key={s.id} className="border-b border-slate-50 hover:bg-background transition-colors">
+                      <td className="px-4 py-3.5 font-mono text-xs text-text-secondary">{s.id}</td>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2.5">
                           <div className="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center text-xs font-bold shrink-0">
                             {s.name.slice(0, 2).toUpperCase()}
                           </div>
-                          <span className="font-semibold text-slate-800 whitespace-nowrap">{s.name}</span>
+                          <span className="font-semibold text-text-primary whitespace-nowrap">{s.name}</span>
                         </div>
                       </td>
                       <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-1.5 text-slate-500 whitespace-nowrap">
-                          <Phone size={12} className="text-slate-400" />{s.phone}
+                        <div className="flex items-center gap-1.5 text-text-secondary whitespace-nowrap">
+                          <Phone size={12} className="text-text-secondary" />{s.phone}
                         </div>
                       </td>
-                      <td className="px-4 py-3.5 text-slate-500 max-w-[160px] truncate">{s.address || "—"}</td>
+                      <td className="px-4 py-3.5 text-text-secondary max-w-[160px] truncate">{s.address || "—"}</td>
                       <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-1.5 text-slate-500 whitespace-nowrap">
-                          <CalendarDays size={12} className="text-slate-400" />{s.joiningDate}
+                        <div className="flex items-center gap-1.5 text-text-secondary whitespace-nowrap">
+                          <CalendarDays size={12} className="text-text-secondary" />{s.joiningDate}
                         </div>
                       </td>
-                      <td className="px-4 py-3.5 font-bold text-gray-500 whitespace-nowrap">{fmt(s.salary)}</td>
+                      <td className="px-4 py-3.5 font-bold text-text-primary whitespace-nowrap">{fmt(s.salary)}</td>
                       <td className="px-4 py-3.5">
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${s.status === "Active" ? "bg-green-50 text-green-700" : "bg-slate-100 text-slate-500"}`}>
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${s.status === "Active" ? "bg-mint-light text-success" : "bg-background text-text-secondary"}`}>
                           {s.status}
                         </span>
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
                         <div className="flex flex-wrap items-center gap-3">
-                          <button onClick={() => setViewStaff(s)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-800 transition-colors">
+                          <button onClick={() => setViewStaff(s)} className="flex items-center gap-1 text-xs font-medium text-primary hover:text-red-800 transition-colors">
                             <Eye size={13} /> View
                           </button>
-                          <button onClick={() => openEditStaff(s)} className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors">
+                          <button onClick={() => openEditStaff(s)} className="flex items-center gap-1 text-xs font-medium text-text-secondary hover:text-text-primary transition-colors">
                             <Pencil size={13} /> Edit
                           </button>
-                          <button onClick={() => setDeleteStaffId(s.id)} className="flex items-center gap-1 text-xs font-medium text-red-400 hover:text-red-600 transition-colors">
+                          <button onClick={() => setDeleteStaffId(s.id)} className="flex items-center gap-1 text-xs font-medium text-coral hover:text-primary transition-colors">
                             <Trash2 size={13} /> Delete
                           </button>
                           {userRole === 'SUPER_ADMIN' && (
@@ -771,10 +771,10 @@ export default function StaffManagementPage() {
               </table>
             </div>
             {filteredStaff.length > 0 && (
-              <div className="px-4 py-3 border-t border-slate-100 bg-slate-50">
-                <p className="text-xs text-slate-400">
-                  Showing <span className="font-semibold text-slate-600">{filteredStaff.length}</span> of{" "}
-                  <span className="font-semibold text-slate-600">{staffList.length}</span> staff
+              <div className="px-4 py-3 border-t border-border bg-background">
+                <p className="text-xs text-text-secondary">
+                  Showing <span className="font-semibold text-text-primary">{filteredStaff.length}</span> of{" "}
+                  <span className="font-semibold text-text-primary">{staffList.length}</span> staff
                 </p>
               </div>
             )}
@@ -797,10 +797,10 @@ export default function StaffManagementPage() {
               const checkedOut= todayRecs.filter((a) => a.checkOut).length;
               const absent    = staffList.filter((s) => s.status === "Active").length - present;
               return [
-                { label: "Present Today",   value: present,    icon: CheckCircle,  bg: "bg-green-50",  ic: "text-green-600"  },
-                { label: "Checked In",      value: checkedIn,  icon: LogIn,        bg: "bg-red-50",   ic: "text-red-600"   },
+                { label: "Present Today",   value: present,    icon: CheckCircle,  bg: "bg-mint-light",  ic: "text-success"  },
+                { label: "Checked In",      value: checkedIn,  icon: LogIn,        bg: "bg-coral-light",   ic: "text-primary"   },
                 { label: "Checked Out",     value: checkedOut, icon: LogOut,       bg: "bg-teal-50",   ic: "text-teal-600"   },
-                { label: "Absent Today",    value: absent < 0 ? 0 : absent, icon: XCircle, bg: "bg-red-50", ic: "text-red-500" },
+                { label: "Absent Today",    value: absent < 0 ? 0 : absent, icon: XCircle, bg: "bg-coral-light", ic: "text-coral" },
               ];
             })().map((s) => (
               <StatCard key={s.label} {...s} />
@@ -810,11 +810,11 @@ export default function StaffManagementPage() {
           {/* Controls */}
           <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
             {/* Daily / Monthly toggle */}
-            <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+            <div className="flex gap-1 bg-background rounded-lg p-1">
               {(["daily", "monthly"] as const).map((v) => (
                 <button key={v} onClick={() => setAttView(v)}
                   className={`px-4 py-1.5 rounded-md text-xs font-semibold capitalize transition-all ${
-                    attView === v ? "bg-white text-red-600 shadow-sm" : "text-slate-500"
+                    attView === v ? "bg-surface text-primary shadow-sm" : "text-text-secondary"
                   }`}>{v === "daily" ? "Daily Report" : "Monthly Summary"}</button>
               ))}
             </div>
@@ -822,90 +822,90 @@ export default function StaffManagementPage() {
             {/* Date / Month picker */}
             {attView === "daily" ? (
               <input type="date" value={attDate} onChange={(e) => setAttDate(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/20 transition-colors" />
+                className="h-9 rounded-lg border border-border bg-surface px-3 text-sm text-text-primary outline-none focus:border-red-400 focus:ring-2 focus:ring-primary transition-colors" />
             ) : (
               <input type="month" value={attMonth} onChange={(e) => setAttMonth(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/20 transition-colors" />
+                className="h-9 rounded-lg border border-border bg-surface px-3 text-sm text-text-primary outline-none focus:border-red-400 focus:ring-2 focus:ring-primary transition-colors" />
             )}
 
             {/* Staff filter */}
             <div className="relative">
               <select value={attStaffFilter} onChange={(e) => setAttStaffFilter(e.target.value)}
-                className="h-9 pl-3 pr-8 rounded-lg border border-slate-200 bg-white text-sm text-slate-700 outline-none focus:border-red-400 appearance-none cursor-pointer">
+                className="h-9 pl-3 pr-8 rounded-lg border border-border bg-surface text-sm text-text-primary outline-none focus:border-red-400 appearance-none cursor-pointer">
                 <option value="All">All Staff</option>
                 {staffList.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
 
             <div className="flex-1" />
 
             <button onClick={() => setShowMarkModal(true)}
-              className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm shadow-red-200 whitespace-nowrap">
+              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm shadow-red-200 whitespace-nowrap">
               <Plus size={16} /> Mark Attendance
             </button>
           </div>
 
           {/* ── Daily Report ── */}
           {attView === "daily" && (
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+            <div className="bg-surface rounded-xl border border-border overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-border">
                 <div>
-                  <h2 className="text-sm font-bold text-gray-500">Daily Attendance Report</h2>
-                  <p className="text-xs text-slate-400 mt-0.5">{attDate}</p>
+                  <h2 className="text-sm font-bold text-text-primary">Daily Attendance Report</h2>
+                  <p className="text-xs text-text-secondary mt-0.5">{attDate}</p>
                 </div>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-100 bg-slate-50">
+                    <tr className="border-b border-border bg-background">
                       {["Staff ID","Name","Date","Check-in","Check-out","Working Hours","Status","Actions"].map((h) => (
-                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {dailyRecords.length === 0 ? (
-                      <tr><td colSpan={8} className="py-12 text-center text-sm text-slate-400">No records for this date</td></tr>
+                      <tr><td colSpan={8} className="py-12 text-center text-sm text-text-secondary">No records for this date</td></tr>
                     ) : dailyRecords.map((a) => (
-                      <tr key={a.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                        <td className="px-4 py-3.5 font-mono text-xs text-slate-500">{a.staffId}</td>
+                      <tr key={a.id} className="border-b border-slate-50 hover:bg-background transition-colors">
+                        <td className="px-4 py-3.5 font-mono text-xs text-text-secondary">{a.staffId}</td>
                         <td className="px-4 py-3.5">
                           <div className="flex items-center gap-2">
                             <div className="w-7 h-7 rounded-full bg-red-100 text-red-700 flex items-center justify-center text-xs font-bold shrink-0">
                               {a.staffName.slice(0, 2).toUpperCase()}
                             </div>
-                            <span className="font-semibold text-slate-800 whitespace-nowrap">{a.staffName}</span>
+                            <span className="font-semibold text-text-primary whitespace-nowrap">{a.staffName}</span>
                           </div>
                         </td>
-                        <td className="px-4 py-3.5 text-slate-500 whitespace-nowrap">{a.date}</td>
+                        <td className="px-4 py-3.5 text-text-secondary whitespace-nowrap">{a.date}</td>
                         <td className="px-4 py-3.5">
                           {a.checkIn
-                            ? <span className="flex items-center gap-1 text-green-600 font-semibold whitespace-nowrap"><LogIn size={13} />{a.checkIn}</span>
+                            ? <span className="flex items-center gap-1 text-success font-semibold whitespace-nowrap"><LogIn size={13} />{a.checkIn}</span>
                             : <span className="text-slate-300">—</span>}
                         </td>
                         <td className="px-4 py-3.5">
                           {a.checkOut
-                            ? <span className="flex items-center gap-1 text-red-600 font-semibold whitespace-nowrap"><LogOut size={13} />{a.checkOut}</span>
+                            ? <span className="flex items-center gap-1 text-primary font-semibold whitespace-nowrap"><LogOut size={13} />{a.checkOut}</span>
                             : <span className="text-slate-300">—</span>}
                         </td>
-                        <td className="px-4 py-3.5 font-semibold text-slate-700">
+                        <td className="px-4 py-3.5 font-semibold text-text-primary">
                           {a.workingHours > 0 ? `${a.workingHours}h` : "—"}
                         </td>
                         <td className="px-4 py-3.5">
                           {a.status === "PRESENT" ? (
-                            <span className="flex items-center gap-1 text-xs font-semibold text-green-600"><CheckCircle size={13} /> Present</span>
+                            <span className="flex items-center gap-1 text-xs font-semibold text-success"><CheckCircle size={13} /> Present</span>
                           ) : a.status === "HALF_DAY" ? (
-                            <span className="flex items-center gap-1 text-xs font-semibold text-amber-600"><Clock size={13} /> Half Day</span>
+                            <span className="flex items-center gap-1 text-xs font-semibold text-warning"><Clock size={13} /> Half Day</span>
                           ) : (
-                            <span className="flex items-center gap-1 text-xs font-semibold text-red-500"><XCircle size={13} /> Absent</span>
+                            <span className="flex items-center gap-1 text-xs font-semibold text-coral"><XCircle size={13} /> Absent</span>
                           )}
                         </td>
                         <td className="px-4 py-3.5 whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => setMarkModal({ staffId: a.staffId, staffName: a.staffName, status: a.status })}
-                              className="flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap"
+                              className="flex items-center gap-1 text-xs font-semibold text-primary hover:text-red-800 bg-coral-light hover:bg-red-100 px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap"
                             >
                               <Pencil size={12} /> Mark Status
                             </button>
@@ -915,7 +915,7 @@ export default function StaffManagementPage() {
                                   const s = staffList.find((st) => st.id === a.staffId);
                                   if (s) { setCheckinModal(s); setManualTime(nowTime()); }
                                 }}
-                                className="flex items-center gap-1 text-xs font-semibold text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100 px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap"
+                                className="flex items-center gap-1 text-xs font-semibold text-success hover:text-green-800 bg-mint-light hover:bg-green-100 px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap"
                               >
                                 <LogIn size={12} /> Check In
                               </button>
@@ -923,7 +923,7 @@ export default function StaffManagementPage() {
                             {a.checkIn && !a.checkOut && (
                               <button
                                 onClick={() => { setCheckoutModal(a); setManualTime(nowTime()); }}
-                                className="flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap"
+                                className="flex items-center gap-1 text-xs font-semibold text-primary hover:text-red-800 bg-coral-light hover:bg-red-100 px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap"
                               >
                                 <LogOut size={12} /> Check Out
                               </button>
@@ -940,57 +940,57 @@ export default function StaffManagementPage() {
 
           {/* ── Monthly Summary ── */}
           {attView === "monthly" && (
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+            <div className="bg-surface rounded-xl border border-border overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-border">
                 <div>
-                  <h2 className="text-sm font-bold text-gray-500">Monthly Attendance Summary</h2>
-                  <p className="text-xs text-slate-400 mt-0.5">{fmtMonth(attMonth)}</p>
+                  <h2 className="text-sm font-bold text-text-primary">Monthly Attendance Summary</h2>
+                  <p className="text-xs text-text-secondary mt-0.5">{fmtMonth(attMonth)}</p>
                 </div>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-100 bg-slate-50">
+                    <tr className="border-b border-border bg-background">
                       {["Staff ID","Name","Present Days","Absent Days","Total Hours","Attendance %"].map((h) => (
-                        <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                        <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {monthlyAttSummary.length === 0 ? (
-                      <tr><td colSpan={6} className="py-12 text-center text-sm text-slate-400">No data for this month</td></tr>
+                      <tr><td colSpan={6} className="py-12 text-center text-sm text-text-secondary">No data for this month</td></tr>
                     ) : monthlyAttSummary.map((r) => {
                       const total = r.present + r.absent;
                       const pct   = total > 0 ? Math.round((r.present / total) * 100) : 0;
                       return (
-                        <tr key={r.staffId} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                          <td className="px-5 py-3.5 font-mono text-xs text-slate-500">{r.staffId}</td>
+                        <tr key={r.staffId} className="border-b border-slate-50 hover:bg-background transition-colors">
+                          <td className="px-5 py-3.5 font-mono text-xs text-text-secondary">{r.staffId}</td>
                           <td className="px-5 py-3.5">
                             <div className="flex items-center gap-2">
                               <div className="w-7 h-7 rounded-full bg-red-100 text-red-700 flex items-center justify-center text-xs font-bold shrink-0">
                                 {r.name.slice(0, 2).toUpperCase()}
                               </div>
-                              <span className="font-semibold text-slate-800">{r.name}</span>
+                              <span className="font-semibold text-text-primary">{r.name}</span>
                             </div>
                           </td>
                           <td className="px-5 py-3.5">
-                            <span className="px-2.5 py-0.5 rounded-full bg-green-50 text-green-700 text-xs font-semibold">{r.present} days</span>
+                            <span className="px-2.5 py-0.5 rounded-full bg-mint-light text-success text-xs font-semibold">{r.present} days</span>
                           </td>
                           <td className="px-5 py-3.5">
-                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${r.absent > 0 ? "bg-red-50 text-red-600" : "bg-slate-100 text-slate-400"}`}>
+                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${r.absent > 0 ? "bg-coral-light text-primary" : "bg-background text-text-secondary"}`}>
                               {r.absent} days
                             </span>
                           </td>
-                          <td className="px-5 py-3.5 font-semibold text-slate-700">{r.totalHours.toFixed(1)}h</td>
+                          <td className="px-5 py-3.5 font-semibold text-text-primary">{r.totalHours.toFixed(1)}h</td>
                           <td className="px-5 py-3.5">
                             <div className="flex items-center gap-2">
-                              <div className="flex-1 max-w-[80px] bg-slate-100 rounded-full h-1.5">
+                              <div className="flex-1 max-w-[80px] bg-background rounded-full h-1.5">
                                 <div
-                                  className={`h-1.5 rounded-full ${pct >= 80 ? "bg-green-500" : pct >= 60 ? "bg-amber-500" : "bg-red-500"}`}
+                                  className={`h-1.5 rounded-full ${pct >= 80 ? "bg-mint-light0" : pct >= 60 ? "bg-warning/100" : "bg-primary"}`}
                                   style={{ width: `${pct}%` }}
                                 />
                               </div>
-                              <span className={`text-xs font-bold ${pct >= 80 ? "text-green-600" : pct >= 60 ? "text-amber-600" : "text-red-600"}`}>
+                              <span className={`text-xs font-bold ${pct >= 80 ? "text-success" : pct >= 60 ? "text-warning" : "text-primary"}`}>
                                 {pct}%
                               </span>
                             </div>
@@ -1014,71 +1014,71 @@ export default function StaffManagementPage() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-            <StatCard label="Total Payable"  value={fmt(totalPayable)}  sub={`${filteredSalary.length} records`}   icon={BadgeIndianRupee} bg="bg-red-50"   ic="text-red-600"   />
-            <StatCard label="Total Paid"     value={fmt(totalPaid)}     sub="This period"                           icon={CheckCircle}      bg="bg-green-50"  ic="text-green-600"  />
-            <StatCard label="Total Pending"  value={fmt(totalPending)}  sub={`${unpaidCount} unpaid`}               icon={Clock}            bg="bg-amber-50"  ic="text-amber-600"  />
+            <StatCard label="Total Payable"  value={fmt(totalPayable)}  sub={`${filteredSalary.length} records`}   icon={BadgeIndianRupee} bg="bg-coral-light"   ic="text-primary"   />
+            <StatCard label="Total Paid"     value={fmt(totalPaid)}     sub="This period"                           icon={CheckCircle}      bg="bg-mint-light"  ic="text-success"  />
+            <StatCard label="Total Pending"  value={fmt(totalPending)}  sub={`${unpaidCount} unpaid`}               icon={Clock}            bg="bg-warning/10"  ic="text-warning"  />
             <StatCard label="Staff Count"    value={filteredSalary.length} sub="In selected month"                  icon={Users}            bg="bg-purple-50" ic="text-purple-600" />
           </div>
 
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
               <input type="text" placeholder="Search by name or staff ID…" value={salarySearch}
                 onChange={(e) => setSalarySearch(e.target.value)} className={inputCls + " pl-9"} />
             </div>
             <input type="month" value={salaryMonth} onChange={(e) => setSalaryMonth(e.target.value)}
-              className="h-10 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/20 transition-colors" />
+              className="h-10 rounded-lg border border-border bg-background px-3 text-sm text-text-primary outline-none focus:border-red-400 focus:ring-2 focus:ring-primary transition-colors" />
             <div className="relative">
               <select value={salaryStatusFilter} onChange={(e) => setSalaryStatusFilter(e.target.value)}
                 className={inputCls + " w-40 appearance-none pr-8 cursor-pointer"}>
                 {["All", "Paid", "Unpaid"].map((s) => <option key={s}>{s}</option>)}
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
           </div>
 
           {/* Salary Table */}
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+          <div className="bg-surface rounded-xl border border-border overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
               <div>
-                <h2 className="text-sm font-bold text-gray-500">Salary Records</h2>
-                <p className="text-xs text-slate-400 mt-0.5">{salaryMonth ? fmtMonth(salaryMonth) : "All Months"}</p>
+                <h2 className="text-sm font-bold text-text-primary">Salary Records</h2>
+                <p className="text-xs text-text-secondary mt-0.5">{salaryMonth ? fmtMonth(salaryMonth) : "All Months"}</p>
               </div>
               <div className="flex items-center gap-2 text-xs">
-                <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 font-semibold">{unpaidCount} Unpaid</span>
+                <span className="px-2.5 py-1 rounded-full bg-warning/10 text-warning font-semibold">{unpaidCount} Unpaid</span>
               </div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50">
+                  <tr className="border-b border-border bg-background">
                     {["Staff ID","Name","Month","Salary Amount","Paid Date","Payment Method","Status","Action"].map((h) => (
-                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {filteredSalary.length === 0 ? (
-                    <tr><td colSpan={8} className="py-14 text-center text-sm text-slate-400">No salary records found</td></tr>
+                    <tr><td colSpan={8} className="py-14 text-center text-sm text-text-secondary">No salary records found</td></tr>
                   ) : filteredSalary.map((r) => (
-                    <tr key={r.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3.5 font-mono text-xs text-slate-500">{r.staffId}</td>
+                    <tr key={r.id} className="border-b border-slate-50 hover:bg-background transition-colors">
+                      <td className="px-4 py-3.5 font-mono text-xs text-text-secondary">{r.staffId}</td>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2.5">
                           <div className="w-7 h-7 rounded-full bg-red-100 text-red-700 flex items-center justify-center text-xs font-bold shrink-0">
                             {r.staffName.slice(0, 2).toUpperCase()}
                           </div>
-                          <span className="font-semibold text-slate-800 whitespace-nowrap">{r.staffName}</span>
+                          <span className="font-semibold text-text-primary whitespace-nowrap">{r.staffName}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3.5 text-slate-600 whitespace-nowrap">{fmtMonth(r.month)}</td>
-                      <td className="px-4 py-3.5 font-bold text-gray-500 whitespace-nowrap">{fmt(r.amount)}</td>
-                      <td className="px-4 py-3.5 text-slate-500 whitespace-nowrap">{r.paidDate || "—"}</td>
-                      <td className="px-4 py-3.5 text-slate-500 whitespace-nowrap">{r.paymentMethod || "—"}</td>
+                      <td className="px-4 py-3.5 text-text-primary whitespace-nowrap">{fmtMonth(r.month)}</td>
+                      <td className="px-4 py-3.5 font-bold text-text-primary whitespace-nowrap">{fmt(r.amount)}</td>
+                      <td className="px-4 py-3.5 text-text-secondary whitespace-nowrap">{r.paidDate || "—"}</td>
+                      <td className="px-4 py-3.5 text-text-secondary whitespace-nowrap">{r.paymentMethod || "—"}</td>
                       <td className="px-4 py-3.5">
                         <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                          r.status === "Paid" ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"
+                          r.status === "Paid" ? "bg-mint-light text-success" : "bg-warning/10 text-warning"
                         }`}>
                           {r.status}
                         </span>
@@ -1093,10 +1093,10 @@ export default function StaffManagementPage() {
                               <BadgeIndianRupee size={12} /> Mark Paid
                             </button>
                           ) : (
-                            <span className="text-xs font-semibold text-amber-700">Pending</span>
+                            <span className="text-xs font-semibold text-warning">Pending</span>
                           )
                         ) : (
-                          <span className="flex items-center gap-1 text-xs text-green-600 font-semibold">
+                          <span className="flex items-center gap-1 text-xs text-success font-semibold">
                             <CheckCircle size={13} /> Paid
                           </span>
                         )}
@@ -1107,13 +1107,13 @@ export default function StaffManagementPage() {
               </table>
             </div>
             {filteredSalary.length > 0 && (
-              <div className="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
-                <p className="text-xs text-slate-400">
-                  <span className="font-semibold text-slate-600">{filteredSalary.length}</span> records
+              <div className="px-5 py-3 border-t border-border bg-background flex items-center justify-between">
+                <p className="text-xs text-text-secondary">
+                  <span className="font-semibold text-text-primary">{filteredSalary.length}</span> records
                 </p>
                 <div className="flex items-center gap-4 text-xs">
-                  <span className="text-green-600 font-semibold">Paid: {fmt(totalPaid)}</span>
-                  <span className="text-amber-600 font-semibold">Pending: {fmt(totalPending)}</span>
+                  <span className="text-success font-semibold">Paid: {fmt(totalPaid)}</span>
+                  <span className="text-warning font-semibold">Pending: {fmt(totalPending)}</span>
                 </div>
               </div>
             )}
@@ -1121,15 +1121,15 @@ export default function StaffManagementPage() {
 
           {/* Monthly Report Summary Cards */}
           {salaryMonth && (
-            <div className="bg-white rounded-xl border border-slate-200 p-5">
-              <h3 className="text-sm font-bold text-gray-500 mb-4">
+            <div className="bg-surface rounded-xl border border-border p-5">
+              <h3 className="text-sm font-bold text-text-primary mb-4">
                 Monthly Salary Report — {fmtMonth(salaryMonth)}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
                 {filteredSalary.map((r) => (
                   <div key={r.id}
                     className={`flex items-center justify-between px-4 py-3 rounded-xl border ${
-                      r.status === "Paid" ? "border-green-100 bg-green-50" : "border-amber-100 bg-amber-50"
+                      r.status === "Paid" ? "border-green-100 bg-mint-light" : "border-amber-100 bg-warning/10"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
@@ -1139,13 +1139,13 @@ export default function StaffManagementPage() {
                         {r.staffName.slice(0, 2).toUpperCase()}
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-slate-800">{r.staffName}</p>
-                        <p className="text-xs text-slate-500">{r.paymentMethod || "Not paid yet"}</p>
+                        <p className="text-sm font-semibold text-text-primary">{r.staffName}</p>
+                        <p className="text-xs text-text-secondary">{r.paymentMethod || "Not paid yet"}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold text-gray-500">{fmt(r.amount)}</p>
-                      <span className={`text-xs font-semibold ${r.status === "Paid" ? "text-green-600" : "text-amber-600"}`}>
+                      <p className="text-sm font-bold text-text-primary">{fmt(r.amount)}</p>
+                      <span className={`text-xs font-semibold ${r.status === "Paid" ? "text-success" : "text-warning"}`}>
                         {r.status}
                       </span>
                     </div>
@@ -1212,7 +1212,7 @@ export default function StaffManagementPage() {
                         <option>Active</option>
                         <option>Inactive</option>
                       </select>
-                      <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                      <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
                     </div>
                   </Field>
                 </div>
@@ -1245,7 +1245,7 @@ export default function StaffManagementPage() {
           <div className="px-6 py-5 space-y-4">
             <div className="flex flex-col sm:flex-row gap-6">
               {viewStaff.photoUrl && (
-                <div className="w-24 h-24 shrink-0 rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+                <div className="w-24 h-24 shrink-0 rounded-xl overflow-hidden border border-border bg-background">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={viewStaff.photoUrl} alt={viewStaff.name} className="w-full h-full object-cover" />
                 </div>
@@ -1262,16 +1262,16 @@ export default function StaffManagementPage() {
                   { label: "Address",     value: viewStaff.address || "—" },
                 ].map((r) => (
                   <div key={r.label} className="flex flex-col gap-0.5">
-                    <span className="text-xs text-slate-400 font-medium">{r.label}</span>
-                    <span className="text-sm font-semibold text-slate-800">{r.value}</span>
+                    <span className="text-xs text-text-secondary font-medium">{r.label}</span>
+                    <span className="text-sm font-semibold text-text-primary">{r.value}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Attendance summary for this staff */}
-            <div className="border-t border-slate-100 pt-4">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">This Month's Attendance</p>
+            <div className="border-t border-border pt-4">
+              <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide mb-3">This Month's Attendance</p>
               {(() => {
                 const recs    = attendance.filter((a) => a.staffId === viewStaff.id && a.date.startsWith("2026-04"));
                 const present = recs.filter((a) => a.present).length;
@@ -1280,13 +1280,13 @@ export default function StaffManagementPage() {
                 return (
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { label: "Present",    value: `${present} days`, color: "text-green-600" },
-                      { label: "Absent",     value: `${absent} days`,  color: "text-red-500"   },
-                      { label: "Total Hrs",  value: `${hours.toFixed(1)}h`, color: "text-red-600" },
+                      { label: "Present",    value: `${present} days`, color: "text-success" },
+                      { label: "Absent",     value: `${absent} days`,  color: "text-coral"   },
+                      { label: "Total Hrs",  value: `${hours.toFixed(1)}h`, color: "text-primary" },
                     ].map((m) => (
-                      <div key={m.label} className="bg-slate-50 rounded-lg p-3 text-center border border-slate-100">
+                      <div key={m.label} className="bg-background rounded-lg p-3 text-center border border-border">
                         <p className={`text-base font-bold ${m.color}`}>{m.value}</p>
-                        <p className="text-xs text-slate-400 mt-0.5">{m.label}</p>
+                        <p className="text-xs text-text-secondary mt-0.5">{m.label}</p>
                       </div>
                     ))}
                   </div>
@@ -1295,14 +1295,14 @@ export default function StaffManagementPage() {
             </div>
 
             {/* Salary summary */}
-            <div className="border-t border-slate-100 pt-4">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Salary (Last 3 Months)</p>
+            <div className="border-t border-border pt-4">
+              <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide mb-3">Salary (Last 3 Months)</p>
               <div className="space-y-2">
                 {salaryList.filter((s) => s.staffId === viewStaff.id).slice(0, 3).map((r) => (
-                  <div key={r.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-50 border border-slate-100">
-                    <span className="text-xs font-medium text-slate-600">{fmtMonth(r.month)}</span>
-                    <span className="text-xs font-bold text-slate-800">{fmt(r.amount)}</span>
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${r.status === "Paid" ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
+                  <div key={r.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-background border border-border">
+                    <span className="text-xs font-medium text-text-primary">{fmtMonth(r.month)}</span>
+                    <span className="text-xs font-bold text-text-primary">{fmt(r.amount)}</span>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${r.status === "Paid" ? "bg-mint-light text-success" : "bg-warning/10 text-warning"}`}>
                       {r.status}
                     </span>
                   </div>
@@ -1310,8 +1310,8 @@ export default function StaffManagementPage() {
               </div>
             </div>
           </div>
-          <div className="px-6 py-4 border-t border-slate-100">
-            <button onClick={() => setViewStaff(null)} className="w-full h-10 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+          <div className="px-6 py-4 border-t border-border">
+            <button onClick={() => setViewStaff(null)} className="w-full h-10 rounded-lg border border-border text-sm font-medium text-text-primary hover:bg-background transition-colors">
               Close
             </button>
           </div>
@@ -1325,7 +1325,7 @@ export default function StaffManagementPage() {
             <Field label="Check-In Time">
               <input type="time" value={manualTime} onChange={(e) => setManualTime(e.target.value)} className={inputCls} />
             </Field>
-            <p className="text-xs text-slate-400">Date: <span className="font-semibold text-slate-600">{attDate}</span></p>
+            <p className="text-xs text-text-secondary">Date: <span className="font-semibold text-text-primary">{attDate}</span></p>
           </div>
           <ModalFooter
             onCancel={() => setCheckinModal(null)}
@@ -1342,17 +1342,17 @@ export default function StaffManagementPage() {
         <Modal title="Record Check-Out" sub={checkoutModal.staffName} onClose={() => setCheckoutModal(null)}>
           <div className="px-6 py-5 space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-slate-50 rounded-lg px-4 py-3 border border-slate-100">
-                <p className="text-xs text-slate-400">Checked In At</p>
-                <p className="text-base font-bold text-slate-800 mt-0.5">{checkoutModal.checkIn}</p>
+              <div className="bg-background rounded-lg px-4 py-3 border border-border">
+                <p className="text-xs text-text-secondary">Checked In At</p>
+                <p className="text-base font-bold text-text-primary mt-0.5">{checkoutModal.checkIn}</p>
               </div>
               <Field label="Check-Out Time">
                 <input type="time" value={manualTime} onChange={(e) => setManualTime(e.target.value)} className={inputCls} />
               </Field>
             </div>
             {manualTime && checkoutModal.checkIn && (
-              <p className="text-xs text-slate-500">
-                Working hours: <span className="font-bold text-red-600">{calcHours(checkoutModal.checkIn, manualTime)}h</span>
+              <p className="text-xs text-text-secondary">
+                Working hours: <span className="font-bold text-primary">{calcHours(checkoutModal.checkIn, manualTime)}h</span>
               </p>
             )}
           </div>
@@ -1369,7 +1369,7 @@ export default function StaffManagementPage() {
       {payModal && (
         <Modal title="Mark Salary as Paid" sub={`${payModal.staffName} · ${fmtMonth(payModal.month)}`} onClose={() => setPayModal(null)}>
           <div className="px-6 py-5 space-y-4">
-            <div className="bg-red-50 rounded-xl px-4 py-3 border border-red-100 flex items-center justify-between">
+            <div className="bg-coral-light rounded-xl px-4 py-3 border border-coral flex items-center justify-between">
               <span className="text-sm text-red-700 font-medium">Salary Amount</span>
               <span className="text-lg font-bold text-red-800">{fmt(payModal.amount)}</span>
             </div>
@@ -1386,7 +1386,7 @@ export default function StaffManagementPage() {
                   <option>Cash</option>
                   <option>UPI</option>
                 </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
               </div>
             </Field>
           </div>
@@ -1404,41 +1404,41 @@ export default function StaffManagementPage() {
         <Modal title="Pay Staff Salary" sub={`${payStaffModal.staff.name} · ${fmtMonth(payStaffModal.month)}`} onClose={() => setPayStaffModal(null)}>
           <div className="px-6 py-5 space-y-4">
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-xs text-slate-400 uppercase tracking-wide">Base Salary</p>
-                <p className="mt-2 text-lg font-bold text-gray-500">{fmt(payStaffSummary.baseSalary)}</p>
+              <div className="rounded-2xl border border-border bg-surface p-4">
+                <p className="text-xs text-text-secondary uppercase tracking-wide">Base Salary</p>
+                <p className="mt-2 text-lg font-bold text-text-primary">{fmt(payStaffSummary.baseSalary)}</p>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-xs text-slate-400 uppercase tracking-wide">Net Payable</p>
+              <div className="rounded-2xl border border-border bg-surface p-4">
+                <p className="text-xs text-text-secondary uppercase tracking-wide">Net Payable</p>
                 <p className="mt-2 text-lg font-bold text-red-800">{fmt(payStaffSummary.netPay)}</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-xs text-slate-500">Days in month</p>
-                <p className="text-base font-semibold text-gray-500">{payStaffSummary.daysInMonth}</p>
+              <div className="rounded-2xl border border-border bg-background p-4">
+                <p className="text-xs text-text-secondary">Days in month</p>
+                <p className="text-base font-semibold text-text-primary">{payStaffSummary.daysInMonth}</p>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-xs text-slate-500">Allowed off days</p>
-                <p className="text-base font-semibold text-gray-500">{payStaffSummary.allowedOffDays}</p>
+              <div className="rounded-2xl border border-border bg-background p-4">
+                <p className="text-xs text-text-secondary">Allowed off days</p>
+                <p className="text-base font-semibold text-text-primary">{payStaffSummary.allowedOffDays}</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-xs text-slate-500">Absent days</p>
-                <p className="text-base font-semibold text-gray-500">{payStaffSummary.absentDays}</p>
+              <div className="rounded-2xl border border-border bg-background p-4">
+                <p className="text-xs text-text-secondary">Absent days</p>
+                <p className="text-base font-semibold text-text-primary">{payStaffSummary.absentDays}</p>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-xs text-slate-500">Half days</p>
-                <p className="text-base font-semibold text-gray-500">{payStaffSummary.halfDays}</p>
+              <div className="rounded-2xl border border-border bg-background p-4">
+                <p className="text-xs text-text-secondary">Half days</p>
+                <p className="text-base font-semibold text-text-primary">{payStaffSummary.halfDays}</p>
               </div>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-rose-50 p-4">
+            <div className="rounded-2xl border border-border bg-rose-50 p-4">
               <p className="text-xs text-rose-600 uppercase tracking-wide">Extra leave deduction</p>
-              <div className="mt-3 text-sm text-slate-600 space-y-1">
-                <p>Extra leave days: <span className="font-semibold text-slate-800">{payStaffSummary.extraLeaveDays}</span></p>
-                <p>Daily rate: <span className="font-semibold text-slate-800">{fmt(payStaffSummary.dailyRate)}</span></p>
-                <p>Deduction: <span className="font-semibold text-slate-800">{fmt(payStaffSummary.deduction)}</span></p>
+              <div className="mt-3 text-sm text-text-primary space-y-1">
+                <p>Extra leave days: <span className="font-semibold text-text-primary">{payStaffSummary.extraLeaveDays}</span></p>
+                <p>Daily rate: <span className="font-semibold text-text-primary">{fmt(payStaffSummary.dailyRate)}</span></p>
+                <p>Deduction: <span className="font-semibold text-text-primary">{fmt(payStaffSummary.deduction)}</span></p>
               </div>
             </div>
             <Field label="Payment Date">
@@ -1454,7 +1454,7 @@ export default function StaffManagementPage() {
                   <option>Cash</option>
                   <option>UPI</option>
                 </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
               </div>
             </Field>
           </div>
@@ -1471,19 +1471,19 @@ export default function StaffManagementPage() {
       {/* ── Delete Staff Confirm ── */}
       {deleteStaffId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-50 mx-auto mb-4">
-              <Trash2 className="w-5 h-5 text-red-500" />
+          <div className="w-full max-w-sm bg-surface rounded-2xl shadow-xl border border-border p-6">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-coral-light mx-auto mb-4">
+              <Trash2 className="w-5 h-5 text-coral" />
             </div>
-            <h2 className="text-base font-bold text-gray-500 text-center">Remove Staff Member?</h2>
-            <p className="text-sm text-slate-500 text-center mt-1 mb-6">
+            <h2 className="text-base font-bold text-text-primary text-center">Remove Staff Member?</h2>
+            <p className="text-sm text-text-secondary text-center mt-1 mb-6">
               This will permanently remove the staff member and all their records.
             </p>
             <div className="flex gap-3">
-              <button onClick={() => setDeleteStaffId(null)} className="flex-1 h-10 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+              <button onClick={() => setDeleteStaffId(null)} className="flex-1 h-10 rounded-lg border border-border text-sm font-medium text-text-primary hover:bg-background transition-colors">
                 Cancel
               </button>
-              <button onClick={() => deleteStaff(deleteStaffId)} className="flex-1 h-10 rounded-lg bg-red-500 text-sm font-semibold text-white hover:bg-red-600 transition-colors">
+              <button onClick={() => deleteStaff(deleteStaffId)} className="flex-1 h-10 rounded-lg bg-primary text-sm font-semibold text-white hover:bg-primary transition-colors">
                 Yes, Remove
               </button>
             </div>
@@ -1497,37 +1497,37 @@ export default function StaffManagementPage() {
           <div className="px-6 py-5 space-y-4">
             <div className="grid grid-cols-1 gap-2">
               {[
-                { label: "Present", value: "PRESENT", icon: CheckCircle, color: "text-green-600", bg: "bg-green-50" },
-                { label: "Half Day", value: "HALF_DAY", icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
-                { label: "Absent", value: "ABSENT", icon: XCircle, color: "text-red-500", bg: "bg-red-50" },
+                { label: "Present", value: "PRESENT", icon: CheckCircle, color: "text-success", bg: "bg-mint-light" },
+                { label: "Half Day", value: "HALF_DAY", icon: Clock, color: "text-warning", bg: "bg-warning/10" },
+                { label: "Absent", value: "ABSENT", icon: XCircle, color: "text-coral", bg: "bg-coral-light" },
               ].map((s) => (
                 <button
                   key={s.value}
                   onClick={() => updateStatus(markModal.staffId, s.value)}
                   className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${
                     markModal.status === s.value
-                      ? "border-red-500 bg-red-50 shadow-sm"
-                      : "border-slate-100 hover:border-slate-200 hover:bg-slate-50"
+                      ? "border-red-500 bg-coral-light shadow-sm"
+                      : "border-border hover:border-border hover:bg-background"
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-lg ${s.bg} flex items-center justify-center ${s.color}`}>
                       <s.icon size={18} />
                     </div>
-                    <span className="font-bold text-slate-800">{s.label}</span>
+                    <span className="font-bold text-text-primary">{s.label}</span>
                   </div>
                   {markModal.status === s.value && (
-                    <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center text-white">
+                    <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-white">
                       <CheckCircle size={12} />
                     </div>
                   )}
                 </button>
               ))}
             </div>
-            <p className="text-xs text-slate-400 text-center">Date: <span className="font-semibold text-slate-600">{attDate}</span></p>
+            <p className="text-xs text-text-secondary text-center">Date: <span className="font-semibold text-text-primary">{attDate}</span></p>
           </div>
-          <div className="px-6 py-4 border-t border-slate-100">
-            <button onClick={() => setMarkModal(null)} className="w-full h-10 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+          <div className="px-6 py-4 border-t border-border">
+            <button onClick={() => setMarkModal(null)} className="w-full h-10 rounded-lg border border-border text-sm font-medium text-text-primary hover:bg-background transition-colors">
               Cancel
             </button>
           </div>
@@ -1568,14 +1568,14 @@ export default function StaffManagementPage() {
                         setMarkForm(p => ({ ...p, dates: [...p.dates, dateInput] }));
                       }
                     }}
-                    className="px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold transition-colors"
+                    className="px-4 bg-background hover:bg-slate-200 text-text-primary rounded-lg text-sm font-semibold transition-colors"
                   >
                     Add
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {markForm.dates.map(date => (
-                    <div key={date} className="flex items-center gap-1.5 px-2.5 py-1 bg-red-50 text-red-600 border border-red-100 rounded-lg text-xs font-medium">
+                    <div key={date} className="flex items-center gap-1.5 px-2.5 py-1 bg-coral-light text-primary border border-coral rounded-lg text-xs font-medium">
                       {date}
                       <button onClick={() => setMarkForm(p => ({ ...p, dates: p.dates.filter(d => d !== date) }))}>
                         <X size={12} />
@@ -1583,14 +1583,14 @@ export default function StaffManagementPage() {
                     </div>
                   ))}
                   {markForm.dates.length === 0 && (
-                    <p className="text-xs text-slate-400 italic">No dates selected</p>
+                    <p className="text-xs text-text-secondary italic">No dates selected</p>
                   )}
                 </div>
               </div>
             </Field>
 
             <Field label="Attendance Status *">
-              <div className="flex gap-2 p-1 bg-slate-100 rounded-xl">
+              <div className="flex gap-2 p-1 bg-background rounded-xl">
                 {(["PRESENT", "ABSENT", "HALF_DAY"] as const).map((st) => (
                   <button
                     key={st}
@@ -1598,9 +1598,9 @@ export default function StaffManagementPage() {
                     className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
                       markForm.status === st
                         ? st === "PRESENT" ? "bg-green-600 text-white shadow-sm" : 
-                          st === "ABSENT" ? "bg-red-600 text-white shadow-sm" : 
-                          "bg-amber-500 text-white shadow-sm"
-                        : "text-slate-500 hover:bg-slate-200"
+                          st === "ABSENT" ? "bg-primary text-white shadow-sm" : 
+                          "bg-warning/100 text-white shadow-sm"
+                        : "text-text-secondary hover:bg-slate-200"
                     }`}
                   >
                     {st}
@@ -1621,9 +1621,9 @@ export default function StaffManagementPage() {
       {/* ── Success Modal (Credentials) ── */}
       {successModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md px-4">
-          <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+          <div className="w-full max-w-sm bg-surface rounded-3xl shadow-2xl border border-border overflow-hidden">
             <div className="bg-green-600 p-8 flex flex-col items-center text-white">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-surface/20 rounded-full flex items-center justify-center mb-4">
                 <CheckCircle size={32} />
               </div>
               <h2 className="text-xl font-bold">Staff Added Successfully!</h2>
@@ -1631,16 +1631,16 @@ export default function StaffManagementPage() {
             </div>
             <div className="p-6 space-y-4">
               <div className="space-y-3">
-                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Email / Username</p>
-                  <p className="text-sm font-bold text-slate-800">{successModal.email}</p>
+                <div className="bg-background rounded-2xl p-4 border border-border">
+                  <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">Email / Username</p>
+                  <p className="text-sm font-bold text-text-primary">{successModal.email}</p>
                 </div>
-                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Temporary Password</p>
-                  <p className="text-sm font-bold text-slate-800 font-mono tracking-wider">{successModal.password}</p>
+                <div className="bg-background rounded-2xl p-4 border border-border">
+                  <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">Temporary Password</p>
+                  <p className="text-sm font-bold text-text-primary font-mono tracking-wider">{successModal.password}</p>
                 </div>
               </div>
-              <p className="text-[11px] text-slate-400 text-center leading-relaxed">
+              <p className="text-[11px] text-text-secondary text-center leading-relaxed">
                 The staff can now login using these credentials to view their attendance.
               </p>
               <button 
@@ -1684,7 +1684,7 @@ function ImageUploader({
   return (
     <div className="space-y-3">
       {value ? (
-        <div className="relative w-full aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+        <div className="relative w-full aspect-square rounded-xl overflow-hidden border border-border bg-background">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={value}
@@ -1693,13 +1693,13 @@ function ImageUploader({
           />
           <button
             onClick={() => onChange("")}
-            className="absolute top-2 right-2 w-7 h-7 rounded-lg bg-white/90 hover:bg-red-50 text-slate-500 hover:text-red-600 flex items-center justify-center shadow-sm border border-slate-200"
+            className="absolute top-2 right-2 w-7 h-7 rounded-lg bg-surface/90 hover:bg-primary-light text-text-secondary hover:text-primary flex items-center justify-center shadow-sm border border-border"
           >
             <X size={13} />
           </button>
           <button
             onClick={() => inputRef.current?.click()}
-            className="absolute bottom-2 right-2 flex items-center gap-1.5 px-3 py-1.5 bg-white/90 hover:bg-white rounded-lg text-xs font-semibold text-slate-700 shadow-sm border border-slate-200"
+            className="absolute bottom-2 right-2 flex items-center gap-1.5 px-3 py-1.5 bg-surface/90 hover:bg-surface rounded-lg text-xs font-semibold text-text-primary shadow-sm border border-border"
           >
             <Upload size={12} /> Replace
           </button>
@@ -1720,18 +1720,18 @@ function ImageUploader({
           }}
           className={`flex flex-col items-center justify-center gap-3 w-full aspect-square rounded-xl border-2 border-dashed cursor-pointer transition-all ${
             dragging
-              ? "border-red-400 bg-red-50"
-              : "border-slate-200 bg-slate-50 hover:border-red-300 hover:bg-red-50/50"
+              ? "border-red-400 bg-coral-light"
+              : "border-border bg-background hover:border-primary hover:bg-primary-light/50"
           }`}
         >
-          <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
-            <Camera size={20} className="text-slate-400" />
+          <div className="w-10 h-10 rounded-xl bg-surface border border-border flex items-center justify-center shadow-sm">
+            <Camera size={20} className="text-text-secondary" />
           </div>
           <div className="text-center">
-            <p className="text-sm font-semibold text-slate-600">
+            <p className="text-sm font-semibold text-text-primary">
               Upload Photo
             </p>
-            <p className="text-xs text-slate-400 mt-0.5">PNG, JPG</p>
+            <p className="text-xs text-text-secondary mt-0.5">PNG, JPG</p>
           </div>
         </div>
       )}
@@ -1762,14 +1762,14 @@ function Modal({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className={`w-full ${maxW} bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col`}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+      <div className={`w-full ${maxW} bg-surface rounded-2xl shadow-xl border border-border overflow-hidden max-h-[92vh] flex flex-col`}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
           <div>
-            <h2 className="text-base font-bold text-gray-500">{title}</h2>
-            {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+            <h2 className="text-base font-bold text-text-primary">{title}</h2>
+            {sub && <p className="text-xs text-text-secondary mt-0.5">{sub}</p>}
           </div>
           <button onClick={onClose}
-            className="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors">
+            className="w-8 h-8 rounded-lg hover:bg-background text-text-secondary hover:text-text-primary flex items-center justify-center transition-colors">
             <X size={16} />
           </button>
         </div>
@@ -1780,15 +1780,15 @@ function Modal({
 }
 
 function ModalFooter({
-  onCancel, onConfirm, confirmLabel, confirmColor = "bg-red-600 hover:bg-red-700 shadow-red-200", disabled = false,
+  onCancel, onConfirm, confirmLabel, confirmColor = "bg-primary hover:bg-red-700 shadow-red-200", disabled = false,
 }: {
   onCancel: () => void; onConfirm: () => void;
   confirmLabel: string; confirmColor?: string; disabled?: boolean;
 }) {
   return (
-    <div className="flex gap-3 px-6 py-4 border-t border-slate-100 shrink-0">
+    <div className="flex gap-3 px-6 py-4 border-t border-border shrink-0">
       <button onClick={onCancel}
-        className="flex-1 h-10 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+        className="flex-1 h-10 rounded-lg border border-border text-sm font-medium text-text-primary hover:bg-background transition-colors">
         Cancel
       </button>
       <button onClick={onConfirm} disabled={disabled}

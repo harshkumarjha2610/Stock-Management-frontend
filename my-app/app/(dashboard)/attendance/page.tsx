@@ -81,10 +81,10 @@ export default function AttendancePage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "PRESENT": return "bg-green-50 text-green-700 border-green-200";
-      case "ABSENT": return "bg-red-50 text-red-700 border-red-200";
-      case "HALF_DAY": return "bg-amber-50 text-amber-700 border-amber-200";
-      default: return "bg-slate-50 text-slate-400 border-slate-100";
+      case "PRESENT": return "bg-mint-light text-success border-mint";
+      case "ABSENT": return "bg-coral-light text-red-700 border-coral";
+      case "HALF_DAY": return "bg-warning/10 text-warning border-warning";
+      default: return "bg-background text-text-secondary border-border";
     }
   };
 
@@ -101,18 +101,18 @@ export default function AttendancePage() {
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-500">My Attendance</h1>
-          <p className="text-sm text-slate-500 mt-1">Track your daily presence and working hours</p>
+          <h1 className="text-2xl font-bold text-text-primary">My Attendance</h1>
+          <p className="text-sm text-text-secondary mt-1">Track your daily presence and working hours</p>
         </div>
-        <div className="flex items-center gap-4 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
-          <button onClick={prevMonth} className="p-2 hover:bg-slate-50 rounded-lg transition-colors">
-            <ChevronLeft size={20} className="text-slate-600" />
+        <div className="flex items-center gap-4 bg-surface border border-border rounded-xl p-1 shadow-sm">
+          <button onClick={prevMonth} className="p-2 hover:bg-background rounded-lg transition-colors">
+            <ChevronLeft size={20} className="text-text-primary" />
           </button>
           <div className="px-4 flex flex-col items-center min-w-[140px]">
-            <span className="text-sm font-bold text-gray-500">{currentDate.format("MMMM YYYY")}</span>
+            <span className="text-sm font-bold text-text-primary">{currentDate.format("MMMM YYYY")}</span>
           </div>
-          <button onClick={nextMonth} className="p-2 hover:bg-slate-50 rounded-lg transition-colors">
-            <ChevronRight size={20} className="text-slate-600" />
+          <button onClick={nextMonth} className="p-2 hover:bg-background rounded-lg transition-colors">
+            <ChevronRight size={20} className="text-text-primary" />
           </button>
         </div>
       </div>
@@ -120,36 +120,36 @@ export default function AttendancePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Statistics Cards */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+          <div className="bg-surface rounded-2xl border border-border p-5 shadow-sm">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-green-600">
+              <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-success">
                 <CheckCircle2 size={20} />
               </div>
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Present Days</p>
-                <p className="text-xl font-bold text-gray-500">
+                <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">Present Days</p>
+                <p className="text-xl font-bold text-text-primary">
                   {Object.values(attendance).filter(a => a.status === "PRESENT" && dayjs(a.date).isSame(currentDate, 'month')).length}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
+              <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-warning">
                 <Clock size={20} />
               </div>
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Half Days</p>
-                <p className="text-xl font-bold text-gray-500">
+                <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">Half Days</p>
+                <p className="text-xl font-bold text-text-primary">
                   {Object.values(attendance).filter(a => a.status === "HALF_DAY" && dayjs(a.date).isSame(currentDate, 'month')).length}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center text-red-600">
+              <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center text-primary">
                 <XCircle size={20} />
               </div>
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Absent Days</p>
-                <p className="text-xl font-bold text-gray-500">
+                <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">Absent Days</p>
+                <p className="text-xl font-bold text-text-primary">
                   {Object.values(attendance).filter(a => a.status === "ABSENT" && dayjs(a.date).isSame(currentDate, 'month')).length}
                 </p>
               </div>
@@ -162,15 +162,15 @@ export default function AttendancePage() {
             </h3>
             <div className="space-y-2 text-xs">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                <div className="w-3 h-3 rounded-full bg-mint-light0"></div>
                 <span className="text-slate-300">Present (Full Day)</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                <div className="w-3 h-3 rounded-full bg-warning/100"></div>
                 <span className="text-slate-300">Half Day (4-6 Hours)</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                <div className="w-3 h-3 rounded-full bg-primary"></div>
                 <span className="text-slate-300">Absent (No Record)</span>
               </div>
             </div>
@@ -179,10 +179,10 @@ export default function AttendancePage() {
 
         {/* Calendar Grid */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="grid grid-cols-7 border-b border-slate-100 bg-slate-50">
+          <div className="bg-surface rounded-2xl border border-border shadow-sm overflow-hidden">
+            <div className="grid grid-cols-7 border-b border-border bg-background">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => (
-                <div key={d} className="py-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <div key={d} className="py-3 text-center text-[10px] font-bold text-text-secondary uppercase tracking-widest">
                   {d}
                 </div>
               ))}
@@ -197,9 +197,9 @@ export default function AttendancePage() {
                 
                 return (
                   <div key={dateKey} className={`aspect-square rounded-xl border p-2 flex flex-col items-center justify-center gap-1 transition-all relative ${
-                    record ? getStatusColor(record.status) : (isToday ? "border-red-200 bg-red-50/30" : "border-slate-100")
+                    record ? getStatusColor(record.status) : (isToday ? "border-coral bg-coral-light/30" : "border-border")
                   }`}>
-                    <span className={`text-sm font-bold ${isToday ? "text-red-600" : (record ? "" : "text-slate-700")}`}>
+                    <span className={`text-sm font-bold ${isToday ? "text-primary" : (record ? "" : "text-text-primary")}`}>
                       {day.date()}
                     </span>
                     {record && (
@@ -211,7 +211,7 @@ export default function AttendancePage() {
                       </div>
                     )}
                     {isToday && !record && (
-                      <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                      <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-primary rounded-full"></span>
                     )}
                   </div>
                 );

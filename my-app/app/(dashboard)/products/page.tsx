@@ -114,9 +114,9 @@ function totalStock(p: Product) {
 
 function getStockBadge(p: Product) {
   const total = totalStock(p);
-  if (total === 0)              return { label: "Out of Stock", cls: "bg-red-50 text-red-600 border-red-200" };
-  if (total <= p.minStockAlert) return { label: "Low Stock",    cls: "bg-amber-50 text-amber-700 border-amber-200" };
-  return                               { label: "In Stock",     cls: "bg-green-50 text-green-700 border-green-200" };
+  if (total === 0)              return { label: "Out of Stock", cls: "bg-coral-light text-primary border-coral" };
+  if (total <= p.minStockAlert) return { label: "Low Stock",    cls: "bg-warning/10 text-warning border-warning" };
+  return                               { label: "In Stock",     cls: "bg-mint-light text-success border-mint" };
 }
 
 function marginPct(p: Product) {
@@ -141,10 +141,10 @@ function getSizesForCategory(category: string, gender: string): string[] {
 // ═══════════════════════════════════════════════════════════════
 
 const inputCls =
-  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-gray-500 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
+  "h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-text-primary placeholder:text-text-secondary outline-none focus:border-primary focus:ring-2 focus:ring-primary transition-colors";
 
 const textareaCls =
-  "w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-gray-500 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors resize-none";
+  "w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-text-primary placeholder:text-text-secondary outline-none focus:border-primary focus:ring-2 focus:ring-primary transition-colors resize-none";
 
 const selectCls = inputCls + " appearance-none pr-8 cursor-pointer";
 
@@ -163,7 +163,7 @@ function Field({
 }) {
   return (
     <div className={`flex flex-col gap-1.5 ${span === 2 ? "col-span-2" : ""}`}>
-      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+      <label className="text-xs font-semibold text-text-secondary uppercase tracking-wide">
         {label}
       </label>
       {children}
@@ -196,7 +196,7 @@ function SelectField({
             <option key={o}>{o}</option>
           ))}
         </select>
-        <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+        <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
       </div>
     </Field>
   );
@@ -222,7 +222,7 @@ function StatCard({
   return (
     <div
       className={`rounded-xl border p-5 ${
-        highlight ? "border-amber-200 bg-amber-50" : "bg-white border-slate-200"
+        highlight ? "border-warning bg-warning/10" : "bg-surface border-border"
       }`}
     >
       <div
@@ -230,9 +230,9 @@ function StatCard({
       >
         <Icon className={`w-4 h-4 ${ic}`} />
       </div>
-      <p className="text-2xl font-bold text-gray-500">{value}</p>
-      <p className="text-xs font-semibold text-slate-700 mt-0.5">{label}</p>
-      {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+      <p className="text-2xl font-bold text-text-primary">{value}</p>
+      <p className="text-xs font-semibold text-text-primary mt-0.5">{label}</p>
+      {sub && <p className="text-xs text-text-secondary mt-0.5">{sub}</p>}
     </div>
   );
 }
@@ -253,7 +253,7 @@ function ProductImage({
   if (!src || error) {
     return (
       <div
-        className={`${dim} rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0`}
+        className={`${dim} rounded-xl bg-background border border-border flex items-center justify-center shrink-0`}
       >
         <Shirt size={iconSize} className="text-slate-300" />
       </div>
@@ -265,7 +265,7 @@ function ProductImage({
       src={src}
       alt={name}
       onError={() => setError(true)}
-      className={`${dim} rounded-xl object-cover border border-slate-200 shrink-0`}
+      className={`${dim} rounded-xl object-cover border border-border shrink-0`}
     />
   );
 }
@@ -315,8 +315,8 @@ function SizeStockEditor({
               onClick={() => toggleSize(size)}
               className={`h-8 min-w-[2.5rem] px-2.5 rounded-lg text-xs font-bold border transition-all ${
                 isActive
-                  ? "bg-red-600 text-white border-red-600 shadow-sm"
-                  : "bg-slate-50 text-slate-500 border-slate-200 hover:border-red-300 hover:text-red-600"
+                  ? "bg-primary text-white border-primary shadow-sm"
+                  : "bg-background text-text-secondary border-border hover:border-primary hover:text-primary"
               }`}
             >
               {size}
@@ -331,9 +331,9 @@ function SizeStockEditor({
           {sizes.map((s) => (
             <div
               key={s.size}
-              className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5"
+              className="flex items-center gap-2 bg-background border border-border rounded-lg px-2.5 py-1.5"
             >
-              <span className="text-xs font-bold text-slate-600 w-8 shrink-0">
+              <span className="text-xs font-bold text-text-primary w-8 shrink-0">
                 {s.size}
               </span>
               <input
@@ -342,16 +342,16 @@ function SizeStockEditor({
                 value={s.qty || ""}
                 placeholder="0"
                 onChange={(e) => updateQty(s.size, Number(e.target.value))}
-                className="w-full bg-transparent text-sm font-semibold text-slate-800 outline-none text-right"
+                className="w-full bg-transparent text-sm font-semibold text-text-primary outline-none text-right"
               />
-              <span className="text-[10px] text-slate-400 shrink-0">pcs</span>
+              <span className="text-[10px] text-text-secondary shrink-0">pcs</span>
             </div>
           ))}
         </div>
       )}
 
       {sizes.length === 0 && (
-        <p className="text-xs text-slate-400 bg-slate-50 rounded-lg border border-dashed border-slate-200 px-3 py-2 text-center">
+        <p className="text-xs text-text-secondary bg-background rounded-lg border border-dashed border-border px-3 py-2 text-center">
           Select sizes above to enter stock quantities
         </p>
       )}
@@ -386,7 +386,7 @@ function ImageUploader({
   return (
     <div className="space-y-3">
       {value ? (
-        <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+        <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden border border-border bg-background">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={value}
@@ -395,20 +395,20 @@ function ImageUploader({
           />
           <button
             onClick={() => onChange("")}
-            className="absolute top-2 right-2 w-7 h-7 rounded-lg bg-white/90 hover:bg-red-50 text-slate-500 hover:text-red-600 flex items-center justify-center shadow-sm border border-slate-200"
+            className="absolute top-2 right-2 w-7 h-7 rounded-lg bg-surface/90 hover:bg-primary-light text-text-secondary hover:text-primary flex items-center justify-center shadow-sm border border-border"
           >
             <X size={13} />
           </button>
           <div className="absolute bottom-2 right-2 flex items-center gap-2">
             <button
               onClick={() => inputRef.current?.click()}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/90 hover:bg-white rounded-lg text-xs font-semibold text-slate-700 shadow-sm border border-slate-200"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-surface/90 hover:bg-surface rounded-lg text-xs font-semibold text-text-primary shadow-sm border border-border"
             >
               <Upload size={12} /> Replace
             </button>
             <button
               onClick={() => cameraRef.current?.click()}
-              className="flex items-center gap-1 px-3 py-1.5 bg-white/90 hover:bg-white rounded-lg text-xs font-semibold text-slate-700 shadow-sm border border-slate-200"
+              className="flex items-center gap-1 px-3 py-1.5 bg-surface/90 hover:bg-surface rounded-lg text-xs font-semibold text-text-primary shadow-sm border border-border"
             >
               <Camera size={12} /> Camera
             </button>
@@ -430,28 +430,28 @@ function ImageUploader({
           }}
           className={`flex flex-col items-center justify-center gap-3 w-full aspect-[3/4] rounded-xl border-2 border-dashed cursor-pointer transition-all ${
             dragging
-              ? "border-red-400 bg-red-50"
-              : "border-slate-200 bg-slate-50 hover:border-red-300 hover:bg-red-50/50"
+              ? "border-red-400 bg-coral-light"
+              : "border-border bg-background hover:border-primary hover:bg-primary-light/50"
           }`}
         >
-          <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
-            <Camera size={20} className="text-slate-400" />
+          <div className="w-10 h-10 rounded-xl bg-surface border border-border flex items-center justify-center shadow-sm">
+            <Camera size={20} className="text-text-secondary" />
           </div>
           <div className="text-center">
-            <p className="text-sm font-semibold text-slate-600">
+            <p className="text-sm font-semibold text-text-primary">
               Click or drag image here
             </p>
-            <p className="text-xs text-slate-400 mt-0.5">PNG, JPG up to 5MB</p>
+            <p className="text-xs text-text-secondary mt-0.5">PNG, JPG up to 5MB</p>
             <div className="mt-3 flex items-center justify-center gap-2">
               <button
                 onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}
-                className="flex items-center gap-1 px-3 py-1.5 bg-white rounded-lg text-xs font-semibold text-slate-700 shadow-sm border border-slate-200"
+                className="flex items-center gap-1 px-3 py-1.5 bg-surface rounded-lg text-xs font-semibold text-text-primary shadow-sm border border-border"
               >
                 <Upload size={12} /> Upload
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); cameraRef.current?.click(); }}
-                className="flex items-center gap-1 px-3 py-1.5 bg-white rounded-lg text-xs font-semibold text-slate-700 shadow-sm border border-slate-200"
+                className="flex items-center gap-1 px-3 py-1.5 bg-surface rounded-lg text-xs font-semibold text-text-primary shadow-sm border border-border"
               >
                 <Camera size={12} /> Camera
               </button>
@@ -723,16 +723,16 @@ function ProductModal({
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-        <div className="w-[80%] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col">
+        <div className="w-[80%] bg-surface rounded-2xl shadow-xl border border-border overflow-hidden max-h-[92vh] flex flex-col">
 
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
             <div className="flex items-center gap-3">
               <ProductImage src={product.image} name={product.name} size="md" />
               <div>
-                <h2 className="text-base font-bold text-gray-500">{product.name}</h2>
+                <h2 className="text-base font-bold text-text-primary">{product.name}</h2>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs font-mono text-slate-400">#{product.id}</span>
+                  <span className="text-xs font-mono text-text-secondary">#{product.id}</span>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-semibold border ${badge.cls}`}>
                     {badge.label}
                   </span>
@@ -742,7 +742,7 @@ function ProductModal({
                     </span>
                   )}
                   {isGrocery && (
-                    <span className="px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 text-xs font-semibold">
+                    <span className="px-2 py-0.5 rounded-full bg-coral-light text-red-700 border border-coral text-xs font-semibold">
                       {product.unit}
                     </span>
                   )}
@@ -751,7 +751,7 @@ function ProductModal({
             </div>
             <button
               onClick={onClose}
-              className="w-10 h-10 rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-600 flex items-center justify-center transition-all bg-slate-50"
+              className="w-10 h-10 rounded-xl hover:bg-primary-light text-text-secondary hover:text-primary flex items-center justify-center transition-all bg-background"
               title="Close"
             >
               <X size={20} />
@@ -762,31 +762,31 @@ function ProductModal({
 
             {/* Product Image */}
             {product.image && (
-              <div className="w-full h-52 rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+              <div className="w-full h-52 rounded-xl overflow-hidden border border-border bg-background">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={product.image} alt={product.name} className="w-full h-full object-contain" />
               </div>
             )}
 
             {/* ── Pricing ── */}
-            <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-100 p-4">
-              <p className="text-xs font-bold text-red-400 uppercase tracking-widest mb-3">Pricing</p>
+            <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-coral p-4">
+              <p className="text-xs font-bold text-coral uppercase tracking-widest mb-3">Pricing</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Selling Price</p>
-                  <p className="text-xl font-bold text-red-600 mt-0.5">₹{sellingPrice.toLocaleString("en-IN")}</p>
+                  <p className="text-[10px] font-semibold text-text-secondary uppercase tracking-wide">Selling Price</p>
+                  <p className="text-xl font-bold text-primary mt-0.5">₹{sellingPrice.toLocaleString("en-IN")}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Purchase Price</p>
-                  <p className="text-xl font-bold text-slate-700 mt-0.5">₹{purchasePrice.toLocaleString("en-IN")}</p>
+                  <p className="text-[10px] font-semibold text-text-secondary uppercase tracking-wide">Purchase Price</p>
+                  <p className="text-xl font-bold text-text-primary mt-0.5">₹{purchasePrice.toLocaleString("en-IN")}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">GST</p>
-                  <p className="text-xl font-bold text-amber-600 mt-0.5">{gstPercent}%</p>
+                  <p className="text-[10px] font-semibold text-text-secondary uppercase tracking-wide">GST</p>
+                  <p className="text-xl font-bold text-warning mt-0.5">{gstPercent}%</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Margin</p>
-                  <p className={`text-xl font-bold mt-0.5 ${margin >= 0 ? "text-green-600" : "text-red-600"}`}>
+                  <p className="text-[10px] font-semibold text-text-secondary uppercase tracking-wide">Margin</p>
+                  <p className={`text-xl font-bold mt-0.5 ${margin >= 0 ? "text-success" : "text-primary"}`}>
                     ₹{margin.toLocaleString("en-IN")}
                   </p>
                 </div>
@@ -795,7 +795,7 @@ function ProductModal({
 
             {/* ── General Info ── */}
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">General Information</p>
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">General Information</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
                 {[
                   { label: "Brand",    value: product.brand || "—" },
@@ -806,8 +806,8 @@ function ProductModal({
                   { label: "Added On", value: product.createdDate ? new Date(product.createdDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—" },
                 ].map((d) => (
                   <div key={d.label}>
-                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{d.label}</p>
-                    <p className="text-sm text-slate-800 font-semibold mt-0.5">{d.value}</p>
+                    <p className="text-[10px] font-semibold text-text-secondary uppercase tracking-wide">{d.label}</p>
+                    <p className="text-sm text-text-primary font-semibold mt-0.5">{d.value}</p>
                   </div>
                 ))}
               </div>
@@ -816,7 +816,7 @@ function ProductModal({
             {/* ── Garment Details ── */}
             {!isGrocery && (
               <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Garment Details</p>
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Garment Details</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
                   {[
                     { label: "Gender",  value: product.gender  || "—" },
@@ -824,8 +824,8 @@ function ProductModal({
                     { label: "Color",   value: product.color   || "—" },
                   ].map((d) => (
                     <div key={d.label}>
-                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{d.label}</p>
-                      <p className="text-sm text-slate-800 font-semibold mt-0.5">{d.value}</p>
+                      <p className="text-[10px] font-semibold text-text-secondary uppercase tracking-wide">{d.label}</p>
+                      <p className="text-sm text-text-primary font-semibold mt-0.5">{d.value}</p>
                     </div>
                   ))}
                 </div>
@@ -835,7 +835,7 @@ function ProductModal({
             {/* ── Grocery Details ── */}
             {isGrocery && (
               <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Grocery Details</p>
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Grocery Details</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
                   {[
                     { label: "Unit",         value: product.unit      || "—" },
@@ -845,8 +845,8 @@ function ProductModal({
                     { label: "Expiry Date",  value: product.expiryDate ? new Date(product.expiryDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—" },
                   ].map((d) => (
                     <div key={d.label}>
-                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{d.label}</p>
-                      <p className="text-sm text-slate-800 font-semibold mt-0.5">{d.value}</p>
+                      <p className="text-[10px] font-semibold text-text-secondary uppercase tracking-wide">{d.label}</p>
+                      <p className="text-sm text-text-primary font-semibold mt-0.5">{d.value}</p>
                     </div>
                   ))}
                 </div>
@@ -856,25 +856,25 @@ function ProductModal({
             {/* ── Size-wise Stock & Barcodes (Garments only) ── */}
             {!isGrocery && product.sizes && product.sizes.length > 0 && (
               <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Size-wise Stock &amp; Barcodes</p>
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Size-wise Stock &amp; Barcodes</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                   {product.sizes.map((s) => (
                     <div
                       key={s.size}
                       className={`flex flex-col p-3 rounded-xl border text-xs ${
-                        s.qty === 0 ? "bg-red-50/60 border-red-200" : "bg-slate-50 border-slate-200"
+                        s.qty === 0 ? "bg-coral-light/60 border-coral" : "bg-background border-border"
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-bold text-slate-800">{s.size}</span>
-                        <span className={`font-bold text-xs px-1.5 py-0.5 rounded-full ${s.qty === 0 ? "bg-red-100 text-red-600" : "bg-green-100 text-green-700"}`}>
+                        <span className="text-sm font-bold text-text-primary">{s.size}</span>
+                        <span className={`font-bold text-xs px-1.5 py-0.5 rounded-full ${s.qty === 0 ? "bg-red-100 text-primary" : "bg-green-100 text-success"}`}>
                           {s.qty} pcs
                         </span>
                       </div>
                       {s.barcode && (
-                        <div className="mt-1.5 flex flex-col items-center bg-white rounded-lg border border-slate-100 p-2 text-center gap-1">
+                        <div className="mt-1.5 flex flex-col items-center bg-surface rounded-lg border border-border p-2 text-center gap-1">
                           <Barcode value={s.barcode} imageUrl={s.barcodeImageUrl} useBackendImage={true} className="h-9" />
-                          <p className="text-[9px] font-mono text-slate-400 break-all">{s.barcode}</p>
+                          <p className="text-[9px] font-mono text-text-secondary break-all">{s.barcode}</p>
                           <button
                             onClick={() => printBarcodeLabel({
                               ...product,
@@ -882,7 +882,7 @@ function ProductModal({
                               barcode: s.barcode,
                               barcodeImageUrl: s.barcodeImageUrl,
                             })}
-                            className="flex items-center justify-center gap-1 w-full py-1 bg-slate-50 hover:bg-red-50 text-[10px] font-bold text-slate-600 hover:text-red-700 rounded border border-slate-200 transition-colors"
+                            className="flex items-center justify-center gap-1 w-full py-1 bg-background hover:bg-primary-light text-[10px] font-bold text-text-primary hover:text-red-700 rounded border border-border transition-colors"
                           >
                             <Printer size={9} /> Print
                           </button>
@@ -896,14 +896,14 @@ function ProductModal({
 
             {/* ── Product Barcode (Grocery only) ── */}
             {isGrocery && product.barcodeImageUrl && (
-              <div className="bg-slate-50 rounded-xl border border-slate-200 p-4">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Product Barcode</p>
-                <div className="bg-white rounded-lg border border-slate-100 p-4 flex flex-col items-center text-center max-w-xs mx-auto gap-2">
+              <div className="bg-background rounded-xl border border-border p-4">
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Product Barcode</p>
+                <div className="bg-surface rounded-lg border border-border p-4 flex flex-col items-center text-center max-w-xs mx-auto gap-2">
                   <Barcode value={product.barcode || ""} imageUrl={product.barcodeImageUrl} useBackendImage={true} className="h-14" />
-                  <p className="text-xs font-mono text-slate-500 font-semibold">{product.barcode}</p>
+                  <p className="text-xs font-mono text-text-secondary font-semibold">{product.barcode}</p>
                   <button
                     onClick={() => printBarcodeLabel(product)}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-slate-50 hover:bg-red-50 text-xs font-bold text-slate-600 hover:text-red-700 rounded-lg border border-slate-200 transition-colors"
+                    className="flex items-center gap-1.5 px-4 py-2 bg-background hover:bg-primary-light text-xs font-bold text-text-primary hover:text-red-700 rounded-lg border border-border transition-colors"
                   >
                     <Printer size={13} /> Print Label
                   </button>
@@ -914,16 +914,16 @@ function ProductModal({
             {/* ── Description ── */}
             {product.description && (
               <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Description</p>
-                <p className="text-sm text-slate-600 leading-relaxed">{product.description}</p>
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1.5">Description</p>
+                <p className="text-sm text-text-primary leading-relaxed">{product.description}</p>
               </div>
             )}
           </div>
 
-          <div className="px-6 py-4 border-t border-slate-100 shrink-0">
+          <div className="px-6 py-4 border-t border-border shrink-0">
             <button
               onClick={onClose}
-              className="w-full h-10 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+              className="w-full h-10 rounded-lg border border-border text-sm font-medium text-text-primary hover:bg-background transition-colors"
             >
               Close
             </button>
@@ -936,15 +936,15 @@ function ProductModal({
   // ── ADD / EDIT FORM ───────────────────────────────────────────
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className="w-[80%] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[94vh] flex flex-col">
+      <div className="w-[80%] bg-surface rounded-2xl shadow-xl border border-border overflow-hidden max-h-[94vh] flex flex-col">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
           <div>
-            <h2 className="text-base font-bold text-gray-500">
+            <h2 className="text-base font-bold text-text-primary">
               {mode === "add" ? "Add New Product" : `Edit — ${product?.name}`}
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-text-secondary mt-0.5">
               {mode === "add" 
                 ? `Fill in ${isGrocery ? "grocery" : "clothing"} details below` 
                 : "Update product information"}
@@ -952,7 +952,7 @@ function ProductModal({
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-600 flex items-center justify-center transition-all bg-slate-50"
+            className="w-10 h-10 rounded-xl hover:bg-primary-light text-text-secondary hover:text-primary flex items-center justify-center transition-all bg-background"
             title="Close"
           >
             <X size={20} />
@@ -967,7 +967,7 @@ function ProductModal({
 
               {/* Basic Info */}
               <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Basic Information</p>
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4">Basic Information</p>
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="Product Name *" span={2}>
                     <input
@@ -975,9 +975,9 @@ function ProductModal({
                       placeholder="e.g. Classic White Formal Shirt"
                       value={form.name}
                       onChange={(e) => set("name", e.target.value)}
-                      className={`${inputCls} ${errors.name ? "border-red-400 bg-red-50" : ""}`}
+                      className={`${inputCls} ${errors.name ? "border-red-400 bg-coral-light" : ""}`}
                     />
-                    {errors.name && <p className="text-[11px] text-red-500">{errors.name}</p>}
+                    {errors.name && <p className="text-[11px] text-coral">{errors.name}</p>}
                   </Field>
 
                   <SelectField
@@ -1022,9 +1022,9 @@ function ProductModal({
                           placeholder="e.g. Navy Blue, Floral Pink"
                           value={form.color}
                           onChange={(e) => set("color", e.target.value)}
-                          className={`${inputCls} ${errors.color ? "border-red-400 bg-red-50" : ""}`}
+                          className={`${inputCls} ${errors.color ? "border-red-400 bg-coral-light" : ""}`}
                         />
-                        {errors.color && <p className="text-[11px] text-red-500">{errors.color}</p>}
+                        {errors.color && <p className="text-[11px] text-coral">{errors.color}</p>}
                       </Field>
                     </>
                   ) : (
@@ -1078,11 +1078,11 @@ function ProductModal({
               {/* Size & Stock (Garments) or Simple Stock (Grocery) */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">
                     {isGrocery ? "Stock Quantity *" : "Sizes & Stock *"}
                   </p>
                   {totalQty > 0 && (
-                    <span className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
+                    <span className="text-xs font-semibold text-primary bg-coral-light border border-coral px-2 py-0.5 rounded-full">
                       Total: {totalQty} {isGrocery ? (form.unit || "pcs") : "pcs"}
                     </span>
                   )}
@@ -1099,7 +1099,7 @@ function ProductModal({
                         onChange={(e) => set("stockQuantity", Number(e.target.value))}
                         className={inputCls}
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-text-secondary">
                         {form.unit || "pcs"}
                       </span>
                     </div>
@@ -1113,7 +1113,7 @@ function ProductModal({
                       onChange={(s) => { set("sizes", s); setErrors((e) => { const n = {...e}; delete n.sizes; return n; }); }}
                     />
                     {errors.sizes && (
-                      <p className="text-[11px] text-red-500 mt-1">{errors.sizes}</p>
+                      <p className="text-[11px] text-coral mt-1">{errors.sizes}</p>
                     )}
                   </>
                 )}
@@ -1121,41 +1121,41 @@ function ProductModal({
 
               {/* Pricing */}
               <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Pricing</p>
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4">Pricing</p>
                 <div className="grid grid-cols-3 gap-4">
                   <Field label="Purchase Price (₹) *">
                     <div className="relative">
-                      <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                      <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
                       <input
                         type="number"
                         min={0}
                         placeholder="0"
                         value={form.purchasePrice || ""}
                         onChange={(e) => set("purchasePrice", Number(e.target.value))}
-                        className={`${inputCls} pl-8 ${errors.purchasePrice ? "border-red-400 bg-red-50" : ""}`}
+                        className={`${inputCls} pl-8 ${errors.purchasePrice ? "border-red-400 bg-coral-light" : ""}`}
                       />
                     </div>
-                    {errors.purchasePrice && <p className="text-[11px] text-red-500">{errors.purchasePrice}</p>}
+                    {errors.purchasePrice && <p className="text-[11px] text-coral">{errors.purchasePrice}</p>}
                   </Field>
 
                   <Field label="Selling Price (₹) *">
                     <div className="relative">
-                      <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                      <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
                       <input
                         type="number"
                         min={0}
                         placeholder="0"
                         value={form.sellingPrice || ""}
                         onChange={(e) => set("sellingPrice", Number(e.target.value))}
-                        className={`${inputCls} pl-8 ${errors.sellingPrice ? "border-red-400 bg-red-50" : ""}`}
+                        className={`${inputCls} pl-8 ${errors.sellingPrice ? "border-red-400 bg-coral-light" : ""}`}
                       />
                     </div>
-                    {errors.sellingPrice && <p className="text-[11px] text-red-500">{errors.sellingPrice}</p>}
+                    {errors.sellingPrice && <p className="text-[11px] text-coral">{errors.sellingPrice}</p>}
                   </Field>
 
                   <Field label="GST %">
                     <div className="relative">
-                      <Percent className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                      <Percent className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
                       <select
                         value={form.gstPercent}
                         onChange={(e) => set("gstPercent", Number(e.target.value))}
@@ -1165,7 +1165,7 @@ function ProductModal({
                           <option key={g} value={g}>{g}%</option>
                         ))}
                       </select>
-                      <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                      <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
                     </div>
                   </Field>
                 </div>
@@ -1173,15 +1173,15 @@ function ProductModal({
                 {/* Pricing preview */}
                 {(form.purchasePrice > 0 || form.sellingPrice > 0) && (
                   <div className="mt-3 grid grid-cols-3 gap-2">
-                    <div className="bg-slate-50 rounded-lg border border-slate-100 px-3 py-2 text-center">
-                      <p className="text-xs text-slate-400">Margin</p>
-                      <p className={`text-sm font-bold ${marginVal >= 0 ? "text-green-700" : "text-red-600"}`}>
+                    <div className="bg-background rounded-lg border border-border px-3 py-2 text-center">
+                      <p className="text-xs text-text-secondary">Margin</p>
+                      <p className={`text-sm font-bold ${marginVal >= 0 ? "text-success" : "text-primary"}`}>
                         {marginVal}%
                       </p>
                     </div>
-                    <div className="bg-slate-50 rounded-lg border border-slate-100 px-3 py-2 text-center">
-                      <p className="text-xs text-slate-400">Profit/Unit</p>
-                      <p className={`text-sm font-bold ${form.sellingPrice - form.purchasePrice >= 0 ? "text-green-700" : "text-red-600"}`}>
+                    <div className="bg-background rounded-lg border border-border px-3 py-2 text-center">
+                      <p className="text-xs text-text-secondary">Profit/Unit</p>
+                      <p className={`text-sm font-bold ${form.sellingPrice - form.purchasePrice >= 0 ? "text-success" : "text-primary"}`}>
                         {fmt(form.sellingPrice - form.purchasePrice)}
                       </p>
                     </div>
@@ -1195,7 +1195,7 @@ function ProductModal({
 
               {/* Extra */}
               <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Extra</p>
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4">Extra</p>
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="Min Stock Alert">
                     <input
@@ -1223,10 +1223,10 @@ function ProductModal({
 
             {/* Right — Image */}
             <div className="px-5 py-5">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Product Image</p>
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4">Product Image</p>
               <ImageUploader value={form.image} onChange={(url) => set("image", url)} />
               <div className="mt-5 space-y-2">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tips</p>
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Tips</p>
                 {[
                   "Use a clean white background",
                   "Show full garment front view",
@@ -1235,7 +1235,7 @@ function ProductModal({
                 ].map((t) => (
                   <div key={t} className="flex items-start gap-2">
                     <CheckCircle size={12} className="text-green-500 mt-0.5 shrink-0" />
-                    <p className="text-xs text-slate-500">{t}</p>
+                    <p className="text-xs text-text-secondary">{t}</p>
                   </div>
                 ))}
               </div>
@@ -1245,16 +1245,16 @@ function ProductModal({
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 px-6 py-4 border-t border-slate-100 shrink-0">
+        <div className="flex gap-3 px-6 py-4 border-t border-border shrink-0">
           <button
             onClick={onClose}
-            className="flex-1 h-10 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+            className="flex-1 h-10 rounded-lg border border-border text-sm font-medium text-text-primary hover:bg-background transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 h-10 rounded-lg bg-red-600 hover:bg-red-700 text-sm font-semibold text-white transition-colors shadow-sm shadow-red-200 flex items-center justify-center gap-2"
+            className="flex-1 h-10 rounded-lg bg-primary hover:bg-red-700 text-sm font-semibold text-white transition-colors shadow-sm shadow-red-200 flex items-center justify-center gap-2"
           >
             <CheckCircle size={15} />
             {mode === "add" ? "Add Product" : "Save Changes"}
@@ -1414,8 +1414,8 @@ export default function ProductsPage() {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-red-600" />
-          <p className="text-sm font-medium text-slate-500">Loading products...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm font-medium text-text-secondary">Loading products...</p>
         </div>
       </div>
     );
@@ -1428,14 +1428,14 @@ export default function ProductsPage() {
         {/* Page Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-xl font-bold text-gray-500">{isGrocery ? "Grocery Inventory" : "Clothing Products"}</h1>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <h1 className="text-xl font-bold text-text-primary">{isGrocery ? "Grocery Inventory" : "Clothing Products"}</h1>
+            <p className="text-sm text-text-secondary mt-0.5">
               {products.length} items · {fmt(totalValue)} inventory value
             </p>
           </div>
           <button
             onClick={() => { setSelected(null); setModal("add"); }}
-            className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm shadow-red-200"
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm shadow-red-200"
           >
             <Plus size={16} /> Add Product
           </button>
@@ -1443,15 +1443,15 @@ export default function ProductsPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-          <StatCard label="Total Products"  value={products.length} sub="All categories"    icon={Package}       bg="bg-red-50"   ic="text-red-600"   />
-          <StatCard label="In Stock"        value={inStockCount}    sub="Available"          icon={CheckCircle}   bg="bg-green-50"  ic="text-green-600"  />
-          <StatCard label="Low / Out"       value={`${lowCount} / ${outCount}`} sub="Need attention" icon={AlertTriangle} bg="bg-amber-50"  ic="text-amber-600"  highlight={lowCount + outCount > 0} />
+          <StatCard label="Total Products"  value={products.length} sub="All categories"    icon={Package}       bg="bg-coral-light"   ic="text-primary"   />
+          <StatCard label="In Stock"        value={inStockCount}    sub="Available"          icon={CheckCircle}   bg="bg-mint-light"  ic="text-success"  />
+          <StatCard label="Low / Out"       value={`${lowCount} / ${outCount}`} sub="Need attention" icon={AlertTriangle} bg="bg-warning/10"  ic="text-warning"  highlight={lowCount + outCount > 0} />
           <StatCard label="Inventory Value" value={fmt(totalValue)} sub="At purchase price" icon={BarChart3}      bg="bg-purple-50" ic="text-purple-600" />
         </div>
 
         {/* Low stock banner */}
         {(lowCount > 0 || outCount > 0) && (
-          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-5 py-4">
+          <div className="flex items-start gap-3 bg-warning/10 border border-warning rounded-xl px-5 py-4">
             <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-amber-800">Stock Alert</p>
@@ -1478,7 +1478,7 @@ export default function ProductsPage() {
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
             <input
               type="text"
               placeholder="Search name, brand, color, SKU…"
@@ -1489,7 +1489,7 @@ export default function ProductsPage() {
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
               >
                 <X size={14} />
               </button>
@@ -1504,7 +1504,7 @@ export default function ProductsPage() {
             >
               {categories.map((c) => <option key={c}>{c}</option>)}
             </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
           </div>
 
           {!isGrocery && (
@@ -1516,7 +1516,7 @@ export default function ProductsPage() {
               >
                 {["All", ...GENDERS].map((g) => <option key={g}>{g}</option>)}
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
           )}
 
@@ -1530,19 +1530,19 @@ export default function ProductsPage() {
                 <option key={s}>{s}</option>
               ))}
             </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
           </div>
 
-          <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+          <div className="flex gap-1 bg-background rounded-lg p-1">
             <button
               onClick={() => setViewMode("table")}
-              className={`w-9 h-8 rounded-md flex items-center justify-center transition-all ${viewMode === "table" ? "bg-white text-red-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
+              className={`w-9 h-8 rounded-md flex items-center justify-center transition-all ${viewMode === "table" ? "bg-surface text-primary shadow-sm" : "text-text-secondary hover:text-text-primary"}`}
             >
               <List size={15} />
             </button>
             <button
               onClick={() => setViewMode("grid")}
-              className={`w-9 h-8 rounded-md flex items-center justify-center transition-all ${viewMode === "grid" ? "bg-white text-red-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
+              className={`w-9 h-8 rounded-md flex items-center justify-center transition-all ${viewMode === "grid" ? "bg-surface text-primary shadow-sm" : "text-text-secondary hover:text-text-primary"}`}
             >
               <Grid3X3 size={15} />
             </button>
@@ -1551,44 +1551,44 @@ export default function ProductsPage() {
 
         {/* ── TABLE VIEW ── */}
         {viewMode === "table" && (
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div className="bg-surface rounded-xl border border-border overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50">
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Image</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">
-                      <button onClick={() => toggleSort("name")} className="flex items-center gap-1 hover:text-slate-700">
-                        Product <ArrowUpDown size={12} className={sortKey === "name" ? "text-red-500" : ""} />
+                  <tr className="border-b border-border bg-background">
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide">Image</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide">
+                      <button onClick={() => toggleSort("name")} className="flex items-center gap-1 hover:text-text-primary">
+                        Product <ArrowUpDown size={12} className={sortKey === "name" ? "text-coral" : ""} />
                       </button>
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">{isGrocery ? "Category / Unit" : "Category / Gender"}</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">{isGrocery ? "Brand / HSN" : "Fabric / Color"}</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">
-                      <button onClick={() => toggleSort("sellingPrice")} className="flex items-center gap-1 hover:text-slate-700">
-                        Pricing <ArrowUpDown size={12} className={sortKey === "sellingPrice" ? "text-red-500" : ""} />
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide">{isGrocery ? "Category / Unit" : "Category / Gender"}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide">{isGrocery ? "Brand / HSN" : "Fabric / Color"}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide">
+                      <button onClick={() => toggleSort("sellingPrice")} className="flex items-center gap-1 hover:text-text-primary">
+                        Pricing <ArrowUpDown size={12} className={sortKey === "sellingPrice" ? "text-coral" : ""} />
                       </button>
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">{isGrocery ? "Dates" : "Sizes"}</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">
-                      <button onClick={() => toggleSort("totalStock")} className="flex items-center gap-1 hover:text-slate-700">
-                        Stock <ArrowUpDown size={12} className={sortKey === "totalStock" ? "text-red-500" : ""} />
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide">{isGrocery ? "Dates" : "Sizes"}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide">
+                      <button onClick={() => toggleSort("totalStock")} className="flex items-center gap-1 hover:text-text-primary">
+                        Stock <ArrowUpDown size={12} className={sortKey === "totalStock" ? "text-coral" : ""} />
                       </button>
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Actions</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.length === 0 ? (
                     <tr>
                       <td colSpan={9} className="py-16 text-center">
-                        <div className="flex flex-col items-center gap-3 text-slate-400">
+                        <div className="flex flex-col items-center gap-3 text-text-secondary">
                           <Shirt size={36} className="text-slate-200" />
                           <p className="text-sm font-medium">No products found</p>
                           <button
                             onClick={() => { setSearch(""); setCatFilter("All"); setGenderFilter("All"); setStockFilter("All"); }}
-                            className="text-xs text-red-600 hover:underline"
+                            className="text-xs text-primary hover:underline"
                           >
                             Clear filters
                           </button>
@@ -1601,15 +1601,15 @@ export default function ProductsPage() {
                       const m     = marginPct(p);
                       const tot   = totalStock(p);
                       return (
-                        <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors group">
+                        <tr key={p.id} className="border-b border-slate-50 hover:bg-background transition-colors group">
                           <td className="px-4 py-3">
                             <ProductImage src={p.image} name={p.name} size="sm" />
                           </td>
                           <td className="px-4 py-3">
-                            <p className="font-semibold text-slate-800 whitespace-nowrap">{p.name}</p>
-                            <p className="text-xs font-mono text-slate-400 mt-0.5">#{p.id}</p>
+                            <p className="font-semibold text-text-primary whitespace-nowrap">{p.name}</p>
+                            <p className="text-xs font-mono text-text-secondary mt-0.5">#{p.id}</p>
                             {p.sku && (
-                              <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+                              <p className="text-xs text-text-secondary mt-0.5 flex items-center gap-1">
                                 <Tag size={9} />
                                 <span className="font-mono">{p.sku}</span>
                               </p>
@@ -1620,34 +1620,34 @@ export default function ProductsPage() {
                               </div>
                             )}
                             {!isGrocery && p.sizes?.some((s: any) => s.barcode) && (
-                              <span className="text-[10px] text-slate-500 font-semibold bg-slate-100 px-1.5 py-0.5 rounded mt-1.5 inline-block">
+                              <span className="text-[10px] text-text-secondary font-semibold bg-background px-1.5 py-0.5 rounded mt-1.5 inline-block">
                                 🏷️ Barcodes per size
                               </span>
                             )}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <p className="text-sm text-slate-700">{p.category}</p>
-                            <span className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${isGrocery ? "bg-red-50 text-red-700 border border-red-100" : "bg-purple-50 text-purple-700 border border-purple-100"}`}>
+                            <p className="text-sm text-text-primary">{p.category}</p>
+                            <span className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${isGrocery ? "bg-coral-light text-red-700 border border-coral" : "bg-purple-50 text-purple-700 border border-purple-100"}`}>
                               {isGrocery ? p.unit : p.gender}
                             </span>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <p className="text-sm text-slate-700">{isGrocery ? p.brand : p.fabric}</p>
-                            <p className="text-xs text-slate-400">{isGrocery ? `HSN: ${p.hsnCode || 'N/A'}` : p.color}</p>
+                            <p className="text-sm text-text-primary">{isGrocery ? p.brand : p.fabric}</p>
+                            <p className="text-xs text-text-secondary">{isGrocery ? `HSN: ${p.hsnCode || 'N/A'}` : p.color}</p>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <p className="font-bold text-gray-500">{fmt(p.sellingPrice)}</p>
-                            <p className="text-xs text-slate-400">Cost: {fmt(p.purchasePrice)}</p>
-                            <p className={`text-xs font-semibold ${m >= 0 ? "text-green-600" : "text-red-500"}`}>
+                            <p className="font-bold text-text-primary">{fmt(p.sellingPrice)}</p>
+                            <p className="text-xs text-text-secondary">Cost: {fmt(p.purchasePrice)}</p>
+                            <p className={`text-xs font-semibold ${m >= 0 ? "text-success" : "text-coral"}`}>
                               {m >= 0 ? "+" : ""}{m}% margin
                             </p>
                           </td>
                           <td className="px-4 py-3">
                             {isGrocery ? (
                               <div className="space-y-0.5">
-                                {p.mfgDate && <p className="text-[10px] text-slate-400">MFG: {p.mfgDate}</p>}
+                                {p.mfgDate && <p className="text-[10px] text-text-secondary">MFG: {p.mfgDate}</p>}
                                 {p.expiryDate && (
-                                  <p className={`text-[10px] font-bold ${new Date(p.expiryDate) < new Date() ? 'text-red-500' : 'text-amber-600'}`}>
+                                  <p className={`text-[10px] font-bold ${new Date(p.expiryDate) < new Date() ? 'text-coral' : 'text-warning'}`}>
                                     EXP: {p.expiryDate}
                                   </p>
                                 )}
@@ -1659,15 +1659,15 @@ export default function ProductsPage() {
                                     key={s.size}
                                     className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
                                       s.qty === 0
-                                        ? "bg-red-50 text-red-400 border-red-200"
-                                        : "bg-slate-50 text-slate-600 border-slate-200"
+                                        ? "bg-coral-light text-coral border-coral"
+                                        : "bg-background text-text-primary border-border"
                                     }`}
                                   >
                                     {s.size}
                                   </span>
                                 ))}
                                 {p.sizes && p.sizes.length > 4 && (
-                                  <span className="text-[10px] text-slate-400 px-1">
+                                  <span className="text-[10px] text-text-secondary px-1">
                                     +{p.sizes.length - 4}
                                   </span>
                                 )}
@@ -1675,10 +1675,10 @@ export default function ProductsPage() {
                             )}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <p className={`font-bold ${badge.label === "Out of Stock" ? "text-red-500" : badge.label === "Low Stock" ? "text-amber-600" : "text-gray-500"}`}>
+                            <p className={`font-bold ${badge.label === "Out of Stock" ? "text-coral" : badge.label === "Low Stock" ? "text-warning" : "text-text-primary"}`}>
                               {tot} pcs
                             </p>
-                            <p className="text-xs text-slate-400">Alert at {p.minStockAlert}</p>
+                            <p className="text-xs text-text-secondary">Alert at {p.minStockAlert}</p>
                           </td>
                           <td className="px-4 py-3">
                             <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border whitespace-nowrap ${badge.cls}`}>
@@ -1689,19 +1689,19 @@ export default function ProductsPage() {
                             <div className="flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
                               <button
                                 onClick={() => { setSelected(p); setModal("view"); }}
-                                className="flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-800"
+                                className="flex items-center gap-1 text-xs font-medium text-primary hover:text-red-800"
                               >
                                 <Eye size={13} /> View
                               </button>
                               <button
                                 onClick={() => { setSelected(p); setModal("edit"); }}
-                                className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800"
+                                className="flex items-center gap-1 text-xs font-medium text-text-secondary hover:text-text-primary"
                               >
                                 <Pencil size={13} /> Edit
                               </button>
                               <button
                                 onClick={() => setDeleteId(p.id)}
-                                className="flex items-center gap-1 text-xs font-medium text-red-400 hover:text-red-600"
+                                className="flex items-center gap-1 text-xs font-medium text-coral hover:text-primary"
                               >
                                 <Trash2 size={13} /> Delete
                               </button>
@@ -1714,12 +1714,12 @@ export default function ProductsPage() {
                 </tbody>
               </table>
             </div>
-            <div className="px-4 py-3 border-t border-slate-100 bg-slate-50">
-              <p className="text-xs text-slate-400">
+            <div className="px-4 py-3 border-t border-border bg-background">
+              <p className="text-xs text-text-secondary">
                 Showing{" "}
-                <span className="font-semibold text-slate-600">{filtered.length}</span>{" "}
+                <span className="font-semibold text-text-primary">{filtered.length}</span>{" "}
                 of{" "}
-                <span className="font-semibold text-slate-600">{products.length}</span>{" "}
+                <span className="font-semibold text-text-primary">{products.length}</span>{" "}
                 products
               </p>
             </div>
@@ -1730,12 +1730,12 @@ export default function ProductsPage() {
         {viewMode === "grid" && (
           <>
             {filtered.length === 0 ? (
-              <div className="flex flex-col items-center gap-3 py-20 text-slate-400">
+              <div className="flex flex-col items-center gap-3 py-20 text-text-secondary">
                 <Shirt size={40} className="text-slate-200" />
                 <p className="text-sm font-medium">No products found</p>
                 <button
                   onClick={() => { setSearch(""); setCatFilter("All"); setGenderFilter("All"); setStockFilter("All"); }}
-                  className="text-xs text-red-600 hover:underline"
+                  className="text-xs text-primary hover:underline"
                 >
                   Clear filters
                 </button>
@@ -1749,9 +1749,9 @@ export default function ProductsPage() {
                   return (
                     <div
                       key={p.id}
-                      className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:border-red-200 hover:shadow-md transition-all group"
+                      className="bg-surface rounded-xl border border-border overflow-hidden hover:border-coral hover:shadow-md transition-all group"
                     >
-                      <div className="relative w-full aspect-[3/4] bg-slate-50 border-b border-slate-100">
+                      <div className="relative w-full aspect-[3/4] bg-background border-b border-border">
                         {p.image ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={p.image} alt={p.name} className="w-full h-full object-contain" />
@@ -1771,19 +1771,19 @@ export default function ProductsPage() {
                       </div>
                       <div className="p-4 space-y-3">
                         <div>
-                          <p className="font-bold text-gray-500 leading-tight line-clamp-2">{p.name}</p>
+                          <p className="font-bold text-text-primary leading-tight line-clamp-2">{p.name}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs text-slate-400">{p.category}</span>
+                            <span className="text-xs text-text-secondary">{p.category}</span>
                             {!isGrocery && (
                               <>
                                 <span className="text-slate-200">·</span>
-                                <span className="text-xs text-slate-500">{p.fabric}</span>
+                                <span className="text-xs text-text-secondary">{p.fabric}</span>
                               </>
                             )}
                           </div>
-                          {!isGrocery && <p className="text-xs text-slate-400 mt-0.5">{p.color}</p>}
+                          {!isGrocery && <p className="text-xs text-text-secondary mt-0.5">{p.color}</p>}
                           {isGrocery && p.expiryDate && (
-                            <p className={`text-[10px] font-bold mt-1 ${new Date(p.expiryDate) < new Date() ? 'text-red-500' : 'text-amber-600'}`}>
+                            <p className={`text-[10px] font-bold mt-1 ${new Date(p.expiryDate) < new Date() ? 'text-coral' : 'text-warning'}`}>
                               EXP: {p.expiryDate}
                             </p>
                           )}
@@ -1797,8 +1797,8 @@ export default function ProductsPage() {
                                 key={s.size}
                                 className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
                                   s.qty === 0
-                                    ? "bg-red-50 text-red-400 border-red-200"
-                                    : "bg-slate-50 text-slate-600 border-slate-200"
+                                    ? "bg-coral-light text-coral border-coral"
+                                    : "bg-background text-text-primary border-border"
                                 }`}
                               >
                                 {s.size}
@@ -1808,20 +1808,20 @@ export default function ProductsPage() {
                         )}
 
                         <div className="grid grid-cols-2 gap-2">
-                          <div className="bg-slate-50 rounded-lg p-2 text-center">
-                            <p className="text-xs text-slate-400">Selling</p>
-                            <p className="text-sm font-bold text-gray-500">{fmt(p.sellingPrice)}</p>
+                          <div className="bg-background rounded-lg p-2 text-center">
+                            <p className="text-xs text-text-secondary">Selling</p>
+                            <p className="text-sm font-bold text-text-primary">{fmt(p.sellingPrice)}</p>
                           </div>
-                          <div className="bg-slate-50 rounded-lg p-2 text-center">
-                            <p className="text-xs text-slate-400">Stock</p>
-                            <p className={`text-sm font-bold ${badge.label === "Out of Stock" ? "text-red-500" : badge.label === "Low Stock" ? "text-amber-600" : "text-gray-500"}`}>
+                          <div className="bg-background rounded-lg p-2 text-center">
+                            <p className="text-xs text-text-secondary">Stock</p>
+                            <p className={`text-sm font-bold ${badge.label === "Out of Stock" ? "text-coral" : badge.label === "Low Stock" ? "text-warning" : "text-text-primary"}`}>
                               {tot} {isGrocery ? p.unit : "pcs"}
                             </p>
                           </div>
                         </div>
 
                         <div className="flex items-center justify-between">
-                          <span className={`text-xs font-bold ${m >= 0 ? "text-green-600" : "text-red-500"}`}>
+                          <span className={`text-xs font-bold ${m >= 0 ? "text-success" : "text-coral"}`}>
                             {m >= 0 ? "+" : ""}{m}% margin
                           </span>
                           <span className="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 text-xs font-semibold">
@@ -1830,34 +1830,34 @@ export default function ProductsPage() {
                         </div>
 
                         {isGrocery && p.barcodeImageUrl && (
-                          <div className="py-1.5 flex justify-center bg-slate-50/50 rounded-lg border border-slate-100">
+                          <div className="py-1.5 flex justify-center bg-background/50 rounded-lg border border-border">
                             <Barcode value={p.barcode || ""} imageUrl={p.barcodeImageUrl} useBackendImage={true} className="h-8" />
                           </div>
                         )}
                         {!isGrocery && p.sizes?.some((s: any) => s.barcode) && (
-                          <div className="py-1.5 flex justify-center bg-slate-50/50 rounded-lg border border-slate-100">
-                            <span className="text-[10px] text-slate-500 font-semibold">
+                          <div className="py-1.5 flex justify-center bg-background/50 rounded-lg border border-border">
+                            <span className="text-[10px] text-text-secondary font-semibold">
                               🏷️ Barcodes per size
                             </span>
                           </div>
                         )}
 
-                        <div className="flex gap-2 pt-1 border-t border-slate-100">
+                        <div className="flex gap-2 pt-1 border-t border-border">
                           <button
                             onClick={() => { setSelected(p); setModal("view"); }}
-                            className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg bg-slate-50 hover:bg-red-50 text-xs font-semibold text-slate-600 hover:text-red-700 transition-colors"
+                            className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg bg-background hover:bg-primary-light text-xs font-semibold text-text-primary hover:text-red-700 transition-colors"
                           >
                             <Eye size={13} /> View
                           </button>
                           <button
                             onClick={() => { setSelected(p); setModal("edit"); }}
-                            className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 text-xs font-semibold text-slate-600 transition-colors"
+                            className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg bg-background hover:bg-background text-xs font-semibold text-text-primary transition-colors"
                           >
                             <Pencil size={13} /> Edit
                           </button>
                           <button
                             onClick={() => setDeleteId(p.id)}
-                            className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 flex items-center justify-center transition-colors"
+                            className="w-8 h-8 rounded-lg bg-background hover:bg-primary-light text-text-secondary hover:text-coral flex items-center justify-center transition-colors"
                           >
                             <Trash2 size={13} />
                           </button>
@@ -1891,28 +1891,28 @@ export default function ProductsPage() {
           const p = products.find((x) => x.id === deleteId);
           return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-              <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+              <div className="w-full max-w-sm bg-surface rounded-2xl shadow-xl border border-border overflow-hidden">
                 <div className="px-6 py-5 text-center space-y-3">
                   <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto">
-                    <Trash2 size={20} className="text-red-600" />
+                    <Trash2 size={20} className="text-primary" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-gray-500">Delete Product?</h3>
-                    <p className="text-sm text-slate-500 mt-1">
-                      <span className="font-semibold text-slate-700">{p?.name}</span> will be permanently removed.
+                    <h3 className="text-base font-bold text-text-primary">Delete Product?</h3>
+                    <p className="text-sm text-text-secondary mt-1">
+                      <span className="font-semibold text-text-primary">{p?.name}</span> will be permanently removed.
                     </p>
                   </div>
                 </div>
                 <div className="flex gap-3 px-6 pb-5">
                   <button
                     onClick={() => setDeleteId(null)}
-                    className="flex-1 h-10 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                    className="flex-1 h-10 rounded-lg border border-border text-sm font-medium text-text-primary hover:bg-background transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={() => handleDelete(deleteId)}
-                    className="flex-1 h-10 rounded-lg bg-red-500 hover:bg-red-600 text-sm font-semibold text-white transition-colors"
+                    className="flex-1 h-10 rounded-lg bg-primary hover:bg-primary text-sm font-semibold text-white transition-colors"
                   >
                     Delete
                   </button>

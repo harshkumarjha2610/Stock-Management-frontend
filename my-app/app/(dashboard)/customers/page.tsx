@@ -39,9 +39,9 @@ type ModalMode = "add" | "edit" | "view" | null;
 const CITIES = ["Delhi", "Mumbai", "Bangalore", "Chennai", "Hyderabad", "Kolkata", "Kochi", "Ahmedabad", "Pune", "Jaipur"];
 
 const TAG_CONFIG = {
-  vip:     { label:"VIP",     cls:"bg-amber-50 text-amber-700",  dot:"bg-amber-500"  },
-  regular: { label:"Regular", cls:"bg-red-50 text-red-700",    dot:"bg-red-500"   },
-  new:     { label:"New",     cls:"bg-green-50 text-green-700",  dot:"bg-green-500"  },
+  vip:     { label:"VIP",     cls:"bg-warning/10 text-warning",  dot:"bg-warning/100"  },
+  regular: { label:"Regular", cls:"bg-coral-light text-red-700",    dot:"bg-primary"   },
+  new:     { label:"New",     cls:"bg-mint-light text-success",  dot:"bg-mint-light0"  },
 };
 
 const EMPTY_FORM: Omit<Customer, "id" | "totalOrders" | "totalSpent" | "lastPurchase" | "joinedDate"> = {
@@ -50,9 +50,9 @@ const EMPTY_FORM: Omit<Customer, "id" | "totalOrders" | "totalSpent" | "lastPurc
 };
 
 const inputCls =
-  "h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-gray-500 placeholder:text-slate-400 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-colors";
+  "h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-text-primary placeholder:text-text-secondary outline-none focus:border-primary focus:ring-2 focus:ring-primary transition-colors";
 
-const labelCls = "text-xs font-semibold text-slate-500 uppercase tracking-wide";
+const labelCls = "text-xs font-semibold text-text-secondary uppercase tracking-wide";
 
 function fmt(n: number) {
   return "₹" + n.toLocaleString("en-IN");
@@ -107,10 +107,10 @@ function CustomerModal({
     const tag = TAG_CONFIG[customer.tag];
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-        <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[90vh] flex flex-col">
+        <div className="w-full max-w-lg bg-surface rounded-2xl shadow-xl border border-border overflow-hidden max-h-[90vh] flex flex-col">
 
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
                 <span className="text-base font-bold text-red-700">
@@ -118,20 +118,20 @@ function CustomerModal({
                 </span>
               </div>
               <div>
-                <h2 className="text-base font-bold text-gray-500">{customer.name}</h2>
+                <h2 className="text-base font-bold text-text-primary">{customer.name}</h2>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs font-mono text-slate-400">{customer.id}</span>
+                  <span className="text-xs font-mono text-text-secondary">{customer.id}</span>
                   <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${tag.cls}`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${tag.dot}`} />
                     {tag.label}
                   </span>
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${customer.status === "active" ? "bg-green-50 text-green-700" : "bg-slate-100 text-slate-500"}`}>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${customer.status === "active" ? "bg-mint-light text-success" : "bg-background text-text-secondary"}`}>
                     {customer.status === "active" ? "Active" : "Inactive"}
                   </span>
                 </div>
               </div>
             </div>
-            <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 flex items-center justify-center transition-colors">
+            <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-background text-text-secondary flex items-center justify-center transition-colors">
               <X size={16} />
             </button>
           </div>
@@ -141,16 +141,16 @@ function CustomerModal({
             {/* Stats */}
             <div className="grid grid-cols-3 gap-3">
               {[
-                { label:"Total Orders",  value: customer.totalOrders,      icon:ShoppingCart, color:"text-red-600",   bg:"bg-red-50"  },
-                { label:"Total Spent",   value: fmt(customer.totalSpent),   icon:IndianRupee,  color:"text-green-700",  bg:"bg-green-50" },
+                { label:"Total Orders",  value: customer.totalOrders,      icon:ShoppingCart, color:"text-primary",   bg:"bg-coral-light"  },
+                { label:"Total Spent",   value: fmt(customer.totalSpent),   icon:IndianRupee,  color:"text-success",  bg:"bg-mint-light" },
                 { label:"Avg/Order",     value: customer.totalOrders > 0 ? fmt(Math.round(customer.totalSpent / customer.totalOrders)) : "—", icon:TrendingUp, color:"text-purple-700", bg:"bg-purple-50" },
               ].map((s) => (
-                <div key={s.label} className="bg-slate-50 rounded-xl border border-slate-100 px-3 py-3 text-center">
+                <div key={s.label} className="bg-background rounded-xl border border-border px-3 py-3 text-center">
                   <div className={`inline-flex items-center justify-center w-7 h-7 rounded-lg ${s.bg} mb-2`}>
                     <s.icon className={`w-3.5 h-3.5 ${s.color}`} />
                   </div>
                   <p className={`text-sm font-bold ${s.color}`}>{s.value}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{s.label}</p>
+                  <p className="text-xs text-text-secondary mt-0.5">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -166,20 +166,20 @@ function CustomerModal({
                 { icon:ShoppingCart, label:"Last Purchase", value: customer.lastPurchase  },
               ].map((r) => (
                 <div key={r.label} className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 mt-0.5">
-                    <r.icon size={13} className="text-slate-500" />
+                  <div className="w-7 h-7 rounded-lg bg-background flex items-center justify-center shrink-0 mt-0.5">
+                    <r.icon size={13} className="text-text-secondary" />
                   </div>
                   <div>
-                    <p className="text-xs text-slate-400">{r.label}</p>
-                    <p className="text-sm font-semibold text-slate-800">{r.value}</p>
+                    <p className="text-xs text-text-secondary">{r.label}</p>
+                    <p className="text-sm font-semibold text-text-primary">{r.value}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="px-6 py-4 border-t border-slate-100 shrink-0">
-            <button onClick={onClose} className="w-full h-10 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+          <div className="px-6 py-4 border-t border-border shrink-0">
+            <button onClick={onClose} className="w-full h-10 rounded-lg border border-border text-sm font-medium text-text-primary hover:bg-background transition-colors">
               Close
             </button>
           </div>
@@ -191,18 +191,18 @@ function CustomerModal({
   // ── Add / Edit Form ──
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[94vh] flex flex-col">
+      <div className="w-full max-w-lg bg-surface rounded-2xl shadow-xl border border-border overflow-hidden max-h-[94vh] flex flex-col">
 
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
           <div>
-            <h2 className="text-base font-bold text-gray-500">
+            <h2 className="text-base font-bold text-text-primary">
               {mode === "add" ? "Add New Customer" : `Edit — ${customer?.id}`}
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-text-secondary mt-0.5">
               {mode === "add" ? "Fill in customer details" : "Update customer information"}
             </p>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 flex items-center justify-center transition-colors">
+          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-background text-text-secondary flex items-center justify-center transition-colors">
             <X size={16} />
           </button>
         </div>
@@ -220,7 +220,7 @@ function CustomerModal({
             <div className="space-y-1.5">
               <label className={labelCls}>Phone Number *</label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
                 <input type="tel" placeholder="9876543210"
                   value={form.phone} onChange={(e) => set("phone", e.target.value)}
                   className={inputCls + " pl-8"} />
@@ -229,7 +229,7 @@ function CustomerModal({
             <div className="space-y-1.5">
               <label className={labelCls}>Email (Optional)</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
                 <input type="email" placeholder="email@example.com"
                   value={form.email} onChange={(e) => set("email", e.target.value)}
                   className={inputCls + " pl-8"} />
@@ -241,7 +241,7 @@ function CustomerModal({
           <div className="space-y-1.5">
             <label className={labelCls}>Address (Optional)</label>
             <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
               <input type="text" placeholder="Street / House No."
                 value={form.address} onChange={(e) => set("address", e.target.value)}
                 className={inputCls + " pl-8"} />
@@ -257,7 +257,7 @@ function CustomerModal({
                   className={inputCls + " appearance-none pr-8 cursor-pointer"}>
                   {CITIES.map((c) => <option key={c}>{c}</option>)}
                 </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
               </div>
             </div>
             <div className="space-y-1.5">
@@ -269,7 +269,7 @@ function CustomerModal({
                   <option value="regular">Regular</option>
                   <option value="vip">VIP</option>
                 </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
               </div>
             </div>
             <div className="space-y-1.5">
@@ -280,23 +280,23 @@ function CustomerModal({
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
               </div>
             </div>
           </div>
         </div>
 
-        <div className="px-6 py-4 border-t border-slate-100 flex gap-3 shrink-0">
+        <div className="px-6 py-4 border-t border-border flex gap-3 shrink-0">
           <button onClick={onClose}
-            className="flex-1 h-10 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+            className="flex-1 h-10 rounded-lg border border-border text-sm font-medium text-text-primary hover:bg-background transition-colors">
             Cancel
           </button>
           <button onClick={handleSave}
             disabled={!form.name.trim() || !form.phone.trim() || saved}
             className={`flex-1 h-10 rounded-lg text-sm font-semibold text-white transition-all flex items-center justify-center gap-2 ${
               saved
-                ? "bg-green-500"
-                : "bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                ? "bg-mint-light0"
+                : "bg-primary hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
             }`}>
             {saved
               ? <><CheckCircle size={16} /> Saved!</>
@@ -452,15 +452,15 @@ export default function CustomersPage() {
   const allCities  = ["All", ...Array.from(new Set(customers.map((c) => c.city))).sort()];
 
   const SortIcon = ({ k }: { k: typeof sortKey }) => (
-    <ArrowUpDown size={11} className={`inline ml-1 ${sortKey === k ? "text-red-500" : "text-slate-300"}`} />
+    <ArrowUpDown size={11} className={`inline ml-1 ${sortKey === k ? "text-coral" : "text-slate-300"}`} />
   );
 
   if (loading) {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-red-600" />
-          <p className="text-sm font-medium text-slate-500">Loading customers...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm font-medium text-text-secondary">Loading customers...</p>
         </div>
       </div>
     );
@@ -482,23 +482,23 @@ export default function CustomersPage() {
       {/* ── Delete Confirm ── */}
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-200 p-6 text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto">
-              <Trash2 className="w-5 h-5 text-red-500" />
+          <div className="w-full max-w-sm bg-surface rounded-2xl shadow-xl border border-border p-6 text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-coral-light flex items-center justify-center mx-auto">
+              <Trash2 className="w-5 h-5 text-coral" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-gray-500">Delete Customer?</h3>
-              <p className="text-sm text-slate-500 mt-1">
-                <span className="font-semibold text-slate-700">{customers.find((c) => c.id === deleteId)?.name}</span> and all their data will be permanently removed.
+              <h3 className="text-base font-bold text-text-primary">Delete Customer?</h3>
+              <p className="text-sm text-text-secondary mt-1">
+                <span className="font-semibold text-text-primary">{customers.find((c) => c.id === deleteId)?.name}</span> and all their data will be permanently removed.
               </p>
             </div>
             <div className="flex gap-3">
               <button onClick={() => setDeleteId(null)}
-                className="flex-1 h-10 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                className="flex-1 h-10 rounded-xl border border-border text-sm font-medium text-text-primary hover:bg-background transition-colors">
                 Cancel
               </button>
               <button onClick={() => handleDelete(deleteId)}
-                className="flex-1 h-10 rounded-xl bg-red-500 hover:bg-red-600 text-sm font-semibold text-white transition-colors">
+                className="flex-1 h-10 rounded-xl bg-primary hover:bg-primary text-sm font-semibold text-white transition-colors">
                 Delete
               </button>
             </div>
@@ -511,12 +511,12 @@ export default function CustomersPage() {
         {/* ── Page Header ── */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-xl font-bold text-gray-500">Customers</h1>
-            <p className="text-sm text-slate-500 mt-0.5">Manage customer profiles & purchase history</p>
+            <h1 className="text-xl font-bold text-text-primary">Customers</h1>
+            <p className="text-sm text-text-secondary mt-0.5">Manage customer profiles & purchase history</p>
           </div>
           <button
             onClick={() => openModal("add")}
-            className="flex items-center gap-2 h-9 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-sm font-semibold text-white transition-colors shadow-sm shadow-red-200"
+            className="flex items-center gap-2 h-9 px-4 rounded-xl bg-primary hover:bg-red-700 text-sm font-semibold text-white transition-colors shadow-sm shadow-red-200"
           >
             <Plus size={16} /> Add Customer
           </button>
@@ -525,84 +525,84 @@ export default function CustomersPage() {
         {/* ── KPI Cards ── */}
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
           {[
-            { label:"Total Customers", value: stats.total,    sub:"All registered",    icon:Users,      bg:"bg-slate-100", ic:"text-slate-600"  },
-            { label:"Active",          value: stats.active,   sub:"Currently active",  icon:CheckCircle, bg:"bg-green-50", ic:"text-green-600"  },
-            { label:"VIP Customers",   value: stats.vip,      sub:"High-value buyers", icon:Star,        bg:"bg-amber-50", ic:"text-amber-600"  },
-            { label:"Total Revenue",   value:`₹${(stats.revenue/1000).toFixed(1)}K`, sub:"All time", icon:IndianRupee, bg:"bg-red-50", ic:"text-red-600" },
+            { label:"Total Customers", value: stats.total,    sub:"All registered",    icon:Users,      bg:"bg-background", ic:"text-text-primary"  },
+            { label:"Active",          value: stats.active,   sub:"Currently active",  icon:CheckCircle, bg:"bg-mint-light", ic:"text-success"  },
+            { label:"VIP Customers",   value: stats.vip,      sub:"High-value buyers", icon:Star,        bg:"bg-warning/10", ic:"text-warning"  },
+            { label:"Total Revenue",   value:`₹${(stats.revenue/1000).toFixed(1)}K`, sub:"All time", icon:IndianRupee, bg:"bg-coral-light", ic:"text-primary" },
           ].map((k) => (
-            <div key={k.label} className="bg-white rounded-xl border border-slate-200 p-5">
+            <div key={k.label} className="bg-surface rounded-xl border border-border p-5">
               <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${k.bg} mb-3`}>
                 <k.icon className={`w-4 h-4 ${k.ic}`} />
               </div>
-              <p className="text-2xl font-bold text-gray-500 tabular-nums">{k.value}</p>
-              <p className="text-xs font-semibold text-slate-700 mt-0.5">{k.label}</p>
-              <p className="text-xs text-slate-400 mt-0.5">{k.sub}</p>
+              <p className="text-2xl font-bold text-text-primary tabular-nums">{k.value}</p>
+              <p className="text-xs font-semibold text-text-primary mt-0.5">{k.label}</p>
+              <p className="text-xs text-text-secondary mt-0.5">{k.sub}</p>
             </div>
           ))}
         </div>
 
         {/* ── Filters ── */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
+        <div className="bg-surface rounded-xl border border-border p-4">
           <div className="flex flex-wrap gap-3">
             {/* Search */}
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
               <input type="text" placeholder="Search name, phone, email, city, ID…"
                 value={search} onChange={(e) => setSearch(e.target.value)}
-                className={inputCls.replace("bg-slate-50","bg-white") + " pl-8 w-full h-9"} />
+                className={inputCls.replace("bg-background","bg-surface") + " pl-8 w-full h-9"} />
             </div>
 
             {/* Tag */}
             <div className="relative">
-              <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+              <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
               <select value={tagFilter} onChange={(e) => setTagFilter(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white pl-8 pr-8 text-sm text-slate-700 outline-none focus:border-red-400 appearance-none cursor-pointer">
+                className="h-9 rounded-lg border border-border bg-surface pl-8 pr-8 text-sm text-text-primary outline-none focus:border-red-400 appearance-none cursor-pointer">
                 <option>All</option>
                 <option value="new">New</option>
                 <option value="regular">Regular</option>
                 <option value="vip">VIP</option>
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
 
             {/* Status */}
             <div className="relative">
               <select value={stFilter} onChange={(e) => setStFilter(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 pr-8 text-sm text-slate-700 outline-none focus:border-red-400 appearance-none cursor-pointer">
+                className="h-9 rounded-lg border border-border bg-surface px-3 pr-8 text-sm text-text-primary outline-none focus:border-red-400 appearance-none cursor-pointer">
                 <option>All</option>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
 
             {/* City */}
             <div className="relative">
-              <MapPin className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+              <MapPin className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
               <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white pl-8 pr-8 text-sm text-slate-700 outline-none focus:border-red-400 appearance-none cursor-pointer">
+                className="h-9 rounded-lg border border-border bg-surface pl-8 pr-8 text-sm text-text-primary outline-none focus:border-red-400 appearance-none cursor-pointer">
                 {allCities.map((c) => <option key={c}>{c}</option>)}
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
 
             {hasFilters && (
               <button onClick={clearFilters}
-                className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-red-200 bg-red-50 text-xs font-semibold text-red-600 hover:bg-red-100 transition-colors">
+                className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-coral bg-coral-light text-xs font-semibold text-primary hover:bg-red-100 transition-colors">
                 <X size={13} /> Clear
               </button>
             )}
 
-            <span className="ml-auto text-xs text-slate-400 self-center">{filtered.length} customers</span>
+            <span className="ml-auto text-xs text-text-secondary self-center">{filtered.length} customers</span>
           </div>
         </div>
 
         {/* ── Table ── */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div className="bg-surface rounded-xl border border-border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50">
+                <tr className="border-b border-border bg-background">
                   {[
                     { label:"Customer",     k:"name"        },
                     { label:"Contact",      k:null          },
@@ -617,7 +617,7 @@ export default function CustomersPage() {
                   ].map(({ label, k }) => (
                     <th key={label}
                       onClick={() => k && toggleSort(k as typeof sortKey)}
-                      className={`px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap ${k ? "cursor-pointer hover:text-slate-600 select-none" : ""}`}>
+                      className={`px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap ${k ? "cursor-pointer hover:text-text-primary select-none" : ""}`}>
                       {label}
                       {k && <SortIcon k={k as typeof sortKey} />}
                     </th>
@@ -628,7 +628,7 @@ export default function CustomersPage() {
                 {filtered.map((c) => {
                   const tag = TAG_CONFIG[c.tag];
                   return (
-                    <tr key={c.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                    <tr key={c.id} className="border-b border-slate-50 hover:bg-background transition-colors">
 
                       {/* Customer */}
                       <td className="px-4 py-3.5">
@@ -637,20 +637,20 @@ export default function CustomersPage() {
                             <span className="text-xs font-bold text-red-700">{c.name.charAt(0)}</span>
                           </div>
                           <div>
-                            <p className="font-semibold text-slate-800 whitespace-nowrap">{c.name}</p>
-                            <p className="text-xs font-mono text-slate-400">{c.id}</p>
+                            <p className="font-semibold text-text-primary whitespace-nowrap">{c.name}</p>
+                            <p className="text-xs font-mono text-text-secondary">{c.id}</p>
                           </div>
                         </div>
                       </td>
 
                       {/* Contact */}
                       <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-1.5 text-slate-600 text-xs">
-                          <Phone size={11} className="text-slate-400" />
+                        <div className="flex items-center gap-1.5 text-text-primary text-xs">
+                          <Phone size={11} className="text-text-secondary" />
                           {c.phone}
                         </div>
                         {c.email && (
-                          <div className="flex items-center gap-1.5 text-slate-400 text-xs mt-0.5">
+                          <div className="flex items-center gap-1.5 text-text-secondary text-xs mt-0.5">
                             <Mail size={11} />
                             <span className="truncate max-w-[140px]">{c.email}</span>
                           </div>
@@ -658,7 +658,7 @@ export default function CustomersPage() {
                       </td>
 
                       {/* City */}
-                      <td className="px-4 py-3.5 text-slate-600 text-sm">{c.city}</td>
+                      <td className="px-4 py-3.5 text-text-primary text-sm">{c.city}</td>
 
                       {/* Tag */}
                       <td className="px-4 py-3.5">
@@ -671,23 +671,23 @@ export default function CustomersPage() {
                       {/* Orders */}
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-1.5">
-                          <Package size={12} className="text-slate-400" />
-                          <span className="font-semibold text-slate-700 tabular-nums">{c.totalOrders}</span>
+                          <Package size={12} className="text-text-secondary" />
+                          <span className="font-semibold text-text-primary tabular-nums">{c.totalOrders}</span>
                         </div>
                       </td>
 
                       {/* Total Spent */}
-                      <td className="px-4 py-3.5 font-bold text-gray-500 tabular-nums">
+                      <td className="px-4 py-3.5 font-bold text-text-primary tabular-nums">
                         {fmt(c.totalSpent)}
                       </td>
 
                       {/* Last Purchase */}
-                      <td className="px-4 py-3.5 text-xs text-slate-400 whitespace-nowrap">
+                      <td className="px-4 py-3.5 text-xs text-text-secondary whitespace-nowrap">
                         {c.lastPurchase}
                       </td>
 
                       {/* Joined */}
-                      <td className="px-4 py-3.5 text-xs text-slate-400 whitespace-nowrap">
+                      <td className="px-4 py-3.5 text-xs text-text-secondary whitespace-nowrap">
                         {c.joinedDate}
                       </td>
 
@@ -695,8 +695,8 @@ export default function CustomersPage() {
                       <td className="px-4 py-3.5">
                         <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                           c.status === "active"
-                            ? "bg-green-50 text-green-700"
-                            : "bg-slate-100 text-slate-500"
+                            ? "bg-mint-light text-success"
+                            : "bg-background text-text-secondary"
                         }`}>
                           {c.status === "active" ? "Active" : "Inactive"}
                         </span>
@@ -706,15 +706,15 @@ export default function CustomersPage() {
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-1.5">
                           <button onClick={() => openModal("view", c)}
-                            className="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 flex items-center justify-center transition-colors" title="View">
+                            className="w-8 h-8 rounded-lg bg-coral-light hover:bg-red-100 text-red-700 flex items-center justify-center transition-colors" title="View">
                             <Eye size={14} />
                           </button>
                           <button onClick={() => openModal("edit", c)}
-                            className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors" title="Edit">
+                            className="w-8 h-8 rounded-lg bg-background hover:bg-slate-200 text-text-primary flex items-center justify-center transition-colors" title="Edit">
                             <Pencil size={14} />
                           </button>
                           <button onClick={() => setDeleteId(c.id)}
-                            className="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 flex items-center justify-center transition-colors" title="Delete">
+                            className="w-8 h-8 rounded-lg bg-coral-light hover:bg-red-100 text-coral flex items-center justify-center transition-colors" title="Delete">
                             <Trash2 size={14} />
                           </button>
                         </div>
@@ -726,8 +726,8 @@ export default function CustomersPage() {
 
               {filtered.length > 0 && (
                 <tfoot>
-                  <tr className="bg-slate-50 border-t-2 border-slate-200">
-                    <td colSpan={5} className="px-4 py-3 text-xs font-bold text-slate-600">
+                  <tr className="bg-background border-t-2 border-border">
+                    <td colSpan={5} className="px-4 py-3 text-xs font-bold text-text-primary">
                       {filtered.length} customers
                     </td>
                     <td className="px-4 py-3 font-bold text-red-700 tabular-nums">
@@ -742,10 +742,10 @@ export default function CustomersPage() {
             {filtered.length === 0 && (
               <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
                 <Users size={36} className="text-slate-200" />
-                <p className="text-sm font-semibold text-slate-500">No customers found</p>
-                <p className="text-xs text-slate-400">Try adjusting your search or filters</p>
+                <p className="text-sm font-semibold text-text-secondary">No customers found</p>
+                <p className="text-xs text-text-secondary">Try adjusting your search or filters</p>
                 {hasFilters && (
-                  <button onClick={clearFilters} className="mt-1 text-xs text-red-600 font-semibold hover:underline">
+                  <button onClick={clearFilters} className="mt-1 text-xs text-primary font-semibold hover:underline">
                     Clear all filters
                   </button>
                 )}
