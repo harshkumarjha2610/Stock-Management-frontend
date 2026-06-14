@@ -11,18 +11,19 @@ import {
   CalendarDays, ShoppingBag, ChevronDown, Loader2,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useTheme } from "@/components/ThemeProvider";
 
 // ─── Palette (SaaS Exact) ──────────────────────────────────────────────────
 const C = {
-  primary:    "#A05AFF",
-  primaryMuted:"rgba(160, 90, 255, 0.2)",
-  mint:       "#1BCFB4",
-  blue:       "#4BCBEB",
-  coral:      "#FE9496",
-  warning:    "#FFD166",
-  grid:       "#ECE8F3",
-  textPrimary:"#2C2C34",
-  textMuted:  "#8C8A95",
+  primary: "#A05AFF",
+  primaryMuted: "rgba(160, 90, 255, 0.2)",
+  mint: "#1BCFB4",
+  blue: "#4BCBEB",
+  coral: "#FE9496",
+  warning: "#FFD166",
+  grid: "#ECE8F3",
+  textPrimary: "#2C2C34",
+  textMuted: "#8C8A95",
 };
 
 // ─── Custom Tooltip ─────────────────────────────────────────────────────────────
@@ -82,7 +83,7 @@ function ChartCard({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="saas-card p-5 flex flex-col gap-4 relative overflow-hidden transition-all duration-300">
+    <div className="glass-card p-5 flex flex-col gap-4 relative overflow-hidden transition-all duration-300">
       <div className="flex items-start justify-between gap-3 relative z-10">
         <div>
           <h2 className="text-sm font-bold text-text-primary">{title}</h2>
@@ -97,9 +98,10 @@ function ChartCard({
 
 // ─── Page ───────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
+  const { theme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [salesView, setSalesView] = useState<"daily" | "monthly">("daily");
-  
+
   const [summary, setSummary] = useState<any>({
     today_sales: 0,
     today_profit: 0,
@@ -123,11 +125,11 @@ export default function DashboardPage() {
       try {
         setLoading(true);
         const [
-          statsRes, 
-          dailyRes, 
-          monthlyRes, 
-          stockRes, 
-          attendanceRes, 
+          statsRes,
+          dailyRes,
+          monthlyRes,
+          stockRes,
+          attendanceRes,
           gstRes
         ] = await Promise.all([
           api.get('/reports/dashboard'),
@@ -158,19 +160,19 @@ export default function DashboardPage() {
           last_month_sales: 1100000,
           avg_margin: 28
         });
-        
+
         setDailySalesData(Array.from({ length: 14 }).map((_, i) => ({
           day: `Day ${i + 1}`,
           sales: Math.floor(Math.random() * 50000) + 10000,
           profit: Math.floor(Math.random() * 15000) + 3000
         })));
-        
+
         setMonthlySalesData(["Jan", "Feb", "Mar", "Apr", "May", "Jun"].map(month => ({
           month,
           sales: Math.floor(Math.random() * 800000) + 400000,
           profit: Math.floor(Math.random() * 200000) + 100000
         })));
-        
+
         setStockData([
           { name: "Premium T-Shirt", stock: 120, reorderAt: 20 },
           { name: "Denim Jeans", stock: 15, reorderAt: 20 },
@@ -178,7 +180,7 @@ export default function DashboardPage() {
           { name: "Summer Shorts", stock: 45, reorderAt: 15 },
           { name: "Winter Jacket", stock: 5, reorderAt: 10 }
         ]);
-        
+
         setAttendanceData([]);
         setGstSummary({ history: [], ytd_collected: 0 });
       } finally {
@@ -188,12 +190,18 @@ export default function DashboardPage() {
     fetchDashboardData();
   }, []);
 
-  // Update stats to use the new Triadic Analogous Palette
-  const stats = [
-    { label: "Today's Revenue",  value: `₹${summary.today_sales.toLocaleString()}`,  sub: "Updated live", icon: BadgeIndianRupee, color: "text-primary", bg: "bg-primary/10 border border-primary/20" },
-    { label: "Today's Profit",   value: `₹${summary.today_profit.toLocaleString()}`,  sub: "Gross margin",         icon: TrendingUp,       color: "text-mint",  bg: "bg-mint/10 border border-mint/20"  },
-    { label: "Stock Items",      value: summary.total_products.toString(),     sub: `${summary.low_stock_count} low / OOS`,  icon: Package,          color: "text-coral", bg: "bg-coral/10 border border-coral/20" },
-    { label: "Staff Present",    value: `${summary.staff_present}/${summary.staff_total}`,     sub: "Active staff",     icon: Users,            color: "text-blue",  bg: "bg-blue/10 border border-blue/20"  },
+  const isEnterprise = theme === "enterprise";
+
+  const stats = isEnterprise ? [
+    { label: "Today's Revenue", value: `₹${summary.today_sales.toLocaleString()}`, sub: "Increased by 60%", icon: BadgeIndianRupee, iconColor: "text-primary", iconBg: "bg-primary-light", cardStyle: { background: "var(--surface)" }, cardBorder: "border-border shadow-sm border" },
+    { label: "Today's Profit", value: `₹${summary.today_profit.toLocaleString()}`, sub: "Decreased by 10%", icon: TrendingUp, iconColor: "text-primary", iconBg: "bg-primary-light", cardStyle: { background: "var(--surface)" }, cardBorder: "border-border shadow-sm border" },
+    { label: "Visitors Online", value: "95,574", sub: "Increased by 5%", icon: Users, iconColor: "text-primary", iconBg: "bg-primary-light", cardStyle: { background: "var(--surface)" }, cardBorder: "border-border shadow-sm border" },
+    { label: "Total Stock", value: summary.total_products.toString(), sub: "Active stock items", icon: Package, iconColor: "text-primary", iconBg: "bg-primary-light", cardStyle: { background: "var(--surface)" }, cardBorder: "border-border shadow-sm border" },
+  ] : [
+    { label: "Today's Revenue", value: `₹${summary.today_sales.toLocaleString()}`, sub: "Increased by 60%", icon: BadgeIndianRupee, iconColor: "text-white", iconBg: "bg-white/20", cardStyle: { background: "linear-gradient(135deg, rgba(254, 148, 150, 0.9), rgba(255, 179, 180, 0.7))" }, cardBorder: "border-white/40 shadow-lg shadow-[#FE9496]/20" },
+    { label: "Today's Profit", value: `₹${summary.today_profit.toLocaleString()}`, sub: "Decreased by 10%", icon: TrendingUp, iconColor: "text-white", iconBg: "bg-white/20", cardStyle: { background: "linear-gradient(135deg, rgba(75, 203, 235, 0.9), rgba(133, 224, 245, 0.7))" }, cardBorder: "border-white/40 shadow-lg shadow-[#4BCBEB]/20" },
+    { label: "Visitors Online", value: "95,574", sub: "Increased by 5%", icon: Users, iconColor: "text-white", iconBg: "bg-white/20", cardStyle: { background: "linear-gradient(135deg, rgba(27, 207, 180, 0.9), rgba(91, 224, 199, 0.7))" }, cardBorder: "border-white/40 shadow-lg shadow-[#1BCFB4]/20" },
+    { label: "Total Stock", value: summary.total_products.toString(), sub: "Active stock items", icon: Package, iconColor: "text-white", iconBg: "bg-white/20", cardStyle: { background: "linear-gradient(135deg, rgba(160, 90, 255, 0.9), rgba(182, 109, 255, 0.7))" }, cardBorder: "border-white/40 shadow-lg shadow-[#A05AFF]/20" },
   ];
 
   const salesChartData = useMemo(() => {
@@ -206,7 +214,7 @@ export default function DashboardPage() {
       profit: item.profit,
     }));
   }, [salesView, dailySalesData, monthlySalesData]);
-  
+
   const salesXKey = "day";
 
   // Stock bar colors: Use Coral for OOS/Low, Mint for OK
@@ -214,8 +222,8 @@ export default function DashboardPage() {
     item.stock === 0
       ? C.coral
       : item.stock <= item.reorderAt
-      ? C.warning
-      : C.mint
+        ? C.warning
+        : C.mint
   );
 
   if (loading) {
@@ -241,13 +249,17 @@ export default function DashboardPage() {
       {/* ── Summary Stats ── */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         {stats.map((s) => (
-          <div key={s.label} className="saas-card p-5">
-            <div className={`inline-flex items-center justify-center w-10 h-10 rounded-xl ${s.bg} mb-4`}>
-              <s.icon className={`w-5 h-5 ${s.color}`} />
+          <div key={s.label} className={`glass-card p-5 ${s.cardBorder} relative overflow-hidden group`} style={s.cardStyle}>
+            {/* Exact overlapping circle patterns from screenshot */}
+            <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/10 blur-[1px] group-hover:scale-110 transition-transform" />
+            <div className="absolute -right-8 top-12 w-32 h-32 rounded-full bg-white/10 blur-[1px] group-hover:scale-110 transition-transform" />
+            
+            <div className={`inline-flex items-center justify-center w-10 h-10 rounded-xl ${s.iconBg} mb-4 relative z-10`}>
+              <s.icon className={`w-5 h-5 ${s.iconColor}`} />
             </div>
-            <p className="text-2xl font-bold text-text-primary">{s.value}</p>
-            <p className="text-sm font-semibold text-text-muted mt-1">{s.label}</p>
-            <p className="text-xs text-text-muted/70 mt-0.5">{s.sub}</p>
+            <p className="text-3xl font-bold text-white relative z-10">{s.value}</p>
+            <p className="text-sm font-semibold text-white/90 mt-1 relative z-10">{s.label}</p>
+            <p className="text-xs text-white/80 mt-0.5 relative z-10">{s.sub}</p>
           </div>
         ))}
       </div>
@@ -276,12 +288,12 @@ export default function DashboardPage() {
           <AreaChart data={salesChartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="gradSales" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%"  stopColor={C.primary}  stopOpacity={0.2} />
-                <stop offset="95%" stopColor={C.primary}  stopOpacity={0}    />
+                <stop offset="5%" stopColor={C.primary} stopOpacity={0.2} />
+                <stop offset="95%" stopColor={C.primary} stopOpacity={0} />
               </linearGradient>
               <linearGradient id="gradProfit" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%"  stopColor={C.blue} stopOpacity={0.2} />
-                <stop offset="95%" stopColor={C.blue} stopOpacity={0}    />
+                <stop offset="5%" stopColor={C.blue} stopOpacity={0.2} />
+                <stop offset="95%" stopColor={C.blue} stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke={C.grid} vertical={false} />
@@ -310,13 +322,23 @@ export default function DashboardPage() {
             />
             <Area
               type="monotone"
+              dataKey="sales"
+              name="Sales"
+              stroke={C.primary}
+              strokeWidth={3}
+              fill="url(#gradSales)"
+              dot={{ r: 0 }}
+              activeDot={{ r: 5, fill: C.primary, stroke: '#fff', strokeWidth: 2 }}
+            />
+            <Area
+              type="monotone"
               dataKey="profit"
               name="Profit"
-              stroke={C.blue}
+              stroke={C.coral}
               strokeWidth={3}
               fill="url(#gradProfit)"
               dot={{ r: 0 }}
-              activeDot={{ r: 5, fill: C.blue, stroke: '#fff', strokeWidth: 2 }}
+              activeDot={{ r: 5, fill: C.coral, stroke: '#fff', strokeWidth: 2 }}
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -344,13 +366,13 @@ export default function DashboardPage() {
               <Bar
                 dataKey="profit"
                 name="Profit"
-                fill={C.mint}
+                fill={C.blue}
                 radius={[4, 4, 0, 0]}
               />
               <Bar
                 dataKey="sales"
                 name="Sales"
-                fill={C.primaryMuted}
+                fill={C.primary}
                 radius={[4, 4, 0, 0]}
               />
             </BarChart>
@@ -359,9 +381,9 @@ export default function DashboardPage() {
           {/* Profit Metrics */}
           <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
             {[
-              { label: "This Month",  value: `₹${(summary.this_month_sales || 0).toLocaleString("en-IN")}` },
-              { label: "Last Month",  value: `₹${(summary.last_month_sales || 0).toLocaleString("en-IN")}` },
-              { label: "Avg Margin",  value: `${summary.avg_margin || 0}%` },
+              { label: "This Month", value: `₹${(summary.this_month_sales || 0).toLocaleString("en-IN")}` },
+              { label: "Last Month", value: `₹${(summary.last_month_sales || 0).toLocaleString("en-IN")}` },
+              { label: "Avg Margin", value: `${summary.avg_margin || 0}%` },
             ].map((m) => (
               <div key={m.label} className="text-center">
                 <p className="text-xs text-text-muted">{m.label}</p>
@@ -379,7 +401,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-3 text-xs text-text-muted">
               <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-mint inline-block" /> OK</span>
               <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-warning inline-block" /> Low</span>
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-coral inline-block"   /> OOS</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-coral inline-block" /> OOS</span>
             </div>
           }
         >
@@ -413,7 +435,7 @@ export default function DashboardPage() {
           {/* Stock Alerts */}
           <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
             {[
-              { label: "In Stock",  value: stockData.filter((s) => s.stock > s.reorderAt).length, color: "text-mint" },
+              { label: "In Stock", value: stockData.filter((s) => s.stock > s.reorderAt).length, color: "text-mint" },
               { label: "Low Stock", value: stockData.filter((s) => s.stock > 0 && s.stock <= s.reorderAt).length, color: "text-warning" },
               { label: "Out of Stock", value: stockData.filter((s) => s.stock === 0).length, color: "text-coral" },
             ].map((m) => (
@@ -426,6 +448,76 @@ export default function DashboardPage() {
         </ChartCard>
       </div>
 
+      {/* Enterprise Data Dense Tables */}
+      {isEnterprise && (
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ChartCard title="Recent Orders" subtitle="Latest transactions across all stores">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm text-text-secondary border-collapse">
+                <thead className="bg-surface sticky top-0 border-b border-border text-xs uppercase tracking-wider text-text-primary">
+                  <tr>
+                    <th className="py-3 px-4 font-bold">Order ID</th>
+                    <th className="py-3 px-4 font-bold">Customer</th>
+                    <th className="py-3 px-4 font-bold text-right">Amount</th>
+                    <th className="py-3 px-4 font-bold text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {[
+                    { id: "#ORD-901", customer: "Rahul S.", amount: "₹4,200", status: "Completed", color: "bg-mint-light text-mint" },
+                    { id: "#ORD-902", customer: "Vikram P.", amount: "₹1,550", status: "Processing", color: "bg-warning/10 text-warning" },
+                    { id: "#ORD-903", customer: "Aisha K.", amount: "₹8,900", status: "Completed", color: "bg-mint-light text-mint" },
+                    { id: "#ORD-904", customer: "Neha M.", amount: "₹3,400", status: "Pending", color: "bg-coral-light text-coral" },
+                  ].map((order) => (
+                    <tr key={order.id} className="hover:bg-primary-light transition-colors">
+                      <td className="py-3 px-4 font-mono font-medium text-text-primary">{order.id}</td>
+                      <td className="py-3 px-4 text-text-primary">{order.customer}</td>
+                      <td className="py-3 px-4 text-right font-bold text-text-primary">{order.amount}</td>
+                      <td className="py-3 px-4 text-center">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${order.color}`}>
+                          {order.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </ChartCard>
+
+          <ChartCard title="Stock Alerts" subtitle="Items requiring immediate attention">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm text-text-secondary border-collapse">
+                <thead className="bg-surface sticky top-0 border-b border-border text-xs uppercase tracking-wider text-text-primary">
+                  <tr>
+                    <th className="py-3 px-4 font-bold">Product Name</th>
+                    <th className="py-3 px-4 font-bold text-right">Stock</th>
+                    <th className="py-3 px-4 font-bold text-right">Reorder At</th>
+                    <th className="py-3 px-4 font-bold text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {stockData.filter(s => s.stock <= s.reorderAt).map((item, i) => {
+                    const isOos = item.stock === 0;
+                    return (
+                      <tr key={i} className="hover:bg-primary-light transition-colors">
+                        <td className="py-3 px-4 text-text-primary font-medium">{item.name}</td>
+                        <td className={`py-3 px-4 text-right font-bold ${isOos ? 'text-coral' : 'text-warning'}`}>{item.stock}</td>
+                        <td className="py-3 px-4 text-right text-text-muted">{item.reorderAt}</td>
+                        <td className="py-3 px-4 text-center">
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isOos ? 'bg-coral-light text-coral' : 'bg-warning/10 text-warning'}`}>
+                            {isOos ? 'Out of Stock' : 'Low Stock'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </ChartCard>
+        </div>
+      )}
     </div>
   );
 }

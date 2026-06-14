@@ -76,18 +76,18 @@ const REPORTS: { key: ReportType; label: string; icon: React.ElementType; color:
 // SHARED COMPONENTS
 // ═══════════════════════════════════════════════════════════════
 
-function KpiCard({ label, value, sub, delta, icon: Icon, bg, ic }: {
+function KpiCard({ label, value, sub, delta, icon: Icon, bg, ic, index = 0 }: {
   label: string; value: string; sub?: string; delta?: number;
-  icon: React.ElementType; bg: string; ic: string;
+  icon: React.ElementType; bg: string; ic: string; index?: number;
 }) {
   return (
-    <div className="bg-surface rounded-xl border border-border p-5">
-      <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${bg} mb-3`}>
-        <Icon className={`w-4 h-4 ${ic}`} />
+    <div className={`kpi-card kpi-${(index % 16) + 1}`}>
+      <div className="kpi-icon-box">
+        <Icon className={`w-4 h-4 text-white`} />
       </div>
-      <p className="text-2xl font-bold text-text-primary tabular-nums">{value}</p>
-      <p className="text-xs font-semibold text-text-primary mt-0.5">{label}</p>
-      {sub && <p className="text-xs text-text-secondary mt-0.5">{sub}</p>}
+      <p className="kpi-value">{value}</p>
+      <p className="kpi-label">{label}</p>
+      {sub && <p className="kpi-sub">{sub}</p>}
       {delta !== undefined && (
         <div className={`flex items-center gap-1 mt-1.5 text-xs font-semibold ${delta >= 0 ? "text-success" : "text-coral"}`}>
           {delta >= 0 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
@@ -111,7 +111,7 @@ function SectionHeader({ title, sub }: { title: string; sub?: string }) {
 
 function ChartCard({ title, children, sub }: { title: string; children: React.ReactNode; sub?: string }) {
   return (
-    <div className="bg-surface rounded-xl border border-border p-5">
+    <div className="glass-panel p-5">
       <p className="text-sm font-bold text-text-primary mb-1">{title}</p>
       {sub && <p className="text-xs text-text-secondary mb-4">{sub}</p>}
       {children}
@@ -141,10 +141,10 @@ function DailySalesReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <KpiCard label="Total Sales"    value={fmtK(totalSales)}   sub="Selected period"  icon={TrendingUp}  bg="bg-coral-light"   ic="text-primary"  />
-        <KpiCard label="Total Orders"   value={String(totalOrders)} sub="Transactions"    icon={Receipt}     bg="bg-mint-light"  ic="text-success" />
-        <KpiCard label="Avg Order Value" value={fmt(avgOrder)}      sub="Per transaction" icon={IndianRupee} bg="bg-purple-50" ic="text-purple-600"/>
-        <KpiCard label="Returns"        value={fmtK(totalReturns)} sub="Refunded amount" icon={TrendingDown} bg="bg-coral-light"   ic="text-coral"   />
+        <KpiCard index={0} label="Total Sales"    value={fmtK(totalSales)}   sub="Selected period"  icon={TrendingUp}  bg="bg-coral-light"   ic="text-primary"  />
+        <KpiCard index={1} label="Total Orders"   value={String(totalOrders)} sub="Transactions"    icon={Receipt}     bg="bg-mint-light"  ic="text-success" />
+        <KpiCard index={2} label="Avg Order Value" value={fmt(avgOrder)}      sub="Per transaction" icon={IndianRupee} bg="bg-purple-50" ic="text-purple-600"/>
+        <KpiCard index={3} label="Returns"        value={fmtK(totalReturns)} sub="Refunded amount" icon={TrendingDown} bg="bg-coral-light"   ic="text-coral"   />
       </div>
 
       <ChartCard title="Daily Sales Trend">
@@ -166,8 +166,8 @@ function DailySalesReport({ data }: { data: any[] }) {
         </ResponsiveContainer>
       </ChartCard>
 
-      <div className="bg-surface rounded-xl border border-border overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-border bg-background">
+      <div className="glass-panel overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-border bg-background/50">
           <p className="text-xs font-bold text-text-secondary uppercase tracking-wide">Day-wise Breakdown</p>
         </div>
         <div className="overflow-x-auto">
@@ -206,10 +206,10 @@ function MonthlySalesReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <KpiCard label="Total Revenue" value={fmtK(totalSales)}    sub="Selected Period" icon={TrendingUp}  bg="bg-coral-light"   ic="text-primary"  />
-        <KpiCard label="Total Orders"  value={String(totalOrders)} sub="Transactions"    icon={Receipt}     bg="bg-mint-light"  ic="text-success" />
-        <KpiCard label="Customers"     value={String(totalCustomers)} sub="Unique"      icon={Users}       bg="bg-purple-50" ic="text-purple-600"/>
-        <KpiCard label="Growth"        value="+12%"                sub="vs last month"   icon={BarChart3}   bg="bg-warning/10"  ic="text-warning" />
+        <KpiCard index={0} label="Total Revenue" value={fmtK(totalSales)}    sub="Selected Period" icon={TrendingUp}  bg="bg-coral-light"   ic="text-primary"  />
+        <KpiCard index={1} label="Total Orders"  value={String(totalOrders)} sub="Transactions"    icon={Receipt}     bg="bg-mint-light"  ic="text-success" />
+        <KpiCard index={2} label="Customers"     value={String(totalCustomers)} sub="Unique"      icon={Users}       bg="bg-purple-50" ic="text-purple-600"/>
+        <KpiCard index={3} label="Growth"        value="+12%"                sub="vs last month"   icon={BarChart3}   bg="bg-warning/10"  ic="text-warning" />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
@@ -253,10 +253,10 @@ function ProfitReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <KpiCard label="Total Revenue" value={fmtK(totalRevenue)} icon={TrendingUp}   bg="bg-coral-light"   ic="text-primary"  />
-        <KpiCard label="Total Cost"    value={fmtK(totalCost)}    icon={TrendingDown} bg="bg-coral-light"    ic="text-coral"   />
-        <KpiCard label="Net Profit"    value={fmtK(totalProfit)}  icon={IndianRupee}  bg="bg-mint-light"  ic="text-success" />
-        <KpiCard label="Avg Margin"    value={`${avgMargin}%`}    icon={BarChart3}    bg="bg-purple-50" ic="text-purple-600"/>
+        <KpiCard index={0} label="Total Revenue" value={fmtK(totalRevenue)} icon={TrendingUp}   bg="bg-coral-light"   ic="text-primary"  />
+        <KpiCard index={1} label="Total Cost"    value={fmtK(totalCost)}    icon={TrendingDown} bg="bg-coral-light"    ic="text-coral"   />
+        <KpiCard index={2} label="Net Profit"    value={fmtK(totalProfit)}  icon={IndianRupee}  bg="bg-mint-light"  ic="text-success" />
+        <KpiCard index={3} label="Avg Margin"    value={`${avgMargin}%`}    icon={BarChart3}    bg="bg-purple-50" ic="text-purple-600"/>
       </div>
 
       <ChartCard title="Revenue vs Cost vs Profit">
@@ -284,8 +284,8 @@ function GstReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <KpiCard label="Total GST"   value={fmtK(totalGST)} icon={Receipt}     bg="bg-warning/10"  ic="text-warning"  />
-        <KpiCard label="Taxable"     value={fmtK(data.reduce((t: number, d: any) => t + d.taxable, 0))} icon={IndianRupee} bg="bg-coral-light" ic="text-primary" />
+        <KpiCard index={0} label="Total GST"   value={fmtK(totalGST)} icon={Receipt}     bg="bg-warning/10"  ic="text-warning"  />
+        <KpiCard index={1} label="Taxable"     value={fmtK(data.reduce((t: number, d: any) => t + d.taxable, 0))} icon={IndianRupee} bg="bg-coral-light" ic="text-primary" />
       </div>
 
       <ChartCard title="GST Collection by Slab">
@@ -322,12 +322,12 @@ function CustomerPurchaseReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <KpiCard label="Total Customers" value={String(data.length)} icon={Users} bg="bg-purple-50" ic="text-purple-600" />
-        <KpiCard label="Total Revenue"   value={fmtK(totalRevenue)}   icon={IndianRupee} bg="bg-coral-light" ic="text-primary" />
+        <KpiCard index={0} label="Total Customers" value={String(data.length)} icon={Users} bg="bg-purple-50" ic="text-purple-600" />
+        <KpiCard index={1} label="Total Revenue"   value={fmtK(totalRevenue)}   icon={IndianRupee} bg="bg-coral-light" ic="text-primary" />
       </div>
 
-      <div className="bg-surface rounded-xl border border-border overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-background">
+      <div className="glass-card overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-transparent">
           <p className="text-xs font-bold text-text-secondary uppercase tracking-wide">Customer Purchase Details</p>
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
@@ -366,8 +366,8 @@ function CustomerPurchaseReport({ data }: { data: any[] }) {
 function StaffAttendanceReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
-      <div className="bg-surface rounded-xl border border-border overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-border bg-background">
+      <div className="glass-card overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-border bg-transparent">
           <p className="text-xs font-bold text-text-secondary uppercase tracking-wide">Staff Attendance Summary</p>
         </div>
         <div className="overflow-x-auto">
@@ -414,14 +414,14 @@ function SalaryPaidReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <KpiCard label="Total Salary Paid" value={fmtK(totalPaid)} icon={IndianRupee} bg="bg-mint-light" ic="text-success" />
-        <KpiCard label="Staff Count"      value={String(data.length)} icon={Users}       bg="bg-coral-light"  ic="text-primary"  />
+        <KpiCard index={0} label="Total Salary Paid" value={fmtK(totalPaid)} icon={IndianRupee} bg="bg-mint-light" ic="text-success" />
+        <KpiCard index={1} label="Staff Count"      value={String(data.length)} icon={Users}       bg="bg-coral-light"  ic="text-primary"  />
       </div>
 
-      <div className="bg-surface rounded-xl border border-border overflow-hidden">
+      <div className="glass-card overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-background">
+            <tr className="border-b border-border bg-transparent">
               {["Name","Total Paid","Last Payment"].map((h) => (
                 <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide">{h}</th>
               ))}
@@ -446,11 +446,11 @@ function SalaryPaidReport({ data }: { data: any[] }) {
 function StockHistoryReport({ data }: { data: any[] }) {
   return (
     <div className="space-y-6">
-      <div className="bg-surface rounded-xl border border-border overflow-hidden">
+      <div className="glass-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-background">
+              <tr className="border-b border-border bg-transparent">
                 {["Date","Product","Type","Qty","Supplier/Reason"].map((h) => (
                   <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide">{h}</th>
                 ))}
@@ -713,7 +713,7 @@ export default function ReportsPage() {
 
         {/* ── Sidebar Report Menu ── */}
         <div className="w-56 shrink-0">
-          <div className="bg-surface rounded-xl border border-border overflow-hidden sticky top-6">
+          <div className="glass-card overflow-hidden sticky top-6">
             <div className="px-4 py-3 border-b border-border">
               <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Report Types</p>
             </div>

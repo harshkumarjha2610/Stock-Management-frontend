@@ -161,19 +161,19 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function StatCard({
-  label, value, sub, icon: Icon, bg, ic,
+  label, value, sub, icon: Icon, bg, ic, index = 0
 }: {
   label: string; value: string | number; sub?: string;
-  icon: React.ElementType; bg: string; ic: string;
+  icon: React.ElementType; bg: string; ic: string; index?: number;
 }) {
   return (
-    <div className="bg-surface rounded-xl border border-border p-5">
-      <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${bg} mb-3`}>
-        <Icon className={`w-4 h-4 ${ic}`} />
+    <div className={`kpi-card kpi-${(index % 4) + 13}`}>
+      <div className="kpi-icon-box">
+        <Icon className="w-5 h-5" />
       </div>
-      <p className="text-2xl font-bold text-text-primary">{value}</p>
-      <p className="text-xs font-semibold text-text-primary mt-0.5">{label}</p>
-      {sub && <p className="text-xs text-text-secondary mt-0.5">{sub}</p>}
+      <p className="kpi-value">{value}</p>
+      <p className="kpi-label">{label}</p>
+      {sub && <p className="kpi-sub">{sub}</p>}
     </div>
   );
 }
@@ -676,10 +676,12 @@ export default function StaffManagementPage() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-            <StatCard label="Total Staff"    value={staffList.length}                                          sub="All records"             icon={Users}            bg="bg-coral-light"   ic="text-primary"   />
-            <StatCard label="Active Staff"   value={staffList.filter((s) => s.status === "Active").length}    sub="Currently working"       icon={UserCheck}        bg="bg-mint-light"  ic="text-success"  />
-            <StatCard label="Inactive Staff" value={staffList.filter((s) => s.status === "Inactive").length}  sub="On leave / resigned"     icon={AlertCircle}      bg="bg-warning/10"  ic="text-warning"  />
-            <StatCard label="Monthly Payroll" value={fmt(staffList.filter((s) => s.status === "Active").reduce((t, s) => t + s.salary, 0))} sub="Active staff total" icon={BadgeIndianRupee} bg="bg-purple-50" ic="text-purple-600" />
+            {[
+              { label: "Total Staff", value: staffList.length, sub: "All records", icon: Users, bg: "bg-red-50", ic: "text-primary" },
+              { label: "Active Staff", value: staffList.filter((s) => s.status === "Active").length, sub: "Currently working", icon: UserCheck, bg: "bg-emerald-50", ic: "text-emerald-600" },
+              { label: "Inactive Staff", value: staffList.filter((s) => s.status === "Inactive").length, sub: "On leave / resigned", icon: AlertCircle, bg: "bg-amber-50", ic: "text-amber-600" },
+              { label: "Monthly Payroll", value: fmt(staffList.filter((s) => s.status === "Active").reduce((t, s) => t + s.salary, 0)), sub: "Active staff total", icon: BadgeIndianRupee, bg: "bg-purple-50", ic: "text-purple-600" }
+            ].map((k, i) => <StatCard key={k.label} index={i} {...k} />)}
           </div>
 
           {/* Filters + Add */}
@@ -703,7 +705,7 @@ export default function StaffManagementPage() {
           </div>
 
           {/* Staff Table */}
-          <div className="bg-surface rounded-xl border border-border overflow-hidden">
+          <div className="glass-panel overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -802,8 +804,8 @@ export default function StaffManagementPage() {
                 { label: "Checked Out",     value: checkedOut, icon: LogOut,       bg: "bg-teal-50",   ic: "text-teal-600"   },
                 { label: "Absent Today",    value: absent < 0 ? 0 : absent, icon: XCircle, bg: "bg-coral-light", ic: "text-coral" },
               ];
-            })().map((s) => (
-              <StatCard key={s.label} {...s} />
+            })().map((s, i) => (
+              <StatCard key={s.label} index={i} {...s} />
             ))}
           </div>
 
@@ -848,7 +850,7 @@ export default function StaffManagementPage() {
 
           {/* ── Daily Report ── */}
           {attView === "daily" && (
-            <div className="bg-surface rounded-xl border border-border overflow-hidden">
+            <div className="glass-panel overflow-hidden">
               <div className="flex items-center justify-between px-5 py-4 border-b border-border">
                 <div>
                   <h2 className="text-sm font-bold text-text-primary">Daily Attendance Report</h2>
@@ -940,7 +942,7 @@ export default function StaffManagementPage() {
 
           {/* ── Monthly Summary ── */}
           {attView === "monthly" && (
-            <div className="bg-surface rounded-xl border border-border overflow-hidden">
+            <div className="glass-panel overflow-hidden">
               <div className="flex items-center justify-between px-5 py-4 border-b border-border">
                 <div>
                   <h2 className="text-sm font-bold text-text-primary">Monthly Attendance Summary</h2>
@@ -1014,10 +1016,10 @@ export default function StaffManagementPage() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-            <StatCard label="Total Payable"  value={fmt(totalPayable)}  sub={`${filteredSalary.length} records`}   icon={BadgeIndianRupee} bg="bg-coral-light"   ic="text-primary"   />
-            <StatCard label="Total Paid"     value={fmt(totalPaid)}     sub="This period"                           icon={CheckCircle}      bg="bg-mint-light"  ic="text-success"  />
-            <StatCard label="Total Pending"  value={fmt(totalPending)}  sub={`${unpaidCount} unpaid`}               icon={Clock}            bg="bg-warning/10"  ic="text-warning"  />
-            <StatCard label="Staff Count"    value={filteredSalary.length} sub="In selected month"                  icon={Users}            bg="bg-purple-50" ic="text-purple-600" />
+            <StatCard index={0} label="Total Payable"  value={fmt(totalPayable)}  sub={`${filteredSalary.length} records`}   icon={BadgeIndianRupee} bg="bg-coral-light"   ic="text-primary"   />
+            <StatCard index={1} label="Total Paid"     value={fmt(totalPaid)}     sub="This period"                           icon={CheckCircle}      bg="bg-mint-light"  ic="text-success"  />
+            <StatCard index={2} label="Total Pending"  value={fmt(totalPending)}  sub={`${unpaidCount} unpaid`}               icon={Clock}            bg="bg-warning/10"  ic="text-warning"  />
+            <StatCard index={3} label="Staff Count"    value={filteredSalary.length} sub="In selected month"                  icon={Users}            bg="bg-purple-50" ic="text-purple-600" />
           </div>
 
           {/* Filters */}
@@ -1039,7 +1041,7 @@ export default function StaffManagementPage() {
           </div>
 
           {/* Salary Table */}
-          <div className="bg-surface rounded-xl border border-border overflow-hidden">
+          <div className="glass-panel overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-border">
               <div>
                 <h2 className="text-sm font-bold text-text-primary">Salary Records</h2>
@@ -1121,7 +1123,7 @@ export default function StaffManagementPage() {
 
           {/* Monthly Report Summary Cards */}
           {salaryMonth && (
-            <div className="bg-surface rounded-xl border border-border p-5">
+            <div className="glass-panel p-5">
               <h3 className="text-sm font-bold text-text-primary mb-4">
                 Monthly Salary Report — {fmtMonth(salaryMonth)}
               </h3>
@@ -1471,7 +1473,7 @@ export default function StaffManagementPage() {
       {/* ── Delete Staff Confirm ── */}
       {deleteStaffId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="w-full max-w-sm bg-surface rounded-2xl shadow-xl border border-border p-6">
+          <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-border p-6">
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-coral-light mx-auto mb-4">
               <Trash2 className="w-5 h-5 text-coral" />
             </div>
@@ -1621,7 +1623,7 @@ export default function StaffManagementPage() {
       {/* ── Success Modal (Credentials) ── */}
       {successModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md px-4">
-          <div className="w-full max-w-sm bg-surface rounded-3xl shadow-2xl border border-border overflow-hidden">
+          <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-border overflow-hidden">
             <div className="bg-green-600 p-8 flex flex-col items-center text-white">
               <div className="w-16 h-16 bg-surface/20 rounded-full flex items-center justify-center mb-4">
                 <CheckCircle size={32} />
@@ -1762,7 +1764,7 @@ function Modal({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className={`w-full ${maxW} bg-surface rounded-2xl shadow-xl border border-border overflow-hidden max-h-[92vh] flex flex-col`}>
+      <div className={`w-full ${maxW} bg-white rounded-2xl shadow-xl border border-border overflow-hidden max-h-[92vh] flex flex-col`}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
           <div>
             <h2 className="text-base font-bold text-text-primary">{title}</h2>

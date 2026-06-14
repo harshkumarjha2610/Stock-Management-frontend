@@ -200,23 +200,24 @@ export default function SalesPage() {
       {/* ── Summary Cards ── */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         {[
-          { label: "Total Revenue",   value: fmt(totalRevenue),  icon: BadgeIndianRupee, bg: "bg-coral-light",   iconColor: "text-primary"  },
-          { label: "Total Invoices",  value: totalBills,          icon: ShoppingBag,      bg: "bg-mint-light",  iconColor: "text-success" },
-          { label: "Total GST",       value: fmt(totalGST),       icon: TrendingUp,       bg: "bg-purple-50", iconColor: "text-purple-600"},
-          { label: "Total Discounts", value: fmt(totalDiscount),  icon: CalendarDays,     bg: "bg-warning/10",  iconColor: "text-warning" },
-        ].map((s) => (
-          <div key={s.label} className="bg-surface rounded-xl border border-border p-5">
-            <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${s.bg} mb-3`}>
-              <s.icon className={`w-4 h-4 ${s.iconColor}`} />
+          { label: "Total Revenue",   value: fmt(totalRevenue),  icon: BadgeIndianRupee, sub: "Gross sales" },
+          { label: "Total Invoices",  value: totalBills,          icon: ShoppingBag,      sub: "Completed orders" },
+          { label: "Total GST",       value: fmt(totalGST),       icon: TrendingUp,       sub: "Tax collected" },
+          { label: "Total Discounts", value: fmt(totalDiscount),  icon: CalendarDays,     sub: "Savings applied" },
+        ].map((s, i) => (
+          <div key={s.label} className={`kpi-card kpi-${(i % 4) + 9}`}>
+            <div className="kpi-icon-box">
+              <s.icon className="w-5 h-5" />
             </div>
-            <p className="text-2xl font-bold text-text-primary">{s.value}</p>
-            <p className="text-xs text-text-secondary mt-0.5 font-medium">{s.label}</p>
+            <p className="kpi-value">{s.value}</p>
+            <p className="kpi-label">{s.label}</p>
+            <p className="kpi-sub">{s.sub}</p>
           </div>
         ))}
       </div>
 
       {/* ── Filters ── */}
-      <div className="bg-surface rounded-xl border border-border p-4">
+      <div className="glass-panel p-4">
         <div className="flex flex-col sm:flex-row gap-3">
 
           {/* Search */}
@@ -227,7 +228,7 @@ export default function SalesPage() {
               placeholder="Search by invoice, customer, product…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className={inputCls + " pl-9"}
+              className="w-full h-10 bg-background border border-border rounded-lg pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
@@ -238,7 +239,7 @@ export default function SalesPage() {
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
-              className={inputCls + " w-40"}
+              className="w-40 h-10 bg-background border border-border rounded-lg px-3 text-sm focus:outline-none"
             />
           </div>
 
@@ -249,7 +250,7 @@ export default function SalesPage() {
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
-              className={inputCls + " w-40"}
+              className="w-40 h-10 bg-background border border-border rounded-lg px-3 text-sm focus:outline-none"
             />
           </div>
 
@@ -258,7 +259,7 @@ export default function SalesPage() {
             <select
               value={pmFilter}
               onChange={(e) => setPmFilter(e.target.value)}
-              className={inputCls + " w-36 appearance-none pr-8 cursor-pointer"}
+              className="w-36 h-10 bg-background border border-border rounded-lg px-3 text-sm focus:outline-none appearance-none pr-8 cursor-pointer"
             >
               {["All", "Cash", "UPI", "Card"].map((m) => (
                 <option key={m}>{m}</option>
@@ -305,7 +306,7 @@ export default function SalesPage() {
           TAB: ALL INVOICES
       ════════════════════════════════════════════════════ */}
       {activeTab === "All" && (
-        <div className="bg-surface rounded-xl border border-border overflow-hidden">
+        <div className="glass-panel overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -381,7 +382,7 @@ export default function SalesPage() {
           TAB: DAY-WISE
       ════════════════════════════════════════════════════ */}
       {activeTab === "Day" && (
-        <div className="bg-surface rounded-xl border border-border overflow-hidden">
+        <div className="glass-panel overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -429,8 +430,8 @@ export default function SalesPage() {
       ════════════════════════════════════════════════════ */}
       {activeTab === "Month" && (
         <div className="space-y-4">
-          {/* Bar Chart */}
-          <div className="bg-surface rounded-xl border border-border p-5">
+          {/* Details Panel */}
+          <div className="glass-panel p-5">
             <h3 className="text-sm font-bold text-text-primary mb-5">Monthly Revenue</h3>
             {monthWise.length === 0 ? (
               <p className="text-sm text-text-secondary text-center py-8">No data for selected filters</p>
@@ -460,8 +461,8 @@ export default function SalesPage() {
             )}
           </div>
 
-          {/* Monthly Table */}
-          <div className="bg-surface rounded-xl border border-border overflow-hidden">
+          {/* ── Recent Sales Table ── */}
+          <div className="glass-panel">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -499,7 +500,7 @@ export default function SalesPage() {
           TAB: BY CUSTOMER
       ════════════════════════════════════════════════════ */}
       {activeTab === "Customer" && (
-        <div className="bg-surface rounded-xl border border-border overflow-hidden">
+        <div className="glass-panel overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -554,7 +555,7 @@ export default function SalesPage() {
           TAB: BY PRODUCT
       ════════════════════════════════════════════════════ */}
       {activeTab === "Product" && (
-        <div className="bg-surface rounded-xl border border-border overflow-hidden">
+        <div className="glass-panel overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -604,7 +605,7 @@ export default function SalesPage() {
       ════════════════════════════════════════════════════ */}
       {viewSale && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="w-full max-w-md bg-surface rounded-2xl shadow-xl border border-border overflow-hidden max-h-[90vh] flex flex-col">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-border overflow-hidden max-h-[90vh] flex flex-col">
 
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">

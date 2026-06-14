@@ -210,6 +210,7 @@ function StatCard({
   bg,
   ic,
   highlight,
+  index = 0,
 }: {
   label: string;
   value: string | number;
@@ -218,21 +219,16 @@ function StatCard({
   bg: string;
   ic: string;
   highlight?: boolean;
+  index?: number;
 }) {
   return (
-    <div
-      className={`rounded-xl border p-5 ${
-        highlight ? "border-warning bg-warning/10" : "bg-surface border-border"
-      }`}
-    >
-      <div
-        className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${bg} mb-3`}
-      >
-        <Icon className={`w-4 h-4 ${ic}`} />
+    <div className={`kpi-card kpi-${(index % 4) + 5} ${highlight ? "kpi-highlight" : ""}`}>
+      <div className="kpi-icon-box">
+        <Icon className="w-5 h-5" />
       </div>
-      <p className="text-2xl font-bold text-text-primary">{value}</p>
-      <p className="text-xs font-semibold text-text-primary mt-0.5">{label}</p>
-      {sub && <p className="text-xs text-text-secondary mt-0.5">{sub}</p>}
+      <p className="kpi-value">{value}</p>
+      <p className="kpi-label">{label}</p>
+      {sub && <p className="kpi-sub">{sub}</p>}
     </div>
   );
 }
@@ -723,7 +719,7 @@ function ProductModal({
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-        <div className="w-[80%] bg-surface rounded-2xl shadow-xl border border-border overflow-hidden max-h-[92vh] flex flex-col">
+        <div className="w-[80%] bg-white rounded-2xl shadow-xl border border-border overflow-hidden max-h-[92vh] flex flex-col">
 
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
@@ -936,7 +932,7 @@ function ProductModal({
   // ── ADD / EDIT FORM ───────────────────────────────────────────
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className="w-[80%] bg-surface rounded-2xl shadow-xl border border-border overflow-hidden max-h-[94vh] flex flex-col">
+      <div className="w-[80%] bg-white rounded-2xl shadow-xl border border-border overflow-hidden max-h-[94vh] flex flex-col">
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
@@ -1443,10 +1439,10 @@ export default function ProductsPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-          <StatCard label="Total Products"  value={products.length} sub="All categories"    icon={Package}       bg="bg-coral-light"   ic="text-primary"   />
-          <StatCard label="In Stock"        value={inStockCount}    sub="Available"          icon={CheckCircle}   bg="bg-mint-light"  ic="text-success"  />
-          <StatCard label="Low / Out"       value={`${lowCount} / ${outCount}`} sub="Need attention" icon={AlertTriangle} bg="bg-warning/10"  ic="text-warning"  highlight={lowCount + outCount > 0} />
-          <StatCard label="Inventory Value" value={fmt(totalValue)} sub="At purchase price" icon={BarChart3}      bg="bg-purple-50" ic="text-purple-600" />
+          <StatCard index={0} label="Total Products"  value={products.length} sub="All categories"    icon={Package}       bg="bg-coral-light"   ic="text-primary"   />
+          <StatCard index={1} label="In Stock"        value={inStockCount}    sub="Available"          icon={CheckCircle}   bg="bg-mint-light"  ic="text-success"  />
+          <StatCard index={2} label="Low / Out"       value={`${lowCount} / ${outCount}`} sub="Need attention" icon={AlertTriangle} bg="bg-warning/10"  ic="text-warning"  highlight={lowCount + outCount > 0} />
+          <StatCard index={3} label="Inventory Value" value={fmt(totalValue)} sub="At purchase price" icon={BarChart3}      bg="bg-purple-50" ic="text-purple-600" />
         </div>
 
         {/* Low stock banner */}
@@ -1551,7 +1547,7 @@ export default function ProductsPage() {
 
         {/* ── TABLE VIEW ── */}
         {viewMode === "table" && (
-          <div className="bg-surface rounded-xl border border-border overflow-hidden">
+          <div className="glass-panel">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -1749,7 +1745,7 @@ export default function ProductsPage() {
                   return (
                     <div
                       key={p.id}
-                      className="bg-surface rounded-xl border border-border overflow-hidden hover:border-coral hover:shadow-md transition-all group"
+                      className="glass-panel overflow-visible hover:border-coral hover:shadow-md transition-all group"
                     >
                       <div className="relative w-full aspect-[3/4] bg-background border-b border-border">
                         {p.image ? (
@@ -1891,7 +1887,7 @@ export default function ProductsPage() {
           const p = products.find((x) => x.id === deleteId);
           return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-              <div className="w-full max-w-sm bg-surface rounded-2xl shadow-xl border border-border overflow-hidden">
+              <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-border overflow-hidden">
                 <div className="px-6 py-5 text-center space-y-3">
                   <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto">
                     <Trash2 size={20} className="text-primary" />

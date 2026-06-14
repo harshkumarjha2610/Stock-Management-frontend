@@ -5,9 +5,10 @@ import {
   Search, Eye, Trash2, X, ChevronDown, Filter,
   ShoppingCart, Clock, CheckCircle, XCircle, Truck,
   IndianRupee, CalendarDays, User, Phone, Package,
-  ArrowUpDown, RefreshCw, Receipt, Loader2,
+  ArrowUpDown, RefreshCw, Receipt, Loader2, Download, ChevronLeft, ChevronRight, ShoppingBag
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useTheme } from "@/components/ThemeProvider";
 
 // ═══════════════════════════════════════════════════════════
 // TYPES
@@ -100,7 +101,7 @@ function OrderDetailModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className="w-[80%] bg-surface rounded-2xl shadow-xl border border-border overflow-hidden max-h-[92vh] flex flex-col">
+      <div className="w-[80%] bg-white rounded-2xl shadow-xl border border-border overflow-hidden max-h-[92vh] flex flex-col">
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
@@ -244,6 +245,9 @@ function OrderDetailModal({
 // ═══════════════════════════════════════════════════════════
 
 export default function OrdersPage() {
+  const { theme } = useTheme();
+  const isEnterprise = theme === "enterprise";
+
   const [orders,     setOrders]     = useState<Order[]>([]);
   const [loading,    setLoading]    = useState(true);
 
@@ -300,6 +304,10 @@ export default function OrdersPage() {
   const [sortDir,    setSortDir]    = useState<"asc" | "desc">("desc");
   const [viewing,    setViewing]    = useState<Order | null>(null);
   const [deleteId,   setDeleteId]   = useState<string | null>(null);
+  
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = isEnterprise ? 15 : 10;
 
   // ── Stats ──
   const stats = useMemo(() => ({
@@ -334,9 +342,44 @@ export default function OrdersPage() {
       });
   }, [orders, search, statusF, payF, methodF, dateFrom, dateTo, sortKey, sortDir]);
 
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusF, payF, methodF, dateFrom, dateTo]);
+
+  const paginatedOrders = useMemo(() => {
+    if (!isEnterprise) return filtered; // In SaaS mode, maybe show all or standard pagination (we'll keep it untouched or just paginate all to be safe)
+    const start = (currentPage - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, currentPage, pageSize, isEnterprise]);
+
+  const totalPages = Math.ceil(filtered.length / pageSize);
+
   function toggleSort(key: typeof sortKey) {
     if (sortKey === key) setSortDir((d) => d === "asc" ? "desc" : "asc");
     else { setSortKey(key); setSortDir("desc"); }
+  }
+
+  function handleExportCSV() {
+    const csvContent = [
+      ["Order ID", "Customer", "Phone", "Amount", "Payment", "Status", "Date"].join(","),
+      ...filtered.map(o => [
+        o.invoiceNo,
+        `"${o.customer}"`,
+        o.phone,
+        o.grandTotal,
+        o.paymentStatus,
+        o.status,
+        o.createdAt
+      ].join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Orders_Export_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
   }
 
 
@@ -384,7 +427,7 @@ export default function OrdersPage() {
       {/* ── Delete Confirm ── */}
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="w-full max-w-sm bg-surface rounded-2xl shadow-xl border border-border p-6 text-center space-y-4">
+          <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-border p-6 text-center space-y-4">
             <div className="w-12 h-12 rounded-full bg-coral-light flex items-center justify-center mx-auto">
               <Trash2 className="w-5 h-5 text-coral" />
             </div>
@@ -409,32 +452,43 @@ export default function OrdersPage() {
       <div className="space-y-6">
 
         {/* ── Page Header ── */}
-        <div>
-          <h1 className="text-xl font-bold text-text-primary">Orders</h1>
-          <p className="text-sm text-text-secondary mt-0.5">Manage all customer orders & invoices</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-text-primary">Orders</h1>
+            <p className="text-sm text-text-secondary mt-0.5">Manage all customer orders & invoices</p>
+          </div>
+          {isEnterprise && (
+            <button
+              onClick={handleExportCSV}
+              className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary-hover transition-colors shadow-sm"
+            >
+              <Download size={16} />
+              Export CSV
+            </button>
+          )}
         </div>
 
         {/* ── KPI Cards ── */}
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
           {[
-            { label:"Total Orders",  value: stats.total,        sub:"All time",    icon:ShoppingCart, bg:"bg-background", ic:"text-text-primary" },
-            { label:"Pending",       value: stats.pending,      sub:"Need action", icon:Clock,        bg:"bg-warning/10",  ic:"text-warning", highlight: stats.pending > 0 },
-            { label:"Delivered",     value: stats.delivered,    sub:"Completed",   icon:CheckCircle,  bg:"bg-mint-light",  ic:"text-success" },
-            { label:"Total Revenue", value:`₹${(stats.revenue/1000).toFixed(1)}K`, sub:"Excl. cancelled", icon:IndianRupee, bg:"bg-coral-light", ic:"text-primary" },
-          ].map((k) => (
-            <div key={k.label} className={`rounded-xl border p-5 ${k.highlight ? "bg-warning/10 border-warning" : "bg-surface border-border"}`}>
-              <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${k.bg} mb-3`}>
-                <k.icon className={`w-4 h-4 ${k.ic}`} />
+            { label: "Total Orders",  value: stats.total,        sub: "All time",    icon: ShoppingBag },
+            { label: "Pending",       value: stats.pending,      sub: "To process",  icon: Clock,        highlight: stats.pending > 0 },
+            { label: "Delivered",     value: stats.delivered,    sub: "Completed",   icon: CheckCircle },
+            { label: "Total Revenue", value: `₹${(stats.revenue/1000).toFixed(1)}K`, sub: "Excl. cancelled", icon: IndianRupee },
+          ].map((k, i) => (
+            <div key={k.label} className={`kpi-card kpi-${(i % 4) + 1} ${k.highlight ? "kpi-highlight" : ""}`}>
+              <div className="kpi-icon-box">
+                <k.icon className="w-5 h-5" />
               </div>
-              <p className="text-2xl font-bold text-text-primary tabular-nums">{k.value}</p>
-              <p className="text-xs font-semibold text-text-primary mt-0.5">{k.label}</p>
-              <p className="text-xs text-text-secondary mt-0.5">{k.sub}</p>
+              <p className="kpi-value">{k.value}</p>
+              <p className="kpi-label">{k.label}</p>
+              <p className="kpi-sub">{k.sub}</p>
             </div>
           ))}
         </div>
 
         {/* ── Filters ── */}
-        <div className="bg-surface rounded-xl border border-border p-4">
+        <div className="glass-panel p-4">
           <div className="flex flex-wrap gap-3">
 
             {/* Search */}
@@ -516,7 +570,7 @@ export default function OrdersPage() {
         </div>
 
         {/* ── Orders Table ── */}
-        <div className="bg-surface rounded-xl border border-border overflow-hidden">
+        <div className="glass-panel">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -541,14 +595,15 @@ export default function OrdersPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((order) => {
+                {(isEnterprise ? paginatedOrders : filtered).map((order) => {
                   const orderSt = getOrderStatus(order.status);
                   const paySt   = getPayStatus(order.paymentStatus);
+                  const densityClass = isEnterprise ? "py-2" : "py-4";
                   return (
                     <tr key={order.id} className="border-b border-slate-50 hover:bg-background transition-colors">
 
                       {/* Order ID */}
-                      <td className="px-5 py-4">
+                      <td className={`px-5 ${densityClass}`}>
                         <p className="font-semibold text-text-primary text-xs font-mono">{order.invoiceNo}</p>
                         <p className="text-xs text-text-secondary mt-0.5">{order.id}</p>
                         {order.billedBy && (
@@ -559,13 +614,13 @@ export default function OrdersPage() {
                       </td>
 
                       {/* Customer */}
-                      <td className="px-5 py-4">
+                      <td className={`px-5 ${densityClass}`}>
                         <p className="font-semibold text-text-primary whitespace-nowrap">{order.customer || "Walk-in"}</p>
                         <p className="text-xs text-text-secondary mt-0.5">{order.phone}</p>
                       </td>
 
                       {/* Items */}
-                      <td className="px-5 py-4">
+                      <td className={`px-5 ${densityClass}`}>
                         <div className="flex items-center gap-1.5">
                           <Package size={13} className="text-text-secondary shrink-0" />
                           <span className="text-text-primary text-xs font-semibold">{order.items.length} item{order.items.length > 1 ? "s" : ""}</span>
@@ -576,7 +631,7 @@ export default function OrdersPage() {
                       </td>
 
                       {/* Amount */}
-                      <td className="px-5 py-4">
+                      <td className={`px-5 ${densityClass}`}>
                         <p className="font-bold text-text-primary tabular-nums">{fmt(order.grandTotal)}</p>
                         {order.totalDiscount > 0 && (
                           <p className="text-xs text-success mt-0.5">−{fmt(order.totalDiscount)} off</p>
@@ -584,7 +639,7 @@ export default function OrdersPage() {
                       </td>
 
                       {/* Payment */}
-                      <td className="px-5 py-4">
+                      <td className={`px-5 ${densityClass}`}>
                         <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${paySt.bg} ${paySt.color}`}>
                           {paySt.label}
                         </span>
@@ -592,7 +647,7 @@ export default function OrdersPage() {
                       </td>
 
                       {/* Order Status */}
-                      <td className="px-5 py-4">
+                      <td className={`px-5 ${densityClass}`}>
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${orderSt.bg} ${orderSt.color}`}>
                           <orderSt.icon size={11} />
                           {orderSt.label}
@@ -600,12 +655,12 @@ export default function OrdersPage() {
                       </td>
 
                       {/* Date */}
-                      <td className="px-5 py-4 text-xs text-text-secondary whitespace-nowrap">
+                      <td className={`px-5 ${densityClass} text-xs text-text-secondary whitespace-nowrap`}>
                         {order.createdAt}
                       </td>
 
                       {/* Actions */}
-                      <td className="px-5 py-4">
+                      <td className={`px-5 ${densityClass}`}>
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => setViewing(order)}
@@ -633,7 +688,7 @@ export default function OrdersPage() {
                 <tfoot>
                   <tr className="bg-background border-t-2 border-border">
                     <td colSpan={3} className="px-5 py-3 text-xs font-bold text-text-primary">
-                      {filtered.length} orders shown
+                      {filtered.length} orders total
                     </td>
                     <td className="px-5 py-3 font-bold text-red-700 tabular-nums">
                       {fmt(filtered.reduce((t, o) => t + o.grandTotal, 0))}
@@ -643,6 +698,34 @@ export default function OrdersPage() {
                 </tfoot>
               )}
             </table>
+
+            {/* Pagination Controls (Enterprise) */}
+            {isEnterprise && filtered.length > pageSize && (
+              <div className="flex items-center justify-between px-5 py-3 border-t border-border bg-background">
+                <span className="text-xs text-text-secondary">
+                  Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, filtered.length)} of {filtered.length} entries
+                </span>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="p-1.5 rounded-lg border border-border text-text-secondary hover:bg-primary-light hover:text-primary disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <span className="text-xs font-semibold text-text-primary px-2">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button 
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="p-1.5 rounded-lg border border-border text-text-secondary hover:bg-primary-light hover:text-primary disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
 
             {filtered.length === 0 && (
               <div className="flex flex-col items-center justify-center py-16 gap-3">

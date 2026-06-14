@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useMemo } from "react";
+import { createContext, useContext, useEffect, useState, useMemo } from "react";
 
-export type ThemeId = "luxury";
+export type ThemeId = "saas" | "enterprise";
 
 export type ThemeOption = {
   id: ThemeId;
@@ -10,7 +10,8 @@ export type ThemeOption = {
 };
 
 const themes: ThemeOption[] = [
-  { id: "luxury", label: "Luxury Dark" },
+  { id: "saas", label: "SaaS Mode" },
+  { id: "enterprise", label: "Enterprise Mode" },
 ];
 
 type ThemeContextValue = {
@@ -22,11 +23,26 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Theme is locked to luxury
-  const theme: ThemeId = "luxury";
+  const [theme, setThemeState] = useState<ThemeId>("saas");
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") as ThemeId;
+    if (savedTheme === "enterprise" || savedTheme === "saas") {
+      setThemeState(savedTheme);
+      document.documentElement.setAttribute("data-theme", savedTheme);
+    } else {
+      document.documentElement.setAttribute("data-theme", "saas");
+    }
+  }, []);
+
+  const setTheme = (newTheme: ThemeId) => {
+    setThemeState(newTheme);
+    localStorage.setItem("theme", newTheme);
+    document.documentElement.setAttribute("data-theme", newTheme);
+  };
 
   const value = useMemo(
-    () => ({ theme, setTheme: () => {}, themes }),
+    () => ({ theme, setTheme, themes }),
     [theme]
   );
 

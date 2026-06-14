@@ -471,7 +471,7 @@ export default function BillingPage() {
         </div>
 
         {/* Cart */}
-        <div className="flex-1 bg-surface rounded-xl border border-border overflow-hidden flex flex-col">
+        <div className="flex-1 glass-panel flex flex-col">
 
           {/* Cart Header */}
           <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-background shrink-0">
@@ -590,7 +590,7 @@ export default function BillingPage() {
       <div className="w-80 shrink-0 flex flex-col gap-4 overflow-y-auto">
 
         {/* Customer Info */}
-        <div className="bg-surface rounded-xl border border-border p-4 space-y-3">
+        <div className="glass-panel p-4 space-y-3">
           <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Customer</p>
           <div className="relative">
             <User className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
@@ -607,7 +607,7 @@ export default function BillingPage() {
         </div>
 
         {/* Payment Method */}
-        <div className="bg-surface rounded-xl border border-border p-4 space-y-3">
+        <div className="glass-panel p-4 space-y-3">
           <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Payment Method</p>
           <div className="grid grid-cols-3 gap-2">
             {PAYMENT_METHODS.map((m) => (
@@ -651,7 +651,7 @@ export default function BillingPage() {
         </div>
 
         {/* Discount on Bill */}
-        <div className="bg-surface rounded-xl border border-border p-4 space-y-3">
+        <div className="glass-panel p-4 space-y-3">
           <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Bill Discount</p>
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
@@ -669,7 +669,7 @@ export default function BillingPage() {
         </div>
 
         {/* Bill Summary */}
-        <div className="bg-surface rounded-xl border border-border p-4">
+        <div className="glass-panel p-4">
           <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Bill Summary</p>
           <div className="space-y-2.5">
             {[

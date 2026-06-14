@@ -4,9 +4,10 @@ import { useState, useMemo, useEffect } from "react";
 import {
   Search, Plus, TrendingUp, TrendingDown, Package,
   AlertTriangle, X, ChevronDown, History, Eye,
-  ArrowUpCircle, ArrowDownCircle, Filter, Loader2,
+  ArrowUpCircle, ArrowDownCircle, Filter, Loader2, Download, ChevronLeft, ChevronRight
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useTheme } from "@/components/ThemeProvider";
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -116,7 +117,7 @@ function Modal({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className={`w-full ${maxW} bg-surface rounded-2xl shadow-xl border border-border overflow-hidden max-h-[92vh] flex flex-col`}>
+      <div className={`w-full ${maxW} bg-white rounded-2xl shadow-xl border border-border overflow-hidden max-h-[92vh] flex flex-col`}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
           <div>
             <h2 className="text-base font-bold text-text-primary">{title}</h2>
@@ -160,6 +161,9 @@ function ModalFooter({
 // ═══════════════════════════════════════════════════════════════
 
 export default function StockPage() {
+  const { theme } = useTheme();
+  const isEnterprise = theme === "enterprise";
+
   const [products, setProducts]   = useState<Product[]>([]);
   const [history, setHistory]     = useState<StockHistory[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -232,6 +236,11 @@ export default function StockPage() {
     productId: "", quantity: 0, reason: "Sold" as StockOutReason, date: TODAY, note: "",
   });
 
+  // ── Pagination State ──
+  const [pageProd, setPageProd] = useState(1);
+  const [pageHist, setPageHist] = useState(1);
+  const pageSize = isEnterprise ? 15 : 10;
+
   // ═══════════════════════════════════════════════════════════════
   // DERIVED
   // ═══════════════════════════════════════════════════════════════
@@ -258,6 +267,24 @@ export default function StockPage() {
       return matchSearch && matchType && matchDate && matchProduct;
     }).sort((a, b) => b.date.localeCompare(a.date));
   }, [history, histSearch, histType, histDate, histProduct]);
+
+  useEffect(() => { setPageProd(1); }, [search, catFilter, statusFilter]);
+  useEffect(() => { setPageHist(1); }, [histSearch, histType, histDate, histProduct]);
+
+  const paginatedProducts = useMemo(() => {
+    if (!isEnterprise) return filteredProducts;
+    const start = (pageProd - 1) * pageSize;
+    return filteredProducts.slice(start, start + pageSize);
+  }, [filteredProducts, pageProd, pageSize, isEnterprise]);
+
+  const paginatedHistory = useMemo(() => {
+    if (!isEnterprise) return filteredHistory;
+    const start = (pageHist - 1) * pageSize;
+    return filteredHistory.slice(start, start + pageSize);
+  }, [filteredHistory, pageHist, pageSize, isEnterprise]);
+
+  const totalPagesProd = Math.ceil(filteredProducts.length / pageSize);
+  const totalPagesHist = Math.ceil(filteredHistory.length / pageSize);
 
   // Stats
   const available  = products.filter((p) => getStatus(p) === "Available").length;
@@ -414,6 +441,35 @@ export default function StockPage() {
     return prod?.currentStock ?? 0;
   }, [outForm.productId, products]);
 
+  // Exports
+  function exportProductsCSV() {
+    const rows = [
+      ["Product ID", "Name", "Category", "Stock", "Reorder", "Purchase Price", "Selling Price", "Status"].join(","),
+      ...filteredProducts.map(p => [
+        p.id, `"${p.name}"`, p.category, p.currentStock, p.lowStockAt, p.purchasePrice, p.sellingPrice, getStatus(p)
+      ].join(","))
+    ].join("\n");
+    const blob = new Blob([rows], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `Stock_Overview_${TODAY}.csv`;
+    link.click();
+  }
+
+  function exportHistoryCSV() {
+    const rows = [
+      ["ID", "Product", "Type", "Qty", "Purchase Price", "Supplier", "Reason", "Date"].join(","),
+      ...filteredHistory.map(h => [
+        h.id, `"${h.productName}"`, h.type, h.quantity, h.purchasePrice, `"${h.supplier}"`, h.reason, h.date
+      ].join(","))
+    ].join("\n");
+    const blob = new Blob([rows], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `Stock_History_${TODAY}.csv`;
+    link.click();
+  }
+
   // ═══════════════════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════════════════
@@ -455,10 +511,21 @@ export default function StockPage() {
 
       {/* ── Stats ── */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatCard label="Available"     value={available}       sub="Products in stock"      icon={Package}       bg="bg-mint-light"  ic="text-success"  />
-        <StatCard label="Low Stock"     value={lowStock}        sub="Below reorder level"    icon={AlertTriangle} bg="bg-warning/10"  ic="text-warning"  highlight={lowStock > 0} />
-        <StatCard label="Sold Out"      value={soldOut}         sub="Zero stock items"       icon={X}             bg="bg-coral-light"    ic="text-coral"    highlight={soldOut > 0}  />
-        <StatCard label="Inventory Value" value={fmt(totalValue)} sub="At purchase price"    icon={TrendingUp}    bg="bg-coral-light"   ic="text-primary"   />
+        {[
+          { label: "Available", value: available, sub: "Products in stock", icon: Package, bg: "bg-mint-light", ic: "text-success" },
+          { label: "Low Stock", value: lowStock, sub: "Below reorder level", icon: AlertTriangle, bg: "bg-warning/10", ic: "text-warning", highlight: lowStock > 0 },
+          { label: "Sold Out", value: soldOut, sub: "Zero stock items", icon: X, bg: "bg-coral-light", ic: "text-coral", highlight: soldOut > 0 },
+          { label: "Inventory Value", value: fmt(totalValue), sub: "At purchase price", icon: TrendingUp, bg: "bg-coral-light", ic: "text-primary" }
+        ].map((k, i) => (
+          <div key={k.label} className={`kpi-card kpi-${(i % 4) + 5} ${k.highlight ? "kpi-highlight" : ""}`}>
+            <div className="kpi-icon-box">
+              <k.icon className={`w-5 h-5 ${k.ic}`} />
+            </div>
+            <p className="kpi-value">{k.value}</p>
+            <p className="kpi-label">{k.label}</p>
+            <p className="kpi-sub">{k.sub}</p>
+          </div>
+        ))}
       </div>
 
       {/* ── Low Stock Alert Banner ── */}
@@ -535,10 +602,19 @@ export default function StockPage() {
               </select>
               <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
             </div>
+            {isEnterprise && (
+              <button
+                onClick={exportProductsCSV}
+                className="flex items-center gap-2 px-4 py-2 bg-background border border-border text-text-primary rounded-lg text-sm font-semibold hover:bg-surface transition-colors"
+              >
+                <Download size={16} className="text-primary" />
+                Export CSV
+              </button>
+            )}
           </div>
 
           {/* Stock Table */}
-          <div className="bg-surface rounded-xl border border-border overflow-hidden">
+          <div className="glass-panel">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -558,17 +634,18 @@ export default function StockPage() {
                         </div>
                       </td>
                     </tr>
-                  ) : filteredProducts.map((p) => {
+                  ) : (isEnterprise ? paginatedProducts : filteredProducts).map((p) => {
                     const status = getStatus(p);
+                    const density = isEnterprise ? "py-1.5" : "py-3.5";
                     return (
                       <tr key={p.id} className="border-b border-slate-50 hover:bg-background transition-colors">
-                        <td className="px-4 py-3.5 font-mono text-xs text-text-secondary">{p.id}</td>
-                        <td className="px-4 py-3.5">
+                        <td className={`px-4 ${density} font-mono text-xs text-text-secondary`}>{p.id}</td>
+                        <td className={`px-4 ${density}`}>
                           <p className="font-semibold text-text-primary whitespace-nowrap">{p.name}</p>
                           <p className="text-xs text-text-secondary">{p.unit}</p>
                         </td>
-                        <td className="px-4 py-3.5 text-text-secondary whitespace-nowrap">{p.category}</td>
-                        <td className="px-4 py-3.5">
+                        <td className={`px-4 ${density} text-text-secondary whitespace-nowrap`}>{p.category}</td>
+                        <td className={`px-4 ${density}`}>
                           <div className="flex items-center gap-2">
                             {/* Mini stock bar */}
                             <div className="w-16 bg-background rounded-full h-1.5 shrink-0">
@@ -588,15 +665,15 @@ export default function StockPage() {
                             </span>
                           </div>
                         </td>
-                        <td className="px-4 py-3.5 text-text-secondary whitespace-nowrap">{p.lowStockAt} {p.unit}</td>
-                        <td className="px-4 py-3.5 text-text-primary whitespace-nowrap">{fmt(p.purchasePrice)}</td>
-                        <td className="px-4 py-3.5 font-semibold text-text-primary whitespace-nowrap">{fmt(p.sellingPrice)}</td>
-                        <td className="px-4 py-3.5">
+                        <td className={`px-4 ${density} text-text-secondary whitespace-nowrap`}>{p.lowStockAt} {p.unit}</td>
+                        <td className={`px-4 ${density} text-text-primary whitespace-nowrap`}>{fmt(p.purchasePrice)}</td>
+                        <td className={`px-4 ${density} font-semibold text-text-primary whitespace-nowrap`}>{fmt(p.sellingPrice)}</td>
+                        <td className={`px-4 ${density}`}>
                           <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${statusStyle[status]}`}>
                             {status}
                           </span>
                         </td>
-                        <td className="px-4 py-3.5 whitespace-nowrap">
+                        <td className={`px-4 ${density} whitespace-nowrap`}>
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => setViewProduct(p)}
@@ -625,7 +702,27 @@ export default function StockPage() {
                 </tbody>
               </table>
             </div>
-            {filteredProducts.length > 0 && (
+
+            {isEnterprise && filteredProducts.length > pageSize && (
+              <div className="flex items-center justify-between px-5 py-3 border-t border-border bg-background">
+                <span className="text-xs text-text-secondary">
+                  Showing {(pageProd - 1) * pageSize + 1} to {Math.min(pageProd * pageSize, filteredProducts.length)} of {filteredProducts.length} entries
+                </span>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => setPageProd(p => Math.max(1, p - 1))} disabled={pageProd === 1}
+                    className="p-1.5 rounded-lg border border-border text-text-secondary hover:bg-primary-light hover:text-primary disabled:opacity-50 transition-colors">
+                    <ChevronLeft size={16} />
+                  </button>
+                  <span className="text-xs font-semibold px-2">Page {pageProd} of {totalPagesProd}</span>
+                  <button onClick={() => setPageProd(p => Math.min(totalPagesProd, p + 1))} disabled={pageProd === totalPagesProd}
+                    className="p-1.5 rounded-lg border border-border text-text-secondary hover:bg-primary-light hover:text-primary disabled:opacity-50 transition-colors">
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {!isEnterprise && filteredProducts.length > 0 && (
               <div className="px-4 py-3 border-t border-border bg-background flex justify-between items-center">
                 <p className="text-xs text-text-secondary">
                   Showing <span className="font-semibold text-text-primary">{filteredProducts.length}</span> of{" "}
@@ -640,7 +737,7 @@ export default function StockPage() {
 
           {/* Sold Out Section */}
           {soldOut > 0 && (
-            <div className="bg-surface rounded-xl border border-coral overflow-hidden">
+            <div className="glass-panel border-coral overflow-hidden">
               <div className="px-5 py-3.5 border-b border-coral bg-coral-light flex items-center gap-2">
                 <AlertTriangle size={15} className="text-coral" />
                 <h2 className="text-sm font-bold text-red-700">Sold Out Products</h2>
@@ -680,14 +777,25 @@ export default function StockPage() {
 
           {/* History Stats */}
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-            <StatCard label="Total Records"  value={history.length}  sub="All time"            icon={History}       bg="bg-background" ic="text-text-primary" />
-            <StatCard label="Stock In"       value={totalStockIn}    sub="Total units added"   icon={ArrowUpCircle} bg="bg-coral-light"   ic="text-primary" />
-            <StatCard label="Stock Out"      value={totalStockOut}   sub="Total units removed" icon={ArrowDownCircle} bg="bg-coral-light"  ic="text-coral"  />
-            <StatCard label="Filtered Records" value={filteredHistory.length} sub="Current filter" icon={Filter} bg="bg-purple-50" ic="text-purple-600" />
+            {[
+              { label: "Total Records", value: history.length, sub: "All time", icon: History, bg: "bg-background", ic: "text-text-primary" },
+              { label: "Stock In", value: totalStockIn, sub: "Total units added", icon: ArrowUpCircle, bg: "bg-coral-light", ic: "text-primary" },
+              { label: "Stock Out", value: totalStockOut, sub: "Total units removed", icon: ArrowDownCircle, bg: "bg-coral-light", ic: "text-coral" },
+              { label: "Filtered Records", value: filteredHistory.length, sub: "Current filter", icon: Filter, bg: "bg-purple-50", ic: "text-purple-600" }
+            ].map((k, i) => (
+              <div key={k.label} className={`kpi-card kpi-${(i % 4) + 5}`}>
+                <div className="kpi-icon-box">
+                  <k.icon className={`w-5 h-5 ${k.ic}`} />
+                </div>
+                <p className="kpi-value">{k.value}</p>
+                <p className="kpi-label">{k.label}</p>
+                <p className="kpi-sub">{k.sub}</p>
+              </div>
+            ))}
           </div>
 
           {/* History Filters */}
-          <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+          <div className="glass-panel p-4 mt-6 flex flex-col sm:flex-row gap-3 flex-wrap">
             <div className="relative flex-1 min-w-[180px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
               <input type="text" placeholder="Search product, supplier…" value={histSearch}
@@ -718,10 +826,19 @@ export default function StockPage() {
                 <X size={14} /> Clear
               </button>
             )}
+            {isEnterprise && (
+              <button
+                onClick={exportHistoryCSV}
+                className="flex items-center gap-2 px-4 py-2 bg-background border border-border text-text-primary rounded-lg text-sm font-semibold hover:bg-surface transition-colors whitespace-nowrap"
+              >
+                <Download size={16} className="text-primary" />
+                Export CSV
+              </button>
+            )}
           </div>
 
           {/* History Table */}
-          <div className="bg-surface rounded-xl border border-border overflow-hidden">
+          <div className="glass-panel overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -741,50 +858,73 @@ export default function StockPage() {
                         </div>
                       </td>
                     </tr>
-                  ) : filteredHistory.map((h) => (
-                    <tr key={h.id} className="border-b border-slate-50 hover:bg-background transition-colors">
-                      <td className="px-4 py-3.5 font-mono text-xs text-text-secondary">{h.id}</td>
-                      <td className="px-4 py-3.5 font-mono text-xs text-text-secondary">{h.productId}</td>
-                      <td className="px-4 py-3.5 font-semibold text-text-primary whitespace-nowrap">{h.productName}</td>
-                      <td className="px-4 py-3.5">
-                        <span className={`flex items-center gap-1.5 text-xs font-bold w-fit px-2.5 py-0.5 rounded-full ${
-                          h.type === "IN"
-                            ? "bg-coral-light text-red-700"
-                            : "bg-coral-light text-primary"
-                        }`}>
-                          {h.type === "IN"
-                            ? <ArrowUpCircle size={12} />
-                            : <ArrowDownCircle size={12} />}
-                          {h.type}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className={`font-bold ${h.type === "IN" ? "text-red-700" : "text-primary"}`}>
-                          {h.type === "IN" ? "+" : "−"}{h.quantity}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 text-text-primary whitespace-nowrap">
-                        {h.purchasePrice > 0 ? fmt(h.purchasePrice) : "—"}
-                      </td>
-                      <td className="px-4 py-3.5 text-text-secondary whitespace-nowrap max-w-[140px] truncate">
-                        {h.supplier || "—"}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        {h.reason
-                          ? <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${reasonStyle[h.reason]}`}>{h.reason}</span>
-                          : <span className="text-slate-300">—</span>
-                        }
-                      </td>
-                      <td className="px-4 py-3.5 text-text-secondary text-xs whitespace-nowrap">{h.date}</td>
-                      <td className="px-4 py-3.5 text-text-secondary text-xs max-w-[160px] truncate">
-                        {h.note || "—"}
-                      </td>
-                    </tr>
-                  ))}
+                  ) : (isEnterprise ? paginatedHistory : filteredHistory).map((h) => {
+                    const density = isEnterprise ? "py-1.5" : "py-3.5";
+                    return (
+                      <tr key={h.id} className="border-b border-slate-50 hover:bg-background transition-colors">
+                        <td className={`px-4 ${density} font-mono text-xs text-text-secondary`}>{h.id}</td>
+                        <td className={`px-4 ${density} font-mono text-xs text-text-secondary`}>{h.productId}</td>
+                        <td className={`px-4 ${density} font-semibold text-text-primary whitespace-nowrap`}>{h.productName}</td>
+                        <td className={`px-4 ${density}`}>
+                          <span className={`flex items-center gap-1.5 text-xs font-bold w-fit px-2.5 py-0.5 rounded-full ${
+                            h.type === "IN"
+                              ? "bg-coral-light text-red-700"
+                              : "bg-coral-light text-primary"
+                          }`}>
+                            {h.type === "IN"
+                              ? <ArrowUpCircle size={12} />
+                              : <ArrowDownCircle size={12} />}
+                            {h.type}
+                          </span>
+                        </td>
+                        <td className={`px-4 ${density}`}>
+                          <span className={`font-bold ${h.type === "IN" ? "text-red-700" : "text-primary"}`}>
+                            {h.type === "IN" ? "+" : "−"}{h.quantity}
+                          </span>
+                        </td>
+                        <td className={`px-4 ${density} text-text-primary whitespace-nowrap`}>
+                          {h.purchasePrice > 0 ? fmt(h.purchasePrice) : "—"}
+                        </td>
+                        <td className={`px-4 ${density} text-text-secondary whitespace-nowrap max-w-[140px] truncate`}>
+                          {h.supplier || "—"}
+                        </td>
+                        <td className={`px-4 ${density}`}>
+                          {h.reason
+                            ? <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${reasonStyle[h.reason]}`}>{h.reason}</span>
+                            : <span className="text-slate-300">—</span>
+                          }
+                        </td>
+                        <td className={`px-4 ${density} text-text-secondary text-xs whitespace-nowrap`}>{h.date}</td>
+                        <td className={`px-4 ${density} text-text-secondary text-xs max-w-[160px] truncate`}>
+                          {h.note || "—"}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
-            {filteredHistory.length > 0 && (
+
+            {isEnterprise && filteredHistory.length > pageSize && (
+              <div className="flex items-center justify-between px-5 py-3 border-t border-border bg-background">
+                <span className="text-xs text-text-secondary">
+                  Showing {(pageHist - 1) * pageSize + 1} to {Math.min(pageHist * pageSize, filteredHistory.length)} of {filteredHistory.length} entries
+                </span>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => setPageHist(p => Math.max(1, p - 1))} disabled={pageHist === 1}
+                    className="p-1.5 rounded-lg border border-border text-text-secondary hover:bg-primary-light hover:text-primary disabled:opacity-50 transition-colors">
+                    <ChevronLeft size={16} />
+                  </button>
+                  <span className="text-xs font-semibold px-2">Page {pageHist} of {totalPagesHist}</span>
+                  <button onClick={() => setPageHist(p => Math.min(totalPagesHist, p + 1))} disabled={pageHist === totalPagesHist}
+                    className="p-1.5 rounded-lg border border-border text-text-secondary hover:bg-primary-light hover:text-primary disabled:opacity-50 transition-colors">
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {!isEnterprise && filteredHistory.length > 0 && (
               <div className="px-4 py-3 border-t border-border bg-background flex justify-between items-center">
                 <p className="text-xs text-text-secondary">
                   <span className="font-semibold text-text-primary">{filteredHistory.length}</span> records

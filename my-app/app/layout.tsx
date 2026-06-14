@@ -61,8 +61,15 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${poppins.variable} ${robotoSlab.variable} ${jetBrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-background text-foreground">
-        <ThemeProvider>{children}</ThemeProvider>
+      <body className="min-h-full bg-background text-foreground relative z-0">
+        <ThemeProvider>
+          <div className="app-background">
+            <div className="orb-top-right"></div>
+            <div className="orb-bottom-right"></div>
+            <div className="orb-center"></div>
+          </div>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

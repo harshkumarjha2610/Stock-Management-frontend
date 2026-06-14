@@ -104,14 +104,14 @@ export default function AttendancePage() {
           <h1 className="text-2xl font-bold text-text-primary">My Attendance</h1>
           <p className="text-sm text-text-secondary mt-1">Track your daily presence and working hours</p>
         </div>
-        <div className="flex items-center gap-4 bg-surface border border-border rounded-xl p-1 shadow-sm">
-          <button onClick={prevMonth} className="p-2 hover:bg-background rounded-lg transition-colors">
+        <div className="flex items-center gap-4 glass-panel p-1 border-none">
+          <button onClick={prevMonth} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
             <ChevronLeft size={20} className="text-text-primary" />
           </button>
           <div className="px-4 flex flex-col items-center min-w-[140px]">
             <span className="text-sm font-bold text-text-primary">{currentDate.format("MMMM YYYY")}</span>
           </div>
-          <button onClick={nextMonth} className="p-2 hover:bg-background rounded-lg transition-colors">
+          <button onClick={nextMonth} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
             <ChevronRight size={20} className="text-text-primary" />
           </button>
         </div>
@@ -120,7 +120,7 @@ export default function AttendancePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Statistics Cards */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-surface rounded-2xl border border-border p-5 shadow-sm">
+          <div className="glass-panel p-5">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-success">
                 <CheckCircle2 size={20} />
@@ -179,8 +179,8 @@ export default function AttendancePage() {
 
         {/* Calendar Grid */}
         <div className="lg:col-span-2">
-          <div className="bg-surface rounded-2xl border border-border shadow-sm overflow-hidden">
-            <div className="grid grid-cols-7 border-b border-border bg-background">
+          <div className="glass-panel overflow-hidden">
+            <div className="grid grid-cols-7 border-b border-border bg-background/50">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => (
                 <div key={d} className="py-3 text-center text-[10px] font-bold text-text-secondary uppercase tracking-widest">
                   {d}

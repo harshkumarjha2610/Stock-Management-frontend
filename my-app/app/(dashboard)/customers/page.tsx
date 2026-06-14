@@ -4,10 +4,10 @@ import { useState, useMemo, useEffect } from "react";
 import {
   Search, Plus, Eye, Pencil, Trash2, X, ChevronDown,
   User, Phone, Mail, MapPin, ShoppingCart, IndianRupee,
-  CalendarDays, ArrowUpDown, Filter, CheckCircle,
-  TrendingUp, Users, Star, Package, Loader2,
+  TrendingUp, Users, Star, Package, Loader2, Download, ChevronLeft, ChevronRight, CalendarDays, CheckCircle, ArrowUpDown, Filter
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useTheme } from "@/components/ThemeProvider";
 
 // ═══════════════════════════════════════════════════════════
 // TYPES
@@ -107,7 +107,7 @@ function CustomerModal({
     const tag = TAG_CONFIG[customer.tag];
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-        <div className="w-full max-w-lg bg-surface rounded-2xl shadow-xl border border-border overflow-hidden max-h-[90vh] flex flex-col">
+        <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-border overflow-hidden max-h-[90vh] flex flex-col">
 
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
@@ -191,7 +191,7 @@ function CustomerModal({
   // ── Add / Edit Form ──
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className="w-full max-w-lg bg-surface rounded-2xl shadow-xl border border-border overflow-hidden max-h-[94vh] flex flex-col">
+      <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-border overflow-hidden max-h-[94vh] flex flex-col">
 
         <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
           <div>
@@ -314,6 +314,9 @@ function CustomerModal({
 // ═══════════════════════════════════════════════════════════
 
 export default function CustomersPage() {
+  const { theme } = useTheme();
+  const isEnterprise = theme === "enterprise";
+
   const [customers,  setCustomers]  = useState<Customer[]>([]);
   const [loading,    setLoading]    = useState(true);
   
@@ -355,6 +358,10 @@ export default function CustomersPage() {
   const [selected,   setSelected]   = useState<Customer | null>(null);
   const [deleteId,   setDeleteId]   = useState<string | null>(null);
 
+  // ── Pagination State ──
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = isEnterprise ? 15 : 10;
+
   // ── Stats ──
   const stats = useMemo(() => ({
     total:    customers.length,
@@ -388,6 +395,16 @@ export default function CustomersPage() {
         return sortDir === "asc" ? cmp : -cmp;
       });
   }, [customers, search, tagFilter, stFilter, cityFilter, sortKey, sortDir]);
+
+  useEffect(() => { setCurrentPage(1); }, [search, tagFilter, stFilter, cityFilter]);
+
+  const paginatedCustomers = useMemo(() => {
+    if (!isEnterprise) return filtered;
+    const start = (currentPage - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, currentPage, pageSize, isEnterprise]);
+
+  const totalPages = Math.ceil(filtered.length / pageSize);
 
   function toggleSort(key: typeof sortKey) {
     if (sortKey === key) setSortDir((d) => d === "asc" ? "desc" : "asc");
@@ -451,6 +468,20 @@ export default function CustomersPage() {
   const hasFilters = search || tagFilter !== "All" || stFilter !== "All" || cityFilter !== "All";
   const allCities  = ["All", ...Array.from(new Set(customers.map((c) => c.city))).sort()];
 
+  function handleExportCSV() {
+    const rows = [
+      ["Customer ID", "Name", "Phone", "Email", "City", "Tag", "Total Orders", "Total Spent", "Last Purchase", "Joined Date", "Status"].join(","),
+      ...filtered.map(c => [
+        c.id, `"${c.name}"`, c.phone, c.email, `"${c.city}"`, c.tag, c.totalOrders, c.totalSpent, c.lastPurchase, c.joinedDate, c.status
+      ].join(","))
+    ].join("\n");
+    const blob = new Blob([rows], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `Customers_Export_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  }
+
   const SortIcon = ({ k }: { k: typeof sortKey }) => (
     <ArrowUpDown size={11} className={`inline ml-1 ${sortKey === k ? "text-coral" : "text-slate-300"}`} />
   );
@@ -482,7 +513,7 @@ export default function CustomersPage() {
       {/* ── Delete Confirm ── */}
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="w-full max-w-sm bg-surface rounded-2xl shadow-xl border border-border p-6 text-center space-y-4">
+          <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-border p-6 text-center space-y-4">
             <div className="w-12 h-12 rounded-full bg-coral-light flex items-center justify-center mx-auto">
               <Trash2 className="w-5 h-5 text-coral" />
             </div>
@@ -514,12 +545,23 @@ export default function CustomersPage() {
             <h1 className="text-xl font-bold text-text-primary">Customers</h1>
             <p className="text-sm text-text-secondary mt-0.5">Manage customer profiles & purchase history</p>
           </div>
-          <button
-            onClick={() => openModal("add")}
-            className="flex items-center gap-2 h-9 px-4 rounded-xl bg-primary hover:bg-red-700 text-sm font-semibold text-white transition-colors shadow-sm shadow-red-200"
-          >
-            <Plus size={16} /> Add Customer
-          </button>
+          <div className="flex items-center gap-3">
+            {isEnterprise && (
+              <button
+                onClick={handleExportCSV}
+                className="flex items-center gap-2 h-9 px-4 rounded-xl bg-background border border-border text-text-primary text-sm font-semibold hover:bg-surface transition-colors"
+              >
+                <Download size={16} className="text-primary" />
+                Export CSV
+              </button>
+            )}
+            <button
+              onClick={() => openModal("add")}
+              className="flex items-center gap-2 h-9 px-4 rounded-xl bg-primary hover:bg-red-700 text-sm font-semibold text-white transition-colors shadow-sm shadow-red-200"
+            >
+              <Plus size={16} /> Add Customer
+            </button>
+          </div>
         </div>
 
         {/* ── KPI Cards ── */}
@@ -529,20 +571,20 @@ export default function CustomersPage() {
             { label:"Active",          value: stats.active,   sub:"Currently active",  icon:CheckCircle, bg:"bg-mint-light", ic:"text-success"  },
             { label:"VIP Customers",   value: stats.vip,      sub:"High-value buyers", icon:Star,        bg:"bg-warning/10", ic:"text-warning"  },
             { label:"Total Revenue",   value:`₹${(stats.revenue/1000).toFixed(1)}K`, sub:"All time", icon:IndianRupee, bg:"bg-coral-light", ic:"text-primary" },
-          ].map((k) => (
-            <div key={k.label} className="bg-surface rounded-xl border border-border p-5">
-              <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${k.bg} mb-3`}>
-                <k.icon className={`w-4 h-4 ${k.ic}`} />
+          ].map((k, i) => (
+            <div key={k.label} className={`kpi-card kpi-${(i % 4) + 13}`}>
+              <div className="kpi-icon-box">
+                <k.icon className="w-5 h-5" />
               </div>
-              <p className="text-2xl font-bold text-text-primary tabular-nums">{k.value}</p>
-              <p className="text-xs font-semibold text-text-primary mt-0.5">{k.label}</p>
-              <p className="text-xs text-text-secondary mt-0.5">{k.sub}</p>
+              <p className="kpi-value">{k.value}</p>
+              <p className="kpi-label">{k.label}</p>
+              <p className="kpi-sub">{k.sub}</p>
             </div>
           ))}
         </div>
 
         {/* ── Filters ── */}
-        <div className="bg-surface rounded-xl border border-border p-4">
+        <div className="glass-panel p-4">
           <div className="flex flex-wrap gap-3">
             {/* Search */}
             <div className="relative flex-1 min-w-[200px]">
@@ -597,8 +639,8 @@ export default function CustomersPage() {
           </div>
         </div>
 
-        {/* ── Table ── */}
-        <div className="bg-surface rounded-xl border border-border overflow-hidden">
+        {/* ── Customers Table ── */}
+        <div className="glass-panel">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -625,13 +667,14 @@ export default function CustomersPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((c) => {
+                {(isEnterprise ? paginatedCustomers : filtered).map((c) => {
                   const tag = TAG_CONFIG[c.tag];
+                  const density = isEnterprise ? "py-1.5" : "py-3.5";
                   return (
                     <tr key={c.id} className="border-b border-slate-50 hover:bg-background transition-colors">
 
                       {/* Customer */}
-                      <td className="px-4 py-3.5">
+                      <td className={`px-4 ${density}`}>
                         <div className="flex items-center gap-2.5">
                           <div className="w-8 h-8 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
                             <span className="text-xs font-bold text-red-700">{c.name.charAt(0)}</span>
@@ -644,7 +687,7 @@ export default function CustomersPage() {
                       </td>
 
                       {/* Contact */}
-                      <td className="px-4 py-3.5">
+                      <td className={`px-4 ${density}`}>
                         <div className="flex items-center gap-1.5 text-text-primary text-xs">
                           <Phone size={11} className="text-text-secondary" />
                           {c.phone}
@@ -658,10 +701,10 @@ export default function CustomersPage() {
                       </td>
 
                       {/* City */}
-                      <td className="px-4 py-3.5 text-text-primary text-sm">{c.city}</td>
+                      <td className={`px-4 ${density} text-text-primary text-sm`}>{c.city}</td>
 
                       {/* Tag */}
-                      <td className="px-4 py-3.5">
+                      <td className={`px-4 ${density}`}>
                         <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${tag.cls}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${tag.dot}`} />
                           {tag.label}
@@ -669,7 +712,7 @@ export default function CustomersPage() {
                       </td>
 
                       {/* Orders */}
-                      <td className="px-4 py-3.5">
+                      <td className={`px-4 ${density}`}>
                         <div className="flex items-center gap-1.5">
                           <Package size={12} className="text-text-secondary" />
                           <span className="font-semibold text-text-primary tabular-nums">{c.totalOrders}</span>
@@ -677,22 +720,22 @@ export default function CustomersPage() {
                       </td>
 
                       {/* Total Spent */}
-                      <td className="px-4 py-3.5 font-bold text-text-primary tabular-nums">
+                      <td className={`px-4 ${density} font-bold text-text-primary tabular-nums`}>
                         {fmt(c.totalSpent)}
                       </td>
 
                       {/* Last Purchase */}
-                      <td className="px-4 py-3.5 text-xs text-text-secondary whitespace-nowrap">
+                      <td className={`px-4 ${density} text-xs text-text-secondary whitespace-nowrap`}>
                         {c.lastPurchase}
                       </td>
 
                       {/* Joined */}
-                      <td className="px-4 py-3.5 text-xs text-text-secondary whitespace-nowrap">
+                      <td className={`px-4 ${density} text-xs text-text-secondary whitespace-nowrap`}>
                         {c.joinedDate}
                       </td>
 
                       {/* Status */}
-                      <td className="px-4 py-3.5">
+                      <td className={`px-4 ${density}`}>
                         <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                           c.status === "active"
                             ? "bg-mint-light text-success"
@@ -703,7 +746,7 @@ export default function CustomersPage() {
                       </td>
 
                       {/* Actions */}
-                      <td className="px-4 py-3.5">
+                      <td className={`px-4 ${density}`}>
                         <div className="flex items-center gap-1.5">
                           <button onClick={() => openModal("view", c)}
                             className="w-8 h-8 rounded-lg bg-coral-light hover:bg-red-100 text-red-700 flex items-center justify-center transition-colors" title="View">
@@ -728,7 +771,7 @@ export default function CustomersPage() {
                 <tfoot>
                   <tr className="bg-background border-t-2 border-border">
                     <td colSpan={5} className="px-4 py-3 text-xs font-bold text-text-primary">
-                      {filtered.length} customers
+                      {filtered.length} customers total
                     </td>
                     <td className="px-4 py-3 font-bold text-red-700 tabular-nums">
                       {fmt(filtered.reduce((t, c) => t + c.totalSpent, 0))}
@@ -738,6 +781,25 @@ export default function CustomersPage() {
                 </tfoot>
               )}
             </table>
+
+            {isEnterprise && filtered.length > pageSize && (
+              <div className="flex items-center justify-between px-5 py-3 border-t border-border bg-background">
+                <span className="text-xs text-text-secondary">
+                  Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, filtered.length)} of {filtered.length} entries
+                </span>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
+                    className="p-1.5 rounded-lg border border-border text-text-secondary hover:bg-primary-light hover:text-primary disabled:opacity-50 transition-colors">
+                    <ChevronLeft size={16} />
+                  </button>
+                  <span className="text-xs font-semibold px-2">Page {currentPage} of {totalPages}</span>
+                  <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
+                    className="p-1.5 rounded-lg border border-border text-text-secondary hover:bg-primary-light hover:text-primary disabled:opacity-50 transition-colors">
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
 
             {filtered.length === 0 && (
               <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">

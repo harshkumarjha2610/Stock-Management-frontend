@@ -3,18 +3,18 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Phone, Mail, ShoppingBag, Salad, Upload, Calendar,
-  LayoutDashboard, Package, Receipt, ShoppingCart, Users, UserCheck,
-  BarChart3, Settings, AlertCircle, UserPlus, X, Pencil, Wallet,
-  Check, Store, ArrowLeftRight, Plus, LogOut
+  Package, LayoutDashboard, Receipt, ShoppingCart, Users, UserCheck, BarChart3, Settings, Calendar,
+  ChevronLeft, ChevronRight, LogOut, ArrowLeftRight, Plus, Check, Search, Bell, Upload, Pencil, Wallet,
+  Store, ShieldCheck, Mail, Phone, Moon, Sun, Salad, ShoppingBag, AlertCircle, UserPlus, X
 } from "lucide-react";
 import { type LucideIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { api } from "@/lib/api";
+import { useTheme } from "@/components/ThemeProvider";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
-type NavItem = { label: string; href: string; icon: LucideIcon; badge?: number };
+type NavItem = { label: string; href: string; icon: LucideIcon; badge?: number; color?: string; bg?: string; category?: string };
 
 type StoreCategory = "GROCERY" | "GARMENTS";
 
@@ -78,15 +78,15 @@ function getErrorMessage(err: unknown, fallback: string) {
 // ─── Nav config ────────────────────────────────────────────────────────────────
 
 const navItems: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Products",  href: "/products",  icon: Package,      badge: 3  },
-  { label: "Billing",   href: "/billing",   icon: Receipt                 },
-  { label: "Orders",    href: "/orders",    icon: ShoppingCart, badge: 12 },
-  { label: "Customers", href: "/customers", icon: Users                   },
-  { label: "Staff",     href: "/staff",     icon: UserCheck               },
-  { label: "Reports",   href: "/reports",   icon: BarChart3               },
-  { label: "Attendance", href: "/attendance", icon: Calendar              },
-  { label: "Settings",  href: "/settings",  icon: Settings                },
+  { label: "Dashboard", href: "/dashboard", category: "Dashboard", icon: LayoutDashboard, color: "text-[#A05AFF]", bg: "bg-[#A05AFF]/10" },
+  { label: "Products",  href: "/products",  category: "Business", icon: Package,      badge: 3, color: "text-[#1BCFB4]", bg: "bg-[#1BCFB4]/10" },
+  { label: "Billing",   href: "/billing",   category: "Business", icon: Receipt, color: "text-[#FE9496]", bg: "bg-[#FE9496]/10" },
+  { label: "Orders",    href: "/orders",    category: "Business", icon: ShoppingCart, badge: 12, color: "text-[#4BCBEB]", bg: "bg-[#4BCBEB]/10" },
+  { label: "Customers", href: "/customers", category: "Business", icon: Users, color: "text-[#A05AFF]", bg: "bg-[#A05AFF]/10" },
+  { label: "Reports",   href: "/reports",   category: "Analytics", icon: BarChart3, color: "text-[#FE9496]", bg: "bg-[#FE9496]/10" },
+  { label: "Staff",     href: "/staff",     category: "Management", icon: UserCheck, color: "text-[#1BCFB4]", bg: "bg-[#1BCFB4]/10" },
+  { label: "Attendance", href: "/attendance", category: "Management", icon: Calendar, color: "text-[#4BCBEB]", bg: "bg-[#4BCBEB]/10" },
+  { label: "Settings",  href: "/settings",  category: "System", icon: Settings, color: "text-[#A05AFF]", bg: "bg-[#A05AFF]/10" },
 ];
 
 const CATEGORY_META: Record<StoreCategory, { label: string; icon: LucideIcon; color: string }> = {
@@ -1079,9 +1079,10 @@ function ActiveStoreBanner({ shop, onSwitch, onEdit, isSuperAdmin }: {
 
 // ─── Main Sidebar ──────────────────────────────────────────────────────────────
 
-export default function Sidebar() {
+export default function Sidebar({ collapsed = false, onToggleCollapse }: { collapsed?: boolean, onToggleCollapse?: () => void }) {
   const pathname = usePathname();
   const router   = useRouter();
+  const { theme } = useTheme();
 
   const [shops, setShops]                     = useState<Shop[]>([]);
   const [activeShopId, setActiveShopId]       = useState<string | null>(null);
@@ -1249,21 +1250,33 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="flex h-screen w-64 flex-col bg-surface border-r border-border overflow-y-auto">
+      <aside className={`flex h-screen ${collapsed ? "w-20" : "w-64"} flex-col bg-sidebar-bg border-r border-sidebar-border overflow-y-auto transition-all duration-300`}>
 
         {/* Brand */}
-        <div className="flex items-center gap-3 px-5 py-5 border-b border-border shrink-0">
-          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary shrink-0">
-            <Package className="w-5 h-5 text-white" />
+        <div className={`flex items-center justify-between px-5 py-5 border-b border-sidebar-border shrink-0 ${collapsed ? "flex-col gap-4" : "gap-3"}`}>
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary shrink-0 transition-colors shadow-sm">
+              <Package className="w-5 h-5 text-white" />
+            </div>
+            {!collapsed && (
+              <div className="whitespace-nowrap overflow-hidden">
+                <p className="text-sm font-bold text-sidebar-text leading-tight transition-colors">Stock</p>
+                <p className="text-xs text-primary font-semibold leading-tight transition-colors">Management</p>
+              </div>
+            )}
           </div>
-          <div>
-            <p className="text-sm font-bold text-text-primary leading-tight">Stock</p>
-            <p className="text-xs text-primary font-semibold leading-tight">Management</p>
-          </div>
+          {onToggleCollapse && (
+            <button
+              onClick={onToggleCollapse}
+              className="p-1.5 rounded-lg text-sidebar-text-secondary hover:bg-primary-light hover:text-primary transition-colors"
+            >
+              {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            </button>
+          )}
         </div>
 
         {/* Active Store Banner */}
-        {activeShop && !isStaff && (
+        {activeShop && !isStaff && !collapsed && (
           <div className="pt-3">
             <ActiveStoreBanner
               shop={activeShop}
@@ -1275,37 +1288,51 @@ export default function Sidebar() {
         )}
 
         {/* Navigation */}
-        {/* Navigation */}
-        <nav className="px-3 py-4 space-y-1 shrink-0">
-          <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-widest text-muted/70">Main Menu</p>
-          {visibleNavItems.map((item) => {
+        <nav className="py-4 space-y-1.5 shrink-0 flex-1">
+          {!collapsed && theme !== "enterprise" && <p className="px-6 pb-2 text-[10px] font-semibold uppercase tracking-widest text-sidebar-text-secondary transition-colors">Main Menu</p>}
+          {visibleNavItems.map((item, index) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             const Icon = item.icon;
+
+            const isEnterprise = theme === "enterprise";
+            const showCategory = isEnterprise && !collapsed && (index === 0 || visibleNavItems[index - 1].category !== item.category);
+
+            // Enterprise active styles (matching Stellar screenshot)
+            const enterpriseActiveClasses = isEnterprise && isActive 
+              ? "text-white"
+              : isEnterprise ? "text-sidebar-text-secondary hover:text-white" : "";
+              
+            const saasActiveClasses = !isEnterprise && isActive
+              ? "bg-sidebar-active text-sidebar-text"
+              : !isEnterprise ? "text-sidebar-text-secondary hover:bg-white/5" : "";
+
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all group ${
-                  isActive
-                    ? "bg-[rgba(160,90,255,.12)] text-[#A05AFF]"
-                    : "text-text-secondary hover:bg-[#F2E8FF] hover:text-[#9250F2]"
-                }`}
-              >
-                <Icon
-                  size={18}
-                  className={`shrink-0 transition-colors ${
-                    isActive ? "text-[#A05AFF]" : "text-text-secondary group-hover:text-[#9250F2]"
-                  }`}
-                />
-                <span className="flex-1">{item.label}</span>
-                {item.badge != null && (
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                    isActive ? "bg-[#A05AFF] text-white" : "bg-gray-100 text-text-primary"
-                  }`}>
-                    {item.badge}
-                  </span>
+              <div key={item.href}>
+                {showCategory && (
+                  <p className="px-6 pt-5 pb-3 text-xs font-semibold text-primary uppercase tracking-wider">{item.category}</p>
                 )}
-              </Link>
+                <Link
+                  href={item.href}
+                  title={collapsed ? item.label : ""}
+                  className={`flex items-center ${collapsed ? "justify-center p-3 mx-3" : isEnterprise ? "gap-4 px-6 py-2.5" : "gap-3 px-3 py-2 mx-3"} ${!isEnterprise && 'rounded-xl'} text-sm font-medium transition-all group ${enterpriseActiveClasses} ${saasActiveClasses}`}
+                >
+                  <div className={`shrink-0 w-8 h-8 flex items-center justify-center transition-colors ${
+                    isEnterprise
+                      ? isActive ? "text-primary" : "text-sidebar-text-secondary group-hover:text-primary"
+                      : isActive ? `${item.bg} ${item.color} rounded-lg shadow-sm ring-1 ring-black/5` : `${item.bg} ${item.color} rounded-lg opacity-80 group-hover:opacity-100`
+                  }`}>
+                    <Icon size={isEnterprise ? 20 : 18} />
+                  </div>
+                  {!collapsed && <span className={`flex-1 ${isEnterprise && isActive ? "font-semibold" : "font-medium"}`}>{item.label}</span>}
+                  {!collapsed && item.badge != null && (
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${
+                      isActive ? (isEnterprise ? "bg-primary text-sidebar-bg" : "bg-primary text-white") : "bg-sidebar-border text-sidebar-text"
+                    }`}>
+                      {item.badge}
+                    </span>
+                  )}
+                </Link>
+              </div>
             );
           })}
         </nav>
@@ -1432,21 +1459,24 @@ export default function Sidebar() {
         )}
 
         {/* User Footer */}
-        <div className="border-t border-white/5 p-4 shrink-0">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary text-xs font-bold shrink-0">
+        <div className="border-t border-sidebar-border p-4 shrink-0 mt-auto">
+          <div className={`flex items-center ${collapsed ? "justify-center" : "gap-3"} mb-3`}>
+            <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary text-xs font-bold shrink-0 transition-colors shadow-sm">
               {user?.name ? user.name.slice(0, 2).toUpperCase() : "SA"}
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-foreground truncate">{user?.name || "Super Admin"}</p>
-              <p className="text-xs text-muted/70 truncate">{user?.email || "admin@stockmgmt.com"}</p>
-            </div>
+            {!collapsed && (
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-sidebar-text truncate transition-colors">{user?.name || "Super Admin"}</p>
+                <p className="text-xs text-sidebar-text-secondary truncate transition-colors">{user?.email || "admin@stockmgmt.com"}</p>
+              </div>
+            )}
           </div>
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted hover:bg-primary-light hover:text-primary transition-colors"
+            title={collapsed ? "Sign out" : ""}
+            className={`flex w-full items-center ${collapsed ? "justify-center" : "gap-2"} rounded-lg ${collapsed ? "p-2" : "px-3 py-2"} text-sm font-medium text-sidebar-text-secondary hover:bg-primary-light hover:text-primary transition-colors`}
           >
-            <LogOut size={16} /> Sign out
+            <LogOut size={collapsed ? 20 : 16} /> {!collapsed && "Sign out"}
           </button>
         </div>
 
