@@ -335,8 +335,8 @@ aside, header {
 .app-background::after {
   content: '';
   position: absolute;
-  inset: 24px; /* Restored inset to make it a distinct second screen */
-  border-radius: 32px;
+  inset: 0;
+  border-radius: 0;
   /* Structured Glass Sheen */
   background: 
     linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.05) 20%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0.1) 100%),

@@ -250,16 +250,20 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         {stats.map((s) => (
           <div key={s.label} className={`glass-card p-5 ${s.cardBorder} relative overflow-hidden group`} style={s.cardStyle}>
-            {/* Exact overlapping circle patterns from screenshot */}
-            <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/10 blur-[1px] group-hover:scale-110 transition-transform" />
-            <div className="absolute -right-8 top-12 w-32 h-32 rounded-full bg-white/10 blur-[1px] group-hover:scale-110 transition-transform" />
+            {/* Exact overlapping circle patterns from screenshot - only show in SaaS */}
+            {!isEnterprise && (
+              <>
+                <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/10 blur-[1px] group-hover:scale-110 transition-transform" />
+                <div className="absolute -right-8 top-12 w-32 h-32 rounded-full bg-white/10 blur-[1px] group-hover:scale-110 transition-transform" />
+              </>
+            )}
             
             <div className={`inline-flex items-center justify-center w-10 h-10 rounded-xl ${s.iconBg} mb-4 relative z-10`}>
               <s.icon className={`w-5 h-5 ${s.iconColor}`} />
             </div>
-            <p className="text-3xl font-bold text-white relative z-10">{s.value}</p>
-            <p className="text-sm font-semibold text-white/90 mt-1 relative z-10">{s.label}</p>
-            <p className="text-xs text-white/80 mt-0.5 relative z-10">{s.sub}</p>
+            <p className={`text-3xl font-bold ${isEnterprise ? 'text-text-primary' : 'text-white'} relative z-10`}>{s.value}</p>
+            <p className={`text-sm font-semibold ${isEnterprise ? 'text-text-secondary' : 'text-white/90'} mt-1 relative z-10`}>{s.label}</p>
+            <p className={`text-xs ${isEnterprise ? 'text-text-muted' : 'text-white/80'} mt-0.5 relative z-10`}>{s.sub}</p>
           </div>
         ))}
       </div>
@@ -268,256 +272,175 @@ export default function DashboardPage() {
           ROW 1: Sales Graph (full width)
       ══════════════════════════════════════════════ */}
       <ChartCard
-        title="Sales Overview"
-        subtitle={salesView === "daily" ? "Last 14 days" : "Last 6 months"}
-        action={
-          <div className="relative group">
-            <select
-              value={salesView}
-              onChange={(e) => setSalesView(e.target.value as "daily" | "monthly")}
-              className="h-8 pl-3 pr-8 rounded-md border border-border bg-surface text-xs font-semibold text-text-primary outline-none focus:border-primary appearance-none cursor-pointer hover:bg-gray-50 transition-colors"
-            >
-              <option value="daily">Daily</option>
-              <option value="monthly">Monthly</option>
-            </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted pointer-events-none group-hover:text-primary transition-colors" />
-          </div>
-        }
-      >
-        <ResponsiveContainer width="100%" height={260}>
-          <AreaChart data={salesChartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="gradSales" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={C.primary} stopOpacity={0.2} />
-                <stop offset="95%" stopColor={C.primary} stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="gradProfit" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={C.blue} stopOpacity={0.2} />
-                <stop offset="95%" stopColor={C.blue} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke={C.grid} vertical={false} />
-            <XAxis dataKey="day" tick={tickStyle} axisLine={false} tickLine={false} />
-            <YAxis
-              tick={tickStyle}
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={(v) => v >= 1000 ? `₹${(v / 1000).toFixed(0)}k` : `₹${v}`}
-              width={48}
-            />
-            <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#ECE8F3', strokeWidth: 1, strokeDasharray: '4 4' }} />
-            <Legend
-              wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }}
-              formatter={(v: string) => <span className="text-text-muted capitalize">{v}</span>}
-            />
-            <Area
-              type="monotone"
-              dataKey="sales"
-              name="Sales"
-              stroke={C.primary}
-              strokeWidth={3}
-              fill="url(#gradSales)"
-              dot={{ r: 0 }}
-              activeDot={{ r: 5, fill: C.primary, stroke: '#fff', strokeWidth: 2 }}
-            />
-            <Area
-              type="monotone"
-              dataKey="sales"
-              name="Sales"
-              stroke={C.primary}
-              strokeWidth={3}
-              fill="url(#gradSales)"
-              dot={{ r: 0 }}
-              activeDot={{ r: 5, fill: C.primary, stroke: '#fff', strokeWidth: 2 }}
-            />
-            <Area
-              type="monotone"
-              dataKey="profit"
-              name="Profit"
-              stroke={C.coral}
-              strokeWidth={3}
-              fill="url(#gradProfit)"
-              dot={{ r: 0 }}
-              activeDot={{ r: 5, fill: C.coral, stroke: '#fff', strokeWidth: 2 }}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </ChartCard>
-
-      {/* ══════════════════════════════════════════════
-          ROW 2: Profit Graph + Stock Overview
-      ══════════════════════════════════════════════ */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
-        {/* Profit Bar Chart */}
-        <ChartCard title="Profit Breakdown" subtitle="Monthly profit — last 6 months">
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={monthlySalesData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }} barSize={28}>
-              <CartesianGrid strokeDasharray="3 3" stroke={C.grid} vertical={false} />
-              <XAxis dataKey="month" tick={tickStyle} axisLine={false} tickLine={false} />
-              <YAxis
-                tick={tickStyle}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
-                width={44}
-              />
-              <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(0,0,0,0.02)" }} />
-              <Bar
-                dataKey="profit"
-                name="Profit"
-                fill={C.blue}
-                radius={[4, 4, 0, 0]}
-              />
-              <Bar
-                dataKey="sales"
-                name="Sales"
-                fill={C.primary}
-                radius={[4, 4, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-
-          {/* Profit Metrics */}
-          <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
-            {[
-              { label: "This Month", value: `₹${(summary.this_month_sales || 0).toLocaleString("en-IN")}` },
-              { label: "Last Month", value: `₹${(summary.last_month_sales || 0).toLocaleString("en-IN")}` },
-              { label: "Avg Margin", value: `${summary.avg_margin || 0}%` },
-            ].map((m) => (
-              <div key={m.label} className="text-center">
-                <p className="text-xs text-text-muted">{m.label}</p>
-                <p className="text-sm font-bold text-text-primary mt-0.5">{m.value}</p>
+            title="Sales Overview"
+            subtitle={salesView === "daily" ? "Last 14 days" : "Last 6 months"}
+            action={
+              <div className="relative group">
+                <select
+                  value={salesView}
+                  onChange={(e) => setSalesView(e.target.value as "daily" | "monthly")}
+                  className="h-8 pl-3 pr-8 rounded-md border border-border bg-surface text-xs font-semibold text-text-primary outline-none focus:border-primary appearance-none cursor-pointer hover:bg-gray-50 transition-colors"
+                >
+                  <option value="daily">Daily</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted pointer-events-none group-hover:text-primary transition-colors" />
               </div>
-            ))}
-          </div>
-        </ChartCard>
+            }
+          >
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={salesChartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gradSales" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={C.primary} stopOpacity={0.2} />
+                    <stop offset="95%" stopColor={C.primary} stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gradProfit" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={C.blue} stopOpacity={0.2} />
+                    <stop offset="95%" stopColor={C.blue} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke={C.grid} vertical={false} />
+                <XAxis dataKey="day" tick={tickStyle} axisLine={false} tickLine={false} />
+                <YAxis
+                  tick={tickStyle}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => v >= 1000 ? `₹${(v / 1000).toFixed(0)}k` : `₹${v}`}
+                  width={48}
+                />
+                <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#ECE8F3', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                <Legend
+                  wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }}
+                  formatter={(v: string) => <span className="text-text-muted capitalize">{v}</span>}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="sales"
+                  name="Sales"
+                  stroke={C.primary}
+                  strokeWidth={3}
+                  fill="url(#gradSales)"
+                  dot={{ r: 0 }}
+                  activeDot={{ r: 5, fill: C.primary, stroke: '#fff', strokeWidth: 2 }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="profit"
+                  name="Profit"
+                  stroke={C.coral}
+                  strokeWidth={3}
+                  fill="url(#gradProfit)"
+                  dot={{ r: 0 }}
+                  activeDot={{ r: 5, fill: C.coral, stroke: '#fff', strokeWidth: 2 }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </ChartCard>
 
-        {/* Stock Overview */}
-        <ChartCard
-          title="Stock Overview"
-          subtitle="Current units per product"
-          action={
-            <div className="flex items-center gap-3 text-xs text-text-muted">
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-mint inline-block" /> OK</span>
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-warning inline-block" /> Low</span>
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-coral inline-block" /> OOS</span>
-            </div>
-          }
-        >
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart
-              data={stockData}
-              layout="vertical"
-              margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
-              barSize={14}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke={C.grid} horizontal={false} />
-              <XAxis type="number" tick={tickStyle} axisLine={false} tickLine={false} />
-              <YAxis
-                type="category"
-                dataKey="name"
-                tick={tickStyle}
-                axisLine={false}
-                tickLine={false}
-                width={110}
-                tickFormatter={(v: string) => v.length > 14 ? v.slice(0, 13) + "…" : v}
-              />
-              <Tooltip content={<StockTooltip />} cursor={{ fill: "rgba(0,0,0,0.02)" }} />
-              <Bar dataKey="stock" name="Stock" radius={[0, 4, 4, 0]}>
-                {stockData.map((_, i) => (
-                  <Cell key={i} fill={stockBarColors[i]} />
+          {/* ══════════════════════════════════════════════
+              ROW 2: Profit Graph + Stock Overview
+          ══════════════════════════════════════════════ */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+            {/* Profit Bar Chart */}
+            <ChartCard title="Profit Breakdown" subtitle="Monthly profit — last 6 months">
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart data={monthlySalesData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }} barSize={28}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={C.grid} vertical={false} />
+                  <XAxis dataKey="month" tick={tickStyle} axisLine={false} tickLine={false} />
+                  <YAxis
+                    tick={tickStyle}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                    width={44}
+                  />
+                  <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(0,0,0,0.02)" }} />
+                  <Bar
+                    dataKey="profit"
+                    name="Profit"
+                    fill={C.blue}
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="sales"
+                    name="Sales"
+                    fill={C.primary}
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+
+              {/* Profit Metrics */}
+              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
+                {[
+                  { label: "This Month", value: `₹${(summary.this_month_sales || 0).toLocaleString("en-IN")}` },
+                  { label: "Last Month", value: `₹${(summary.last_month_sales || 0).toLocaleString("en-IN")}` },
+                  { label: "Avg Margin", value: `${summary.avg_margin || 0}%` },
+                ].map((m) => (
+                  <div key={m.label} className="text-center">
+                    <p className="text-xs text-text-muted">{m.label}</p>
+                    <p className="text-sm font-bold text-text-primary mt-0.5">{m.value}</p>
+                  </div>
                 ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-
-          {/* Stock Alerts */}
-          <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
-            {[
-              { label: "In Stock", value: stockData.filter((s) => s.stock > s.reorderAt).length, color: "text-mint" },
-              { label: "Low Stock", value: stockData.filter((s) => s.stock > 0 && s.stock <= s.reorderAt).length, color: "text-warning" },
-              { label: "Out of Stock", value: stockData.filter((s) => s.stock === 0).length, color: "text-coral" },
-            ].map((m) => (
-              <div key={m.label} className="text-center">
-                <p className={`text-lg font-bold ${m.color}`}>{m.value}</p>
-                <p className="text-xs text-text-muted mt-0.5">{m.label}</p>
               </div>
-            ))}
+            </ChartCard>
+
+            {/* Stock Overview */}
+            <ChartCard
+              title="Stock Overview"
+              subtitle="Current units per product"
+              action={
+                <div className="flex items-center gap-3 text-xs text-text-muted">
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-mint inline-block" /> OK</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-warning inline-block" /> Low</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-coral inline-block" /> OOS</span>
+                </div>
+              }
+            >
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart
+                  data={stockData}
+                  layout="vertical"
+                  margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
+                  barSize={14}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke={C.grid} horizontal={false} />
+                  <XAxis type="number" tick={tickStyle} axisLine={false} tickLine={false} />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    tick={tickStyle}
+                    axisLine={false}
+                    tickLine={false}
+                    width={110}
+                    tickFormatter={(v: string) => v.length > 14 ? v.slice(0, 13) + "…" : v}
+                  />
+                  <Tooltip content={<StockTooltip />} cursor={{ fill: "rgba(0,0,0,0.02)" }} />
+                  <Bar dataKey="stock" name="Stock" radius={[0, 4, 4, 0]}>
+                    {stockData.map((_, i) => (
+                      <Cell key={i} fill={stockBarColors[i]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+
+              {/* Stock Alerts */}
+              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
+                {[
+                  { label: "In Stock", value: stockData.filter((s) => s.stock > s.reorderAt).length, color: "text-mint" },
+                  { label: "Low Stock", value: stockData.filter((s) => s.stock > 0 && s.stock <= s.reorderAt).length, color: "text-warning" },
+                  { label: "Out of Stock", value: stockData.filter((s) => s.stock === 0).length, color: "text-coral" },
+                ].map((m) => (
+                  <div key={m.label} className="text-center">
+                    <p className={`text-lg font-bold ${m.color}`}>{m.value}</p>
+                    <p className="text-xs text-text-muted mt-0.5">{m.label}</p>
+                  </div>
+                ))}
+              </div>
+            </ChartCard>
           </div>
-        </ChartCard>
-      </div>
-
-      {/* Enterprise Data Dense Tables */}
-      {isEnterprise && (
-        <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ChartCard title="Recent Orders" subtitle="Latest transactions across all stores">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-text-secondary border-collapse">
-                <thead className="bg-surface sticky top-0 border-b border-border text-xs uppercase tracking-wider text-text-primary">
-                  <tr>
-                    <th className="py-3 px-4 font-bold">Order ID</th>
-                    <th className="py-3 px-4 font-bold">Customer</th>
-                    <th className="py-3 px-4 font-bold text-right">Amount</th>
-                    <th className="py-3 px-4 font-bold text-center">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {[
-                    { id: "#ORD-901", customer: "Rahul S.", amount: "₹4,200", status: "Completed", color: "bg-mint-light text-mint" },
-                    { id: "#ORD-902", customer: "Vikram P.", amount: "₹1,550", status: "Processing", color: "bg-warning/10 text-warning" },
-                    { id: "#ORD-903", customer: "Aisha K.", amount: "₹8,900", status: "Completed", color: "bg-mint-light text-mint" },
-                    { id: "#ORD-904", customer: "Neha M.", amount: "₹3,400", status: "Pending", color: "bg-coral-light text-coral" },
-                  ].map((order) => (
-                    <tr key={order.id} className="hover:bg-primary-light transition-colors">
-                      <td className="py-3 px-4 font-mono font-medium text-text-primary">{order.id}</td>
-                      <td className="py-3 px-4 text-text-primary">{order.customer}</td>
-                      <td className="py-3 px-4 text-right font-bold text-text-primary">{order.amount}</td>
-                      <td className="py-3 px-4 text-center">
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${order.color}`}>
-                          {order.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </ChartCard>
-
-          <ChartCard title="Stock Alerts" subtitle="Items requiring immediate attention">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-text-secondary border-collapse">
-                <thead className="bg-surface sticky top-0 border-b border-border text-xs uppercase tracking-wider text-text-primary">
-                  <tr>
-                    <th className="py-3 px-4 font-bold">Product Name</th>
-                    <th className="py-3 px-4 font-bold text-right">Stock</th>
-                    <th className="py-3 px-4 font-bold text-right">Reorder At</th>
-                    <th className="py-3 px-4 font-bold text-center">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {stockData.filter(s => s.stock <= s.reorderAt).map((item, i) => {
-                    const isOos = item.stock === 0;
-                    return (
-                      <tr key={i} className="hover:bg-primary-light transition-colors">
-                        <td className="py-3 px-4 text-text-primary font-medium">{item.name}</td>
-                        <td className={`py-3 px-4 text-right font-bold ${isOos ? 'text-coral' : 'text-warning'}`}>{item.stock}</td>
-                        <td className="py-3 px-4 text-right text-text-muted">{item.reorderAt}</td>
-                        <td className="py-3 px-4 text-center">
-                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isOos ? 'bg-coral-light text-coral' : 'bg-warning/10 text-warning'}`}>
-                            {isOos ? 'Out of Stock' : 'Low Stock'}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </ChartCard>
-        </div>
-      )}
     </div>
   );
 }

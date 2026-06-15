@@ -38,7 +38,7 @@ export default function DashboardLayout({
     <div className={`flex h-screen overflow-hidden ${isSaas ? "bg-transparent" : "bg-background"}`}>
       <div className={`flex flex-1 overflow-hidden relative z-20 w-full ${
         isSaas 
-          ? "glass-panel shadow-[0_30px_60px_rgba(0,0,0,0.12)]" 
+          ? "glass-panel shadow-[0_30px_60px_rgba(0,0,0,0.12)] !rounded-none !border-none" 
           : "bg-background"
       }`}>
         <Sidebar collapsed={isSidebarCollapsed} onToggleCollapse={handleToggleSidebar} />

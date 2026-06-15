@@ -414,7 +414,11 @@ export default function BillingPage() {
 
         {/* Product Search */}
         <div className="relative">
-          <div className={`flex items-center gap-2 h-11 bg-surface border border-border rounded-xl px-4 focus-within:border-${mode === 'sale' ? 'red' : 'amber'}-400 focus-within:ring-2 focus-within:ring-${mode === 'sale' ? 'red' : 'amber'}-500/20 transition-all`}>
+          <div className={`flex items-center gap-2 h-11 bg-surface border border-border rounded-xl px-4 transition-all ${
+            mode === 'sale' 
+              ? 'focus-within:border-red-400 focus-within:ring-2 focus-within:ring-red-500/20' 
+              : 'focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-500/20'
+          }`}>
             <Search className="w-4 h-4 text-text-secondary shrink-0" />
             <input
               type="text"
@@ -429,7 +433,11 @@ export default function BillingPage() {
                 <X size={14} className="text-text-secondary hover:text-text-primary" />
               </button>
             )}
-            <button className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-${mode === 'sale' ? 'red' : 'amber'}-50 text-${mode === 'sale' ? 'red' : 'amber'}-700 text-xs font-semibold hover:bg-${mode === 'sale' ? 'red' : 'amber'}-100 transition-colors`}>
+            <button className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              mode === 'sale'
+                ? 'bg-red-50 text-red-700 hover:bg-red-100'
+                : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+            }`}>
               <ScanLine size={14} /> Scan
             </button>
           </div>
@@ -440,7 +448,9 @@ export default function BillingPage() {
               {searchResults.map((p) => (
                 <button key={p.id}
                   onClick={() => addToCart(p)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-${mode === 'sale' ? 'red' : 'amber'}-50 transition-colors text-left border-b border-slate-50 last:border-0`}>
+                  className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left border-b border-slate-50 last:border-0 ${
+                    mode === 'sale' ? 'hover:bg-red-50' : 'hover:bg-amber-50'
+                  }`}>
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-bold text-xs ${p.size ? 'bg-blue-100 text-blue-700' : 'bg-background text-text-secondary'}`}>
                     {p.size ? p.size : <Package size={14} />}
                   </div>
@@ -456,7 +466,7 @@ export default function BillingPage() {
                     <p className="text-xs text-text-secondary">{p.brand} · {p.category} · Stock: {p.stock}</p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className={`text-sm font-bold text-${mode === 'sale' ? 'red' : 'amber'}-700`}>{fmt(p.sellingPrice)}</p>
+                    <p className={`text-sm font-bold ${mode === 'sale' ? 'text-red-700' : 'text-amber-700'}`}>{fmt(p.sellingPrice)}</p>
                     <p className="text-xs text-text-secondary">+{p.gstPercent}% GST</p>
                   </div>
                 </button>
@@ -615,8 +625,12 @@ export default function BillingPage() {
                 onClick={() => setPayMethod(m.key)}
                 className={`flex flex-col items-center gap-1 py-2.5 rounded-xl border text-xs font-semibold transition-all ${
                   payMethod === m.key
-                    ? `bg-${mode === 'sale' ? 'red' : 'amber'}-600 border-${mode === 'sale' ? 'red' : 'amber'}-600 text-white shadow-sm shadow-${mode === 'sale' ? 'red' : 'amber'}-200`
-                    : `border-border text-text-primary hover:border-${mode === 'sale' ? 'red' : 'amber'}-200 hover:bg-${mode === 'sale' ? 'red' : 'amber'}-50`
+                    ? mode === 'sale' 
+                      ? 'bg-red-600 border-red-600 text-white shadow-sm shadow-red-200'
+                      : 'bg-amber-600 border-amber-600 text-white shadow-sm shadow-amber-200'
+                    : mode === 'sale'
+                      ? 'border-border text-text-primary hover:border-red-200 hover:bg-red-50'
+                      : 'border-border text-text-primary hover:border-amber-200 hover:bg-amber-50'
                 }`}>
                 <span className="text-lg">{m.icon}</span>
                 {m.label}
@@ -687,7 +701,7 @@ export default function BillingPage() {
 
             <div className="border-t border-border pt-2.5 mt-1 flex items-center justify-between">
               <p className="text-sm font-bold text-text-primary">{mode === 'sale' ? 'Grand Total' : 'Total Refund'}</p>
-              <p className={`text-xl font-bold tabular-nums text-${mode === 'sale' ? 'red' : 'amber'}-700`}>{fmt(totals.grandTotal)}</p>
+              <p className={`text-xl font-bold tabular-nums ${mode === 'sale' ? 'text-red-700' : 'text-amber-700'}`}>{fmt(totals.grandTotal)}</p>
             </div>
           </div>
         </div>
