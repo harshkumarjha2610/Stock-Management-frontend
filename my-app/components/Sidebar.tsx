@@ -270,7 +270,7 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="saas-card rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 w-full max-w-sm mx-auto">
+      <div className="bg-background rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 w-full max-w-sm mx-auto">
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
@@ -412,7 +412,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-        <div className="saas-card rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 w-full max-w-lg mx-auto flex flex-col max-h-[90vh]">
+        <div className="bg-background rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 w-full max-w-lg mx-auto flex flex-col max-h-[90vh]">
 
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
@@ -770,7 +770,7 @@ function CreateStoreModal({ onClose, onSave }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="saas-card rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 w-full max-w-md mx-auto flex flex-col max-h-[90vh]">
+      <div className="bg-background rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 w-full max-w-md mx-auto flex flex-col max-h-[90vh]">
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
@@ -889,7 +889,7 @@ function CreateStoreModal({ onClose, onSave }: {
                       type="button"
                       onClick={openLocationInMap}
                       disabled={!form.address.trim() || isResolvingLocation}
-                      className="rounded-lg border border-white/10 saas-card px-3 py-2 text-xs font-semibold text-foreground/90 hover:bg-surface transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="rounded-lg border border-white/10 bg-surface px-3 py-2 text-xs font-semibold text-foreground/90 hover:bg-surface transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isResolvingLocation ? "Resolving..." : "View on map"}
                     </button>
@@ -962,7 +962,7 @@ function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="saas-card rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 w-full max-w-sm mx-auto">
+      <div className="bg-background rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 w-full max-w-sm mx-auto">
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
           <div className="flex items-center gap-2">
             <ArrowLeftRight size={16} className="text-primary" />
@@ -991,7 +991,7 @@ function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
                   }`}
                 >
                   <div className={`w-10 h-10 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${
-                    isActive ? "saas-card/20" : catMeta.color
+                    isActive ? "bg-primary-light" : catMeta.color
                   }`}>
                     {shop.logoUrl
                       ? <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
@@ -1036,7 +1036,7 @@ function ActiveStoreBanner({ shop, onSwitch, onEdit, isSuperAdmin }: {
     <div className="mx-3 mb-3 rounded-xl border border-primary bg-primary-light p-3">
       <p className="text-[10px] font-semibold uppercase tracking-widest text-primary mb-2">Active Store</p>
       <div className="flex items-center gap-2.5">
-        <div className="w-10 h-10 rounded-lg saas-card border border-primary flex items-center justify-center overflow-hidden shrink-0">
+        <div className="w-10 h-10 rounded-lg bg-surface border border-primary flex items-center justify-center overflow-hidden shrink-0">
           {shop.logoUrl
             ? <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
             : <CatIcon size={17} className="text-primary" />}
@@ -1060,13 +1060,13 @@ function ActiveStoreBanner({ shop, onSwitch, onEdit, isSuperAdmin }: {
         <div className="flex flex-col gap-1 shrink-0">
           <button
             onClick={onEdit}
-            className="flex items-center gap-1 text-[11px] font-semibold text-amber-600 hover:text-amber-800 saas-card hover:bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg transition-colors"
+            className="flex items-center gap-1 text-[11px] font-semibold text-amber-600 hover:text-amber-800 bg-surface hover:bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg transition-colors"
           >
             <Pencil size={10} /> Edit
           </button>
           <button
             onClick={onSwitch}
-            className="flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-primary saas-card hover:bg-primary-light border border-primary px-2 py-1 rounded-lg transition-colors"
+            className="flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-primary bg-surface hover:bg-primary-light border border-primary px-2 py-1 rounded-lg transition-colors"
           >
             <ArrowLeftRight size={10} /> Switch
           </button>
@@ -1350,7 +1350,7 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
                 {shops.length > 1 && (
                   <button
                     onClick={() => setShowSwitcher(true)}
-                    className="flex items-center gap-1 text-[11px] font-semibold text-muted hover:text-primary saas-card hover:bg-primary-light px-2 py-0.5 rounded-full transition-colors"
+                    className="flex items-center gap-1 text-[11px] font-semibold text-muted hover:text-primary bg-surface hover:bg-primary-light px-2 py-0.5 rounded-full transition-colors"
                   >
                     <ArrowLeftRight size={10} /> Switch
                   </button>
@@ -1395,7 +1395,7 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
                         }`}
                       >
                         <div className={`w-7 h-7 rounded-md shrink-0 overflow-hidden flex items-center justify-center ${
-                          isActive ? "saas-card/20" : catMeta.color
+                          isActive ? "bg-primary-light" : catMeta.color
                         }`}>
                           {shop.logoUrl
                             ? <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
@@ -1416,7 +1416,7 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
                         onClick={() => setEditShop(shop)}
                         className={`p-1.5 rounded-lg transition-colors ${
                           isActive
-                            ? "text-white/70 hover:text-white hover:saas-card/10"
+                            ? "text-white/70 hover:text-white hover:bg-white/10"
                             : "text-muted/70 hover:text-amber-600 hover:bg-amber-50"
                         }`}
                         title="Edit store"
@@ -1438,7 +1438,7 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
                           }}
                           className={`p-1.5 rounded-lg transition-colors ${
                               isActive
-                                ? "text-white/70 hover:text-white hover:saas-card/10"
+                                ? "text-white/70 hover:text-white hover:bg-white/10"
                                 : "text-muted/70 hover:text-primary hover:bg-primary-light"
                           }`}
                           title="Delete store"
