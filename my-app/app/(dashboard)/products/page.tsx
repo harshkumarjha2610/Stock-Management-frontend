@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import Barcode from "@/components/Barcode";
+import JsBarcode from "jsbarcode";
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -641,9 +642,26 @@ function ProductModal({
 
   function printBarcodeLabel(p: Product) {
     const barcodeValue = p.barcode;
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api";
-    const backendBase = apiBaseUrl.replace(/\/api\/?$/, "");
-    const fullImageUrl = p.barcodeImageUrl ? `${backendBase}${p.barcodeImageUrl}` : "";
+    if (!barcodeValue) {
+      alert("No barcode number available for this product.");
+      return;
+    }
+
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    try {
+      JsBarcode(svg, barcodeValue, {
+        format: "CODE128",
+        width: 2,
+        height: 60,
+        displayValue: true,
+        fontSize: 12,
+        margin: 5,
+      });
+    } catch (error) {
+      alert("Failed to draw barcode for printing.");
+      return;
+    }
+    const barcodeSvg = svg.outerHTML;
 
     const html = `
       <html><head><title>Print Barcode - ${barcodeValue}</title>
@@ -665,29 +683,10 @@ function ProductModal({
         <div class="store-name">🏪 ${store?.name || 'Stock Management'}</div>
         <div class="product-name">${p.name}</div>
         <div class="barcode-container">
-          ${fullImageUrl ? 
-            `<img src="${fullImageUrl}" style="max-width:100%; height:auto;" />` : 
-            `<svg id="barcode-print"></svg>`
-          }
+          ${barcodeSvg}
         </div>
         <div class="price">₹${p.sellingPrice.toLocaleString("en-IN")}</div>
       </div>
-      ${!fullImageUrl ? `
-      <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-      <script>
-        try {
-          JsBarcode("#barcode-print", "${barcodeValue}", {
-            format: "CODE128",
-            width: 2,
-            height: 60,
-            displayValue: true,
-            fontSize: 12
-          });
-        } catch(e) {
-          document.body.innerHTML += "<p style='color:red;'>Failed to draw barcode</p>";
-        }
-      </script>
-      ` : ''}
       <script>
         window.onload = function() {
           setTimeout(function() {
@@ -869,14 +868,13 @@ function ProductModal({
                       </div>
                       {s.barcode && (
                         <div className="mt-1.5 flex flex-col items-center bg-surface rounded-lg border border-border p-2 text-center gap-1">
-                          <Barcode value={s.barcode} imageUrl={s.barcodeImageUrl} useBackendImage={true} className="h-9" />
+                          <Barcode value={s.barcode} className="h-9" />
                           <p className="text-[9px] font-mono text-text-secondary break-all">{s.barcode}</p>
                           <button
                             onClick={() => printBarcodeLabel({
                               ...product,
                               name: `${product.name} (${s.size})`,
                               barcode: s.barcode,
-                              barcodeImageUrl: s.barcodeImageUrl,
                             })}
                             className="flex items-center justify-center gap-1 w-full py-1 bg-background hover:bg-primary-light text-[10px] font-bold text-text-primary hover:text-red-700 rounded border border-border transition-colors"
                           >
@@ -891,11 +889,11 @@ function ProductModal({
             )}
 
             {/* ── Product Barcode (Grocery only) ── */}
-            {isGrocery && product.barcodeImageUrl && (
+            {isGrocery && product.barcode && (
               <div className="bg-background rounded-xl border border-border p-4">
                 <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Product Barcode</p>
                 <div className="bg-surface rounded-lg border border-border p-4 flex flex-col items-center text-center max-w-xs mx-auto gap-2">
-                  <Barcode value={product.barcode || ""} imageUrl={product.barcodeImageUrl} useBackendImage={true} className="h-14" />
+                  <Barcode value={product.barcode || ""} className="h-14" />
                   <p className="text-xs font-mono text-text-secondary font-semibold">{product.barcode}</p>
                   <button
                     onClick={() => printBarcodeLabel(product)}
@@ -1610,9 +1608,9 @@ export default function ProductsPage() {
                                 <span className="font-mono">{p.sku}</span>
                               </p>
                             )}
-                            {isGrocery && p.barcodeImageUrl && (
+                            {isGrocery && p.barcode && (
                               <div className="mt-1.5" title={`System Barcode: ${p.barcode}`}>
-                                <Barcode value={p.barcode || ""} imageUrl={p.barcodeImageUrl} useBackendImage={true} className="h-6" />
+                                <Barcode value={p.barcode || ""} className="h-6" />
                               </div>
                             )}
                             {!isGrocery && p.sizes?.some((s: any) => s.barcode) && (
@@ -1825,9 +1823,9 @@ export default function ProductsPage() {
                           </span>
                         </div>
 
-                        {isGrocery && p.barcodeImageUrl && (
+                        {isGrocery && p.barcode && (
                           <div className="py-1.5 flex justify-center bg-background/50 rounded-lg border border-border">
-                            <Barcode value={p.barcode || ""} imageUrl={p.barcodeImageUrl} useBackendImage={true} className="h-8" />
+                            <Barcode value={p.barcode || ""} className="h-8" />
                           </div>
                         )}
                         {!isGrocery && p.sizes?.some((s: any) => s.barcode) && (

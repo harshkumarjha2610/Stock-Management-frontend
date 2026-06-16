@@ -216,6 +216,26 @@ export default function DashboardPage() {
   }, [salesView, dailySalesData, monthlySalesData]);
 
   const salesXKey = "day";
+  const attendanceTotal = useMemo(() => {
+    return attendanceData.reduce(
+      (acc, day) => ({
+        present: acc.present + (Number(day.present) || 0),
+        absent: acc.absent + (Number(day.absent) || 0),
+      }),
+      { present: 0, absent: 0 }
+    );
+  }, [attendanceData]);
+
+  const gstHistory = gstSummary?.history || [];
+  const gstTotals = useMemo(() => {
+    return gstHistory.reduce(
+      (acc: { collected: number; paid: number }, row: any) => ({
+        collected: acc.collected + (Number(row.collected) || 0),
+        paid: acc.paid + (Number(row.paid) || 0),
+      }),
+      { collected: 0, paid: 0 }
+    );
+  }, [gstHistory]);
 
   // Stock bar colors: Use Coral for OOS/Low, Mint for OK
   const stockBarColors = stockData.map((item) =>
@@ -435,6 +455,108 @@ export default function DashboardPage() {
                 ].map((m) => (
                   <div key={m.label} className="text-center">
                     <p className={`text-lg font-bold ${m.color}`}>{m.value}</p>
+                    <p className="text-xs text-text-muted mt-0.5">{m.label}</p>
+                  </div>
+                ))}
+              </div>
+            </ChartCard>
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <ChartCard
+              title="Staff Attendance"
+              subtitle="Present vs absent across the last 7 days"
+              action={
+                <div className="flex items-center gap-3 text-xs text-text-muted">
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-mint inline-block" /> Present</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-coral inline-block" /> Absent</span>
+                </div>
+              }
+            >
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart data={attendanceData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }} barSize={30}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={C.grid} vertical={false} />
+                  <XAxis dataKey="day" tick={tickStyle} axisLine={false} tickLine={false} />
+                  <YAxis tick={tickStyle} axisLine={false} tickLine={false} allowDecimals={false} width={36} />
+                  <Tooltip content={<ChartTooltip prefix="" />} cursor={{ fill: "rgba(0,0,0,0.02)" }} />
+                  <Legend
+                    wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }}
+                    formatter={(v: string) => <span className="text-text-muted capitalize">{v}</span>}
+                  />
+                  <Bar dataKey="present" name="Present" stackId="attendance" fill={C.mint} radius={[0, 0, 4, 4]} />
+                  <Bar dataKey="absent" name="Absent" stackId="attendance" fill={C.coral} radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+
+              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
+                {[
+                  { label: "Present", value: attendanceTotal.present, color: "text-mint" },
+                  { label: "Absent", value: attendanceTotal.absent, color: "text-coral" },
+                  { label: "Active Staff", value: summary.staff_total || 0, color: "text-primary" },
+                ].map((m) => (
+                  <div key={m.label} className="text-center">
+                    <p className={`text-lg font-bold ${m.color}`}>{m.value}</p>
+                    <p className="text-xs text-text-muted mt-0.5">{m.label}</p>
+                  </div>
+                ))}
+              </div>
+            </ChartCard>
+
+            <ChartCard
+              title="Monthly GST Summary"
+              subtitle="GST collected and estimated paid by month"
+              action={
+                <div className="text-right">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">YTD Collected</p>
+                  <p className="text-sm font-bold text-text-primary">₹{(gstSummary?.ytd_collected || 0).toLocaleString("en-IN")}</p>
+                </div>
+              }
+            >
+              <ResponsiveContainer width="100%" height={240}>
+                <LineChart data={gstHistory} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={C.grid} vertical={false} />
+                  <XAxis dataKey="month" tick={tickStyle} axisLine={false} tickLine={false} />
+                  <YAxis
+                    tick={tickStyle}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v) => v >= 1000 ? `₹${(v / 1000).toFixed(0)}k` : `₹${v}`}
+                    width={48}
+                  />
+                  <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#ECE8F3', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                  <Legend
+                    wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }}
+                    formatter={(v: string) => <span className="text-text-muted capitalize">{v}</span>}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="collected"
+                    name="Collected"
+                    stroke={C.primary}
+                    strokeWidth={3}
+                    dot={{ r: 3, fill: C.primary, strokeWidth: 0 }}
+                    activeDot={{ r: 5, fill: C.primary, stroke: '#fff', strokeWidth: 2 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="paid"
+                    name="Paid"
+                    stroke={C.warning}
+                    strokeWidth={3}
+                    dot={{ r: 3, fill: C.warning, strokeWidth: 0 }}
+                    activeDot={{ r: 5, fill: C.warning, stroke: '#fff', strokeWidth: 2 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+
+              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
+                {[
+                  { label: "Collected", value: `₹${gstTotals.collected.toLocaleString("en-IN")}`, color: "text-primary" },
+                  { label: "Paid", value: `₹${gstTotals.paid.toLocaleString("en-IN")}`, color: "text-warning" },
+                  { label: "Balance", value: `₹${(gstTotals.collected - gstTotals.paid).toLocaleString("en-IN")}`, color: "text-mint" },
+                ].map((m) => (
+                  <div key={m.label} className="text-center">
+                    <p className={`text-sm font-bold ${m.color}`}>{m.value}</p>
                     <p className="text-xs text-text-muted mt-0.5">{m.label}</p>
                   </div>
                 ))}

@@ -34,6 +34,7 @@ type Shop = {
   phone: string;
   email: string;
   upiId: string;
+  upiPayeeName: string;
   logoUrl: string | null;
   category: StoreCategory;
   admins: StoreAdmin[];
@@ -62,6 +63,7 @@ type BackendStore = {
   phone?: string | null;
   email?: string | null;
   upi_id?: string | null;
+  upi_payee_name?: string | null;
   logo_url?: string | null;
   category?: StoreCategory | null;
   users?: BackendAdmin[];
@@ -378,6 +380,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
     address:   shop.address,
     phone:     shop.phone,
     upiId:     shop.upiId,
+    upiPayeeName: shop.upiPayeeName,
     category:  shop.category,
     logoUrl:   shop.logoUrl,
   });
@@ -403,6 +406,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
       address:   form.address.trim(),
       phone:     form.phone.trim(),
       upiId:     form.upiId.trim(),
+      upiPayeeName: form.upiPayeeName.trim(),
       category:  form.category,
       logoUrl:   form.logoUrl,
       admins,
@@ -533,6 +537,16 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
                     </div>
                   </Field>
 
+                  <Field label="UPI Payee Name">
+                    <input
+                      type="text"
+                      placeholder="Name shown in UPI apps"
+                      value={form.upiPayeeName}
+                      onChange={(e) => setForm({ ...form, upiPayeeName: e.target.value })}
+                      className={inputCls()}
+                    />
+                  </Field>
+
                   <div>
                     <label className="block text-xs font-medium text-muted mb-2">Category</label>
                     <CategorySelector
@@ -645,6 +659,7 @@ function CreateStoreModal({ onClose, onSave }: {
     phone:     "",
     email:     "",
     upiId:     "",
+    upiPayeeName: "",
     category:  "GROCERY" as StoreCategory,
   });
   const [logoUrl, setLogoUrl]   = useState<string | null>(null);
@@ -762,6 +777,7 @@ function CreateStoreModal({ onClose, onSave }: {
       phone:     form.phone.trim(),
       email:     form.email.trim(),
       upiId:     form.upiId.trim(),
+      upiPayeeName: form.upiPayeeName.trim(),
       logoUrl,
       category:  form.category,
       admins:    [],
@@ -860,6 +876,16 @@ function CreateStoreModal({ onClose, onSave }: {
                     className="w-full pl-8 pr-3 py-2 text-sm border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
+              </Field>
+
+              <Field label="UPI Payee Name">
+                <input
+                  type="text"
+                  placeholder="Name shown in UPI apps"
+                  value={form.upiPayeeName}
+                  onChange={(e) => setForm({ ...form, upiPayeeName: e.target.value })}
+                  className={inputCls()}
+                />
               </Field>
 
               <Field label="Location" required error={errors.address}>
@@ -1053,7 +1079,9 @@ function ActiveStoreBanner({ shop, onSwitch, onEdit, isSuperAdmin }: {
             <p className="text-[10px] text-muted/70 truncate mt-0.5">📞 +91 {shop.phone}</p>
           )}
           {shop.upiId && (
-            <p className="text-[10px] text-muted/70 truncate">💳 {shop.upiId}</p>
+            <p className="text-[10px] text-muted/70 truncate">
+              💳 {shop.upiId}{shop.upiPayeeName ? ` · ${shop.upiPayeeName}` : ""}
+            </p>
           )}
         </div>
         {isSuperAdmin && (
@@ -1118,6 +1146,7 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
     phone: s.phone || "",
     email: s.email || "",
     upiId: s.upi_id || "",
+    upiPayeeName: s.upi_payee_name || "",
     logoUrl: s.logo_url || null,
     category: s.category || "GROCERY",
     admins: s.users?.map((u) => ({
@@ -1193,6 +1222,7 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
         category: shopData.category,
         logo_url: shopData.logoUrl,
         upi_id: shopData.upiId,
+        upi_payee_name: shopData.upiPayeeName,
         admins: shopData.admins,
       });
       
@@ -1218,6 +1248,7 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
         category: updated.category,
         logo_url: updated.logoUrl,
         upi_id: updated.upiId,
+        upi_payee_name: updated.upiPayeeName,
         admins: updated.admins,
       });
       

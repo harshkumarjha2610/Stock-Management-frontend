@@ -5,6 +5,7 @@ import {
   Search, Plus, Minus, Trash2, Printer, CheckCircle,
   X, ShoppingCart, User, Phone, IndianRupee, Receipt,
   Tag, Package, ChevronDown, ScanLine, RotateCcw, Loader2,
+  QrCode,
 } from "lucide-react";
 import { api } from "@/lib/api";
 
@@ -32,6 +33,12 @@ type CartItem = Product & {
 
 type PaymentMethod = "cash" | "upi" | "card";
 
+type StorePayment = {
+  name: string;
+  upiId: string;
+  upiPayeeName: string;
+};
+
 // ═══════════════════════════════════════════════════════════
 // MOCK PRODUCTS
 // ═══════════════════════════════════════════════════════════
@@ -51,6 +58,17 @@ const inputCls =
 
 function fmt(n: number) {
   return "₹" + n.toLocaleString("en-IN");
+}
+
+function buildUpiLink(upiId: string, payeeName: string, amount: number, note: string) {
+  const params = new URLSearchParams({
+    pa: upiId,
+    pn: payeeName || "Store",
+    am: amount.toFixed(2),
+    cu: "INR",
+    tn: note,
+  });
+  return `upi://pay?${params.toString()}`;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -157,13 +175,19 @@ function printInvoice(
 
 export default function BillingPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [storePayment, setStorePayment] = useState<StorePayment | null>(null);
   const [loading, setLoading]   = useState(true);
 
   useEffect(() => {
-    async function fetchProducts() {
+    async function fetchInitialData() {
       try {
         setLoading(true);
-        const res = await api.get('/products');
+        const [res, storeRes] = await Promise.all([
+          api.get('/products'),
+          localStorage.getItem('activeStoreId')
+            ? api.get(`/stores/${localStorage.getItem('activeStoreId')}`)
+            : Promise.resolve({ data: null }),
+        ]);
         const mapped: Product[] = [];
 
         for (const p of res.data) {
@@ -200,13 +224,20 @@ export default function BillingPage() {
         }
 
         setProducts(mapped);
+        if (storeRes.data) {
+          setStorePayment({
+            name: storeRes.data.name || "",
+            upiId: storeRes.data.upi_id || "",
+            upiPayeeName: storeRes.data.upi_payee_name || storeRes.data.name || "",
+          });
+        }
       } catch (error) {
-        console.error("Failed to fetch products", error);
+        console.error("Failed to fetch billing data", error);
       } finally {
         setLoading(false);
       }
     }
-    fetchProducts();
+    fetchInitialData();
   }, []);
 
   // Product search
@@ -224,6 +255,7 @@ export default function BillingPage() {
   const [payMethod,    setPayMethod]    = useState<PaymentMethod>("cash");
   const [cashReceived, setCashReceived] = useState(0);
   const [billDiscount, setBillDiscount] = useState(0); // overall bill discount %
+  const [showUpiPopup, setShowUpiPopup] = useState(false);
 
   // State
   const [mode, setMode]       = useState<"sale" | "return">("sale");
@@ -286,6 +318,7 @@ export default function BillingPage() {
     setCashReceived(0);
     setBillDiscount(0);
     setPayMethod("cash");
+    setShowUpiPopup(false);
     setSuccess(false);
     setMode("sale");
   }
@@ -308,7 +341,7 @@ export default function BillingPage() {
   }, [cart, billDiscount, cashReceived, payMethod]);
 
   // ── Checkout ──
-  async function handleCheckout() {
+  async function submitBill(paidStatus: "PAID" | "UNPAID" = "PAID") {
     if (cart.length === 0) return;
     setSubmitting(true);
     try {
@@ -316,6 +349,7 @@ export default function BillingPage() {
         customer_name: custName,
         customer_phone: custPhone,
         payment_method: payMethod,
+        paid_status: paidStatus,
         discount_percent: billDiscount,
         cash_received: cashReceived,
         items: cart.map(item => ({
@@ -332,19 +366,45 @@ export default function BillingPage() {
 
       const res = await api.post('/bills', payload);
       console.log("BILLING RESPONSE DATA:", res.data);
-      const invNo = res.data.invoice_no;
+      const invNo = res.data.invoice_no || res.data.invoice_number;
       setLastInvoice(invNo);
       printInvoice(cart, { name: custName, phone: custPhone }, payMethod, invNo, {
         ...totals,
         cashReceived,
       });
       setSuccess(true);
+      setShowUpiPopup(false);
     } catch (error: any) {
       alert(error.message || "Failed to create bill");
     } finally {
       setSubmitting(false);
     }
   }
+
+  async function handleCheckout() {
+    if (cart.length === 0) return;
+    if (payMethod === "upi" && mode === "sale") {
+      if (!storePayment?.upiId) {
+        alert("Add the store UPI ID before accepting UPI payments.");
+        return;
+      }
+      setShowUpiPopup(true);
+      return;
+    }
+    await submitBill("PAID");
+  }
+
+  const upiLink = storePayment?.upiId
+    ? buildUpiLink(
+        storePayment.upiId,
+        storePayment.upiPayeeName || storePayment.name,
+        totals.grandTotal,
+        `Bill payment ${storePayment.name || ""}`.trim()
+      )
+    : "";
+  const upiQrUrl = upiLink
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiLink)}`
+    : "";
 
   // ── Success screen ──
   if (success) {
@@ -378,6 +438,70 @@ export default function BillingPage() {
 
   return (
     <div className="flex gap-5 h-[calc(100vh-8rem)]">
+      {showUpiPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-sm px-4">
+          <div className="w-full max-w-sm rounded-2xl border border-border bg-surface shadow-xl overflow-hidden">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4">
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-700">
+                  <QrCode size={18} />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-text-primary">UPI Payment</h2>
+                  <p className="text-xs text-text-secondary">{fmt(totals.grandTotal)}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowUpiPopup(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-background"
+                title="Close"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-4 px-5 py-5 text-center">
+              <div className="mx-auto flex h-[280px] w-[280px] items-center justify-center rounded-xl border border-border bg-white p-3">
+                {upiQrUrl ? (
+                  <img src={upiQrUrl} alt="UPI payment QR code" className="h-full w-full object-contain" />
+                ) : (
+                  <p className="text-xs text-text-secondary">UPI details unavailable</p>
+                )}
+              </div>
+              <div>
+                <p className="text-sm font-bold text-text-primary">{storePayment?.upiPayeeName || storePayment?.name}</p>
+                <p className="text-xs font-mono text-text-secondary">{storePayment?.upiId}</p>
+              </div>
+              <a
+                href={upiLink}
+                className="inline-flex h-9 items-center justify-center rounded-lg border border-border bg-background px-4 text-xs font-semibold text-text-primary hover:bg-red-50"
+              >
+                Open UPI App
+              </a>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 border-t border-border p-4">
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={() => setShowUpiPopup(false)}
+                className="h-10 rounded-xl border border-coral bg-coral-light text-sm font-bold text-primary hover:bg-red-100 disabled:opacity-50"
+              >
+                Payment Rejected
+              </button>
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={() => submitBill("PAID")}
+                className="flex h-10 items-center justify-center gap-2 rounded-xl bg-success text-sm font-bold text-white hover:opacity-90 disabled:opacity-50"
+              >
+                {submitting ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />}
+                Completed
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ════════ LEFT — Product Search + Cart ════════ */}
       <div className="flex-1 flex flex-col gap-4 min-w-0 overflow-hidden">
@@ -713,10 +837,12 @@ export default function BillingPage() {
           className={`w-full h-12 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm ${mode === 'sale' ? 'bg-primary hover:bg-red-700 shadow-red-200' : 'bg-amber-600 hover:bg-amber-700 shadow-amber-200'}`}
         >
           {submitting ? <Loader2 size={18} className="animate-spin" /> : (mode === 'sale' ? <Receipt size={18} /> : <RotateCcw size={18} />)}
-          {submitting ? "Processing..." : (mode === 'sale' ? "Generate Bill & Print" : "Process Return & Print")}
+          {submitting ? "Processing..." : (payMethod === "upi" && mode === "sale" ? "Show UPI QR" : (mode === 'sale' ? "Generate Bill & Print" : "Process Return & Print"))}
         </button>
 
-        <p className="text-xs text-center text-text-secondary -mt-1">Bill will open in a print dialog</p>
+        <p className="text-xs text-center text-text-secondary -mt-1">
+          {payMethod === "upi" && mode === "sale" ? "Confirm payment after scanning QR" : "Bill will open in a print dialog"}
+        </p>
       </div>
     </div>
   );
