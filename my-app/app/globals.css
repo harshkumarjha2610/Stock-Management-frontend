@@ -330,7 +330,7 @@ header {
   top: -120px;
   right: -120px;
 
-  background: #a855f7;
+  background: #e5d4f5;
 
   border-radius: 50%;
 
@@ -466,7 +466,7 @@ header {
 }
 
 .kpi-4 {
-  --kpi-bg: linear-gradient(135deg, rgba(160, 90, 255, 0.9), rgba(182, 109, 255, 0.7));
+  --kpi-bg: linear-gradient(135deg, rgba(189, 147, 246, 0.9), rgba(182, 109, 255, 0.7));
   --kpi-shadow: rgba(160, 90, 255, 0.2);
 }
 

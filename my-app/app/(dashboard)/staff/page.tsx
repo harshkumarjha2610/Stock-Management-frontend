@@ -13,46 +13,46 @@ import { api } from "@/lib/api";
 // TYPES
 // ═══════════════════════════════════════════════════════════════
 
-type StaffStatus   = "Active" | "Inactive";
-type SalaryStatus  = "Paid"   | "Unpaid";
-type MainTab       = "staff"  | "attendance" | "salary";
-type PayMethod     = "Bank Transfer" | "Cash" | "UPI";
+type StaffStatus = "Active" | "Inactive";
+type SalaryStatus = "Paid" | "Unpaid";
+type MainTab = "staff" | "attendance" | "salary";
+type PayMethod = "Bank Transfer" | "Cash" | "UPI";
 
 type Staff = {
-  id:          string;
-  name:        string;
-  phone:       string;
-  address:     string;
-  aadharCard:  string;
-  emailId:     string;
-  photoUrl:    string;
+  id: string;
+  name: string;
+  phone: string;
+  address: string;
+  aadharCard: string;
+  emailId: string;
+  photoUrl: string;
   joiningDate: string;
-  salary:      number;
-  status:      StaffStatus;
-  password?:   string;
+  salary: number;
+  status: StaffStatus;
+  password?: string;
 };
 
 type Attendance = {
-  id:           string;
-  staffId:      string;
-  staffName:    string;
-  date:         string;
-  checkIn:      string;
-  checkOut:     string;
+  id: string;
+  staffId: string;
+  staffName: string;
+  date: string;
+  checkIn: string;
+  checkOut: string;
   workingHours: number;
-  present:      boolean;
-  status:       "PRESENT" | "ABSENT" | "HALF_DAY";
+  present: boolean;
+  status: "PRESENT" | "ABSENT" | "HALF_DAY";
 };
 
 type SalaryRecord = {
-  id:            string;
-  staffId:       string;
-  staffName:     string;
-  month:         string; // "YYYY-MM"
-  amount:        number;
-  paidDate:      string;
+  id: string;
+  staffId: string;
+  staffName: string;
+  month: string; // "YYYY-MM"
+  amount: number;
+  paidDate: string;
   paymentMethod: PayMethod | "";
-  status:        SalaryStatus;
+  status: SalaryStatus;
 };
 
 const TODAY = new Date().toISOString().split('T')[0];
@@ -187,13 +187,13 @@ export default function StaffManagementPage() {
   const [mainTab, setMainTab] = useState<MainTab>("staff");
 
   // ── Staff State ──────────────────────────────────────────────
-  const [staffList, setStaffList]       = useState<Staff[]>([]);
-  const [staffSearch, setStaffSearch]   = useState("");
-  const [staffStatus, setStaffStatus]   = useState("All");
+  const [staffList, setStaffList] = useState<Staff[]>([]);
+  const [staffSearch, setStaffSearch] = useState("");
+  const [staffStatus, setStaffStatus] = useState("All");
   const [showStaffModal, setShowStaffModal] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
-  const [deleteStaffId, setDeleteStaffId]   = useState<string | null>(null);
-  const [viewStaff, setViewStaff]       = useState<Staff | null>(null);
+  const [deleteStaffId, setDeleteStaffId] = useState<string | null>(null);
+  const [viewStaff, setViewStaff] = useState<Staff | null>(null);
   const [staffForm, setStaffForm] = useState<Staff>({
     id: "", name: "", phone: "", address: "", aadharCard: "",
     emailId: "", photoUrl: "", joiningDate: TODAY, salary: 0, status: "Active",
@@ -209,24 +209,24 @@ export default function StaffManagementPage() {
   const [dateInput, setDateInput] = useState(TODAY);
 
   // ── Attendance State ─────────────────────────────────────────
-  const [attendance, setAttendance]   = useState<Attendance[]>([]);
-  const [attDate, setAttDate]         = useState(TODAY);
+  const [attendance, setAttendance] = useState<Attendance[]>([]);
+  const [attDate, setAttDate] = useState(TODAY);
   const [attStaffFilter, setAttStaffFilter] = useState("All");
-  const [attView, setAttView]         = useState<"daily" | "monthly">("daily");
-  const [attMonth, setAttMonth]       = useState(TODAY.slice(0, 7));
-  const [checkinModal, setCheckinModal]   = useState<Staff | null>(null);
+  const [attView, setAttView] = useState<"daily" | "monthly">("daily");
+  const [attMonth, setAttMonth] = useState(TODAY.slice(0, 7));
+  const [checkinModal, setCheckinModal] = useState<Staff | null>(null);
   const [checkoutModal, setCheckoutModal] = useState<Attendance | null>(null);
-  const [markModal, setMarkModal]         = useState<{ staffId: string; staffName: string; status: string } | null>(null);
-  const [manualTime, setManualTime]   = useState("");
+  const [markModal, setMarkModal] = useState<{ staffId: string; staffName: string; status: string } | null>(null);
+  const [manualTime, setManualTime] = useState("");
 
   // ── Salary State ─────────────────────────────────────────────
-  const [salaryList, setSalaryList]     = useState<SalaryRecord[]>([]);
-  const [salaryMonth, setSalaryMonth]   = useState(TODAY.slice(0, 7));
+  const [salaryList, setSalaryList] = useState<SalaryRecord[]>([]);
+  const [salaryMonth, setSalaryMonth] = useState(TODAY.slice(0, 7));
   const [salarySearch, setSalarySearch] = useState("");
   const [salaryStatusFilter, setSalaryStatusFilter] = useState("All");
-  const [payModal, setPayModal]         = useState<SalaryRecord | null>(null);
+  const [payModal, setPayModal] = useState<SalaryRecord | null>(null);
   const [payStaffModal, setPayStaffModal] = useState<{ staff: Staff; month: string } | null>(null);
-  const [payForm, setPayForm]           = useState({ paidDate: TODAY, paymentMethod: "Bank Transfer" as PayMethod });
+  const [payForm, setPayForm] = useState({ paidDate: TODAY, paymentMethod: "Bank Transfer" as PayMethod });
   const [successModal, setSuccessModal] = useState<{ email: string; password: string } | null>(null);
   const [userRole, setUserRole] = useState<string>("");
 
@@ -250,7 +250,7 @@ export default function StaffManagementPage() {
           api.get('/attendance'),
           api.get('/salaries')
         ]);
-        
+
         setStaffList(staffRes.data.map((s: any) => ({
           id: s.id,
           name: s.name,
@@ -294,7 +294,7 @@ export default function StaffManagementPage() {
   const monthlyAttSummary = useMemo(() => {
     const month = attMonth;
     const filtered = attendance.filter((a) => a.date.startsWith(month));
-    
+
     const summaryMap: Record<string, any> = {};
     staffList.forEach(s => {
       if (attStaffFilter !== "All" && s.id !== attStaffFilter) return;
@@ -321,10 +321,17 @@ export default function StaffManagementPage() {
     const q = staffSearch.toLowerCase();
     return staffList.filter((s) => {
       const match = s.name.toLowerCase().includes(q) || s.phone.includes(q) || s.id.toLowerCase().includes(q);
-      const st    = staffStatus === "All" || s.status === staffStatus;
+      const st = staffStatus === "All" || s.status === staffStatus;
       return match && st;
     });
   }, [staffList, staffSearch, staffStatus]);
+
+  // Helper to check if a staff's salary is already paid for a given month
+  const isSalaryPaidForMonth = useMemo(() => {
+    return (staffId: string, month: string) => {
+      return salaryList.some((s) => s.staffId === staffId && s.month === month && s.status === "Paid");
+    };
+  }, [salaryList]);
 
   function openAddStaff() {
     setEditingStaff(null);
@@ -334,16 +341,16 @@ export default function StaffManagementPage() {
 
   function openEditStaff(s: Staff) {
     setEditingStaff(s);
-    setStaffForm({ 
-      id: s.id, 
-      name: s.name, 
-      phone: s.phone, 
-      address: s.address, 
-      aadharCard: s.aadharCard || "", 
-      emailId: s.emailId || "", 
-      photoUrl: s.photoUrl || "", 
-      joiningDate: s.joiningDate, 
-      salary: s.salary, 
+    setStaffForm({
+      id: s.id,
+      name: s.name,
+      phone: s.phone,
+      address: s.address,
+      aadharCard: s.aadharCard || "",
+      emailId: s.emailId || "",
+      photoUrl: s.photoUrl || "",
+      joiningDate: s.joiningDate,
+      salary: s.salary,
       status: s.status,
       password: "" // Don't show existing password hash
     });
@@ -372,17 +379,17 @@ export default function StaffManagementPage() {
         setStaffList((p) => p.map((s) => s.id === editingStaff.id ? { ...s, ...staffForm } : s));
       } else {
         const res = await api.post('/staff', payload);
-        const newStaff: Staff = { 
-          ...staffForm, 
-          id: res.data.id, 
-          joiningDate: res.data.joining_date?.split('T')[0] 
+        const newStaff: Staff = {
+          ...staffForm,
+          id: res.data.id,
+          joiningDate: res.data.joining_date?.split('T')[0]
         };
         setStaffList((p) => [newStaff, ...p]);
-        
+
         if (staffForm.emailId) {
-          setSuccessModal({ 
-            email: staffForm.emailId, 
-            password: staffForm.password || staffForm.phone || "Staff@123" 
+          setSuccessModal({
+            email: staffForm.emailId,
+            password: staffForm.password || staffForm.phone || "Staff@123"
           });
         }
 
@@ -456,12 +463,12 @@ export default function StaffManagementPage() {
       const res = await api.put(`/attendance/${rec.id}`, {
         check_out: time
       });
-      
+
       setAttendance((p) =>
-        p.map((a) => a.id === rec.id ? { 
-          ...a, 
-          checkOut: res.data.check_out, 
-          workingHours: parseFloat(res.data.working_hours || 0) 
+        p.map((a) => a.id === rec.id ? {
+          ...a,
+          checkOut: res.data.check_out,
+          workingHours: parseFloat(res.data.working_hours || 0)
         } : a)
       );
     } catch (error: any) {
@@ -481,7 +488,7 @@ export default function StaffManagementPage() {
         check_in: time,
         status: 'PRESENT'
       });
-      
+
       const newAtt: Attendance = {
         id: res.data.id,
         staffId: res.data.staff_id,
@@ -519,17 +526,17 @@ export default function StaffManagementPage() {
   const filteredSalary = useMemo(() => {
     const q = salarySearch.toLowerCase();
     return salaryList.filter((s) => {
-      const matchMonth  = !salaryMonth || s.month === salaryMonth;
+      const matchMonth = !salaryMonth || s.month === salaryMonth;
       const matchSearch = s.staffName.toLowerCase().includes(q) || s.staffId.toLowerCase().includes(q);
       const matchStatus = salaryStatusFilter === "All" || s.status === salaryStatusFilter;
       return matchMonth && matchSearch && matchStatus;
     });
   }, [salaryList, salaryMonth, salarySearch, salaryStatusFilter]);
 
-  const totalPayable  = filteredSalary.reduce((t, s) => t + s.amount, 0);
-  const totalPaid     = filteredSalary.filter((s) => s.status === "Paid").reduce((t, s) => t + s.amount, 0);
-  const totalPending  = filteredSalary.filter((s) => s.status === "Unpaid").reduce((t, s) => t + s.amount, 0);
-  const unpaidCount   = filteredSalary.filter((s) => s.status === "Unpaid").length;
+  const totalPayable = filteredSalary.reduce((t, s) => t + s.amount, 0);
+  const totalPaid = filteredSalary.filter((s) => s.status === "Paid").reduce((t, s) => t + s.amount, 0);
+  const totalPending = filteredSalary.filter((s) => s.status === "Unpaid").reduce((t, s) => t + s.amount, 0);
+  const unpaidCount = filteredSalary.filter((s) => s.status === "Unpaid").length;
 
   async function markPaid(rec: SalaryRecord) {
     setLoading(true);
@@ -600,7 +607,7 @@ export default function StaffManagementPage() {
           status: markForm.status
         });
       }
-      
+
       // Refresh attendance list
       const res = await api.get("/attendance/all");
       setAttendance(res.data.map((a: any) => ({
@@ -657,11 +664,10 @@ export default function StaffManagementPage() {
           <button
             key={tab}
             onClick={() => setMainTab(tab)}
-            className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all capitalize ${
-              mainTab === tab
+            className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all capitalize ${mainTab === tab
                 ? "bg-surface text-primary shadow-sm"
                 : "text-text-secondary hover:text-text-primary"
-            }`}
+              }`}
           >
             {tab === "staff" ? "👤 Staff" : tab === "attendance" ? "🕐 Attendance" : "💰 Salary"}
           </button>
@@ -710,7 +716,7 @@ export default function StaffManagementPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-background">
-                    {["Staff ID","Name","Phone","Address","Joining Date","Salary","Status","Actions"].map((h) => (
+                    {["Staff ID", "Name", "Phone", "Address", "Joining Date", "Salary", "Status", "Actions"].map((h) => (
                       <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
@@ -758,12 +764,20 @@ export default function StaffManagementPage() {
                             <Trash2 size={13} /> Delete
                           </button>
                           {userRole === 'SUPER_ADMIN' && (
-                            <button
-                              onClick={() => setPayStaffModal({ staff: s, month: salaryMonth })}
-                              className="flex items-center gap-1 text-xs font-semibold text-white bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
-                            >
-                              <BadgeIndianRupee size={12} /> Pay Salary
-                            </button>
+                            <>
+                              {isSalaryPaidForMonth(s.id, salaryMonth) ? (
+                                <span className="flex items-center gap-1 text-xs font-semibold text-success bg-mint-light px-3 py-1.5 rounded-lg whitespace-nowrap">
+                                  <CheckCircle size={12} /> Paid
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() => setPayStaffModal({ staff: s, month: salaryMonth })}
+                                  className="flex items-center gap-1 text-xs font-semibold text-white bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                                >
+                                  <BadgeIndianRupee size={12} /> Pay Salary
+                                </button>
+                              )}
+                            </>
                           )}
                         </div>
                       </td>
@@ -794,15 +808,15 @@ export default function StaffManagementPage() {
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
             {(() => {
               const todayRecs = attendance.filter((a) => a.date === TODAY);
-              const present   = todayRecs.filter((a) => a.present).length;
+              const present = todayRecs.filter((a) => a.present).length;
               const checkedIn = todayRecs.filter((a) => a.checkIn && !a.checkOut).length;
-              const checkedOut= todayRecs.filter((a) => a.checkOut).length;
-              const absent    = staffList.filter((s) => s.status === "Active").length - present;
+              const checkedOut = todayRecs.filter((a) => a.checkOut).length;
+              const absent = staffList.filter((s) => s.status === "Active").length - present;
               return [
-                { label: "Present Today",   value: present,    icon: CheckCircle,  bg: "bg-mint-light",  ic: "text-success"  },
-                { label: "Checked In",      value: checkedIn,  icon: LogIn,        bg: "bg-coral-light",   ic: "text-primary"   },
-                { label: "Checked Out",     value: checkedOut, icon: LogOut,       bg: "bg-teal-50",   ic: "text-teal-600"   },
-                { label: "Absent Today",    value: absent < 0 ? 0 : absent, icon: XCircle, bg: "bg-coral-light", ic: "text-coral" },
+                { label: "Present Today", value: present, icon: CheckCircle, bg: "bg-mint-light", ic: "text-success" },
+                { label: "Checked In", value: checkedIn, icon: LogIn, bg: "bg-coral-light", ic: "text-primary" },
+                { label: "Checked Out", value: checkedOut, icon: LogOut, bg: "bg-teal-50", ic: "text-teal-600" },
+                { label: "Absent Today", value: absent < 0 ? 0 : absent, icon: XCircle, bg: "bg-coral-light", ic: "text-coral" },
               ];
             })().map((s, i) => (
               <StatCard key={s.label} index={i} {...s} />
@@ -815,9 +829,8 @@ export default function StaffManagementPage() {
             <div className="flex gap-1 bg-background rounded-lg p-1">
               {(["daily", "monthly"] as const).map((v) => (
                 <button key={v} onClick={() => setAttView(v)}
-                  className={`px-4 py-1.5 rounded-md text-xs font-semibold capitalize transition-all ${
-                    attView === v ? "bg-surface text-primary shadow-sm" : "text-text-secondary"
-                  }`}>{v === "daily" ? "Daily Report" : "Monthly Summary"}</button>
+                  className={`px-4 py-1.5 rounded-md text-xs font-semibold capitalize transition-all ${attView === v ? "bg-surface text-primary shadow-sm" : "text-text-secondary"
+                    }`}>{v === "daily" ? "Daily Report" : "Monthly Summary"}</button>
               ))}
             </div>
 
@@ -861,7 +874,7 @@ export default function StaffManagementPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border bg-background">
-                      {["Staff ID","Name","Date","Check-in","Check-out","Working Hours","Status","Actions"].map((h) => (
+                      {["Staff ID", "Name", "Date", "Check-in", "Check-out", "Working Hours", "Status", "Actions"].map((h) => (
                         <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
@@ -953,7 +966,7 @@ export default function StaffManagementPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border bg-background">
-                      {["Staff ID","Name","Present Days","Absent Days","Total Hours","Attendance %"].map((h) => (
+                      {["Staff ID", "Name", "Present Days", "Absent Days", "Total Hours", "Attendance %"].map((h) => (
                         <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
@@ -963,7 +976,7 @@ export default function StaffManagementPage() {
                       <tr><td colSpan={6} className="py-12 text-center text-sm text-text-secondary">No data for this month</td></tr>
                     ) : monthlyAttSummary.map((r) => {
                       const total = r.present + r.absent;
-                      const pct   = total > 0 ? Math.round((r.present / total) * 100) : 0;
+                      const pct = total > 0 ? Math.round((r.present / total) * 100) : 0;
                       return (
                         <tr key={r.staffId} className="border-b border-slate-50 hover:bg-background transition-colors">
                           <td className="px-5 py-3.5 font-mono text-xs text-text-secondary">{r.staffId}</td>
@@ -1016,10 +1029,10 @@ export default function StaffManagementPage() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-            <StatCard index={0} label="Total Payable"  value={fmt(totalPayable)}  sub={`${filteredSalary.length} records`}   icon={BadgeIndianRupee} bg="bg-coral-light"   ic="text-primary"   />
-            <StatCard index={1} label="Total Paid"     value={fmt(totalPaid)}     sub="This period"                           icon={CheckCircle}      bg="bg-mint-light"  ic="text-success"  />
-            <StatCard index={2} label="Total Pending"  value={fmt(totalPending)}  sub={`${unpaidCount} unpaid`}               icon={Clock}            bg="bg-warning/10"  ic="text-warning"  />
-            <StatCard index={3} label="Staff Count"    value={filteredSalary.length} sub="In selected month"                  icon={Users}            bg="bg-purple-50" ic="text-purple-600" />
+            <StatCard index={0} label="Total Payable" value={fmt(totalPayable)} sub={`${filteredSalary.length} records`} icon={BadgeIndianRupee} bg="bg-coral-light" ic="text-primary" />
+            <StatCard index={1} label="Total Paid" value={fmt(totalPaid)} sub="This period" icon={CheckCircle} bg="bg-mint-light" ic="text-success" />
+            <StatCard index={2} label="Total Pending" value={fmt(totalPending)} sub={`${unpaidCount} unpaid`} icon={Clock} bg="bg-warning/10" ic="text-warning" />
+            <StatCard index={3} label="Staff Count" value={filteredSalary.length} sub="In selected month" icon={Users} bg="bg-purple-50" ic="text-purple-600" />
           </div>
 
           {/* Filters */}
@@ -1055,7 +1068,7 @@ export default function StaffManagementPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-background">
-                    {["Staff ID","Name","Month","Salary Amount","Paid Date","Payment Method","Status","Action"].map((h) => (
+                    {["Staff ID", "Name", "Month", "Salary Amount", "Paid Date", "Payment Method", "Status", "Action"].map((h) => (
                       <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
@@ -1079,9 +1092,8 @@ export default function StaffManagementPage() {
                       <td className="px-4 py-3.5 text-text-secondary whitespace-nowrap">{r.paidDate || "—"}</td>
                       <td className="px-4 py-3.5 text-text-secondary whitespace-nowrap">{r.paymentMethod || "—"}</td>
                       <td className="px-4 py-3.5">
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                          r.status === "Paid" ? "bg-mint-light text-success" : "bg-warning/10 text-warning"
-                        }`}>
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${r.status === "Paid" ? "bg-mint-light text-success" : "bg-warning/10 text-warning"
+                          }`}>
                           {r.status}
                         </span>
                       </td>
@@ -1130,14 +1142,12 @@ export default function StaffManagementPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
                 {filteredSalary.map((r) => (
                   <div key={r.id}
-                    className={`flex items-center justify-between px-4 py-3 rounded-xl border ${
-                      r.status === "Paid" ? "border-green-100 bg-mint-light" : "border-amber-100 bg-warning/10"
-                    }`}
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl border ${r.status === "Paid" ? "border-green-100 bg-mint-light" : "border-amber-100 bg-warning/10"
+                      }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                        r.status === "Paid" ? "bg-green-200 text-green-800" : "bg-amber-200 text-amber-800"
-                      }`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${r.status === "Paid" ? "bg-green-200 text-green-800" : "bg-amber-200 text-amber-800"
+                        }`}>
                         {r.staffName.slice(0, 2).toUpperCase()}
                       </div>
                       <div>
@@ -1254,14 +1264,14 @@ export default function StaffManagementPage() {
               )}
               <div className="grid grid-cols-2 gap-4 flex-1">
                 {[
-                  { label: "Staff ID",    value: viewStaff.id           },
-                  { label: "Phone",       value: viewStaff.phone        },
-                  { label: "Email ID",    value: viewStaff.emailId || "—" },
+                  { label: "Staff ID", value: viewStaff.id },
+                  { label: "Phone", value: viewStaff.phone },
+                  { label: "Email ID", value: viewStaff.emailId || "—" },
                   { label: "Aadhar Card", value: viewStaff.aadharCard || "—" },
-                  { label: "Joining Date",value: viewStaff.joiningDate  },
-                  { label: "Salary",      value: fmt(viewStaff.salary)  },
-                  { label: "Status",      value: viewStaff.status       },
-                  { label: "Address",     value: viewStaff.address || "—" },
+                  { label: "Joining Date", value: viewStaff.joiningDate },
+                  { label: "Salary", value: fmt(viewStaff.salary) },
+                  { label: "Status", value: viewStaff.status },
+                  { label: "Address", value: viewStaff.address || "—" },
                 ].map((r) => (
                   <div key={r.label} className="flex flex-col gap-0.5">
                     <span className="text-xs text-text-secondary font-medium">{r.label}</span>
@@ -1275,16 +1285,16 @@ export default function StaffManagementPage() {
             <div className="border-t border-border pt-4">
               <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide mb-3">This Month's Attendance</p>
               {(() => {
-                const recs    = attendance.filter((a) => a.staffId === viewStaff.id && a.date.startsWith("2026-04"));
+                const recs = attendance.filter((a) => a.staffId === viewStaff.id && a.date.startsWith("2026-04"));
                 const present = recs.filter((a) => a.present).length;
-                const absent  = recs.filter((a) => !a.present).length;
-                const hours   = recs.reduce((t, a) => t + a.workingHours, 0);
+                const absent = recs.filter((a) => !a.present).length;
+                const hours = recs.reduce((t, a) => t + a.workingHours, 0);
                 return (
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { label: "Present",    value: `${present} days`, color: "text-success" },
-                      { label: "Absent",     value: `${absent} days`,  color: "text-coral"   },
-                      { label: "Total Hrs",  value: `${hours.toFixed(1)}h`, color: "text-primary" },
+                      { label: "Present", value: `${present} days`, color: "text-success" },
+                      { label: "Absent", value: `${absent} days`, color: "text-coral" },
+                      { label: "Total Hrs", value: `${hours.toFixed(1)}h`, color: "text-primary" },
                     ].map((m) => (
                       <div key={m.label} className="bg-background rounded-lg p-3 text-center border border-border">
                         <p className={`text-base font-bold ${m.color}`}>{m.value}</p>
@@ -1506,11 +1516,10 @@ export default function StaffManagementPage() {
                 <button
                   key={s.value}
                   onClick={() => updateStatus(markModal.staffId, s.value)}
-                  className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${
-                    markModal.status === s.value
+                  className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${markModal.status === s.value
                       ? "border-red-500 bg-coral-light shadow-sm"
                       : "border-border hover:border-border hover:bg-background"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-lg ${s.bg} flex items-center justify-center ${s.color}`}>
@@ -1542,8 +1551,8 @@ export default function StaffManagementPage() {
           <div className="p-6 space-y-6">
             <Field label="Choose Staff *">
               <div className="relative">
-                <select 
-                  value={markForm.staffId} 
+                <select
+                  value={markForm.staffId}
                   onChange={(e) => setMarkForm(p => ({ ...p, staffId: e.target.value }))}
                   className={inputCls}
                 >
@@ -1558,13 +1567,13 @@ export default function StaffManagementPage() {
             <Field label="Selected Dates *">
               <div className="space-y-3">
                 <div className="flex gap-2">
-                  <input 
-                    type="date" 
-                    value={dateInput} 
+                  <input
+                    type="date"
+                    value={dateInput}
                     onChange={(e) => setDateInput(e.target.value)}
-                    className={inputCls} 
+                    className={inputCls}
                   />
-                  <button 
+                  <button
                     onClick={() => {
                       if (!markForm.dates.includes(dateInput)) {
                         setMarkForm(p => ({ ...p, dates: [...p.dates, dateInput] }));
@@ -1597,13 +1606,12 @@ export default function StaffManagementPage() {
                   <button
                     key={st}
                     onClick={() => setMarkForm(p => ({ ...p, status: st }))}
-                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
-                      markForm.status === st
-                        ? st === "PRESENT" ? "bg-green-600 text-white shadow-sm" : 
-                          st === "ABSENT" ? "bg-primary text-white shadow-sm" : 
-                          "bg-warning/100 text-white shadow-sm"
+                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${markForm.status === st
+                        ? st === "PRESENT" ? "bg-green-600 text-white shadow-sm" :
+                          st === "ABSENT" ? "bg-primary text-white shadow-sm" :
+                            "bg-warning/100 text-white shadow-sm"
                         : "text-text-secondary hover:bg-slate-200"
-                    }`}
+                      }`}
                   >
                     {st}
                   </button>
@@ -1611,8 +1619,8 @@ export default function StaffManagementPage() {
               </div>
             </Field>
           </div>
-          <ModalFooter 
-            onCancel={() => setShowMarkModal(false)} 
+          <ModalFooter
+            onCancel={() => setShowMarkModal(false)}
             onConfirm={bulkMarkAttendance}
             confirmLabel="Mark Attendance"
             disabled={!markForm.staffId || markForm.dates.length === 0}
@@ -1645,7 +1653,7 @@ export default function StaffManagementPage() {
               <p className="text-[11px] text-text-secondary text-center leading-relaxed">
                 The staff can now login using these credentials to view their attendance.
               </p>
-              <button 
+              <button
                 onClick={() => setSuccessModal(null)}
                 className="w-full h-12 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
               >
@@ -1720,11 +1728,10 @@ function ImageUploader({
             const f = e.dataTransfer.files[0];
             if (f) handleFile(f);
           }}
-          className={`flex flex-col items-center justify-center gap-3 w-full aspect-square rounded-xl border-2 border-dashed cursor-pointer transition-all ${
-            dragging
+          className={`flex flex-col items-center justify-center gap-3 w-full aspect-square rounded-xl border-2 border-dashed cursor-pointer transition-all ${dragging
               ? "border-red-400 bg-coral-light"
               : "border-border bg-background hover:border-primary hover:bg-primary-light/50"
-          }`}
+            }`}
         >
           <div className="w-10 h-10 rounded-xl bg-surface border border-border flex items-center justify-center shadow-sm">
             <Camera size={20} className="text-text-secondary" />
