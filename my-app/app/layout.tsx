@@ -65,7 +65,11 @@ export default function RootLayout({
         <ThemeProvider>
           <div className="app-background">
             <div className="orb-top-right"></div>
-            <div className="orb-bottom-right"></div>
+
+            <div className="purple-glow"></div>
+
+            <div className="orb-bottom-left"></div>
+
             <div className="orb-center"></div>
           </div>
           {children}

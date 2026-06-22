@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Search, Plus, Minus, Trash2, Printer, CheckCircle,
   X, ShoppingCart, User, Phone, IndianRupee, Receipt,
-  Tag, Package, ChevronDown, ScanLine, RotateCcw, Loader2,
-  QrCode,
+  Tag, Package, ScanLine, RotateCcw, Loader2, QrCode,
 } from "lucide-react";
 import { api } from "@/lib/api";
 
@@ -14,21 +13,21 @@ import { api } from "@/lib/api";
 // ═══════════════════════════════════════════════════════════
 
 type Product = {
-  id:           string;
-  name:         string;
-  category:     string;
-  brand:        string;
+  id: string;
+  name: string;
+  category: string;
+  brand: string;
   sellingPrice: number;
-  gstPercent:   number;
-  stock:        number;
-  barcode:      string;
-  size?:        string;  // size label for garment products (e.g., "M", "L")
-  productId?:   string;  // original product id for size-based items
+  gstPercent: number;
+  stock: number;
+  barcode: string;
+  size?: string;
+  productId?: string;
 };
 
 type CartItem = Product & {
-  qty:      number;
-  discount: number; // per-item flat discount in ₹
+  qty: number;
+  discount: number;
 };
 
 type PaymentMethod = "cash" | "upi" | "card";
@@ -40,18 +39,14 @@ type StorePayment = {
 };
 
 // ═══════════════════════════════════════════════════════════
-// MOCK PRODUCTS
+// CONSTANTS
 // ═══════════════════════════════════════════════════════════
 
-// Products will be fetched from API
-
 const PAYMENT_METHODS: { key: PaymentMethod; label: string; icon: string }[] = [
-  { key: "cash", label: "Cash",     icon: "💵" },
-  { key: "upi",  label: "UPI",      icon: "📱" },
-  { key: "card", label: "Card",     icon: "💳" },
+  { key: "cash", label: "Cash", icon: "💵" },
+  { key: "upi", label: "UPI", icon: "📱" },
+  { key: "card", label: "Card", icon: "💳" },
 ];
-
-let invoiceCounter = 1001;
 
 const inputCls =
   "h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm text-text-primary outline-none focus:border-red-400 focus:ring-2 focus:ring-primary transition-colors";
@@ -81,17 +76,21 @@ function printInvoice(
   payment: PaymentMethod,
   invoiceNo: string,
   totals: {
-    subtotal: number; totalDiscount: number;
-    taxableAmount: number; totalGST: number;
-    grandTotal: number; cashReceived: number;
+    subtotal: number;
+    totalDiscount: number;
+    taxableAmount: number;
+    totalGST: number;
+    grandTotal: number;
+    cashReceived: number;
   }
 ) {
   const rows = cart.map((item) => {
-    const base     = item.sellingPrice * item.qty;
-    const disc     = item.discount * item.qty;
-    const taxable  = base - disc;
-    const gst      = Math.round(taxable * item.gstPercent / 100);
-    const total    = taxable + gst;
+    const base = item.sellingPrice * item.qty;
+    const disc = item.discount * item.qty;
+    const taxable = base - disc;
+    const gst = Math.round((taxable * item.gstPercent) / 100);
+    const total = taxable + gst;
+
     return `
       <tr>
         <td>${item.name}</td>
@@ -104,69 +103,98 @@ function printInvoice(
   }).join("");
 
   const html = `
-    <html><head><title>Invoice ${invoiceNo}</title>
-    <style>
-      * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
-      body { padding: 32px; font-size: 13px; color: #1e293b; }
-      .header { display: flex; justify-content: space-between; margin-bottom: 24px; }
-      .shop { font-size: 20px; font-weight: 700; color: #dc2626; }
-      .inv  { text-align: right; }
-      .inv p { font-size: 12px; color: #64748b; }
-      .inv strong { font-size: 15px; color: #1e293b; }
-      .divider { border: none; border-top: 1px solid #e2e8f0; margin: 12px 0; }
-      .customer { display: flex; gap: 32px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; }
-      .customer p { font-size: 12px; color: #64748b; }
-      .customer strong { font-size: 13px; color: #1e293b; }
-      table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-      th { background: #f1f5f9; padding: 8px 12px; text-align: left; font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
-      td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; font-size: 12px; }
-      .totals { margin-left: auto; width: 280px; }
-      .totals tr td { padding: 4px 0; font-size: 13px; }
-      .totals tr td:last-child { text-align: right; font-weight: 600; }
-      .grand td { font-size: 15px; font-weight: 700; color: #dc2626; border-top: 2px solid #e2e8f0; padding-top: 8px; }
-      .footer { text-align: center; margin-top: 24px; font-size: 11px; color: #94a3b8; }
-      @media print { body { padding: 16px; } }
-    </style>
-    </head><body>
-    <div class="header">
-      <div>
-        <div class="shop">🏪 ShopAdmin</div>
-        <p style="font-size:12px;color:#64748b;margin-top:4px">GST No: 27AABCS1429B1Z1</p>
-        <p style="font-size:12px;color:#64748b">Phone: +91 98765 43210</p>
+    <html>
+    <head>
+      <title>Invoice ${invoiceNo}</title>
+      <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+        body { padding: 32px; font-size: 13px; color: #1e293b; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 24px; }
+        .shop { font-size: 20px; font-weight: 700; color: #dc2626; }
+        .inv { text-align: right; }
+        .inv p { font-size: 12px; color: #64748b; }
+        .inv strong { font-size: 15px; color: #1e293b; }
+        .divider { border: none; border-top: 1px solid #e2e8f0; margin: 12px 0; }
+        .customer { display: flex; gap: 32px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; }
+        .customer p { font-size: 12px; color: #64748b; }
+        .customer strong { font-size: 13px; color: #1e293b; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+        th { background: #f1f5f9; padding: 8px 12px; text-align: left; font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+        td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; font-size: 12px; }
+        .totals { margin-left: auto; width: 280px; }
+        .totals tr td { padding: 4px 0; font-size: 13px; }
+        .totals tr td:last-child { text-align: right; font-weight: 600; }
+        .grand td { font-size: 15px; font-weight: 700; color: #dc2626; border-top: 2px solid #e2e8f0; padding-top: 8px; }
+        .footer { text-align: center; margin-top: 24px; font-size: 11px; color: #94a3b8; }
+        @media print { body { padding: 16px; } }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div>
+          <div class="shop">🏪 ShopAdmin</div>
+          <p style="font-size:12px;color:#64748b;margin-top:4px">GST No: 27AABCS1429B1Z1</p>
+          <p style="font-size:12px;color:#64748b">Phone: +91 98765 43210</p>
+        </div>
+        <div class="inv">
+          <strong>Invoice #${invoiceNo}</strong>
+          <p>Date: ${new Date().toLocaleDateString("en-IN")}</p>
+          <p>Time: ${new Date().toLocaleTimeString("en-IN")}</p>
+          <p>Payment: ${payment.toUpperCase()}</p>
+        </div>
       </div>
-      <div class="inv">
-        <strong>Invoice #${invoiceNo}</strong>
-        <p>Date: ${new Date().toLocaleDateString("en-IN")}</p>
-        <p>Time: ${new Date().toLocaleTimeString("en-IN")}</p>
-        <p>Payment: ${payment.toUpperCase()}</p>
+
+      <hr class="divider"/>
+
+      <div class="customer">
+        <div><p>Customer Name</p><strong>${customer.name || "Walk-in Customer"}</strong></div>
+        <div><p>Phone</p><strong>${customer.phone || "—"}</strong></div>
       </div>
-    </div>
-    <hr class="divider"/>
-    <div class="customer">
-      <div><p>Customer Name</p><strong>${customer.name || "Walk-in Customer"}</strong></div>
-      <div><p>Phone</p><strong>${customer.phone || "—"}</strong></div>
-    </div>
-    <table>
-      <thead><tr><th>Product</th><th style="text-align:center">Qty</th><th style="text-align:right">Rate</th><th style="text-align:center">GST</th><th style="text-align:right">Discount</th><th style="text-align:right">Amount</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    <table class="totals">
-      <tr><td>Subtotal</td><td>₹${totals.subtotal.toLocaleString("en-IN")}</td></tr>
-      ${totals.totalDiscount > 0 ? `<tr><td style="color:#16a34a">Discount</td><td style="color:#16a34a">−₹${totals.totalDiscount.toLocaleString("en-IN")}</td></tr>` : ""}
-      <tr><td>Taxable Amount</td><td>₹${totals.taxableAmount.toLocaleString("en-IN")}</td></tr>
-      <tr><td>GST</td><td>₹${totals.totalGST.toLocaleString("en-IN")}</td></tr>
-      ${payment === "cash" ? `<tr><td>Cash Received</td><td>₹${totals.cashReceived.toLocaleString("en-IN")}</td></tr><tr><td>Change</td><td>₹${(totals.cashReceived - totals.grandTotal).toLocaleString("en-IN")}</td></tr>` : ""}
-      <tr class="grand"><td>Grand Total</td><td>₹${totals.grandTotal.toLocaleString("en-IN")}</td></tr>
-    </table>
-    <div class="footer"><p>Thank you for your purchase! 🙏</p><p style="margin-top:4px">Powered by ShopAdmin</p></div>
-    </body></html>`;
+
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th style="text-align:center">Qty</th>
+            <th style="text-align:right">Rate</th>
+            <th style="text-align:center">GST</th>
+            <th style="text-align:right">Discount</th>
+            <th style="text-align:right">Amount</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+
+      <table class="totals">
+        <tr><td>Subtotal</td><td>₹${totals.subtotal.toLocaleString("en-IN")}</td></tr>
+        ${totals.totalDiscount > 0 ? `<tr><td style="color:#16a34a">Discount</td><td style="color:#16a34a">−₹${totals.totalDiscount.toLocaleString("en-IN")}</td></tr>` : ""}
+        <tr><td>Taxable Amount</td><td>₹${totals.taxableAmount.toLocaleString("en-IN")}</td></tr>
+        <tr><td>GST</td><td>₹${totals.totalGST.toLocaleString("en-IN")}</td></tr>
+        ${payment === "cash"
+      ? `<tr><td>Cash Received</td><td>₹${totals.cashReceived.toLocaleString("en-IN")}</td></tr>
+             <tr><td>Change</td><td>₹${(totals.cashReceived - totals.grandTotal).toLocaleString("en-IN")}</td></tr>`
+      : ""}
+        <tr class="grand"><td>Grand Total</td><td>₹${totals.grandTotal.toLocaleString("en-IN")}</td></tr>
+      </table>
+
+      <div class="footer">
+        <p>Thank you for your purchase! 🙏</p>
+        <p style="margin-top:4px">Powered by ShopAdmin</p>
+      </div>
+    </body>
+    </html>`;
 
   const w = window.open("", "_blank", "width=700,height=900");
   if (!w) return;
+
   w.document.write(html);
   w.document.close();
   w.focus();
-  setTimeout(() => { w.print(); w.close(); }, 500);
+
+  setTimeout(() => {
+    w.print();
+    w.close();
+  }, 500);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -176,18 +204,23 @@ function printInvoice(
 export default function BillingPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [storePayment, setStorePayment] = useState<StorePayment | null>(null);
-  const [loading, setLoading]   = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchInitialData() {
       try {
         setLoading(true);
+
+        const activeStoreId =
+          typeof window !== "undefined" ? localStorage.getItem("activeStoreId") : null;
+
         const [res, storeRes] = await Promise.all([
-          api.get('/products'),
-          localStorage.getItem('activeStoreId')
-            ? api.get(`/stores/${localStorage.getItem('activeStoreId')}`)
+          api.get("/products"),
+          activeStoreId
+            ? api.get(`/stores/${activeStoreId}`)
             : Promise.resolve({ data: null }),
         ]);
+
         const mapped: Product[] = [];
 
         for (const p of res.data) {
@@ -201,12 +234,11 @@ export default function BillingPage() {
           };
 
           if (p.sizes && p.sizes.length > 0) {
-            // Garment product — create one virtual entry per size
             for (const s of p.sizes) {
               mapped.push({
                 ...base,
-                id: `${p.id}-${s.size}`,   // unique virtual id
-                productId: String(p.id),    // real product id for API
+                id: `${p.id}-${s.size}`,
+                productId: String(p.id),
                 name: `${p.name} (${s.size})`,
                 size: s.size,
                 stock: parseInt(s.quantity) || 0,
@@ -214,7 +246,6 @@ export default function BillingPage() {
               });
             }
           } else {
-            // Non-garment product — single entry
             mapped.push({
               ...base,
               stock: parseInt(p.stock_quantity) || 0,
@@ -224,6 +255,7 @@ export default function BillingPage() {
         }
 
         setProducts(mapped);
+
         if (storeRes.data) {
           setStorePayment({
             name: storeRes.data.name || "",
@@ -237,49 +269,47 @@ export default function BillingPage() {
         setLoading(false);
       }
     }
+
     fetchInitialData();
   }, []);
 
-  // Product search
-  const [search,     setSearch]     = useState("");
+  const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
 
-  // Cart
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  // Customer
-  const [custName,  setCustName]  = useState("");
+  const [custName, setCustName] = useState("");
   const [custPhone, setCustPhone] = useState("");
 
-  // Payment
-  const [payMethod,    setPayMethod]    = useState<PaymentMethod>("cash");
+  const [payMethod, setPayMethod] = useState<PaymentMethod>("cash");
   const [cashReceived, setCashReceived] = useState(0);
-  const [billDiscount, setBillDiscount] = useState(0); // overall bill discount %
+  const [billDiscount, setBillDiscount] = useState(0);
   const [showUpiPopup, setShowUpiPopup] = useState(false);
 
-  // State
-  const [mode, setMode]       = useState<"sale" | "return">("sale");
+  const [mode, setMode] = useState<"sale" | "return">("sale");
   const [success, setSuccess] = useState(false);
   const [lastInvoice, setLastInvoice] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // ── Search results ──
   const searchResults = useMemo(() => {
     if (!search.trim()) return [];
     const q = search.toLowerCase();
-    return products.filter(
-      (p) =>
-        (p.name?.toLowerCase() || "").includes(q) ||
-        (p.barcode?.toLowerCase() || "").includes(q) ||
-        String(p.id).toLowerCase().includes(q) ||
-        (p.brand?.toLowerCase() || "").includes(q)
-    ).slice(0, 6);
+
+    return products
+      .filter(
+        (p) =>
+          (p.name?.toLowerCase() || "").includes(q) ||
+          (p.barcode?.toLowerCase() || "").includes(q) ||
+          String(p.id).toLowerCase().includes(q) ||
+          (p.brand?.toLowerCase() || "").includes(q)
+      )
+      .slice(0, 6);
   }, [search, products]);
 
-  // ── Cart actions ──
   function addToCart(product: Product) {
     setCart((prev) => {
       const exists = prev.find((c) => c.id === product.id);
+
       if (exists) {
         return prev.map((c) =>
           c.id === product.id && c.qty < c.stock
@@ -287,8 +317,10 @@ export default function BillingPage() {
             : c
         );
       }
+
       return [...prev, { ...product, qty: 1, discount: 0 }];
     });
+
     setSearch("");
     setShowSearch(false);
   }
@@ -296,14 +328,22 @@ export default function BillingPage() {
   function updateQty(id: string, delta: number) {
     setCart((prev) =>
       prev
-        .map((c) => c.id === id ? { ...c, qty: Math.max(0, Math.min(c.stock, c.qty + delta)) } : c)
+        .map((c) =>
+          c.id === id
+            ? { ...c, qty: Math.max(0, Math.min(c.stock, c.qty + delta)) }
+            : c
+        )
         .filter((c) => c.qty > 0)
     );
   }
 
   function setDiscount(id: string, val: number) {
     setCart((prev) =>
-      prev.map((c) => c.id === id ? { ...c, discount: Math.max(0, val) } : c)
+      prev.map((c) =>
+        c.id === id
+          ? { ...c, discount: Math.max(0, Math.min(val, c.sellingPrice)) }
+          : c
+      )
     );
   }
 
@@ -323,27 +363,39 @@ export default function BillingPage() {
     setMode("sale");
   }
 
-  // ── Totals ──
   const totals = useMemo(() => {
     const subtotal = cart.reduce((t, c) => t + c.sellingPrice * c.qty, 0);
     const itemDiscount = cart.reduce((t, c) => t + c.discount * c.qty, 0);
     const afterItemDisc = subtotal - itemDiscount;
-    const billDisc = Math.round(afterItemDisc * billDiscount / 100);
+    const billDisc = Math.round((afterItemDisc * billDiscount) / 100);
     const totalDiscount = itemDiscount + billDisc;
     const taxableAmount = subtotal - totalDiscount;
+
     const totalGST = cart.reduce((t, c) => {
       const base = (c.sellingPrice - c.discount) * c.qty;
-      return t + Math.round(base * c.gstPercent / 100);
+      return t + Math.round((base * c.gstPercent) / 100);
     }, 0);
+
     const grandTotal = taxableAmount + totalGST;
     const change = payMethod === "cash" ? Math.max(0, cashReceived - grandTotal) : 0;
-    return { subtotal, itemDiscount, billDisc, totalDiscount, taxableAmount, totalGST, grandTotal, change };
+
+    return {
+      subtotal,
+      itemDiscount,
+      billDisc,
+      totalDiscount,
+      taxableAmount,
+      totalGST,
+      grandTotal,
+      change,
+    };
   }, [cart, billDiscount, cashReceived, payMethod]);
 
-  // ── Checkout ──
   async function submitBill(paidStatus: "PAID" | "UNPAID" = "PAID") {
     if (cart.length === 0) return;
+
     setSubmitting(true);
+
     try {
       const payload = {
         customer_name: custName,
@@ -352,26 +404,37 @@ export default function BillingPage() {
         paid_status: paidStatus,
         discount_percent: billDiscount,
         cash_received: cashReceived,
-        items: cart.map(item => ({
-          // For size-based products, send the real product id; otherwise send item.id
+        items: cart.map((item) => ({
           product_id: item.productId ?? item.id,
           quantity: item.qty,
           price: item.sellingPrice,
-          discount: item.discount, // flat discount per unit
+          discount: item.discount,
           gst_percent: item.gstPercent,
           ...(item.size ? { size: item.size } : {}),
         })),
-        type: mode.toUpperCase()
+        type: mode.toUpperCase(),
       };
 
-      const res = await api.post('/bills', payload);
-      console.log("BILLING RESPONSE DATA:", res.data);
+      const res = await api.post("/bills", payload);
       const invNo = res.data.invoice_no || res.data.invoice_number;
+
       setLastInvoice(invNo);
-      printInvoice(cart, { name: custName, phone: custPhone }, payMethod, invNo, {
-        ...totals,
-        cashReceived,
-      });
+
+      printInvoice(
+        cart,
+        { name: custName, phone: custPhone },
+        payMethod,
+        invNo,
+        {
+          subtotal: totals.subtotal,
+          totalDiscount: totals.totalDiscount,
+          taxableAmount: totals.taxableAmount,
+          totalGST: totals.totalGST,
+          grandTotal: totals.grandTotal,
+          cashReceived,
+        }
+      );
+
       setSuccess(true);
       setShowUpiPopup(false);
     } catch (error: any) {
@@ -383,52 +446,101 @@ export default function BillingPage() {
 
   async function handleCheckout() {
     if (cart.length === 0) return;
+
     if (payMethod === "upi" && mode === "sale") {
       if (!storePayment?.upiId) {
         alert("Add the store UPI ID before accepting UPI payments.");
         return;
       }
+
       setShowUpiPopup(true);
       return;
     }
+
     await submitBill("PAID");
   }
 
   const upiLink = storePayment?.upiId
     ? buildUpiLink(
-        storePayment.upiId,
-        storePayment.upiPayeeName || storePayment.name,
-        totals.grandTotal,
-        `Bill payment ${storePayment.name || ""}`.trim()
-      )
+      storePayment.upiId,
+      storePayment.upiPayeeName || storePayment.name,
+      totals.grandTotal,
+      `Bill payment ${storePayment.name || ""}`.trim()
+    )
     : "";
+
   const upiQrUrl = upiLink
     ? `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiLink)}`
     : "";
 
-  // ── Success screen ──
+  if (loading) {
+    return (
+      <div className="flex min-h-[calc(100dvh-8rem)] items-center justify-center">
+        <div className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+          <Loader2 size={18} className="animate-spin" />
+          Loading billing data...
+        </div>
+      </div>
+    );
+  }
+
   if (success) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
-        <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
-          <CheckCircle className="w-10 h-10 text-success" />
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+          <CheckCircle className="h-10 w-10 text-success" />
         </div>
+
         <div className="text-center">
-          <h2 className="text-xl font-bold text-text-primary">{mode === 'sale' ? 'Bill Generated!' : 'Return Processed!'}</h2>
-          <p className="text-text-secondary mt-1 text-sm">{mode === 'sale' ? 'Invoice' : 'Return Ref'} <span className={`font-mono font-semibold ${mode === 'sale' ? 'text-primary' : 'text-warning'}`}>{lastInvoice}</span> {mode === 'sale' ? 'printed successfully.' : 'recorded successfully.'}</p>
-          <p className="text-2xl font-bold text-text-primary mt-3">{fmt(totals.grandTotal)}</p>
+          <h2 className="text-xl font-bold text-text-primary">
+            {mode === "sale" ? "Bill Generated!" : "Return Processed!"}
+          </h2>
+          <p className="mt-1 text-sm text-text-secondary">
+            {mode === "sale" ? "Invoice" : "Return Ref"}{" "}
+            <span
+              className={`font-mono font-semibold ${mode === "sale" ? "text-primary" : "text-warning"
+                }`}
+            >
+              {lastInvoice}
+            </span>{" "}
+            {mode === "sale"
+              ? "printed successfully."
+              : "recorded successfully."}
+          </p>
+          <p className="mt-3 text-2xl font-bold text-text-primary">
+            {fmt(totals.grandTotal)}
+          </p>
           {payMethod === "cash" && totals.change > 0 && (
-            <p className="text-sm text-success font-semibold mt-1">Change to return: {fmt(totals.change)}</p>
+            <p className="mt-1 text-sm font-semibold text-success">
+              Change to return: {fmt(totals.change)}
+            </p>
           )}
         </div>
+
         <div className="flex gap-3">
-          <button onClick={clearCart}
-            className={`flex items-center gap-2 h-10 px-6 rounded-xl text-white text-sm font-semibold transition-colors shadow-sm ${mode === 'sale' ? 'bg-primary hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700'}`}>
-            <RotateCcw size={16} /> New {mode === 'sale' ? 'Bill' : 'Transaction'}
-          </button>
           <button
-            onClick={() => printInvoice(cart, { name: custName, phone: custPhone }, payMethod, lastInvoice, { ...totals, cashReceived })}
-            className="flex items-center gap-2 h-10 px-6 rounded-xl border border-border bg-surface text-text-primary text-sm font-semibold hover:bg-background transition-colors">
+            onClick={clearCart}
+            className={`flex h-10 items-center gap-2 rounded-xl px-6 text-sm font-semibold text-white shadow-sm transition-colors ${mode === "sale"
+              ? "bg-primary hover:bg-red-700"
+              : "bg-amber-600 hover:bg-amber-700"
+              }`}
+          >
+            <RotateCcw size={16} /> New {mode === "sale" ? "Bill" : "Transaction"}
+          </button>
+
+          <button
+            onClick={() =>
+              printInvoice(cart, { name: custName, phone: custPhone }, payMethod, lastInvoice, {
+                subtotal: totals.subtotal,
+                totalDiscount: totals.totalDiscount,
+                taxableAmount: totals.taxableAmount,
+                totalGST: totals.totalGST,
+                grandTotal: totals.grandTotal,
+                cashReceived,
+              })
+            }
+            className="flex h-10 items-center gap-2 rounded-xl border border-border bg-surface px-6 text-sm font-semibold text-text-primary transition-colors hover:bg-background"
+          >
             <Printer size={16} /> Reprint
           </button>
         </div>
@@ -437,10 +549,10 @@ export default function BillingPage() {
   }
 
   return (
-    <div className="flex gap-5 h-[calc(100vh-8rem)]">
+    <div className="flex gap-5 min-h-[calc(100dvh-8rem)]">
       {showUpiPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-sm px-4">
-          <div className="w-full max-w-sm rounded-2xl border border-border bg-surface shadow-xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-surface shadow-xl">
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <div className="flex items-center gap-2">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-700">
@@ -451,6 +563,7 @@ export default function BillingPage() {
                   <p className="text-xs text-text-secondary">{fmt(totals.grandTotal)}</p>
                 </div>
               </div>
+
               <button
                 onClick={() => setShowUpiPopup(false)}
                 className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-background"
@@ -463,15 +576,25 @@ export default function BillingPage() {
             <div className="space-y-4 px-5 py-5 text-center">
               <div className="mx-auto flex h-[280px] w-[280px] items-center justify-center rounded-xl border border-border bg-white p-3">
                 {upiQrUrl ? (
-                  <img src={upiQrUrl} alt="UPI payment QR code" className="h-full w-full object-contain" />
+                  <img
+                    src={upiQrUrl}
+                    alt="UPI payment QR code"
+                    className="h-full w-full object-contain"
+                  />
                 ) : (
                   <p className="text-xs text-text-secondary">UPI details unavailable</p>
                 )}
               </div>
+
               <div>
-                <p className="text-sm font-bold text-text-primary">{storePayment?.upiPayeeName || storePayment?.name}</p>
-                <p className="text-xs font-mono text-text-secondary">{storePayment?.upiId}</p>
+                <p className="text-sm font-bold text-text-primary">
+                  {storePayment?.upiPayeeName || storePayment?.name}
+                </p>
+                <p className="text-xs font-mono text-text-secondary">
+                  {storePayment?.upiId}
+                </p>
               </div>
+
               <a
                 href={upiLink}
                 className="inline-flex h-9 items-center justify-center rounded-lg border border-border bg-background px-4 text-xs font-semibold text-text-primary hover:bg-red-50"
@@ -489,13 +612,18 @@ export default function BillingPage() {
               >
                 Payment Rejected
               </button>
+
               <button
                 type="button"
                 disabled={submitting}
                 onClick={() => submitBill("PAID")}
                 className="flex h-10 items-center justify-center gap-2 rounded-xl bg-success text-sm font-bold text-white hover:opacity-90 disabled:opacity-50"
               >
-                {submitting ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />}
+                {submitting ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <CheckCircle size={16} />
+                )}
                 Completed
               </button>
             </div>
@@ -503,94 +631,131 @@ export default function BillingPage() {
         </div>
       )}
 
-      {/* ════════ LEFT — Product Search + Cart ════════ */}
-      <div className="flex-1 flex flex-col gap-4 min-w-0 overflow-hidden">
-
-        {/* Header */}
+      {/* LEFT */}
+      <div className="flex min-w-0 flex-1 flex-col gap-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-text-primary">Billing</h1>
-            <p className="text-sm text-text-secondary mt-0.5">{mode === 'sale' ? 'Create new invoice / POS bill' : 'Process product return / refund'}</p>
+            <p className="mt-0.5 text-sm text-text-secondary">
+              {mode === "sale"
+                ? "Create new invoice / POS bill"
+                : "Process product return / refund"}
+            </p>
           </div>
+
           <div className="flex items-center gap-3">
-            <div className="flex p-1 bg-background rounded-lg">
+            <div className="flex rounded-lg bg-background p-1">
               <button
                 onClick={() => setMode("sale")}
-                className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${mode === 'sale' ? 'bg-primary text-white shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+                className={`rounded-md px-3 py-1.5 text-xs font-bold transition-all ${mode === "sale"
+                  ? "bg-primary text-white shadow-sm"
+                  : "text-text-secondary hover:text-text-primary"
+                  }`}
               >
                 Sale
               </button>
               <button
                 onClick={() => setMode("return")}
-                className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${mode === 'return' ? 'bg-amber-600 text-white shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+                className={`rounded-md px-3 py-1.5 text-xs font-bold transition-all ${mode === "return"
+                  ? "bg-amber-600 text-white shadow-sm"
+                  : "text-text-secondary hover:text-text-primary"
+                  }`}
               >
                 Return
               </button>
             </div>
+
             {cart.length > 0 && (
-              <button onClick={clearCart}
-                className="flex items-center gap-1.5 h-8 px-3 rounded-lg border border-coral bg-coral-light text-primary text-xs font-semibold hover:bg-red-100 transition-colors">
+              <button
+                onClick={clearCart}
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-coral bg-coral-light px-3 text-xs font-semibold text-primary transition-colors hover:bg-red-100"
+              >
                 <RotateCcw size={13} /> Clear
               </button>
             )}
           </div>
         </div>
 
-        {/* Product Search */}
         <div className="relative">
-          <div className={`flex items-center gap-2 h-11 bg-surface border border-border rounded-xl px-4 transition-all ${
-            mode === 'sale' 
-              ? 'focus-within:border-red-400 focus-within:ring-2 focus-within:ring-red-500/20' 
-              : 'focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-500/20'
-          }`}>
-            <Search className="w-4 h-4 text-text-secondary shrink-0" />
+          <div
+            className={`flex h-11 items-center gap-2 rounded-xl border border-border bg-surface px-4 transition-all ${mode === "sale"
+              ? "focus-within:border-red-400 focus-within:ring-2 focus-within:ring-red-500/20"
+              : "focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-500/20"
+              }`}
+          >
+            <Search className="h-4 w-4 shrink-0 text-text-secondary" />
             <input
               type="text"
               placeholder="Search product by name, barcode, brand or ID…"
               value={search}
-              onChange={(e) => { setSearch(e.target.value); setShowSearch(true); }}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setShowSearch(true);
+              }}
               onFocus={() => setShowSearch(true)}
-              className="flex-1 text-sm text-text-primary outline-none placeholder:text-text-secondary bg-transparent"
+              className="flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-secondary"
             />
+
             {search && (
-              <button onClick={() => { setSearch(""); setShowSearch(false); }}>
+              <button onClick={() => {
+                setSearch("");
+                setShowSearch(false);
+              }}>
                 <X size={14} className="text-text-secondary hover:text-text-primary" />
               </button>
             )}
-            <button className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-              mode === 'sale'
-                ? 'bg-red-50 text-red-700 hover:bg-red-100'
-                : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
-            }`}>
+
+            <button
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${mode === "sale"
+                ? "bg-red-50 text-red-700 hover:bg-red-100"
+                : "bg-amber-50 text-amber-700 hover:bg-amber-100"
+                }`}
+            >
               <ScanLine size={14} /> Scan
             </button>
           </div>
 
-          {/* Dropdown */}
           {showSearch && searchResults.length > 0 && (
-            <div className="absolute top-full left-0 right-0 z-30 mt-1.5 bg-surface border border-border rounded-xl shadow-lg overflow-hidden">
+            <div className="absolute left-0 right-0 top-full z-30 mt-1.5 overflow-hidden rounded-xl border border-border bg-surface shadow-lg">
               {searchResults.map((p) => (
-                <button key={p.id}
+                <button
+                  key={p.id}
                   onClick={() => addToCart(p)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left border-b border-slate-50 last:border-0 ${
-                    mode === 'sale' ? 'hover:bg-red-50' : 'hover:bg-amber-50'
-                  }`}>
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-bold text-xs ${p.size ? 'bg-blue-100 text-blue-700' : 'bg-background text-text-secondary'}`}>
+                  className={`flex w-full items-center gap-3 border-b border-slate-50 px-4 py-3 text-left transition-colors last:border-0 ${mode === "sale" ? "hover:bg-red-50" : "hover:bg-amber-50"
+                    }`}
+                >
+                  <div
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${p.size
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-background text-text-secondary"
+                      }`}
+                  >
                     {p.size ? p.size : <Package size={14} />}
                   </div>
-                  <div className="flex-1 min-w-0">
+
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-semibold text-text-primary truncate">{p.name}</p>
+                      <p className="truncate text-sm font-semibold text-text-primary">
+                        {p.name}
+                      </p>
                       {p.size && (
-                        <span className="shrink-0 px-1.5 py-px rounded text-xs bg-blue-50 text-blue-600 font-semibold border border-blue-100">
+                        <span className="shrink-0 rounded border border-blue-100 bg-blue-50 px-1.5 py-px text-xs font-semibold text-blue-600">
                           Size: {p.size}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-text-secondary">{p.brand} · {p.category} · Stock: {p.stock}</p>
+                    <p className="text-xs text-text-secondary">
+                      {p.brand} · {p.category} · Stock: {p.stock}
+                    </p>
                   </div>
-                  <div className="text-right shrink-0">
-                    <p className={`text-sm font-bold ${mode === 'sale' ? 'text-red-700' : 'text-amber-700'}`}>{fmt(p.sellingPrice)}</p>
+
+                  <div className="shrink-0 text-right">
+                    <p
+                      className={`text-sm font-bold ${mode === "sale" ? "text-red-700" : "text-amber-700"
+                        }`}
+                    >
+                      {fmt(p.sellingPrice)}
+                    </p>
                     <p className="text-xs text-text-secondary">+{p.gstPercent}% GST</p>
                   </div>
                 </button>
@@ -598,40 +763,42 @@ export default function BillingPage() {
             </div>
           )}
 
-          {/* Click outside to close */}
           {showSearch && (
-            <div className="fixed inset-0 z-20" onClick={() => setShowSearch(false)} />
+            <div
+              className="fixed inset-0 z-20"
+              onClick={() => setShowSearch(false)}
+            />
           )}
         </div>
 
-        {/* Cart */}
-        <div className="flex-1 glass-panel flex flex-col">
+        <div className="glass-panel flex min-h-0 flex-1 flex-col">
+          <div className="shrink-0 border-b border-border bg-background px-5 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ShoppingCart size={15} className="text-text-secondary" />
+                <p className="text-xs font-bold uppercase tracking-wide text-text-secondary">
+                  Cart — {cart.length} item{cart.length !== 1 ? "s" : ""}
+                </p>
+              </div>
 
-          {/* Cart Header */}
-          <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-background shrink-0">
-            <div className="flex items-center gap-2">
-              <ShoppingCart size={15} className="text-text-secondary" />
-              <p className="text-xs font-bold text-text-secondary uppercase tracking-wide">
-                Cart — {cart.length} item{cart.length !== 1 ? "s" : ""}
-              </p>
+              {cart.length > 0 && (
+                <p className="text-xs text-text-secondary">
+                  {cart.reduce((t, c) => t + c.qty, 0)} units total
+                </p>
+              )}
             </div>
-            {cart.length > 0 && (
-              <p className="text-xs text-text-secondary">{cart.reduce((t, c) => t + c.qty, 0)} units total</p>
-            )}
           </div>
 
-          {/* Cart Items */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="min-h-0 flex-1 overflow-y-auto">
             {cart.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full gap-3 text-center py-16">
+              <div className="flex h-full flex-col items-center justify-center gap-3 py-16 text-center">
                 <ShoppingCart size={36} className="text-slate-200" />
                 <p className="text-sm font-semibold text-text-secondary">Cart is empty</p>
                 <p className="text-xs text-slate-300">Search and add products above</p>
               </div>
             ) : (
               <div className="divide-y divide-slate-50">
-                {/* Column Headers */}
-                <div className="grid grid-cols-[1fr_100px_80px_120px_100px] gap-2 px-5 py-2 text-xs font-semibold text-text-secondary uppercase tracking-wide bg-background/50">
+                <div className="grid grid-cols-[1fr_100px_80px_120px_100px] gap-2 bg-background/50 px-5 py-2 text-xs font-semibold uppercase tracking-wide text-text-secondary">
                   <span>Product</span>
                   <span className="text-center">Qty</span>
                   <span className="text-right">Rate</span>
@@ -640,74 +807,95 @@ export default function BillingPage() {
                 </div>
 
                 {cart.map((item) => {
-                  const lineBase    = item.sellingPrice * item.qty;
-                  const lineDisc    = item.discount * item.qty;
+                  const lineBase = item.sellingPrice * item.qty;
+                  const lineDisc = item.discount * item.qty;
                   const lineTaxable = lineBase - lineDisc;
-                  const lineGST     = Math.round(lineTaxable * item.gstPercent / 100);
-                  const lineTotal   = lineTaxable + lineGST;
+                  const lineGST = Math.round((lineTaxable * item.gstPercent) / 100);
+                  const lineTotal = lineTaxable + lineGST;
 
                   return (
-                    <div key={item.id}
-                      className="grid grid-cols-[1fr_100px_80px_120px_100px] gap-2 items-center px-5 py-3.5 hover:bg-background transition-colors">
-
-                      {/* Product Info */}
+                    <div
+                      key={item.id}
+                      className="grid grid-cols-[1fr_100px_80px_120px_100px] items-center gap-2 px-5 py-3.5 transition-colors hover:bg-background"
+                    >
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <p className="text-sm font-semibold text-text-primary truncate">{item.name}</p>
+                          <p className="truncate text-sm font-semibold text-text-primary">
+                            {item.name}
+                          </p>
                           {item.size && (
-                            <span className="shrink-0 px-1.5 py-px rounded text-xs bg-blue-50 text-blue-600 font-semibold border border-blue-100">
+                            <span className="shrink-0 rounded border border-blue-100 bg-blue-50 px-1.5 py-px text-xs font-semibold text-blue-600">
                               {item.size}
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-xs text-text-secondary">{item.productId ?? item.id}</span>
-                          <span className="px-1.5 py-px rounded text-xs bg-background text-text-secondary">{item.gstPercent}% GST</span>
+
+                        <div className="mt-0.5 flex items-center gap-2">
+                          <span className="text-xs text-text-secondary">
+                            {item.productId ?? item.id}
+                          </span>
+                          <span className="rounded bg-background px-1.5 py-px text-xs text-text-secondary">
+                            {item.gstPercent}% GST
+                          </span>
                           {item.stock <= 5 && (
-                            <span className="px-1.5 py-px rounded text-xs bg-warning/10 text-warning font-semibold">Low stock</span>
+                            <span className="rounded bg-warning/10 px-1.5 py-px text-xs font-semibold text-warning">
+                              Low stock
+                            </span>
                           )}
                         </div>
                       </div>
 
-                      {/* Qty */}
                       <div className="flex items-center justify-center gap-1">
-                        <button onClick={() => updateQty(item.id, -1)}
-                          className="w-6 h-6 rounded-md border border-border flex items-center justify-center hover:bg-background transition-colors text-text-secondary">
+                        <button
+                          onClick={() => updateQty(item.id, -1)}
+                          className="flex h-6 w-6 items-center justify-center rounded-md border border-border text-text-secondary transition-colors hover:bg-background"
+                        >
                           <Minus size={12} />
                         </button>
-                        <span className="w-7 text-center text-sm font-bold text-text-primary tabular-nums">{item.qty}</span>
-                        <button onClick={() => updateQty(item.id, 1)}
+                        <span className="w-7 text-center text-sm font-bold tabular-nums text-text-primary">
+                          {item.qty}
+                        </span>
+                        <button
+                          onClick={() => updateQty(item.id, 1)}
                           disabled={item.qty >= item.stock}
-                          className="w-6 h-6 rounded-md border border-border flex items-center justify-center hover:bg-background disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-text-secondary">
+                          className="flex h-6 w-6 items-center justify-center rounded-md border border-border text-text-secondary transition-colors hover:bg-background disabled:cursor-not-allowed disabled:opacity-40"
+                        >
                           <Plus size={12} />
                         </button>
                       </div>
 
-                      {/* Rate */}
-                      <p className="text-sm text-right text-text-primary font-medium tabular-nums">{fmt(item.sellingPrice)}</p>
+                      <p className="text-right text-sm font-medium tabular-nums text-text-primary">
+                        {fmt(item.sellingPrice)}
+                      </p>
 
-                      {/* Discount per unit */}
                       <div className="flex items-center justify-center">
                         <div className="relative">
-                          <IndianRupee className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-text-secondary" />
+                          <IndianRupee className="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-text-secondary" />
                           <input
-                            type="number" min={0} max={item.sellingPrice}
+                            type="number"
+                            min={0}
+                            max={item.sellingPrice}
                             value={item.discount || ""}
                             placeholder="0"
                             onChange={(e) => setDiscount(item.id, Number(e.target.value))}
-                            className="h-7 w-20 rounded-lg border border-border pl-5 pr-2 text-xs text-success font-semibold outline-none focus:border-green-400 focus:ring-2 focus:ring-green-500/20 transition-colors bg-mint-light text-center tabular-nums"
+                            className="h-7 w-20 rounded-lg border border-border bg-mint-light pl-5 pr-2 text-center text-xs font-semibold tabular-nums text-success outline-none transition-colors focus:border-green-400 focus:ring-2 focus:ring-green-500/20"
                           />
                         </div>
                       </div>
 
-                      {/* Line Total */}
                       <div className="text-right">
-                        <p className="text-sm font-bold text-text-primary tabular-nums">{fmt(lineTotal)}</p>
+                        <p className="text-sm font-bold tabular-nums text-text-primary">
+                          {fmt(lineTotal)}
+                        </p>
                         {lineGST > 0 && (
-                          <p className="text-xs text-text-secondary tabular-nums">incl. {fmt(lineGST)} GST</p>
+                          <p className="text-xs tabular-nums text-text-secondary">
+                            incl. {fmt(lineGST)} GST
+                          </p>
                         )}
-                        <button onClick={() => removeFromCart(item.id)}
-                          className="mt-1 text-coral hover:text-primary transition-colors">
+                        <button
+                          onClick={() => removeFromCart(item.id)}
+                          className="mt-1 text-coral transition-colors hover:text-primary"
+                        >
                           <Trash2 size={12} />
                         </button>
                       </div>
@@ -720,102 +908,145 @@ export default function BillingPage() {
         </div>
       </div>
 
-      {/* ════════ RIGHT — Summary + Checkout ════════ */}
-      <div className="w-80 shrink-0 flex flex-col gap-4 overflow-y-auto">
+      {/* RIGHT */}
+      <div className="w-96 shrink-0 space-y-4 overflow-y-auto">
+        <div className="glass-panel space-y-3 p-4">
+          <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">
+            Customer
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="relative">
+              <User className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-secondary" />
+              <input
+                type="text"
+                placeholder="Name"
+                value={custName}
+                onChange={(e) => setCustName(e.target.value)}
+                className={inputCls + " pl-8"}
+              />
+            </div>
 
-        {/* Customer Info */}
-        <div className="glass-panel p-4 space-y-3">
-          <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Customer</p>
-          <div className="relative">
-            <User className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
-            <input type="text" placeholder="Customer name (optional)"
-              value={custName} onChange={(e) => setCustName(e.target.value)}
-              className={inputCls + " pl-8"} />
-          </div>
-          <div className="relative">
-            <Phone className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
-            <input type="text" placeholder="Phone number (optional)"
-              value={custPhone} onChange={(e) => setCustPhone(e.target.value)}
-              className={inputCls + " pl-8"} />
+            <div className="relative">
+              <Phone className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-secondary" />
+              <input
+                type="text"
+                placeholder="Phone"
+                value={custPhone}
+                onChange={(e) => setCustPhone(e.target.value)}
+                className={inputCls + " pl-8"}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Payment Method */}
-        <div className="glass-panel p-4 space-y-3">
-          <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Payment Method</p>
+        <div className="glass-panel space-y-3 p-4">
+          <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">
+            Payment Method
+          </p>
+
           <div className="grid grid-cols-3 gap-2">
             {PAYMENT_METHODS.map((m) => (
-              <button key={m.key}
+              <button
+                key={m.key}
                 onClick={() => setPayMethod(m.key)}
-                className={`flex flex-col items-center gap-1 py-2.5 rounded-xl border text-xs font-semibold transition-all ${
-                  payMethod === m.key
-                    ? mode === 'sale' 
-                      ? 'bg-red-600 border-red-600 text-white shadow-sm shadow-red-200'
-                      : 'bg-amber-600 border-amber-600 text-white shadow-sm shadow-amber-200'
-                    : mode === 'sale'
-                      ? 'border-border text-text-primary hover:border-red-200 hover:bg-red-50'
-                      : 'border-border text-text-primary hover:border-amber-200 hover:bg-amber-50'
-                }`}>
+                // className={`flex flex-col items-center gap-1 rounded-xl border py-2.5 text-xs font-semibold transition-all ${payMethod === m.key
+                //     ? mode === "sale"
+                //       ? "border-red-600 bg-red-600 text-white shadow-sm shadow-red-200"
+                //       : "border-amber-600 bg-amber-600 text-white shadow-sm shadow-amber-200"
+                //     : mode === "sale"
+                //       ? "border-border text-text-primary hover:border-red-200 hover:bg-red-50"
+                //       : "border-border text-text-primary hover:border-amber-200 hover:bg-amber-50"
+                //   }`}
+                className={`flex flex-col items-center gap-1 rounded-xl border py-2.5 text-xs font-semibold transition-all duration-300
+  ${payMethod === m.key
+                    ? "border-violet-500 bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-300/40 scale-[1.02]"
+                    : "border-white/30 bg-white/20 backdrop-blur-md text-text-primary hover:border-violet-300 hover:bg-violet-50/50"
+                  }
+`}
+              >
                 <span className="text-lg">{m.icon}</span>
                 {m.label}
               </button>
             ))}
           </div>
 
-          {/* Cash received */}
           {payMethod === "cash" && (
             <div className="space-y-2">
               <div className="relative">
-                <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
-                <input type="number" min={0} placeholder="Cash received"
+                <IndianRupee className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-secondary" />
+                <input
+                  type="number"
+                  min={0}
+                  placeholder="Cash received"
                   value={cashReceived || ""}
                   onChange={(e) => setCashReceived(Number(e.target.value))}
-                  className={inputCls + " pl-8"} />
+                  className={inputCls + " pl-8"}
+                />
               </div>
+
               {cashReceived > 0 && cashReceived >= totals.grandTotal && (
-                <div className="flex items-center justify-between bg-mint-light border border-green-100 rounded-lg px-3 py-2">
-                  <p className="text-xs text-success font-semibold">Change to return</p>
+                <div className="flex items-center justify-between rounded-lg border border-green-100 bg-mint-light px-3 py-2">
+                  <p className="text-xs font-semibold text-success">Change to return</p>
                   <p className="text-sm font-bold text-success">{fmt(totals.change)}</p>
                 </div>
               )}
+
               {cashReceived > 0 && cashReceived < totals.grandTotal && (
-                <div className="flex items-center justify-between bg-coral-light border border-coral rounded-lg px-3 py-2">
-                  <p className="text-xs text-primary font-semibold">Short by</p>
-                  <p className="text-sm font-bold text-primary">{fmt(totals.grandTotal - cashReceived)}</p>
+                <div className="flex items-center justify-between rounded-lg border border-coral bg-coral-light px-3 py-2">
+                  <p className="text-xs font-semibold text-primary">Short by</p>
+                  <p className="text-sm font-bold text-primary">
+                    {fmt(totals.grandTotal - cashReceived)}
+                  </p>
                 </div>
               )}
             </div>
           )}
         </div>
 
-        {/* Discount on Bill */}
-        <div className="glass-panel p-4 space-y-3">
-          <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Bill Discount</p>
+        <div className="glass-panel space-y-3 p-4">
+          <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">
+            Bill Discount
+          </p>
+
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <Tag className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
-              <input type="number" min={0} max={100} placeholder="0"
+              <Tag className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-secondary" />
+              <input
+                type="number"
+                min={0}
+                max={100}
+                placeholder="0"
                 value={billDiscount || ""}
                 onChange={(e) => setBillDiscount(Math.min(100, Number(e.target.value)))}
-                className={inputCls + " pl-8"} />
+                className={inputCls + " pl-8"}
+              />
             </div>
             <span className="text-sm font-bold text-text-secondary">%</span>
           </div>
+
           {totals.billDisc > 0 && (
-            <p className="text-xs text-success font-semibold">Saving: {fmt(totals.billDisc)}</p>
+            <p className="text-xs font-semibold text-success">
+              Saving: {fmt(totals.billDisc)}
+            </p>
           )}
         </div>
 
-        {/* Bill Summary */}
         <div className="glass-panel p-4">
-          <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Bill Summary</p>
+          <p className="mb-3 text-xs font-bold uppercase tracking-widest text-text-secondary">
+            Bill Summary
+          </p>
+
           <div className="space-y-2.5">
             {[
-              { label:"Subtotal",          value: fmt(totals.subtotal),      cls:"text-text-primary"  },
-              ...(totals.itemDiscount > 0 ? [{ label:"Item Discounts", value:`−${fmt(totals.itemDiscount)}`, cls:"text-success" }] : []),
-              ...(totals.billDisc > 0     ? [{ label:`Bill Discount (${billDiscount}%)`, value:`−${fmt(totals.billDisc)}`, cls:"text-success" }] : []),
-              { label:"Taxable Amount",    value: fmt(totals.taxableAmount), cls:"text-text-primary"  },
-              { label:"Total GST",         value: fmt(totals.totalGST),      cls:"text-warning"  },
+              { label: "Subtotal", value: fmt(totals.subtotal), cls: "text-text-primary" },
+              ...(totals.itemDiscount > 0
+                ? [{ label: "Item Discounts", value: `−${fmt(totals.itemDiscount)}`, cls: "text-success" }]
+                : []),
+              ...(totals.billDisc > 0
+                ? [{ label: `Bill Discount (${billDiscount}%)`, value: `−${fmt(totals.billDisc)}`, cls: "text-success" }]
+                : []),
+              { label: "Taxable Amount", value: fmt(totals.taxableAmount), cls: "text-text-primary" },
+              { label: "Total GST", value: fmt(totals.totalGST), cls: "text-warning" },
             ].map((row) => (
               <div key={row.label} className="flex items-center justify-between">
                 <p className="text-xs text-text-secondary">{row.label}</p>
@@ -823,25 +1054,55 @@ export default function BillingPage() {
               </div>
             ))}
 
-            <div className="border-t border-border pt-2.5 mt-1 flex items-center justify-between">
-              <p className="text-sm font-bold text-text-primary">{mode === 'sale' ? 'Grand Total' : 'Total Refund'}</p>
-              <p className={`text-xl font-bold tabular-nums ${mode === 'sale' ? 'text-red-700' : 'text-amber-700'}`}>{fmt(totals.grandTotal)}</p>
+            <div className="mt-1 flex items-center justify-between border-t border-border pt-2.5">
+              <p className="text-sm font-bold text-text-primary">
+                {mode === "sale" ? "Grand Total" : "Total Refund"}
+              </p>
+              <p
+                className={`text-xl font-bold tabular-nums ${mode === "sale" ? "text-red-700" : "text-amber-700"
+                  }`}
+              >
+                {fmt(totals.grandTotal)}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Checkout Button */}
         <button
           onClick={handleCheckout}
-          disabled={cart.length === 0 || submitting || (payMethod === "cash" && cashReceived > 0 && cashReceived < totals.grandTotal)}
-          className={`w-full h-12 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm ${mode === 'sale' ? 'bg-primary hover:bg-red-700 shadow-red-200' : 'bg-amber-600 hover:bg-amber-700 shadow-amber-200'}`}
+          disabled={
+            cart.length === 0 ||
+            submitting ||
+            (payMethod === "cash" &&
+              cashReceived > 0 &&
+              cashReceived < totals.grandTotal)
+          }
+          className={`flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${mode === "sale"
+            ? "bg-primary hover:bg-red-700 shadow-red-200"
+            : "bg-amber-600 hover:bg-amber-700 shadow-amber-200"
+            }`}
         >
-          {submitting ? <Loader2 size={18} className="animate-spin" /> : (mode === 'sale' ? <Receipt size={18} /> : <RotateCcw size={18} />)}
-          {submitting ? "Processing..." : (payMethod === "upi" && mode === "sale" ? "Show UPI QR" : (mode === 'sale' ? "Generate Bill & Print" : "Process Return & Print"))}
+          {submitting ? (
+            <Loader2 size={18} className="animate-spin" />
+          ) : mode === "sale" ? (
+            <Receipt size={18} />
+          ) : (
+            <RotateCcw size={18} />
+          )}
+
+          {submitting
+            ? "Processing..."
+            : payMethod === "upi" && mode === "sale"
+              ? "Show UPI QR"
+              : mode === "sale"
+                ? "Generate Bill & Print"
+                : "Process Return & Print"}
         </button>
 
-        <p className="text-xs text-center text-text-secondary -mt-1">
-          {payMethod === "upi" && mode === "sale" ? "Confirm payment after scanning QR" : "Bill will open in a print dialog"}
+        <p className="-mt-1 text-center text-xs text-text-secondary">
+          {payMethod === "upi" && mode === "sale"
+            ? "Confirm payment after scanning QR"
+            : "Bill will open in a print dialog"}
         </p>
       </div>
     </div>

@@ -82,16 +82,44 @@ function ChartCard({
   children: React.ReactNode;
   action?: React.ReactNode;
 }) {
+  // return (
+  //   <div className="glass-card p-5 flex flex-col gap-4 relative overflow-hidden transition-all duration-300">
+  //     <div className="flex items-start justify-between gap-3 relative z-10">
+  //       <div>
+  //         <h2 className="text-sm font-bold text-text-primary">{title}</h2>
+  //         {subtitle && <p className="text-xs text-text-muted mt-0.5">{subtitle}</p>}
+  //       </div>
+  //       {action}
+  //     </div>
+  //     <div className="relative z-10">{children}</div>
+  //   </div>
+  // );
   return (
-    <div className="glass-card p-5 flex flex-col gap-4 relative overflow-hidden transition-all duration-300">
+    <div className="glass-card rounded-[28px] p-5 flex flex-col gap-4 relative overflow-hidden transition-all duration-300">
+
+      {/* Floating Glow Effects */}
+      <div className="absolute -top-12 -right-12 w-36 h-36 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-10 w-24 h-24 rounded-full bg-white/5 blur-2xl pointer-events-none" />
+
       <div className="flex items-start justify-between gap-3 relative z-10">
         <div>
-          <h2 className="text-sm font-bold text-text-primary">{title}</h2>
-          {subtitle && <p className="text-xs text-text-muted mt-0.5">{subtitle}</p>}
+          <h2 className="text-sm font-bold text-text-primary">
+            {title}
+          </h2>
+
+          {subtitle && (
+            <p className="text-xs text-text-muted mt-0.5">
+              {subtitle}
+            </p>
+          )}
         </div>
+
         {action}
       </div>
-      <div className="relative z-10">{children}</div>
+
+      <div className="relative z-10">
+        {children}
+      </div>
     </div>
   );
 }
@@ -262,22 +290,44 @@ export default function DashboardPage() {
 
       {/* ── Page Header ── */}
       <div>
-        <h1 className="text-2xl font-bold text-text-primary tracking-tight">Dashboard Overview</h1>
-        <p className="text-sm text-text-muted mt-1">Analytics and key metrics at a glance</p>
+        <h1 className="text-[42px] font-bold tracking-tight text-text-primary">Dashboard Overview</h1>
+        <p className="text-base text-text-muted mt-2">Analytics and key metrics at a glance</p>
       </div>
 
       {/* ── Summary Stats ── */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         {stats.map((s) => (
-          <div key={s.label} className={`glass-card p-5 ${s.cardBorder} relative overflow-hidden group`} style={s.cardStyle}>
+          <div
+            key={s.label}
+            className={`
+    glass-card
+    rounded-[28px]
+    p-5
+    relative
+    overflow-hidden
+    group
+    hover:scale-[1.02]
+    transition-all
+    duration-300
+    ${s.cardBorder}
+  `}
+            style={s.cardStyle}
+          >
+            {/* <div key={s.label} className={`glass-card p-5 ${s.cardBorder} relative overflow-hidden group`} style={s.cardStyle}>
+             */}
             {/* Exact overlapping circle patterns from screenshot - only show in SaaS */}
             {!isEnterprise && (
               <>
-                <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/10 blur-[1px] group-hover:scale-110 transition-transform" />
-                <div className="absolute -right-8 top-12 w-32 h-32 rounded-full bg-white/10 blur-[1px] group-hover:scale-110 transition-transform" />
+                {/* <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/10 blur-[1px] group-hover:scale-110 transition-transform" />
+                <div className="absolute -right-8 top-12 w-32 h-32 rounded-full bg-white/10 blur-[1px] group-hover:scale-110 transition-transform" /> */}
+                <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-white/10 blur-sm" />
+
+                <div className="absolute -right-10 top-10 w-40 h-40 rounded-full bg-white/8 blur-sm" />
+
+                <div className="absolute left-8 bottom-6 w-16 h-16 rounded-full bg-white/5 blur-sm" />
               </>
             )}
-            
+
             <div className={`inline-flex items-center justify-center w-10 h-10 rounded-xl ${s.iconBg} mb-4 relative z-10`}>
               <s.icon className={`w-5 h-5 ${s.iconColor}`} />
             </div>
@@ -292,36 +342,235 @@ export default function DashboardPage() {
           ROW 1: Sales Graph (full width)
       ══════════════════════════════════════════════ */}
       <ChartCard
-            title="Sales Overview"
-            subtitle={salesView === "daily" ? "Last 14 days" : "Last 6 months"}
-            action={
-              <div className="relative group">
-                <select
-                  value={salesView}
-                  onChange={(e) => setSalesView(e.target.value as "daily" | "monthly")}
-                  className="h-8 pl-3 pr-8 rounded-md border border-border bg-surface text-xs font-semibold text-text-primary outline-none focus:border-primary appearance-none cursor-pointer hover:bg-gray-50 transition-colors"
-                >
-                  <option value="daily">Daily</option>
-                  <option value="monthly">Monthly</option>
-                </select>
-                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted pointer-events-none group-hover:text-primary transition-colors" />
+        title="Sales Overview"
+        subtitle={salesView === "daily" ? "Last 14 days" : "Last 6 months"}
+        action={
+          <div className="relative group">
+            <select
+              value={salesView}
+              onChange={(e) => setSalesView(e.target.value as "daily" | "monthly")}
+              className="h-8 pl-3 pr-8 rounded-md border border-border bg-surface text-xs font-semibold text-text-primary outline-none focus:border-primary appearance-none cursor-pointer hover:bg-gray-50 transition-colors"
+            >
+              <option value="daily">Daily</option>
+              <option value="monthly">Monthly</option>
+            </select>
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted pointer-events-none group-hover:text-primary transition-colors" />
+          </div>
+        }
+      >
+        <ResponsiveContainer width="100%" height={260}>
+          <AreaChart data={salesChartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="gradSales" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={C.primary} stopOpacity={0.2} />
+                <stop offset="95%" stopColor={C.primary} stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="gradProfit" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={C.blue} stopOpacity={0.2} />
+                <stop offset="95%" stopColor={C.blue} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke={C.grid} vertical={false} />
+            <XAxis dataKey="day" tick={tickStyle} axisLine={false} tickLine={false} />
+            <YAxis
+              tick={tickStyle}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(v) => v >= 1000 ? `₹${(v / 1000).toFixed(0)}k` : `₹${v}`}
+              width={48}
+            />
+            <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#ECE8F3', strokeWidth: 1, strokeDasharray: '4 4' }} />
+            <Legend
+              wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }}
+              formatter={(v: string) => <span className="text-text-muted capitalize">{v}</span>}
+            />
+            <Area
+              type="monotone"
+              dataKey="sales"
+              name="Sales"
+              stroke={C.primary}
+              strokeWidth={3}
+              fill="url(#gradSales)"
+              dot={{ r: 0 }}
+              activeDot={{ r: 5, fill: C.primary, stroke: '#fff', strokeWidth: 2 }}
+            />
+            <Area
+              type="monotone"
+              dataKey="profit"
+              name="Profit"
+              stroke={C.coral}
+              strokeWidth={3}
+              fill="url(#gradProfit)"
+              dot={{ r: 0 }}
+              activeDot={{ r: 5, fill: C.coral, stroke: '#fff', strokeWidth: 2 }}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </ChartCard>
+
+      {/* ══════════════════════════════════════════════
+              ROW 2: Profit Graph + Stock Overview
+          ══════════════════════════════════════════════ */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+        {/* Profit Bar Chart */}
+        <ChartCard title="Profit Breakdown" subtitle="Monthly profit — last 6 months">
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={monthlySalesData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }} barSize={28}>
+              <CartesianGrid strokeDasharray="3 3" stroke={C.grid} vertical={false} />
+              <XAxis dataKey="month" tick={tickStyle} axisLine={false} tickLine={false} />
+              <YAxis
+                tick={tickStyle}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                width={44}
+              />
+              <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(0,0,0,0.02)" }} />
+              <Bar
+                dataKey="profit"
+                name="Profit"
+                fill={C.blue}
+                radius={[4, 4, 0, 0]}
+              />
+              <Bar
+                dataKey="sales"
+                name="Sales"
+                fill={C.primary}
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+
+          {/* Profit Metrics */}
+          <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
+            {[
+              { label: "This Month", value: `₹${(summary.this_month_sales || 0).toLocaleString("en-IN")}` },
+              { label: "Last Month", value: `₹${(summary.last_month_sales || 0).toLocaleString("en-IN")}` },
+              { label: "Avg Margin", value: `${summary.avg_margin || 0}%` },
+            ].map((m) => (
+              <div key={m.label} className="text-center">
+                <p className="text-xs text-text-muted">{m.label}</p>
+                <p className="text-sm font-bold text-text-primary mt-0.5">{m.value}</p>
               </div>
-            }
-          >
-            <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={salesChartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="gradSales" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={C.primary} stopOpacity={0.2} />
-                    <stop offset="95%" stopColor={C.primary} stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="gradProfit" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={C.blue} stopOpacity={0.2} />
-                    <stop offset="95%" stopColor={C.blue} stopOpacity={0} />
-                  </linearGradient>
-                </defs>
+            ))}
+          </div>
+        </ChartCard>
+
+        {/* Stock Overview */}
+        <ChartCard
+          title="Stock Overview"
+          subtitle="Current units per product"
+          action={
+            <div className="flex items-center gap-3 text-xs text-text-muted">
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-mint inline-block" /> OK</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-warning inline-block" /> Low</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-coral inline-block" /> OOS</span>
+            </div>
+          }
+        >
+          <div className="rounded-2xl bg-white/5 backdrop-blur-sm p-2">
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart
+                data={stockData}
+                layout="vertical"
+                margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
+                barSize={14}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke={C.grid} horizontal={false} />
+                <XAxis type="number" tick={tickStyle} axisLine={false} tickLine={false} />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  tick={tickStyle}
+                  axisLine={false}
+                  tickLine={false}
+                  width={110}
+                  tickFormatter={(v: string) => v.length > 14 ? v.slice(0, 13) + "…" : v}
+                />
+                <Tooltip content={<StockTooltip />} cursor={{ fill: "rgba(0,0,0,0.02)" }} />
+                <Bar dataKey="stock" name="Stock" radius={[0, 4, 4, 0]}>
+                  {stockData.map((_, i) => (
+                    <Cell key={i} fill={stockBarColors[i]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer></div>
+
+
+          {/* Stock Alerts */}
+          <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
+            {[
+              { label: "In Stock", value: stockData.filter((s) => s.stock > s.reorderAt).length, color: "text-mint" },
+              { label: "Low Stock", value: stockData.filter((s) => s.stock > 0 && s.stock <= s.reorderAt).length, color: "text-warning" },
+              { label: "Out of Stock", value: stockData.filter((s) => s.stock === 0).length, color: "text-coral" },
+            ].map((m) => (
+              <div key={m.label} className="text-center">
+                <p className={`text-lg font-bold ${m.color}`}>{m.value}</p>
+                <p className="text-xs text-text-muted mt-0.5">{m.label}</p>
+              </div>
+            ))}
+          </div>
+        </ChartCard>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <ChartCard
+          title="Staff Attendance"
+          subtitle="Present vs absent across the last 7 days"
+          action={
+            <div className="flex items-center gap-3 text-xs text-text-muted">
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-mint inline-block" /> Present</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-coral inline-block" /> Absent</span>
+            </div>
+          }
+        >
+          <div className="rounded-2xl bg-white/5 backdrop-blur-sm p-2">
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={attendanceData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }} barSize={30}>
                 <CartesianGrid strokeDasharray="3 3" stroke={C.grid} vertical={false} />
                 <XAxis dataKey="day" tick={tickStyle} axisLine={false} tickLine={false} />
+                <YAxis tick={tickStyle} axisLine={false} tickLine={false} allowDecimals={false} width={36} />
+                <Tooltip content={<ChartTooltip prefix="" />} cursor={{ fill: "rgba(0,0,0,0.02)" }} />
+                <Legend
+                  wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }}
+                  formatter={(v: string) => <span className="text-text-muted capitalize">{v}</span>}
+                />
+                <Bar dataKey="present" name="Present" stackId="attendance" fill={C.mint} radius={[0, 0, 4, 4]} />
+                <Bar dataKey="absent" name="Absent" stackId="attendance" fill={C.coral} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer></div>
+
+
+          <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
+            {[
+              { label: "Present", value: attendanceTotal.present, color: "text-mint" },
+              { label: "Absent", value: attendanceTotal.absent, color: "text-coral" },
+              { label: "Active Staff", value: summary.staff_total || 0, color: "text-primary" },
+            ].map((m) => (
+              <div key={m.label} className="text-center">
+                <p className={`text-lg font-bold ${m.color}`}>{m.value}</p>
+                <p className="text-xs text-text-muted mt-0.5">{m.label}</p>
+              </div>
+            ))}
+          </div>
+        </ChartCard>
+
+        <ChartCard
+          title="Monthly GST Summary"
+          subtitle="GST collected and estimated paid by month"
+          action={
+            <div className="text-right">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">YTD Collected</p>
+              <p className="text-sm font-bold text-text-primary">₹{(gstSummary?.ytd_collected || 0).toLocaleString("en-IN")}</p>
+            </div>
+          }
+        >
+          <div className="rounded-2xl bg-white/5 backdrop-blur-sm p-2">
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={gstHistory} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={C.grid} vertical={false} />
+                <XAxis dataKey="month" tick={tickStyle} axisLine={false} tickLine={false} />
                 <YAxis
                   tick={tickStyle}
                   axisLine={false}
@@ -334,235 +583,42 @@ export default function DashboardPage() {
                   wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }}
                   formatter={(v: string) => <span className="text-text-muted capitalize">{v}</span>}
                 />
-                <Area
+                <Line
                   type="monotone"
-                  dataKey="sales"
-                  name="Sales"
+                  dataKey="collected"
+                  name="Collected"
                   stroke={C.primary}
                   strokeWidth={3}
-                  fill="url(#gradSales)"
-                  dot={{ r: 0 }}
+                  dot={{ r: 3, fill: C.primary, strokeWidth: 0 }}
                   activeDot={{ r: 5, fill: C.primary, stroke: '#fff', strokeWidth: 2 }}
                 />
-                <Area
+                <Line
                   type="monotone"
-                  dataKey="profit"
-                  name="Profit"
-                  stroke={C.coral}
+                  dataKey="paid"
+                  name="Paid"
+                  stroke={C.warning}
                   strokeWidth={3}
-                  fill="url(#gradProfit)"
-                  dot={{ r: 0 }}
-                  activeDot={{ r: 5, fill: C.coral, stroke: '#fff', strokeWidth: 2 }}
+                  dot={{ r: 3, fill: C.warning, strokeWidth: 0 }}
+                  activeDot={{ r: 5, fill: C.warning, stroke: '#fff', strokeWidth: 2 }}
                 />
-              </AreaChart>
-            </ResponsiveContainer>
-          </ChartCard>
+              </LineChart>
+            </ResponsiveContainer></div>
 
-          {/* ══════════════════════════════════════════════
-              ROW 2: Profit Graph + Stock Overview
-          ══════════════════════════════════════════════ */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
-            {/* Profit Bar Chart */}
-            <ChartCard title="Profit Breakdown" subtitle="Monthly profit — last 6 months">
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={monthlySalesData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }} barSize={28}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={C.grid} vertical={false} />
-                  <XAxis dataKey="month" tick={tickStyle} axisLine={false} tickLine={false} />
-                  <YAxis
-                    tick={tickStyle}
-                    axisLine={false}
-                    tickLine={false}
-                    tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
-                    width={44}
-                  />
-                  <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(0,0,0,0.02)" }} />
-                  <Bar
-                    dataKey="profit"
-                    name="Profit"
-                    fill={C.blue}
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="sales"
-                    name="Sales"
-                    fill={C.primary}
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-
-              {/* Profit Metrics */}
-              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
-                {[
-                  { label: "This Month", value: `₹${(summary.this_month_sales || 0).toLocaleString("en-IN")}` },
-                  { label: "Last Month", value: `₹${(summary.last_month_sales || 0).toLocaleString("en-IN")}` },
-                  { label: "Avg Margin", value: `${summary.avg_margin || 0}%` },
-                ].map((m) => (
-                  <div key={m.label} className="text-center">
-                    <p className="text-xs text-text-muted">{m.label}</p>
-                    <p className="text-sm font-bold text-text-primary mt-0.5">{m.value}</p>
-                  </div>
-                ))}
+          <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
+            {[
+              { label: "Collected", value: `₹${gstTotals.collected.toLocaleString("en-IN")}`, color: "text-primary" },
+              { label: "Paid", value: `₹${gstTotals.paid.toLocaleString("en-IN")}`, color: "text-warning" },
+              { label: "Balance", value: `₹${(gstTotals.collected - gstTotals.paid).toLocaleString("en-IN")}`, color: "text-mint" },
+            ].map((m) => (
+              <div key={m.label} className="text-center">
+                <p className={`text-sm font-bold ${m.color}`}>{m.value}</p>
+                <p className="text-xs text-text-muted mt-0.5">{m.label}</p>
               </div>
-            </ChartCard>
-
-            {/* Stock Overview */}
-            <ChartCard
-              title="Stock Overview"
-              subtitle="Current units per product"
-              action={
-                <div className="flex items-center gap-3 text-xs text-text-muted">
-                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-mint inline-block" /> OK</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-warning inline-block" /> Low</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-coral inline-block" /> OOS</span>
-                </div>
-              }
-            >
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart
-                  data={stockData}
-                  layout="vertical"
-                  margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
-                  barSize={14}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke={C.grid} horizontal={false} />
-                  <XAxis type="number" tick={tickStyle} axisLine={false} tickLine={false} />
-                  <YAxis
-                    type="category"
-                    dataKey="name"
-                    tick={tickStyle}
-                    axisLine={false}
-                    tickLine={false}
-                    width={110}
-                    tickFormatter={(v: string) => v.length > 14 ? v.slice(0, 13) + "…" : v}
-                  />
-                  <Tooltip content={<StockTooltip />} cursor={{ fill: "rgba(0,0,0,0.02)" }} />
-                  <Bar dataKey="stock" name="Stock" radius={[0, 4, 4, 0]}>
-                    {stockData.map((_, i) => (
-                      <Cell key={i} fill={stockBarColors[i]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-
-              {/* Stock Alerts */}
-              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
-                {[
-                  { label: "In Stock", value: stockData.filter((s) => s.stock > s.reorderAt).length, color: "text-mint" },
-                  { label: "Low Stock", value: stockData.filter((s) => s.stock > 0 && s.stock <= s.reorderAt).length, color: "text-warning" },
-                  { label: "Out of Stock", value: stockData.filter((s) => s.stock === 0).length, color: "text-coral" },
-                ].map((m) => (
-                  <div key={m.label} className="text-center">
-                    <p className={`text-lg font-bold ${m.color}`}>{m.value}</p>
-                    <p className="text-xs text-text-muted mt-0.5">{m.label}</p>
-                  </div>
-                ))}
-              </div>
-            </ChartCard>
+            ))}
           </div>
-
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <ChartCard
-              title="Staff Attendance"
-              subtitle="Present vs absent across the last 7 days"
-              action={
-                <div className="flex items-center gap-3 text-xs text-text-muted">
-                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-mint inline-block" /> Present</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-coral inline-block" /> Absent</span>
-                </div>
-              }
-            >
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={attendanceData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }} barSize={30}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={C.grid} vertical={false} />
-                  <XAxis dataKey="day" tick={tickStyle} axisLine={false} tickLine={false} />
-                  <YAxis tick={tickStyle} axisLine={false} tickLine={false} allowDecimals={false} width={36} />
-                  <Tooltip content={<ChartTooltip prefix="" />} cursor={{ fill: "rgba(0,0,0,0.02)" }} />
-                  <Legend
-                    wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }}
-                    formatter={(v: string) => <span className="text-text-muted capitalize">{v}</span>}
-                  />
-                  <Bar dataKey="present" name="Present" stackId="attendance" fill={C.mint} radius={[0, 0, 4, 4]} />
-                  <Bar dataKey="absent" name="Absent" stackId="attendance" fill={C.coral} radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-
-              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
-                {[
-                  { label: "Present", value: attendanceTotal.present, color: "text-mint" },
-                  { label: "Absent", value: attendanceTotal.absent, color: "text-coral" },
-                  { label: "Active Staff", value: summary.staff_total || 0, color: "text-primary" },
-                ].map((m) => (
-                  <div key={m.label} className="text-center">
-                    <p className={`text-lg font-bold ${m.color}`}>{m.value}</p>
-                    <p className="text-xs text-text-muted mt-0.5">{m.label}</p>
-                  </div>
-                ))}
-              </div>
-            </ChartCard>
-
-            <ChartCard
-              title="Monthly GST Summary"
-              subtitle="GST collected and estimated paid by month"
-              action={
-                <div className="text-right">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">YTD Collected</p>
-                  <p className="text-sm font-bold text-text-primary">₹{(gstSummary?.ytd_collected || 0).toLocaleString("en-IN")}</p>
-                </div>
-              }
-            >
-              <ResponsiveContainer width="100%" height={240}>
-                <LineChart data={gstHistory} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={C.grid} vertical={false} />
-                  <XAxis dataKey="month" tick={tickStyle} axisLine={false} tickLine={false} />
-                  <YAxis
-                    tick={tickStyle}
-                    axisLine={false}
-                    tickLine={false}
-                    tickFormatter={(v) => v >= 1000 ? `₹${(v / 1000).toFixed(0)}k` : `₹${v}`}
-                    width={48}
-                  />
-                  <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#ECE8F3', strokeWidth: 1, strokeDasharray: '4 4' }} />
-                  <Legend
-                    wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }}
-                    formatter={(v: string) => <span className="text-text-muted capitalize">{v}</span>}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="collected"
-                    name="Collected"
-                    stroke={C.primary}
-                    strokeWidth={3}
-                    dot={{ r: 3, fill: C.primary, strokeWidth: 0 }}
-                    activeDot={{ r: 5, fill: C.primary, stroke: '#fff', strokeWidth: 2 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="paid"
-                    name="Paid"
-                    stroke={C.warning}
-                    strokeWidth={3}
-                    dot={{ r: 3, fill: C.warning, strokeWidth: 0 }}
-                    activeDot={{ r: 5, fill: C.warning, stroke: '#fff', strokeWidth: 2 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-
-              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
-                {[
-                  { label: "Collected", value: `₹${gstTotals.collected.toLocaleString("en-IN")}`, color: "text-primary" },
-                  { label: "Paid", value: `₹${gstTotals.paid.toLocaleString("en-IN")}`, color: "text-warning" },
-                  { label: "Balance", value: `₹${(gstTotals.collected - gstTotals.paid).toLocaleString("en-IN")}`, color: "text-mint" },
-                ].map((m) => (
-                  <div key={m.label} className="text-center">
-                    <p className={`text-sm font-bold ${m.color}`}>{m.value}</p>
-                    <p className="text-xs text-text-muted mt-0.5">{m.label}</p>
-                  </div>
-                ))}
-              </div>
-            </ChartCard>
-          </div>
+        </ChartCard>
+      </div>
     </div>
   );
 }

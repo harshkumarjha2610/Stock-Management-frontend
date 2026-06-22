@@ -1,79 +1,160 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Bell, Search, Menu, MonitorSmartphone } from "lucide-react";
+import {
+  Bell,
+  Search,
+  Menu,
+  Palette,
+  Building2,
+} from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 
 function getPageTitle(pathname: string): string {
   const segment = pathname.split("/").filter(Boolean)[0];
+
   if (!segment) return "Dashboard";
-  // Convert dashes to spaces and capitalize
-  return segment.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+
+  return segment
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
 }
 
-export default function Header({ toggleSidebar }: { toggleSidebar?: () => void }) {
+export default function Header({
+  toggleSidebar,
+}: {
+  toggleSidebar?: () => void;
+}) {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="flex items-center justify-between border-b border-border bg-surface px-6 py-4 h-16 shrink-0 sticky top-0 z-20">
+    <header className="flex items-center justify-between border-b border-white/20 bg-transparent px-6 py-4 h-16 shrink-0 sticky top-0 z-20 backdrop-blur-sm">
+      {/* Left Section */}
       <div className="flex items-center gap-4">
         {toggleSidebar && (
-          <button 
+          <button
             onClick={toggleSidebar}
-            className="p-2 -ml-2 rounded-lg text-text-muted hover:bg-black/5 hover:text-text-primary transition-colors"
+            className="p-2 -ml-2 rounded-lg text-slate-600 hover:bg-white/20 hover:text-slate-900 transition-colors"
           >
             <Menu className="w-5 h-5" />
           </button>
         )}
-        <h2 className="text-lg font-bold text-foreground tracking-tight">
+
+        <h2 className="text-lg font-bold text-slate-800 tracking-tight">
           {getPageTitle(pathname)}
         </h2>
       </div>
 
+      {/* Right Section */}
       <div className="flex items-center gap-4">
+        {/* Search */}
         <div className="relative hidden sm:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+
           <input
             type="text"
             placeholder="Search..."
-            className="h-9 w-64 rounded-full border border-border bg-background pl-10 pr-4 text-sm text-foreground placeholder:text-muted outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+            className="
+              h-10
+              w-72
+              rounded-full
+              border border-white/40
+              bg-white/30
+              backdrop-blur-xl
+              pl-10
+              pr-4
+              text-sm
+              text-slate-700
+              placeholder:text-slate-400
+              outline-none
+              focus:border-purple-400
+              focus:ring-2
+              focus:ring-purple-200
+              transition-all
+            "
           />
         </div>
 
-        {/* Theme Toggle Switch */}
-        <div className="relative flex items-center bg-gray-100 dark:bg-gray-800 rounded-full p-1 shadow-inner">
+        {/* Theme Switcher Icons */}
+        <div className="flex items-center gap-2">
+          {/* SaaS Theme */}
           <button
-            onClick={() => theme === "enterprise" && setTheme("saas")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-              theme === "saas"
-                ? "bg-white text-purple-600 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
+            onClick={() => setTheme("saas")}
+            title="SaaS Theme"
+            className={`
+              w-10 h-10 rounded-xl
+              border border-white/30
+              backdrop-blur-xl
+              flex items-center justify-center
+              transition-all duration-300
+              ${theme === "saas"
+                ? "bg-purple-500 text-white shadow-lg shadow-purple-500/30"
+                : "bg-white/25 text-slate-600 hover:bg-white/40"
+              }
+            `}
           >
-            SaaS
+            <Palette size={18} />
           </button>
+
+          {/* Enterprise Theme */}
           <button
-            onClick={() => theme === "saas" && setTheme("enterprise")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-              theme === "enterprise"
-                ? "bg-green-500 text-white shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
+            onClick={() => setTheme("enterprise")}
+            title="Enterprise Theme"
+            className={`
+              w-10 h-10 rounded-xl
+              border border-white/30
+              backdrop-blur-xl
+              flex items-center justify-center
+              transition-all duration-300
+              ${theme === "enterprise"
+                ? "bg-slate-800 text-white shadow-lg shadow-slate-900/30"
+                : "bg-white/25 text-slate-600 hover:bg-white/40"
+              }
+            `}
           >
-            Enterprise
+            <Building2 size={18} />
           </button>
         </div>
 
+        {/* Notifications */}
         <button
-          className="relative flex items-center justify-center w-9 h-9 rounded-full border border-border bg-background hover:bg-gray-50 transition-colors group"
+          className="
+            relative
+            flex items-center justify-center
+            w-10 h-10
+            rounded-full
+            border border-white/30
+            bg-white/25
+            backdrop-blur-xl
+            hover:bg-white/40
+            transition-all
+            group
+          "
           aria-label="Notifications"
         >
-          <Bell className="w-4.5 h-4.5 text-muted group-hover:text-primary transition-colors" />
-          <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-primary border-2 border-surface" />
+          <Bell className="w-4.5 h-4.5 text-slate-600 group-hover:text-purple-600 transition-colors" />
+
+          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-purple-500 border border-white" />
         </button>
 
-        <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold select-none shadow-sm">
+        {/* User Avatar */}
+        <div
+          className="
+            w-10 h-10
+            rounded-full
+            bg-gradient-to-br
+            from-purple-500
+            to-purple-600
+            flex items-center justify-center
+            text-white
+            text-xs
+            font-bold
+            select-none
+            shadow-lg shadow-purple-500/20
+          "
+        >
           AD
         </div>
       </div>
