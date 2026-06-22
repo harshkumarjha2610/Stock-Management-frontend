@@ -26,88 +26,90 @@ const BASE_URL = 'https://cobuild-simulator-backend.onrender.com/api/v1';
 // ─── Translations ──────────────────────────────────────────
 const t = {
   en: {
-    loading:            'Loading...',
-    projectDetail:      'Project Detail',
-    share:              'Share',
-    goBack:             'Go Back',
-    noProjectId:        'No project ID provided.',
-    fetchError:         (s: number) => `Failed to load project (${s})`,
-    somethingWrong:     'Something went wrong. Please try again.',
-    downloadPdf:        'Download PDF',
-    investNow:          'Invest Now',
-    projectOverview:    'Project Overview',
-    noOverview:         'No overview available.',
+    loading: 'Loading...',
+    projectDetail: 'Project Detail',
+    share: 'Share',
+    goBack: 'Go Back',
+    noProjectId: 'No project ID provided.',
+    fetchError: (s: number) => `Failed to load project (${s})`,
+    somethingWrong: 'Something went wrong. Please try again.',
+    downloadPdf: 'Download PDF',
+    investNow: 'Invest Now',
+    projectOverview: 'Project Overview',
+    noOverview: 'No overview available.',
     milestonesTimeline: 'Milestones and Timeline',
-    milestones:         ['Launch', 'Construction Start', '50% Complete', 'Handover'],
+    milestones: ['Launch', 'Construction Start', '50% Complete', 'Handover'],
     // trackRecord:        'Track Record',      // ← commented out
     // projectsSold:       'Projects Sold',     // ← commented out
     // reviews:            'Review & Ratings',  // ← commented out
-    faqs:               'FAQs',
-    discussion:         'Discussion',
-    noFaqs:             'No FAQs available.',
-    noDiscussion:       'No discussion yet.',
-    confirmInvestment:  'Confirm Investment',
-    confirmDesc:        'On confirming,',
-    confirmDescMid:     'will be deducted from your funds and invested into',
-    cancel:             'Cancel',
-    confirmInvest:      'Confirm & Invest',
-    processing:         'Processing...',
-    investFailed:       (s: number, msg: string) => `Failed to create investment (${s}). ${msg}`,
-    investError:        'Something went wrong. Please try again.',
-    daysLeft:           (n: number) => `${n}d left`,
-    yearsLeft:          (n: number) => `${n}y left`,
-    totalValue:         'Total Value',
-    expectedReturn:     'Expected Return',
-    timeline:           'Timeline',
-    asset:              'Asset',
-    mode:               'Mode',
-    fundingProgress:    'Funding Progress',
-    smartContract:      'View Smart Contract ↗',
+    faqs: 'FAQs',
+    discussion: 'Discussion',
+    noFaqs: 'No FAQs available.',
+    noDiscussion: 'No discussion yet.',
+    confirmInvestment: 'Confirm Investment',
+    confirmDesc: 'On confirming,',
+    confirmDescMid: 'will be deducted from your funds and invested into',
+    cancel: 'Cancel',
+    confirmInvest: 'Confirm & Invest',
+    processing: 'Processing...',
+    investFailed: (s: number, msg: string) => `Failed to create investment (${s}). ${msg}`,
+    investError: 'Something went wrong. Please try again.',
+    daysLeft: (n: number) => `${n}d left`,
+    yearsLeft: (n: number) => `${n}y left`,
+    totalValue: 'Total Value',
+    expectedReturn: 'Expected Return',
+    timeline: 'Timeline',
+    asset: 'Asset',
+    mode: 'Mode',
+    fundingProgress: 'Funding Progress',
+    constructionProgress: 'Construction Progress',
+    smartContract: 'View Smart Contract ↗',
   },
   ar: {
-    loading:            'جارٍ التحميل...',
-    projectDetail:      'تفاصيل المشروع',
-    share:              'مشاركة',
-    goBack:             'العودة',
-    noProjectId:        'لم يتم توفير معرّف المشروع.',
-    fetchError:         (s: number) => `فشل تحميل المشروع (${s})`,
-    somethingWrong:     'حدث خطأ ما. يرجى المحاولة مجدداً.',
-    downloadPdf:        'تحميل PDF',
-    investNow:          'استثمر الآن',
-    projectOverview:    'نظرة عامة على المشروع',
-    noOverview:         'لا توجد نظرة عامة متاحة.',
+    loading: 'جارٍ التحميل...',
+    projectDetail: 'تفاصيل المشروع',
+    share: 'مشاركة',
+    goBack: 'العودة',
+    noProjectId: 'لم يتم توفير معرّف المشروع.',
+    fetchError: (s: number) => `فشل تحميل المشروع (${s})`,
+    somethingWrong: 'حدث خطأ ما. يرجى المحاولة مجدداً.',
+    downloadPdf: 'تحميل PDF',
+    investNow: 'استثمر الآن',
+    projectOverview: 'نظرة عامة على المشروع',
+    noOverview: 'لا توجد نظرة عامة متاحة.',
     milestonesTimeline: 'المعالم والجدول الزمني',
-    milestones:         ['الإطلاق', 'بدء البناء', 'اكتمال 50%', 'التسليم'],
+    milestones: ['الإطلاق', 'بدء البناء', 'اكتمال 50%', 'التسليم'],
     // trackRecord:        'سجل الأعمال',       // ← commented out
     // projectsSold:       'المشاريع المُباعة', // ← commented out
     // reviews:            'التقييمات والمراجعات', // ← commented out
-    faqs:               'الأسئلة الشائعة',
-    discussion:         'النقاش',
-    noFaqs:             'لا توجد أسئلة شائعة متاحة.',
-    noDiscussion:       'لا توجد تعليقات بعد.',
-    confirmInvestment:  'تأكيد الاستثمار',
-    confirmDesc:        'عند التأكيد، سيتم خصم',
-    confirmDescMid:     'من رصيدك واستثمارها في',
-    cancel:             'إلغاء',
-    confirmInvest:      'تأكيد والاستثمار',
-    processing:         'جارٍ المعالجة...',
-    investFailed:       (s: number, msg: string) => `فشل إنشاء الاستثمار (${s}). ${msg}`,
-    investError:        'حدث خطأ ما. يرجى المحاولة مجدداً.',
-    daysLeft:           (n: number) => `${n} يوم متبقٍ`,
-    yearsLeft:          (n: number) => `${n} سنة متبقية`,
-    totalValue:         'القيمة الإجمالية',
-    expectedReturn:     'العائد المتوقع',
-    timeline:           'الجدول الزمني',
-    asset:              'الأصل',
-    mode:               'النمط',
-    fundingProgress:    'تقدم التمويل',
-    smartContract:      'عرض العقد الذكي ↗',
+    faqs: 'الأسئلة الشائعة',
+    discussion: 'النقاش',
+    noFaqs: 'لا توجد أسئلة شائعة متاحة.',
+    noDiscussion: 'لا توجد تعليقات بعد.',
+    confirmInvestment: 'تأكيد الاستثمار',
+    confirmDesc: 'عند التأكيد، سيتم خصم',
+    confirmDescMid: 'من رصيدك واستثمارها في',
+    cancel: 'إلغاء',
+    confirmInvest: 'تأكيد والاستثمار',
+    processing: 'جارٍ المعالجة...',
+    investFailed: (s: number, msg: string) => `فشل إنشاء الاستثمار (${s}). ${msg}`,
+    investError: 'حدث خطأ ما. يرجى المحاولة مجدداً.',
+    daysLeft: (n: number) => `${n} يوم متبقٍ`,
+    yearsLeft: (n: number) => `${n} سنة متبقية`,
+    totalValue: 'القيمة الإجمالية',
+    expectedReturn: 'العائد المتوقع',
+    timeline: 'الجدول الزمني',
+    asset: 'الأصل',
+    mode: 'النمط',
+    fundingProgress: 'تقدم التمويل',
+    constructionProgress: 'تقدم البناء',
+    smartContract: 'عرض العقد الذكي ↗',
   },
 };
 
 
 // ─── Token Helpers ─────────────────────────────────────────
-function getToken():        string { return localStorage.getItem('accessToken')  ?? ''; }
+function getToken(): string { return localStorage.getItem('accessToken') ?? ''; }
 function getRefreshToken(): string { return localStorage.getItem('refreshToken') ?? ''; }
 function setTokens(at: string, rt?: string) {
   localStorage.setItem('accessToken', at);
@@ -125,12 +127,12 @@ async function refreshAccessToken(): Promise<string | null> {
   if (!rt) return null;
   try {
     const res = await fetch(`${BASE_URL}/user/auth/refresh-token`, {
-      method:  'POST',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ refreshToken: rt }),
+      body: JSON.stringify({ refreshToken: rt }),
     });
     if (!res.ok) { clearTokens(); return null; }
-    const data  = await res.json();
+    const data = await res.json();
     const newAt = data.data?.accessToken ?? data.data?.token ?? data.accessToken ?? data.token;
     const newRt = data.data?.refreshToken ?? data.refreshToken;
     if (!newAt) return null;
@@ -142,15 +144,15 @@ async function refreshAccessToken(): Promise<string | null> {
 
 // ─── fetchWithAuth ─────────────────────────────────────────
 async function fetchWithAuth(
-  url:     string,
+  url: string,
   options: RequestInit = {},
-  locale:  string = 'en',
+  locale: string = 'en',
 ): Promise<Response> {
   const token = getToken();
 
   const makeHeaders = (t: string) => ({
-    'Content-Type':    'application/json',
-    Authorization:     `Bearer ${t}`,
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${t}`,
     'Accept-Language': locale,
     ...options.headers,
   });
@@ -161,7 +163,7 @@ async function fetchWithAuth(
     const newToken = await refreshAccessToken();
     if (!newToken) {
       clearTokens();
-      window.location.href = '/login';
+      window.location.href = '/login-page';
       return res;
     }
     return fetch(url, { ...options, headers: makeHeaders(newToken) });
@@ -212,16 +214,16 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default:     'border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80',
-        secondary:   'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        default: 'border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80',
+        secondary: 'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
         destructive: 'border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/90',
-        outline:     'text-foreground',
+        outline: 'text-foreground',
       },
     },
     defaultVariants: { variant: 'default' },
   }
 );
-interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
+interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> { }
 function Badge({ className, variant, ...props }: BadgeProps) {
   return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
 }
@@ -233,18 +235,18 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:     'bg-primary text-primary-foreground shadow hover:bg-primary/90',
-        outline:     'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',
-        ghost:       'hover:bg-accent hover:text-accent-foreground',
-        link:        'text-primary underline-offset-4 hover:underline',
-        secondary:   'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
+        default: 'bg-primary text-primary-foreground shadow hover:bg-primary/90',
+        outline: 'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',
+        ghost: 'hover:bg-accent hover:text-accent-foreground',
+        link: 'text-primary underline-offset-4 hover:underline',
+        secondary: 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
         destructive: 'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
       },
       size: {
         default: 'h-9 px-4 py-2',
-        sm:      'h-8 rounded-md px-3 text-xs',
-        lg:      'h-10 rounded-md px-8',
-        icon:    'h-9 w-9',
+        sm: 'h-8 rounded-md px-3 text-xs',
+        lg: 'h-10 rounded-md px-8',
+        icon: 'h-9 w-9',
       },
     },
     defaultVariants: { variant: 'default', size: 'default' },
@@ -384,96 +386,25 @@ function StatCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-// ─── Milestone Progress Bar (API-driven) ───────────────────
-// Replaces the static slider-1.svg. Renders 4 milestone nodes
-// over a progress track filled to `progressPercent` from the API.
-function MilestoneProgressBar({
-  progressPercent,
-  milestones,
-}: {
-  progressPercent: number;
-  milestones: string[];
-}) {
-  // clamp between 0–100
-  const pct = Math.min(100, Math.max(0, progressPercent));
-
-  // milestone positions as % of the bar (0%, 33%, 66%, 100%)
-  const positions = [0, 33, 66, 100];
-
-  return (
-    <div className="w-full flex flex-col gap-3">
-      {/* Track */}
-      <div className="relative w-full h-2 bg-white/10 rounded-full">
-        {/* Filled portion */}
-        <div
-          className="absolute left-0 top-0 h-full bg-[#ef6b23] rounded-full transition-all duration-700"
-          style={{ width: `${pct}%` }}
-        />
-
-        {/* Milestone nodes */}
-        {positions.map((pos, i) => {
-          const reached = pct >= pos;
-          return (
-            <div
-              key={i}
-              className={cn(
-                'absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full border-2 transition-all duration-500',
-                reached
-                  ? 'bg-[#ef6b23] border-[#ef6b23] shadow-[0_0_6px_rgba(239,107,35,0.7)]'
-                  : 'bg-[#0a0a0a] border-white/30'
-              )}
-              style={{ left: `${pos}%` }}
-            />
-          );
-        })}
-      </div>
-
-      {/* Labels */}
-      <div className="grid grid-cols-2 md:flex md:items-center md:justify-between gap-2 w-full">
-        {milestones.map((label, i) => {
-          const reached = pct >= positions[i];
-          return (
-            <div
-              key={i}
-              className={cn(
-                'flex items-center justify-center [font-family:\'Satoshi-Medium\',Helvetica] font-medium text-xs md:text-[14px] transition-colors duration-300',
-                reached ? 'text-[#ef6b23]' : 'text-white/40'
-              )}
-            >
-              {label}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Progress label */}
-      <div className="flex justify-end">
-        <span className="text-[10px] text-[#ef6b23] font-semibold" style={{ fontFamily: 'Satoshi, sans-serif' }}>
-          {pct}% complete
-        </span>
-      </div>
-    </div>
-  );
-}
 
 
 // ─── Inner Content ─────────────────────────────────────────
 function ProjectDetailContent() {
-  const router       = useRouter();
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const projectId    = searchParams.get('id');
-  const locale       = useLocale();
-  const isAr         = locale === 'ar';
-  const tx           = isAr ? t.ar : t.en;
-  const BackIcon     = isAr ? ArrowRight : ArrowLeft;
+  const projectId = searchParams.get('id');
+  const locale = useLocale();
+  const isAr = locale === 'ar';
+  const tx = isAr ? t.ar : t.en;
+  const BackIcon = isAr ? ArrowRight : ArrowLeft;
 
-  const [project,     setProject]     = useState<ProjectData | null>(null);
-  const [loading,     setLoading]     = useState(true);
-  const [error,       setError]       = useState<string | null>(null);
-  const [imgSrc,      setImgSrc]      = useState('/building.png');
+  const [project, setProject] = useState<ProjectData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [imgSrc, setImgSrc] = useState('/building.png');
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [submitting,  setSubmitting]  = useState(false);
-  const [apiError,    setApiError]    = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!projectId) {
@@ -492,7 +423,7 @@ function ProjectDetailContent() {
           locale,
         );
         if (!res.ok) { setError(tx.fetchError(res.status)); return; }
-        const json         = await res.json();
+        const json = await res.json();
         const data: ProjectData = json.data;
         setProject(data);
         setImgSrc(resolveImageUrl(data.imageUrl));
@@ -504,7 +435,7 @@ function ProjectDetailContent() {
     };
 
     fetchProject();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, locale]);
 
   // ── Derived ─────────────────────────────────────────────
@@ -514,13 +445,17 @@ function ProjectDetailContent() {
       : tx.daysLeft(project.timelineDays)
     : '—';
 
-  // ✅ API-driven progress — used for both Funding Progress card AND Milestone bar
+  // ✅ API-driven progress — used for Construction Progress card
   const progressPercent = project?.latestProgress ?? 0;
+
+  // ✅ Funding progress — 80% if not invested, 100% if invested
+  const isInvested = project?.pool?.userInvestment !== null && project?.pool?.userInvestment !== undefined;
+  const fundingPercent = isInvested ? 100 : 80;
 
   // ── Community tabs — Reviews tab REMOVED ────────────────
   const communityTabs = [
     // { value: 'reviews',    label: tx.reviews    },  // ← commented out
-    { value: 'faqs',       label: tx.faqs       },
+    { value: 'faqs', label: tx.faqs },
     { value: 'discussion', label: tx.discussion },
   ];
 
@@ -663,19 +598,25 @@ function ProjectDetailContent() {
                       </p>
                     </div>
 
-                    {/* ✅ Milestones — now uses API progressPercent via MilestoneProgressBar */}
+                    {/* Funding Progress — 80% if not invested, 100% if invested */}
                     <div className="flex flex-col items-start gap-2.5 w-full mt-4">
-                      <div className="flex items-center justify-center gap-[9.55px] w-full">
-                        <h4 className="text-sm md:text-[17.2px] flex items-center justify-center flex-1 [font-family:'Satoshi-Bold',Helvetica] font-bold text-white">
-                          {tx.milestonesTimeline}
+                      <div className="flex items-center justify-between w-full">
+                        <h4 className="text-sm md:text-[17.2px] [font-family:'Satoshi-Bold',Helvetica] font-bold text-white">
+                          {tx.fundingProgress}
                         </h4>
                       </div>
 
-                      {/* ── Dynamic progress bar replacing static slider-1.svg ── */}
-                      <MilestoneProgressBar
-                        progressPercent={progressPercent}
-                        milestones={tx.milestones}
-                      />
+                      <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#ef6b23] rounded-full transition-all duration-700"
+                          style={{ width: `${fundingPercent}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between w-full mt-1">
+                        <span className="text-white/40 text-xs" style={{ fontFamily: 'Satoshi, sans-serif' }}>0%</span>
+                        <span className="text-[#ef6b23] text-xs font-semibold" style={{ fontFamily: 'Satoshi, sans-serif' }}>{fundingPercent}%</span>
+                        <span className="text-white/40 text-xs" style={{ fontFamily: 'Satoshi, sans-serif' }}>100%</span>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -686,17 +627,17 @@ function ProjectDetailContent() {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 gap-3">
-                  <StatCard label={tx.totalValue}    value={`$${Number(project.totalValue).toLocaleString()}`} />
+                  <StatCard label={tx.totalValue} value={`$${Number(project.totalValue).toLocaleString()}`} />
                   <StatCard label={tx.expectedReturn} value={`${project.returnPercent}%`} />
-                  <StatCard label={tx.timeline}       value={daysLeft} />
-                  <StatCard label={tx.asset}          value={project.pool.asset} />
+                  <StatCard label={tx.timeline} value={daysLeft} />
+                  <StatCard label={tx.asset} value={project.pool.asset} />
                 </div>
 
-                {/* Funding Progress — uses API latestProgress */}
+                {/* Construction Progress — uses API latestProgress */}
                 <Card className="border border-transparent bg-[linear-gradient(0deg,rgba(0,0,0,0.2)_0%,rgba(0,0,0,0.2)_100%),linear-gradient(119deg,rgba(255,255,255,0.3)_0%,rgba(255,255,255,0.05)_100%)] rounded-[10px]">
                   <CardContent className="px-3 md:px-[15px] py-4 md:py-5">
                     <h3 className="[font-family:'Dubai-Bold',Helvetica] font-bold text-white text-base md:text-xl mb-3">
-                      {tx.fundingProgress}
+                      {tx.constructionProgress}
                     </h3>
                     <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
                       <div
@@ -870,8 +811,8 @@ function ProjectDetailContent() {
                     setSubmitting(true);
                     setApiError(null);
                     const body = {
-                      projectPoolId:  project.pool.id,
-                      amount:         Number(project.totalValue),
+                      projectPoolId: project.pool.id,
+                      amount: Number(project.totalValue),
                       expectedReturn: project.returnPercent,
                     };
                     const res = await fetchWithAuth(

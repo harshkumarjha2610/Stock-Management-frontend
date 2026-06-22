@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 
 const BASE_URL = 'https://cobuild-simulator-backend.onrender.com/api/v1';
+const FUNDING_PROGRESS_PERCENT = 80;
 
 // ─── Token Helpers ────────────────────────────────────────
 function getToken(): string { return localStorage.getItem('accessToken') ?? ''; }
@@ -24,10 +25,10 @@ function clearTokens() {
   localStorage.removeItem('refreshToken');
 }
 function logTokenStatus() {
-  const access  = localStorage.getItem('accessToken');
+  const access = localStorage.getItem('accessToken');
   const refresh = localStorage.getItem('refreshToken');
   console.group('📋 [TOKEN STATUS]');
-  console.log('accessToken :', access  ? `✅ Present (${access.slice(0, 30)}...)`  : '❌ Missing');
+  console.log('accessToken :', access ? `✅ Present (${access.slice(0, 30)}...)` : '❌ Missing');
   console.log('refreshToken:', refresh ? `✅ Present (${refresh.slice(0, 30)}...)` : '❌ Missing');
   console.groupEnd();
 }
@@ -43,7 +44,7 @@ async function refreshAccessToken(): Promise<string | null> {
     });
     if (!response.ok) { clearTokens(); return null; }
     const data = await response.json();
-    const newAccessToken  = data.data?.accessToken  ?? data.data?.token ?? data.accessToken ?? data.token;
+    const newAccessToken = data.data?.accessToken ?? data.data?.token ?? data.accessToken ?? data.token;
     const newRefreshToken = data.data?.refreshToken ?? data.refreshToken;
     if (!newAccessToken) return null;
     setTokens(newAccessToken, newRefreshToken);
@@ -62,7 +63,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
   const response = await fetch(url, { ...options, headers: mergedHeaders });
   if (response.status === 401) {
     const newToken = await refreshAccessToken();
-    if (!newToken) { clearTokens(); window.location.href = '/login'; return response; }
+    if (!newToken) { clearTokens(); window.location.href = '/login-page'; return response; }
     return fetch(url, {
       ...options,
       headers: { ...mergedHeaders, Authorization: `Bearer ${newToken}` },
@@ -74,27 +75,19 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
 // ─── Types ────────────────────────────────────────────────
 interface Pool { id: string; mode: string; asset: string; userInvestment: null | number; }
 
-interface LatestProgress {
-  id: string;
-  projectId: string;
-  completionPct: number;
-  currentPhase: string;
-  imageUrl: string;
-}
-
 interface ProjectData {
-  id: string; name: string; imageUrl: string; timelineDays: number;
-  totalValue: string; returnPercent: string; location: string;
-  projectOverview: string | null; projectDetails: string | null;
-  smartContractUrl: string | null; usage: string; pool: Pool;
-  latestProgress: null | number | LatestProgress;
-}
-
-// ✅ Safe helper: extracts a number from any latestProgress shape
-function resolveProgress(latestProgress: ProjectData['latestProgress']): number {
-  if (latestProgress === null || latestProgress === undefined) return 0;
-  if (typeof latestProgress === 'number') return latestProgress;
-  return (latestProgress as LatestProgress).completionPct ?? 0;
+  id: string;
+  name: string;
+  imageUrl: string;
+  timelineDays: number;
+  totalValue: string;
+  returnPercent: string;
+  location: string;
+  projectOverview: string | null;
+  projectDetails: string | null;
+  smartContractUrl: string | null;
+  usage: string;
+  pool: Pool;
 }
 
 function resolveImageUrl(imageUrl: string): string {
@@ -113,7 +106,7 @@ function ProjectGraph({ id, large }: { id: string; large?: boolean }) {
       <svg viewBox="0 0 300 80" className="w-full h-full" preserveAspectRatio="none">
         <defs>
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%"   stopColor="#13AE85" stopOpacity="0.6" />
+            <stop offset="0%" stopColor="#13AE85" stopOpacity="0.6" />
             <stop offset="100%" stopColor="#13AE85" stopOpacity="0.15" />
           </linearGradient>
         </defs>
@@ -131,21 +124,21 @@ function InsufficientFundsModal({
   isOpen: boolean; onClose: () => void; requiredAmount: number; availableBalance: number;
 }) {
   const locale = useLocale();
-  const isRtl  = locale === 'ar';
+  const isRtl = locale === 'ar';
   if (!isOpen) return null;
 
   const shortfall = requiredAmount - availableBalance;
 
   const labels = {
-    title:       locale === 'ar' ? 'رصيد غير كافٍ'        : 'Insufficient Funds',
+    title: locale === 'ar' ? 'رصيد غير كافٍ' : 'Insufficient Funds',
     description: locale === 'ar'
       ? 'ليس لديك رصيد كافٍ للاستثمار في هذا المشروع. يرجى إضافة أموال إلى محفظتك والمحاولة مجدداً.'
       : "You don't have enough balance to invest in this project. Please add funds to your wallet and try again.",
-    required:  locale === 'ar' ? 'المبلغ المطلوب' : 'Required Amount',
-    available: locale === 'ar' ? 'رصيدك الحالي'   : 'Your Balance',
-    shortfall: locale === 'ar' ? 'العجز'           : 'Shortfall',
-    cancel:    locale === 'ar' ? 'إلغاء'           : 'Cancel',
-    addFunds:  locale === 'ar' ? 'إضافة أموال'     : 'Add Funds',
+    required: locale === 'ar' ? 'المبلغ المطلوب' : 'Required Amount',
+    available: locale === 'ar' ? 'رصيدك الحالي' : 'Your Balance',
+    shortfall: locale === 'ar' ? 'العجز' : 'Shortfall',
+    cancel: locale === 'ar' ? 'إلغاء' : 'Cancel',
+    addFunds: locale === 'ar' ? 'إضافة أموال' : 'Add Funds',
   };
 
   return (
@@ -216,9 +209,9 @@ function InsufficientFundsModal({
 function AlreadyInvestedModal({ project, onClose, onContinue }: {
   project: ProjectData; onClose: () => void; onContinue: (id: string) => void;
 }) {
-  const t      = useTranslations('AlreadyInvestedModal');
+  const t = useTranslations('AlreadyInvestedModal');
   const locale = useLocale();
-  const isRtl  = locale === 'ar';
+  const isRtl = locale === 'ar';
 
   const daysLeft = project.timelineDays > 365
     ? `${Math.round(project.timelineDays / 365)}y left`
@@ -285,12 +278,12 @@ function AlreadyInvestedModal({ project, onClose, onContinue }: {
 function ConfirmInvestModal({ project, onClose, onSuccess }: {
   project: ProjectData; onClose: () => void; onSuccess: (id: string) => void;
 }) {
-  const t      = useTranslations('ConfirmInvestModal');
+  const t = useTranslations('ConfirmInvestModal');
   const locale = useLocale();
-  const isRtl  = locale === 'ar';
+  const isRtl = locale === 'ar';
 
   const [submitting, setSubmitting] = useState(false);
-  const [apiError,   setApiError]   = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const handleConfirm = async () => {
     try {
@@ -301,7 +294,7 @@ function ConfirmInvestModal({ project, onClose, onSuccess }: {
         expectedReturn: String(project.returnPercent),
       };
       if (!body.projectPoolId) { setApiError(t('missingPool')); setSubmitting(false); return; }
-      if (isNaN(body.amount))  { setApiError(t('invalidAmount')); setSubmitting(false); return; }
+      if (isNaN(body.amount)) { setApiError(t('invalidAmount')); setSubmitting(false); return; }
       const res = await fetchWithAuth(`${BASE_URL}/user/simulation/investments`, {
         method: 'POST', body: JSON.stringify(body),
       });
@@ -388,12 +381,12 @@ async function fetchWalletBalance(): Promise<number> {
 // ─── FEATURED Card ────────────────────────────────────────
 function FeaturedProjectCard({ data }: { data: ProjectData }) {
   const router = useRouter();
-  const uid    = useId();
-  const t      = useTranslations('ProjectDiscovery');
-  const locale = useLocale(); // ✅ used for locale-prefixed routing
-  const isRtl  = locale === 'ar';
+  const uid = useId();
+  const t = useTranslations('ProjectDiscovery');
+  const locale = useLocale();
+  const isRtl = locale === 'ar';
 
-  const [modalType,     setModalType]     = useState<null | 'confirm' | 'already' | 'insufficient'>(null);
+  const [modalType, setModalType] = useState<null | 'confirm' | 'already' | 'insufficient'>(null);
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [balanceLoaded, setBalanceLoaded] = useState(false);
 
@@ -402,8 +395,10 @@ function FeaturedProjectCard({ data }: { data: ProjectData }) {
     ? `${Math.round(data.timelineDays / 365)} ${t('yearsLeft')}`
     : `${data.timelineDays} ${t('daysLeft')}`;
 
-  const progressPercent = resolveProgress(data.latestProgress);
-  const resolvedImage   = resolveImageUrl(data.imageUrl);
+  const progressPercent = 80;
+  const investedAmount = (Number(data.totalValue) * progressPercent) / 100;
+  const formattedInvestedAmount = `$${investedAmount.toLocaleString()}`;
+  const resolvedImage = resolveImageUrl(data.imageUrl);
 
   useEffect(() => {
     fetchWalletBalance().then(bal => { setWalletBalance(bal); setBalanceLoaded(true); });
@@ -419,8 +414,7 @@ function FeaturedProjectCard({ data }: { data: ProjectData }) {
     }
   };
 
-  // ✅ Fixed: prefix all routes with locale so Arabic routing works correctly
-  const handleSuccess  = (id: string) => { setModalType(null); router.push(`/${locale}/SimulatorDashboardF3?id=${id}`); };
+  const handleSuccess = (id: string) => { setModalType(null); router.push(`/${locale}/SimulatorDashboardF3?id=${id}`); };
   const handleContinue = (id: string) => { setModalType(null); router.push(`/${locale}/SimulatorDashboardF3?id=${id}`); };
 
   return (
@@ -433,7 +427,6 @@ function FeaturedProjectCard({ data }: { data: ProjectData }) {
         <div className="absolute top-0 left-0 right-0 h-[3px] z-20"
           style={{ background: 'linear-gradient(90deg, transparent, #EF6B23, #f59e0b, #EF6B23, transparent)' }} />
 
-        {/* ── LEFT: Hero image ── */}
         <div className="relative w-full lg:w-[60%] min-h-[320px] lg:min-h-full overflow-hidden flex-shrink-0">
           <Image
             src={resolvedImage} alt={data.name} fill className="object-cover"
@@ -445,7 +438,6 @@ function FeaturedProjectCard({ data }: { data: ProjectData }) {
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-transparent" />
           <div className="absolute inset-0 lg:bg-gradient-to-r lg:from-transparent lg:via-transparent lg:to-black/80" />
 
-          {/* Top badges */}
           <div className="absolute top-5 left-5 right-5 flex items-start justify-between z-10">
             <div className="flex flex-col gap-2">
               <span
@@ -480,7 +472,6 @@ function FeaturedProjectCard({ data }: { data: ProjectData }) {
             </div>
           </div>
 
-          {/* Project name + location */}
           <div className="absolute bottom-0 left-0 right-0 px-6 pb-6 z-10">
             <h2 className="text-white font-extrabold leading-tight mb-2 drop-shadow-2xl"
               style={{ fontFamily: 'Dubai, sans-serif', fontSize: 'clamp(1.6rem, 3.5vw, 2.8rem)', textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}>
@@ -498,20 +489,17 @@ function FeaturedProjectCard({ data }: { data: ProjectData }) {
           </div>
         </div>
 
-        {/* ── RIGHT: Stats panel ── */}
         <div className="flex-1 flex flex-col justify-between px-6 py-6 gap-4">
-
-          {/* 3 stat pills */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: t('totalValue'),     value: `$${Number(data.totalValue).toLocaleString()}`, accent: false },
-              { label: t('expectedReturn'), value: `+${data.returnPercent}%`,                      accent: true  },
-              { label: t('timeline'),       value: daysLeft,                                        accent: false },
+              { label: t('totalValue'), value: `$${Number(data.totalValue).toLocaleString()}`, accent: false },
+              { label: t('expectedReturn'), value: `+${data.returnPercent}%`, accent: true },
+              { label: t('timeline'), value: daysLeft, accent: false },
             ].map(({ label, value, accent }) => (
               <div key={label} className="relative flex flex-col items-center justify-center text-center py-4 px-2 rounded-2xl overflow-hidden"
                 style={{
                   background: accent ? 'linear-gradient(135deg, rgba(19,174,133,0.15), rgba(19,174,133,0.05))' : 'rgba(255,255,255,0.05)',
-                  border:     accent ? '1px solid rgba(19,174,133,0.3)' : '1px solid rgba(255,255,255,0.08)',
+                  border: accent ? '1px solid rgba(19,174,133,0.3)' : '1px solid rgba(255,255,255,0.08)',
                 }}
               >
                 {accent && <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, #13AE85, transparent)' }} />}
@@ -524,24 +512,31 @@ function FeaturedProjectCard({ data }: { data: ProjectData }) {
           {/* Funding progress */}
           <div>
             <div className="flex justify-between items-center mb-2" style={{ fontFamily: 'Satoshi, sans-serif' }}>
-              <span className="text-[10px] text-white/50 font-medium uppercase tracking-wider">{t('fundingProgress')}</span>
+              <span className="text-[10px] text-white/50 font-medium uppercase tracking-wider">
+                {t('fundingProgress')}
+              </span>
+
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-white/40">${Number(data.totalValue).toLocaleString()}</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                  style={{ background: 'rgba(239,107,35,0.15)', color: '#EF6B23', border: '1px solid rgba(239,107,35,0.3)' }}>
+                <span className="text-[10px] text-white/40">{formattedInvestedAmount} invested</span>
+                <span
+                  className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                  style={{ background: 'rgba(239,107,35,0.15)', color: '#EF6B23', border: '1px solid rgba(239,107,35,0.3)' }}
+                >
                   {progressPercent}%
                 </span>
               </div>
             </div>
+
             <div className="relative w-full h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
-              <div className="h-full rounded-full relative overflow-hidden transition-all duration-700"
-                style={{ width: `${Math.min(progressPercent, 100)}%`, background: 'linear-gradient(90deg, #EF6B23, #f59e0b)' }}>
+              <div
+                className="h-full rounded-full relative overflow-hidden transition-all duration-700"
+                style={{ width: `${progressPercent}%`, background: 'linear-gradient(90deg, #EF6B23, #f59e0b)' }}
+              >
                 <div className="absolute inset-0 bg-white/20 animate-pulse rounded-full" />
               </div>
             </div>
           </div>
 
-          {/* Asset + investment row */}
           <div className="flex items-center justify-between px-4 py-4 rounded-2xl"
             style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
             <div className="flex items-center gap-2">
@@ -573,7 +568,6 @@ function FeaturedProjectCard({ data }: { data: ProjectData }) {
             )}
           </div>
 
-          {/* Graph */}
           <div className="rounded-2xl overflow-hidden px-3 pt-3 pb-2"
             style={{ background: 'rgba(19,174,133,0.06)', border: '1px solid rgba(19,174,133,0.12)' }}>
             <div className="flex items-center justify-between mb-1 px-1">
@@ -583,9 +577,7 @@ function FeaturedProjectCard({ data }: { data: ProjectData }) {
             <ProjectGraph id={uid} large />
           </div>
 
-          {/* CTA buttons */}
           <div className="grid grid-cols-2 gap-3">
-            {/* ✅ Fixed: locale-prefixed route */}
             <button
               onClick={() => router.push(`/${locale}/ProjectDetail?id=${data.id}`)}
               className="py-4 rounded-2xl text-sm font-semibold text-white transition-all duration-200 hover:bg-white/15 active:scale-95"
@@ -598,7 +590,7 @@ function FeaturedProjectCard({ data }: { data: ProjectData }) {
               className="py-4 rounded-2xl text-sm font-bold text-white transition-all duration-200 hover:opacity-90 active:scale-95"
               style={{
                 background: isAlreadyInvested ? 'linear-gradient(135deg, #13AE85, #0e8a6a)' : 'linear-gradient(135deg, #EF6B23, #c5600d)',
-                boxShadow:  isAlreadyInvested ? '0 4px 20px rgba(19,174,133,0.35)'          : '0 4px 20px rgba(239,107,35,0.35)',
+                boxShadow: isAlreadyInvested ? '0 4px 20px rgba(19,174,133,0.35)' : '0 4px 20px rgba(239,107,35,0.35)',
                 fontFamily: 'Satoshi, sans-serif',
               }}
             >
@@ -608,8 +600,8 @@ function FeaturedProjectCard({ data }: { data: ProjectData }) {
         </div>
       </div>
 
-      {modalType === 'already'      && <AlreadyInvestedModal project={data} onClose={() => setModalType(null)} onContinue={handleContinue} />}
-      {modalType === 'confirm'      && <ConfirmInvestModal   project={data} onClose={() => setModalType(null)} onSuccess={handleSuccess}  />}
+      {modalType === 'already' && <AlreadyInvestedModal project={data} onClose={() => setModalType(null)} onContinue={handleContinue} />}
+      {modalType === 'confirm' && <ConfirmInvestModal project={data} onClose={() => setModalType(null)} onSuccess={handleSuccess} />}
       {modalType === 'insufficient' && (
         <InsufficientFundsModal
           isOpen={true}
@@ -625,12 +617,12 @@ function FeaturedProjectCard({ data }: { data: ProjectData }) {
 // ─── REGULAR Card ─────────────────────────────────────────
 function RegularProjectCard({ data }: { data: ProjectData }) {
   const router = useRouter();
-  const uid    = useId();
-  const t      = useTranslations('ProjectDiscovery');
-  const locale = useLocale(); // ✅ used for locale-prefixed routing
-  const isRtl  = locale === 'ar';
+  const uid = useId();
+  const t = useTranslations('ProjectDiscovery');
+  const locale = useLocale();
+  const isRtl = locale === 'ar';
 
-  const [modalType,     setModalType]     = useState<null | 'confirm' | 'already' | 'insufficient'>(null);
+  const [modalType, setModalType] = useState<null | 'confirm' | 'already' | 'insufficient'>(null);
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [balanceLoaded, setBalanceLoaded] = useState(false);
 
@@ -639,8 +631,10 @@ function RegularProjectCard({ data }: { data: ProjectData }) {
     ? `${Math.round(data.timelineDays / 365)} ${t('yearsLeft')}`
     : `${data.timelineDays} ${t('daysLeft')}`;
 
-  const progressPercent = resolveProgress(data.latestProgress);
-  const resolvedImage   = resolveImageUrl(data.imageUrl);
+  const progressPercent = 80;
+  const investedAmount = (Number(data.totalValue) * progressPercent) / 100;
+  const formattedInvestedAmount = `$${investedAmount.toLocaleString()}`;
+  const resolvedImage = resolveImageUrl(data.imageUrl);
 
   useEffect(() => {
     fetchWalletBalance().then(bal => { setWalletBalance(bal); setBalanceLoaded(true); });
@@ -656,8 +650,7 @@ function RegularProjectCard({ data }: { data: ProjectData }) {
     }
   };
 
-  // ✅ Fixed: prefix all routes with locale so Arabic routing works correctly
-  const handleSuccess  = (id: string) => { setModalType(null); router.push(`/${locale}/SimulatorDashboardF3?id=${id}`); };
+  const handleSuccess = (id: string) => { setModalType(null); router.push(`/${locale}/SimulatorDashboardF3?id=${id}`); };
   const handleContinue = (id: string) => { setModalType(null); router.push(`/${locale}/SimulatorDashboardF3?id=${id}`); };
 
   return (
@@ -712,12 +705,17 @@ function RegularProjectCard({ data }: { data: ProjectData }) {
           <div>
             <div className="flex justify-between text-[9px] text-white/70 mb-1" style={{ fontFamily: 'Satoshi, sans-serif' }}>
               <span>{t('fundingProgress')}</span>
-              <span className="font-medium">${Number(data.totalValue).toLocaleString()}</span>
+              <span className="font-medium">{formattedInvestedAmount} invested</span>
             </div>
+
             <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'rgba(242,242,242,0.2)' }}>
-              <div className="h-full rounded-full" style={{ width: `${Math.min(progressPercent, 100)}%`, background: '#EF6B23' }} />
+              <div
+                className="h-full rounded-full"
+                style={{ width: `${progressPercent}%`, background: '#EF6B23' }}
+              />
             </div>
           </div>
+
           <div className="space-y-1 text-[9px]" style={{ fontFamily: 'Satoshi, sans-serif' }}>
             <div className="flex justify-between">
               <span className="text-white/60">{t('asset')}</span>
@@ -741,7 +739,6 @@ function RegularProjectCard({ data }: { data: ProjectData }) {
         </div>
 
         <div className="grid grid-cols-2 gap-1.5 p-2 pt-0">
-          {/* ✅ Fixed: locale-prefixed route */}
           <button
             onClick={() => router.push(`/${locale}/ProjectDetail?id=${data.id}`)}
             className="py-2 rounded-full text-[9px] font-medium text-white transition-all hover:bg-white/20"
@@ -759,8 +756,8 @@ function RegularProjectCard({ data }: { data: ProjectData }) {
         </div>
       </div>
 
-      {modalType === 'already'      && <AlreadyInvestedModal project={data} onClose={() => setModalType(null)} onContinue={handleContinue} />}
-      {modalType === 'confirm'      && <ConfirmInvestModal   project={data} onClose={() => setModalType(null)} onSuccess={handleSuccess}  />}
+      {modalType === 'already' && <AlreadyInvestedModal project={data} onClose={() => setModalType(null)} onContinue={handleContinue} />}
+      {modalType === 'confirm' && <ConfirmInvestModal project={data} onClose={() => setModalType(null)} onSuccess={handleSuccess} />}
       {modalType === 'insufficient' && (
         <InsufficientFundsModal
           isOpen={true}
@@ -779,11 +776,11 @@ function SkeletonFeatured() {
     <div className="rounded-2xl overflow-hidden animate-pulse flex flex-col lg:flex-row" style={{ background: CARD_BG, minHeight: '520px' }}>
       <div className="w-full lg:w-[60%] min-h-[320px] lg:min-h-full bg-white/10" />
       <div className="flex-1 p-6 space-y-4">
-        <div className="grid grid-cols-3 gap-3">{[1,2,3].map(i => <div key={i} className="h-20 rounded-xl bg-white/10" />)}</div>
+        <div className="grid grid-cols-3 gap-3">{[1, 2, 3].map(i => <div key={i} className="h-20 rounded-xl bg-white/10" />)}</div>
         <div className="h-2.5 rounded-full bg-white/10 w-full" />
         <div className="h-16 rounded-2xl bg-white/10" />
         <div className="h-20 rounded-2xl bg-white/10" />
-        <div className="grid grid-cols-2 gap-3">{[1,2].map(i => <div key={i} className="h-14 rounded-2xl bg-white/10" />)}</div>
+        <div className="grid grid-cols-2 gap-3">{[1, 2].map(i => <div key={i} className="h-14 rounded-2xl bg-white/10" />)}</div>
       </div>
     </div>
   );
@@ -796,7 +793,7 @@ function SkeletonSmall() {
       <div className="p-2 space-y-2">
         <div className="h-32 rounded-xl bg-white/10" />
         <div className="h-2 rounded-full bg-white/10" />
-        {[1,2].map(i => (
+        {[1, 2].map(i => (
           <div key={i} className="flex justify-between">
             <div className="h-3 w-16 rounded bg-white/10" />
             <div className="h-3 w-14 rounded bg-white/10" />
@@ -814,16 +811,16 @@ function SkeletonSmall() {
 
 // ─── Main Content ─────────────────────────────────────────
 function ProjectDetailContent() {
-  const t       = useTranslations('ProjectDiscovery');
+  const t = useTranslations('ProjectDiscovery');
   const tCommon = useTranslations('common');
-  const locale  = useLocale();
-  const isRtl   = locale === 'ar';
-  const router  = useRouter();
+  const locale = useLocale();
+  const isRtl = locale === 'ar';
+  const router = useRouter();
 
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [projects, setProjects]                   = useState<ProjectData[]>([]);
-  const [loading,  setLoading]                    = useState(true);
-  const [error,    setError]                      = useState<string | null>(null);
+  const [projects, setProjects] = useState<ProjectData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -852,7 +849,7 @@ function ProjectDetailContent() {
   ];
 
   const featured = projects[0] ?? null;
-  const rest     = projects.slice(1);
+  const rest = projects.slice(1);
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -861,7 +858,6 @@ function ProjectDetailContent() {
           <HeaderSection />
         </div>
 
-        {/* Controls */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4 mt-4 sm:mt-6 md:mt-8">
           <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button
@@ -883,7 +879,6 @@ function ProjectDetailContent() {
             </button>
           </div>
 
-          {/* Desktop filter bar */}
           <div className="hidden lg:flex items-center gap-2.5 flex-1 overflow-x-auto scrollbar-hide">
             <div className="relative flex-shrink-0">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60" size={14} />
@@ -901,7 +896,6 @@ function ProjectDetailContent() {
           </div>
         </div>
 
-        {/* Mobile Filters */}
         {mobileFiltersOpen && (
           <div className="lg:hidden mb-4 p-4 rounded-2xl animate-slideDown"
             style={{ background: CARD_BG, backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.2)' }}>
@@ -923,7 +917,6 @@ function ProjectDetailContent() {
           </div>
         )}
 
-        {/* ── Main container ── */}
         <div className="p-3 sm:p-4 md:p-6 rounded-2xl backdrop-blur-md border border-white/20"
           style={{ maxWidth: 1834, marginInline: 'auto', background: CARD_BG }}>
 
@@ -941,7 +934,6 @@ function ProjectDetailContent() {
 
           {!error && (
             <>
-              {/* Featured card */}
               <div className="w-full mb-5 sm:mb-6">
                 {loading ? <SkeletonFeatured /> : featured ? (
                   <FeaturedProjectCard data={featured} />
@@ -953,7 +945,6 @@ function ProjectDetailContent() {
                 )}
               </div>
 
-              {/* Divider */}
               {(loading || rest.length > 0) && (
                 <div className="flex items-center gap-3 mb-5">
                   <div className="h-px flex-1 bg-white/10" />
@@ -964,7 +955,6 @@ function ProjectDetailContent() {
                 </div>
               )}
 
-              {/* Regular cards grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {loading
                   ? [...Array(4)].map((_, i) => <SkeletonSmall key={i} />)
@@ -972,7 +962,6 @@ function ProjectDetailContent() {
                 }
               </div>
 
-              {/* Empty state */}
               {!loading && projects.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-24 gap-3">
                   <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center">

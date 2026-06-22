@@ -10,6 +10,7 @@ import {
   ArrowDownLeft,
   Zap,
   Calendar,
+  Lock,
 } from "lucide-react";
 import { CSSProperties, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -43,56 +44,56 @@ const months = [
 ];
 
 const nftItems = [
-  { label: "Lorem Ipsum", labelAr: "نموذج نص",  value: "$32,567", change: "+8%"  },
-  { label: "Lorem Ipsum", labelAr: "نموذج نص",  value: "$10,567", change: "+3%"  },
-  { label: "Other",       labelAr: "أخرى",       value: "$2,567",  change: "+24%" },
+  { label: "Lorem Ipsum", labelAr: "نموذج نص", value: "$32,567", change: "+8%" },
+  { label: "Lorem Ipsum", labelAr: "نموذج نص", value: "$10,567", change: "+3%" },
+  { label: "Other", labelAr: "أخرى", value: "$2,567", change: "+24%" },
 ];
 
 const tokenBalanceItems = [
-  { hex: "#EB6C27", name: "Bored Ape Yacht Club",    nameAr: "بورد أيب يخت كلوب",   pct: "40%", val: "$6.100" },
-  { hex: "#FF8A3D", name: "CryptoPunks",              nameAr: "كريبتو بانكس",          pct: "25%", val: "$3.100" },
-  { hex: "#FFB020", name: "Decentraland (Land)",      nameAr: "ديسنترالاند (أرض)",     pct: "15%", val: "$2.287" },
-  { hex: "#FF9257", name: "Axie infinity (Axies)",    nameAr: "أكسي إنفينيتي",         pct: "10%", val: "$1.525" },
-  { hex: "#D8D8D8", name: "Other",                    nameAr: "أخرى",                  pct: "10%", val: "$1.525" },
+  { hex: "#EB6C27", name: "Bored Ape Yacht Club", nameAr: "بورد أيب يخت كلوب", pct: "40%", val: "$6.100" },
+  { hex: "#FF8A3D", name: "CryptoPunks", nameAr: "كريبتو بانكس", pct: "25%", val: "$3.100" },
+  { hex: "#FFB020", name: "Decentraland (Land)", nameAr: "ديسنترالاند (أرض)", pct: "15%", val: "$2.287" },
+  { hex: "#FF9257", name: "Axie infinity (Axies)", nameAr: "أكسي إنفينيتي", pct: "10%", val: "$1.525" },
+  { hex: "#D8D8D8", name: "Other", nameAr: "أخرى", pct: "10%", val: "$1.525" },
 ];
 
 const metricCards = [
-  { title: "Portfolio Value",  titleAr: "قيمة المحفظة",     value: "$150,000 USD", change: "8.5% Vs Last Month", changeAr: "8.5% مقارنة بالشهر الماضي", w: "w-[210px]" },
-  { title: "Total ROI",        titleAr: "إجمالي العائد",     value: "+25.0%",       change: "2.1% Today",         changeAr: "2.1% اليوم",                   w: "w-[210px]" },
-  { title: "UNREALIZED P/L",   titleAr: "الربح/الخسارة غير المحققة", value: "+$30,000 USD", change: "$2,500 Today", changeAr: "$2,500 اليوم",              w: "w-[210px]" },
+  { title: "Portfolio Value", titleAr: "قيمة المحفظة", value: "$150,000 USD", change: "8.5% Vs Last Month", changeAr: "8.5% مقارنة بالشهر الماضي", w: "w-[210px]" },
+  { title: "Total ROI", titleAr: "إجمالي العائد", value: "+25.0%", change: "2.1% Today", changeAr: "2.1% اليوم", w: "w-[210px]" },
+  { title: "UNREALIZED P/L", titleAr: "الربح/الخسارة غير المحققة", value: "+$30,000 USD", change: "$2,500 Today", changeAr: "$2,500 اليوم", w: "w-[210px]" },
 ];
 
 const portfolioLegend = [
-  { hex: "#EB6C27", label: "NFT",             labelAr: "رمز NFT",             value: "60% $90k" },
+  { hex: "#EB6C27", label: "NFT", labelAr: "رمز NFT", value: "60% $90k" },
   { hex: "#FF8A3D", label: "Fungible Tokens", labelAr: "رموز قابلة للاستبدال", value: "40% $60k" },
 ];
 
 const perfTokenItems = [
-  { hex: "#EB6C27", name: "Bored Ape Yacht Club :",   nameAr: "بورد أيب يخت كلوب :",   pct: "40%", val: "$6.100" },
-  { hex: "#FF8A3D", name: "CryptoPunks :",             nameAr: "كريبتو بانكس :",          pct: "25%", val: "$3.100" },
-  { hex: "#FFB020", name: "Decentraland (Land) :",     nameAr: "ديسنترالاند (أرض) :",     pct: "15%", val: "$2.287" },
-  { hex: "#FF9257", name: "Axie infinity (Axies) :",   nameAr: "أكسي إنفينيتي :",         pct: "10%", val: "$1.525" },
-  { hex: "#D8D8D8", name: "Other :",                   nameAr: "أخرى :",                  pct: "10%", val: "$1.525" },
+  { hex: "#EB6C27", name: "Bored Ape Yacht Club :", nameAr: "بورد أيب يخت كلوب :", pct: "40%", val: "$6.100" },
+  { hex: "#FF8A3D", name: "CryptoPunks :", nameAr: "كريبتو بانكس :", pct: "25%", val: "$3.100" },
+  { hex: "#FFB020", name: "Decentraland (Land) :", nameAr: "ديسنترالاند (أرض) :", pct: "15%", val: "$2.287" },
+  { hex: "#FF9257", name: "Axie infinity (Axies) :", nameAr: "أكسي إنفينيتي :", pct: "10%", val: "$1.525" },
+  { hex: "#D8D8D8", name: "Other :", nameAr: "أخرى :", pct: "10%", val: "$1.525" },
 ];
 
 const portfolioTableRows = [
-  { asset: "Crypto Punks",          assetAr: "كريبتو بانكس",       purchase: "$10,000", current: "$22,000", roi: "+120%", change: "+5%" },
-  { asset: "Decentraland (Land)",   assetAr: "ديسنترالاند (أرض)",  purchase: "$5,000",  current: "$6,000",  roi: "+20%",  change: "+2%" },
-  { asset: "Axie Infinity (Axies)", assetAr: "أكسي إنفينيتي",      purchase: "$1,000",  current: "$700",    roi: "-30%",  change: "+1%" },
+  { asset: "Crypto Punks", assetAr: "كريبتو بانكس", purchase: "$10,000", current: "$22,000", roi: "+120%", change: "+5%" },
+  { asset: "Decentraland (Land)", assetAr: "ديسنترالاند (أرض)", purchase: "$5,000", current: "$6,000", roi: "+20%", change: "+2%" },
+  { asset: "Axie Infinity (Axies)", assetAr: "أكسي إنفينيتي", purchase: "$1,000", current: "$700", roi: "-30%", change: "+1%" },
 ];
 
 const transactionGroups = [
   {
-    label: "Today",     labelAr: "اليوم",
+    label: "Today", labelAr: "اليوم",
     txs: [{ icon: Zap, name: "Investment From Jan Doe", nameAr: "استثمار من جان دو", time: "11:23", amount: "$3,512.21" }],
   },
   {
     label: "Yesterday", labelAr: "أمس",
     txs: [
-      { icon: ArrowDownLeft, name: "Pay Out Jan Doe",        nameAr: "دفع لجان دو",          time: "11:23", amount: "-$1,512.21" },
-      { icon: ArrowUpRight,  name: "Staking Reward Jan Doe", nameAr: "مكافأة التخزين جان دو", time: "11:23", amount: "$1,512.21"  },
-      { icon: ArrowDownLeft, name: "Pay Out Jan Doe",        nameAr: "دفع لجان دو",          time: "11:23", amount: "-$1,512.21" },
-      { icon: ArrowUpRight,  name: "Staking Reward Jan Doe", nameAr: "مكافأة التخزين جان دو", time: "11:23", amount: "$1,512.21"  },
+      { icon: ArrowDownLeft, name: "Pay Out Jan Doe", nameAr: "دفع لجان دو", time: "11:23", amount: "-$1,512.21" },
+      { icon: ArrowUpRight, name: "Staking Reward Jan Doe", nameAr: "مكافأة التخزين جان دو", time: "11:23", amount: "$1,512.21" },
+      { icon: ArrowDownLeft, name: "Pay Out Jan Doe", nameAr: "دفع لجان دو", time: "11:23", amount: "-$1,512.21" },
+      { icon: ArrowUpRight, name: "Staking Reward Jan Doe", nameAr: "مكافأة التخزين جان دو", time: "11:23", amount: "$1,512.21" },
     ],
   },
 ];
@@ -123,8 +124,8 @@ const nftItemChartsData = [
 ];
 
 const menuItems = [
-  { label: "My Investments",      labelAr: "استثماراتي",        icon: "/figmaAssets/frame-1000003212-1.svg", route: "/my-Investments"  },
-  { label: "Smart Contact (Log)", labelAr: "سجل العقود الذكية", icon: "/figmaAssets/frame-1000003212.svg",   route: null            },
+  { label: "My Investments", labelAr: "استثماراتي", icon: "/figmaAssets/frame-1000003212-1.svg", route: "/my-Investments" },
+  { label: "Smart Contract (Log)", labelAr: "سجل العقود الذكية", icon: "/figmaAssets/frame-1000003212.svg", route: null },
 ];
 
 // ─── THEME VARIABLES ──────────────────────────────────────────────────────────
@@ -154,15 +155,15 @@ const rootThemeVars: CSSProperties = {
 
 // ─── PIE DATA ─────────────────────────────────────────────────────────────────
 const tokenBalanceData = [
-  { name: "Bored Ape Yacht Club",  value: 40, color: "#EB6C27" },
-  { name: "CryptoPunks",           value: 25, color: "#FF8A3D" },
-  { name: "Decentraland (Land)",   value: 15, color: "#FFB020" },
+  { name: "Bored Ape Yacht Club", value: 40, color: "#EB6C27" },
+  { name: "CryptoPunks", value: 25, color: "#FF8A3D" },
+  { name: "Decentraland (Land)", value: 15, color: "#FFB020" },
   { name: "Axie infinity (Axies)", value: 10, color: "#FF9257" },
-  { name: "Other",                 value: 10, color: "#D8D8D8" },
+  { name: "Other", value: 10, color: "#D8D8D8" },
 ];
 
 const portfolioAppData = [
-  { name: "NFT",             value: 60, color: "#EB6C27" },
+  { name: "NFT", value: 60, color: "#EB6C27" },
   { name: "Fungible Tokens", value: 40, color: "#FF8A3D" },
 ];
 
@@ -174,14 +175,28 @@ const glassPill =
   "relative inline-flex items-center justify-center gap-[3px] px-[15px] py-[5px] " +
   "bg-[var(--color-navbar)] border border-[var(--color-card-border)] rounded-[82px]";
 
+// ─── HOVER OVERLAY ────────────────────────────────────────────────────────────
+const LiveModeOverlay = ({ isAr }: { isAr: boolean }) => (
+  <div className="absolute inset-0 bg-black/60 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center text-center p-6 z-30 rounded-[inherit] pointer-events-auto">
+    <div className="bg-[#1c1c1e]/95 border border-white/10 px-6 py-4 rounded-xl shadow-2xl max-w-[90%] flex flex-col items-center gap-2.5 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+      <Lock className="w-6 h-6 text-[var(--color-primary-orange)]" />
+      <span className="[font-family:'Dubai-Medium',Helvetica] text-white text-base md:text-lg font-medium leading-normal block">
+        {isAr
+          ? "ميزة لوحة التحكم هذه ستكون متاحة في الوضع المباشر"
+          : "This dashboard feature will be available in live mode"}
+      </span>
+    </div>
+  </div>
+);
+
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
 export default function ElementDashboard() {
   const [activeNav, setActiveNav] = useState("Investor Dashboard");
   const [hoveredMenuIndex, setHoveredMenuIndex] = useState<number | null>(null);
-  const router  = useRouter();
-  const locale  = useLocale();
-  const isAr    = locale === "ar";
-  const dir     = isAr ? "rtl" : "ltr";
+  const router = useRouter();
+  const locale = useLocale();
+  const isAr = locale === "ar";
+  const dir = isAr ? "rtl" : "ltr";
 
   return (
     <div
@@ -220,7 +235,7 @@ export default function ElementDashboard() {
           >
             {isAr
               ? <ArrowRight className="w-5 h-5 text-white" />
-              : <ArrowLeft  className="w-5 h-5 text-white" />
+              : <ArrowLeft className="w-5 h-5 text-white" />
             }
           </div>
         </div>
@@ -228,8 +243,8 @@ export default function ElementDashboard() {
         {/* ── Action buttons: 2-col grid on mobile, flex row on sm+ ── */}
         <div className="grid grid-cols-2 gap-[10px] sm:flex sm:items-center sm:gap-[15px] sm:justify-end">
           {menuItems.map((item, i) => (
-            <div 
-              key={i} 
+            <div
+              key={i}
               className="relative flex"
               onMouseEnter={() => setHoveredMenuIndex(i)}
               onMouseLeave={() => setHoveredMenuIndex(null)}
@@ -269,7 +284,7 @@ export default function ElementDashboard() {
         <div className="flex flex-col w-full lg:w-1/2 min-w-0 self-stretch gap-5">
 
           {/* ── Investment Summary ──────────────────────────────────────────── */}
-          <section className={`flex flex-col w-full items-start gap-5 pb-[30px] ${glass}`}>
+          <section className={`flex flex-col w-full items-start gap-5 pb-[30px] ${glass} group`}>
 
             {/* Header */}
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between pl-[18px] md:pl-[25px] pr-4 md:pr-5 py-4 md:py-5 self-stretch border-b border-[var(--color-divider)]">
@@ -311,11 +326,11 @@ export default function ElementDashboard() {
                     <AreaChart data={nftMainChartData} margin={{ top: 25, right: 5, left: 5, bottom: 0 }}>
                       <defs>
                         <linearGradient id="colorVal1" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%"   stopColor="#EB6C27" stopOpacity={0.7} />
+                          <stop offset="0%" stopColor="#EB6C27" stopOpacity={0.7} />
                           <stop offset="100%" stopColor="#EB6C27" stopOpacity={0.05} />
                         </linearGradient>
                         <linearGradient id="colorVal2" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%"   stopColor="#D8D8D8" stopOpacity={0.4} />
+                          <stop offset="0%" stopColor="#D8D8D8" stopOpacity={0.4} />
                           <stop offset="100%" stopColor="#D8D8D8" stopOpacity={0.02} />
                         </linearGradient>
                       </defs>
@@ -404,7 +419,7 @@ export default function ElementDashboard() {
                           <AreaChart data={nftItemChartsData[i].data} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
                             <defs>
                               <linearGradient id={`nftItemGrad-${i}`} x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%"   stopColor="#ffffff" stopOpacity={0.3} />
+                                <stop offset="0%" stopColor="#ffffff" stopOpacity={0.3} />
                                 <stop offset="100%" stopColor="#ffffff" stopOpacity={0.0} />
                               </linearGradient>
                             </defs>
@@ -461,10 +476,11 @@ export default function ElementDashboard() {
               </div>
 
             </div>
+            <LiveModeOverlay isAr={isAr} />
           </section>
 
           {/* ── Transaction History ─────────────────────────────────────────── */}
-          <div className={`relative w-full flex-1 ${glass}`}>
+          <div className={`relative w-full flex-1 ${glass} group`}>
             <div className="flex flex-col gap-[25px] p-5">
               <div className="flex items-center justify-between w-full">
                 <span className="[font-family:'Dubai-Medium',Helvetica] text-white text-[17px] leading-normal">
@@ -505,12 +521,13 @@ export default function ElementDashboard() {
                 ))}
               </div>
             </div>
+            <LiveModeOverlay isAr={isAr} />
           </div>
         </div>
 
         {/* ── RIGHT COLUMN ──────────────────────────────────────────────────────── */}
         <div className="flex flex-col w-full lg:w-1/2 min-w-0 self-stretch gap-5 mt-5 lg:mt-0">
-          <div className={`flex flex-col w-full items-start gap-5 pb-[30px] flex-1 ${glass}`}>
+          <div className={`flex flex-col w-full items-start gap-5 pb-[30px] flex-1 ${glass} group`}>
 
             {/* Section header */}
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between pl-[18px] md:pl-[25px] pr-4 md:pr-5 pt-5 pb-2.5 self-stretch">
@@ -544,7 +561,7 @@ export default function ElementDashboard() {
                       <AreaChart data={metricChartData[i].data} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
                         <defs>
                           <linearGradient id={`metricGrad-${i}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%"   stopColor="#ffffff" stopOpacity={0.3} />
+                            <stop offset="0%" stopColor="#ffffff" stopOpacity={0.3} />
                             <stop offset="100%" stopColor="#ffffff" stopOpacity={0.0} />
                           </linearGradient>
                         </defs>
@@ -752,6 +769,7 @@ export default function ElementDashboard() {
                 </div>
               </div>
             </div>
+            <LiveModeOverlay isAr={isAr} />
 
           </div>
         </div>
