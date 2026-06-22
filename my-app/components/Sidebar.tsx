@@ -81,26 +81,25 @@ function getErrorMessage(err: unknown, fallback: string) {
 
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", category: "Dashboard", icon: LayoutDashboard, color: "text-[#A05AFF]", bg: "bg-[#A05AFF]/10" },
-  { label: "Products",  href: "/products",  category: "Business", icon: Package,      badge: 3, color: "text-[#1BCFB4]", bg: "bg-[#1BCFB4]/10" },
-  { label: "Billing",   href: "/billing",   category: "Business", icon: Receipt, color: "text-[#FE9496]", bg: "bg-[#FE9496]/10" },
-  { label: "Orders",    href: "/orders",    category: "Business", icon: ShoppingCart, badge: 12, color: "text-[#4BCBEB]", bg: "bg-[#4BCBEB]/10" },
+  { label: "Products", href: "/products", category: "Business", icon: Package, badge: 3, color: "text-[#1BCFB4]", bg: "bg-[#1BCFB4]/10" },
+  { label: "Billing", href: "/billing", category: "Business", icon: Receipt, color: "text-[#FE9496]", bg: "bg-[#FE9496]/10" },
+  { label: "Orders", href: "/orders", category: "Business", icon: ShoppingCart, badge: 12, color: "text-[#4BCBEB]", bg: "bg-[#4BCBEB]/10" },
   { label: "Customers", href: "/customers", category: "Business", icon: Users, color: "text-[#A05AFF]", bg: "bg-[#A05AFF]/10" },
-  { label: "Reports",   href: "/reports",   category: "Analytics", icon: BarChart3, color: "text-[#FE9496]", bg: "bg-[#FE9496]/10" },
-  { label: "Staff",     href: "/staff",     category: "Management", icon: UserCheck, color: "text-[#1BCFB4]", bg: "bg-[#1BCFB4]/10" },
+  { label: "Reports", href: "/reports", category: "Analytics", icon: BarChart3, color: "text-[#FE9496]", bg: "bg-[#FE9496]/10" },
+  { label: "Staff", href: "/staff", category: "Management", icon: UserCheck, color: "text-[#1BCFB4]", bg: "bg-[#1BCFB4]/10" },
   { label: "Attendance", href: "/attendance", category: "Management", icon: Calendar, color: "text-[#4BCBEB]", bg: "bg-[#4BCBEB]/10" },
-  { label: "Settings",  href: "/settings",  category: "System", icon: Settings, color: "text-[#A05AFF]", bg: "bg-[#A05AFF]/10" },
+  { label: "Settings", href: "/settings", category: "System", icon: Settings, color: "text-[#A05AFF]", bg: "bg-[#A05AFF]/10" },
 ];
 
 const CATEGORY_META: Record<StoreCategory, { label: string; icon: LucideIcon; color: string }> = {
-  GROCERY:  { label: "Grocery",  icon: Salad,       color: "text-green-600 bg-green-50 border-green-200"   },
+  GROCERY: { label: "Grocery", icon: Salad, color: "text-green-600 bg-green-50 border-green-200" },
   GARMENTS: { label: "Garments", icon: ShoppingBag, color: "text-purple-600 bg-purple-50 border-purple-200" },
 };
 
 // ─── Shared UI helpers ─────────────────────────────────────────────────────────
 
 const inputCls = (err?: string) =>
-  `w-full px-3 py-2 text-sm text-foreground border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${
-    err ? "border-primary bg-primary-light" : "border-white/10"
+  `w-full px-3 py-2 text-sm text-foreground border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${err ? "border-primary bg-primary-light" : "border-white/10"
   }`;
 
 function Field({ label, required, error, children }: {
@@ -202,11 +201,10 @@ function CategorySelector({ value, onChange, disabled }: {
             type="button"
             disabled={disabled}
             onClick={() => onChange(cat)}
-            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all ${
-              active
-                ? `${color} border-current shadow-sm`
-                : "border-white/10 text-muted hover:border-white/20 hover:bg-surface"
-            } disabled:opacity-50`}
+            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all ${active
+              ? `${color} border-current shadow-sm`
+              : "border-white/10 text-muted hover:border-white/20 hover:bg-surface"
+              } disabled:opacity-50`}
           >
             <Icon size={15} /> {label}
           </button>
@@ -224,15 +222,15 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
   onClose: () => void;
   onAdded: (admin: StoreAdmin) => void;
 }) {
-  const [form, setForm]     = useState({ name: "", email: "", phone: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
   const [errors, setErrors] = useState<Partial<typeof form>>({});
   const [apiError, setApiError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function validate() {
     const e: Partial<typeof form> = {};
-    if (!form.name.trim())     e.name     = "Required";
-    if (!form.email.trim())    e.email    = "Required";
+    if (!form.name.trim()) e.name = "Required";
+    if (!form.email.trim()) e.email = "Required";
     if (!form.password.trim()) e.password = "Required";
     if (form.password && form.password.length < 6) e.password = "Min 6 characters";
     setErrors(e);
@@ -277,9 +275,9 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
           <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center">
-                <UserPlus size={15} className="text-primary" />
-              </div>
+            <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center">
+              <UserPlus size={15} className="text-primary" />
+            </div>
             <div>
               <h2 className="text-sm font-bold text-foreground">Add Admin</h2>
               <p className="text-[11px] text-muted/70 truncate max-w-[160px]">{shopName}</p>
@@ -312,9 +310,8 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
                 placeholder="admin@store.com"
                 value={form.email}
                 onChange={(e) => { setForm({ ...form, email: e.target.value }); setErrors({ ...errors, email: "" }); }}
-                className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${
-                  errors.email ? "border-primary bg-primary-light" : "border-white/10"
-                }`}
+                className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${errors.email ? "border-primary bg-primary-light" : "border-white/10"
+                  }`}
               />
             </div>
           </Field>
@@ -375,18 +372,18 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
   onAdminAdded: (shopId: string, admin: StoreAdmin) => void;
 }) {
   const [form, setForm] = useState({
-    name:      shop.name,
+    name: shop.name,
     ownerName: shop.ownerName,
-    address:   shop.address,
-    phone:     shop.phone,
-    upiId:     shop.upiId,
+    address: shop.address,
+    phone: shop.phone,
+    upiId: shop.upiId,
     upiPayeeName: shop.upiPayeeName,
-    category:  shop.category,
-    logoUrl:   shop.logoUrl,
+    category: shop.category,
+    logoUrl: shop.logoUrl,
   });
-  const [admins, setAdmins]             = useState<StoreAdmin[]>(shop.admins);
-  const [errors, setErrors]             = useState<Partial<typeof form>>({});
-  const [activeTab, setActiveTab]       = useState<"details" | "admins">("details");
+  const [admins, setAdmins] = useState<StoreAdmin[]>(shop.admins);
+  const [errors, setErrors] = useState<Partial<typeof form>>({});
+  const [activeTab, setActiveTab] = useState<"details" | "admins">("details");
   const [showAddAdmin, setShowAddAdmin] = useState(false);
 
   function validate() {
@@ -401,14 +398,14 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
     if (!validate()) return;
     onUpdate({
       ...shop,
-      name:      form.name.trim(),
+      name: form.name.trim(),
       ownerName: form.ownerName.trim(),
-      address:   form.address.trim(),
-      phone:     form.phone.trim(),
-      upiId:     form.upiId.trim(),
+      address: form.address.trim(),
+      phone: form.phone.trim(),
+      upiId: form.upiId.trim(),
       upiPayeeName: form.upiPayeeName.trim(),
-      category:  form.category,
-      logoUrl:   form.logoUrl,
+      category: form.category,
+      logoUrl: form.logoUrl,
       admins,
     });
   }
@@ -440,11 +437,10 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 ${
-                  activeTab === tab
-                    ? "text-primary border-primary bg-primary-light"
-                    : "text-muted border-transparent hover:text-foreground/90"
-                }`}
+                className={`px-4 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 ${activeTab === tab
+                  ? "text-primary border-primary bg-primary-light"
+                  : "text-muted border-transparent hover:text-foreground/90"
+                  }`}
               >
                 {tab === "admins" ? `Admins (${admins.length})` : "Store Details"}
               </button>
@@ -653,25 +649,25 @@ function CreateStoreModal({ onClose, onSave }: {
   onSave: (shop: Shop) => void;
 }) {
   const [form, setForm] = useState({
-    name:      "",
+    name: "",
     ownerName: "",
-    address:   "",
-    phone:     "",
-    email:     "",
-    upiId:     "",
+    address: "",
+    phone: "",
+    email: "",
+    upiId: "",
     upiPayeeName: "",
-    category:  "GROCERY" as StoreCategory,
+    category: "GROCERY" as StoreCategory,
   });
-  const [logoUrl, setLogoUrl]   = useState<string | null>(null);
-  const [errors, setErrors]     = useState<Partial<typeof form>>({});
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Partial<typeof form>>({});
   const [locationStatus, setLocationStatus] = useState<string | null>(null);
   const [mapPreview, setMapPreview] = useState<{ lat: number; lng: number } | null>(null);
   const [isResolvingLocation, setIsResolvingLocation] = useState(false);
 
   function validate() {
     const e: Partial<typeof form> = {};
-    if (!form.name.trim())    e.name    = "Required";
-    if (!form.email.trim())   e.email   = "Required";
+    if (!form.name.trim()) e.name = "Required";
+    if (!form.email.trim()) e.email = "Required";
     if (!form.address.trim()) e.address = "Required";
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -770,17 +766,17 @@ function CreateStoreModal({ onClose, onSave }: {
     e.preventDefault();
     if (!validate()) return;
     onSave({
-      id:        uid(),
-      name:      form.name.trim(),
+      id: uid(),
+      name: form.name.trim(),
       ownerName: form.ownerName.trim(),
-      address:   form.address.trim(),
-      phone:     form.phone.trim(),
-      email:     form.email.trim(),
-      upiId:     form.upiId.trim(),
+      address: form.address.trim(),
+      phone: form.phone.trim(),
+      email: form.email.trim(),
+      upiId: form.upiId.trim(),
       upiPayeeName: form.upiPayeeName.trim(),
       logoUrl,
-      category:  form.category,
-      admins:    [],
+      category: form.category,
+      admins: [],
     });
   }
 
@@ -790,7 +786,7 @@ function CreateStoreModal({ onClose, onSave }: {
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center">
               <Store size={16} className="text-primary" />
             </div>
@@ -844,9 +840,8 @@ function CreateStoreModal({ onClose, onSave }: {
                     placeholder="store@example.com"
                     value={form.email}
                     onChange={(e) => { setForm({ ...form, email: e.target.value }); setErrors({ ...errors, email: "" }); }}
-                    className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${
-                      errors.email ? "border-primary bg-primary-light" : "border-white/10"
-                    }`}
+                    className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${errors.email ? "border-primary bg-primary-light" : "border-white/10"
+                      }`}
                   />
                 </div>
               </Field>
@@ -942,7 +937,7 @@ function CreateStoreModal({ onClose, onSave }: {
               </Field>
 
               <div>
-                  <label className="block text-xs font-medium text-muted mb-2">
+                <label className="block text-xs font-medium text-muted mb-2">
                   Store Category <span className="text-primary">*</span>
                 </label>
                 <CategorySelector
@@ -964,13 +959,13 @@ function CreateStoreModal({ onClose, onSave }: {
           >
             Cancel
           </button>
-            <button
-              type="submit"
-              form="create-store-form"
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-primary rounded-lg hover:opacity-95 transition-colors"
-            >
-              <Store size={14} /> Create Store
-            </button>
+          <button
+            type="submit"
+            form="create-store-form"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-primary rounded-lg hover:opacity-95 transition-colors"
+          >
+            <Store size={14} /> Create Store
+          </button>
         </div>
 
       </div>
@@ -1004,21 +999,19 @@ function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
           ) : (
             shops.map((shop) => {
               const isActive = shop.id === activeShopId;
-              const catMeta  = CATEGORY_META[shop.category];
-              const CatIcon  = catMeta.icon;
+              const catMeta = CATEGORY_META[shop.category];
+              const CatIcon = catMeta.icon;
               return (
                 <button
                   key={shop.id}
                   onClick={() => { onSwitch(shop.id); onClose(); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${
-                    isActive
-                      ? "bg-primary text-white shadow-md"
-                      : "hover:bg-surface text-foreground/90"
-                  }`}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${isActive
+                    ? "bg-primary text-white shadow-md"
+                    : "hover:bg-surface text-foreground/90"
+                    }`}
                 >
-                  <div className={`w-10 h-10 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${
-                    isActive ? "bg-primary-light" : catMeta.color
-                  }`}>
+                  <div className={`w-10 h-10 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${isActive ? "bg-primary-light" : catMeta.color
+                    }`}>
                     {shop.logoUrl
                       ? <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
                       : <CatIcon size={18} className={isActive ? "text-white" : ""} />}
@@ -1049,7 +1042,7 @@ function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
 
 // ─── Active Store Banner ───────────────────────────────────────────────────────
 
-function ActiveStoreBanner({ shop, onSwitch, onEdit, isSuperAdmin }: {
+/*function ActiveStoreBanner({ shop, onSwitch, onEdit, isSuperAdmin }: {
   shop: Shop;
   onSwitch: () => void;
   onEdit: () => void;
@@ -1103,21 +1096,126 @@ function ActiveStoreBanner({ shop, onSwitch, onEdit, isSuperAdmin }: {
       </div>
     </div>
   );
+}*/
+function ActiveStoreBanner({
+  shop,
+  onSwitch,
+  onEdit,
+  isSuperAdmin,
+}: {
+  shop: Shop;
+  onSwitch: () => void;
+  onEdit: () => void;
+  isSuperAdmin?: boolean;
+}) {
+  const catMeta = CATEGORY_META[shop.category];
+  const CatIcon = catMeta.icon;
+
+  return (
+    <div className="mx-3 mb-4 rounded-2xl border border-primary/30 bg-primary-light/50 backdrop-blur-md p-4 shadow-sm">
+
+      {/* Header */}
+      <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary mb-3">
+        Active Store
+      </p>
+
+      {/* Store Info */}
+      <div className="flex items-center gap-3">
+        <div className="w-14 h-14 rounded-xl bg-surface border border-primary/20 flex items-center justify-center overflow-hidden shrink-0">
+          {shop.logoUrl ? (
+            <img
+              src={shop.logoUrl}
+              alt={shop.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <CatIcon size={24} className="text-primary" />
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-bold text-foreground truncate">
+            {shop.name}
+          </h3>
+
+          {shop.ownerName && (
+            <p className="text-xs text-muted truncate mt-0.5">
+              {shop.ownerName}
+            </p>
+          )}
+
+          <div className="mt-2">
+            <span
+              className={`inline-flex items-center gap-1 text-[10px] font-semibold border px-2 py-1 rounded-full ${catMeta.color}`}
+            >
+              <CatIcon size={10} />
+              {catMeta.label}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Contact Info */}
+      {(shop.phone || shop.upiId) && (
+        <div className="mt-3 space-y-1">
+          {shop.phone && (
+            <p className="text-xs text-muted flex items-center gap-1">
+              <span>📞</span>
+              <span>+91 {shop.phone}</span>
+            </p>
+          )}
+
+          {shop.upiId && (
+            <p className="text-xs text-muted flex items-center gap-1 truncate">
+              <span>💳</span>
+              <span className="truncate">
+                {shop.upiId}
+                {shop.upiPayeeName
+                  ? ` • ${shop.upiPayeeName}`
+                  : ""}
+              </span>
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Actions */}
+      {isSuperAdmin && (
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <button
+            onClick={onEdit}
+            className="flex items-center justify-center gap-1 text-xs font-semibold text-amber-700 bg-white hover:bg-amber-50 border border-amber-200 py-2 rounded-xl transition-all duration-200 hover:shadow-sm"
+          >
+            <Pencil size={13} />
+            Edit
+          </button>
+
+          <button
+            onClick={onSwitch}
+            className="flex items-center justify-center gap-1 text-xs font-semibold text-primary bg-white hover:bg-primary-light border border-primary py-2 rounded-xl transition-all duration-200 hover:shadow-sm"
+          >
+            <ArrowLeftRight size={13} />
+            Switch
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ─── Main Sidebar ──────────────────────────────────────────────────────────────
 
 export default function Sidebar({ collapsed = false, onToggleCollapse }: { collapsed?: boolean, onToggleCollapse?: () => void }) {
   const pathname = usePathname();
-  const router   = useRouter();
+  const router = useRouter();
   const { theme } = useTheme();
 
-  const [shops, setShops]                     = useState<Shop[]>([]);
-  const [activeShopId, setActiveShopId]       = useState<string | null>(null);
+  const [shops, setShops] = useState<Shop[]>([]);
+  const [activeShopId, setActiveShopId] = useState<string | null>(null);
   const [showCreateStore, setShowCreateStore] = useState(false);
-  const [showSwitcher, setShowSwitcher]       = useState(false);
-  const [editShop, setEditShop]               = useState<Shop | null>(null);
-  const [user, setUser]                       = useState<StoredUser | null>(null);
+  const [showSwitcher, setShowSwitcher] = useState(false);
+  const [editShop, setEditShop] = useState<Shop | null>(null);
+  const [user, setUser] = useState<StoredUser | null>(null);
 
   useEffect(() => {
     // Load user only on client side to avoid hydration mismatch
@@ -1126,7 +1224,7 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
       if (u) {
         const parsed = JSON.parse(u);
         setUser(parsed);
-        
+
         // Staff redirection logic
         if (parsed.role === "STAFF" && window.location.pathname !== "/attendance") {
           window.location.href = "/attendance";
@@ -1167,9 +1265,9 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
         const response = await api.get('/stores');
         const mappedStores = (response.data as BackendStore[]).map(mapStore);
         setShops(mappedStores);
-        
+
         const savedId = localStorage.getItem('activeStoreId') || dbLastActiveId;
-        
+
         if (savedId && mappedStores.some((s: Shop) => s.id === savedId)) {
           setActiveShopId(savedId);
           localStorage.setItem('activeStoreId', savedId);
@@ -1203,7 +1301,7 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
       // Persist to database
       await api.patch('/users/active-store', { storeId: Number(id) });
       // Optional: Refresh page or trigger a global state update to reload data for new store
-      window.location.reload(); 
+      window.location.reload();
     } catch (err) {
       console.error('Failed to sync active store to DB:', err);
       // Still reload to update UI state from localStorage
@@ -1225,7 +1323,7 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
         upi_payee_name: shopData.upiPayeeName,
         admins: shopData.admins,
       });
-      
+
       const newStore = mapStore(response.data);
       setShops((prev) => [...prev, newStore]);
       if (shops.length === 0) {
@@ -1251,7 +1349,7 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
         upi_payee_name: updated.upiPayeeName,
         admins: updated.admins,
       });
-      
+
       const updatedStore = mapStore(response.data);
       setShops((prev) => prev.map((s) => s.id === updatedStore.id ? updatedStore : s));
       setEditShop(null);
@@ -1281,10 +1379,10 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
 
   return (
     <>
-      <aside className={`flex h-screen ${collapsed ? "w-20" : "w-64"} flex-col bg-sidebar-bg border-r border-sidebar-border overflow-y-auto transition-all duration-300`}>
+      <aside className={`flex h-full ${collapsed ? "w-20" : "w-64"} flex-col bg-transparent border-r-0 overflow-y-auto transition-all duration-300`}>
 
         {/* Brand */}
-        <div className={`flex items-center justify-between px-5 py-5 border-b border-sidebar-border shrink-0 ${collapsed ? "flex-col gap-4" : "gap-3"}`}>
+        <div className={`flex items-center justify-between px-5 py-5 border-b border-white/10 shrink-0 ${collapsed ? "flex-col gap-4" : "gap-3"}`}>
           <div className="flex items-center gap-3 min-w-0">
             <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary shrink-0 transition-colors shadow-sm">
               <Package className="w-5 h-5 text-white" />
@@ -1317,6 +1415,165 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
             />
           </div>
         )}
+        {/* Stores Section (Super Admin Only) */}
+        {isSuperAdmin && (
+          <div className="px-3 pb-4 flex-1">
+            <div className="border-t border-white/5 pt-4">
+
+              <div className="flex items-center justify-between px-1 mb-3">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted/70">
+                  Stores ({shops.length})
+                </p>
+                <div className="flex items-center gap-1">
+                  {shops.length > 1 && (
+                    <button
+                      onClick={() => setShowSwitcher(true)}
+                      className="flex items-center gap-0.5 text-[9px] font-medium text-muted hover:text-primary bg-surface hover:bg-primary-light px-1.5 py-0.5 rounded-md transition-colors"
+                    >
+                      <ArrowLeftRight size={8} /> Switch
+                    </button>
+                  )}
+                  {isSuperAdmin && (
+                    <button
+                      onClick={() => setShowCreateStore(true)}
+                      className="flex items-center gap-0.5 text-[9px] font-medium text-primary hover:text-primary bg-primary-light hover:bg-primary-light px-1.5 py-0.5 rounded-md transition-colors"
+                    >
+                      <Plus size={8} /> New
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {shops.length === 0 ? (
+                <p className="text-[11px] text-muted/70 px-2 py-1">
+                  No stores yet.{" "}
+                  {isSuperAdmin && (
+                    <button
+                      onClick={() => setShowCreateStore(true)}
+                      className="text-primary hover:underline font-semibold"
+                    >
+                      Create one
+                    </button>
+                  )}
+                </p>
+              ) : (
+                <div className="space-y-1">
+                  {shops.map((shop) => {
+                    const isActive = shop.id === activeShopId;
+                    const catMeta = CATEGORY_META[shop.category];
+                    const CatIcon = catMeta.icon;
+
+                    return (
+                      <div
+                        key={shop.id}
+                        onClick={() => switchStore(shop.id)}
+                        className={`w-full rounded-xl p-3 text-left transition-all border ${isActive
+                          ? "bg-white/40 border-primary/30 shadow-sm"
+                          : "bg-white/20 hover:bg-white/30 border-transparent"
+                          }`}
+                      >
+                        <div className="flex items-start gap-3">
+
+                          {/* Store Logo */}
+                          <div
+                            className={`w-8 h-8 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${isActive ? "bg-primary/10" : "bg-white/40"
+                              }`}
+                          >
+                            {shop.logoUrl ? (
+                              <img
+                                src={shop.logoUrl}
+                                alt={shop.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <CatIcon size={14} className="text-primary" />
+                            )}
+                          </div>
+
+                          {/* Store Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+
+                              <div className="min-w-0">
+                                <p className="text-xs font-semibold text-slate-800 truncate">
+                                  {shop.name}
+                                </p>
+
+                                <p className="text-[10px] text-slate-500 truncate">
+                                  {shop.ownerName || catMeta.label}
+                                  {shop.phone ? ` • ${shop.phone}` : ""}
+                                </p>
+                              </div>
+
+                              {/* Action Buttons */}
+                              <div
+                                className="flex items-center gap-1"
+                              >
+                                <button type="button"
+                                  onClick={(e) => { e.stopPropagation(); setEditShop(shop); }}
+                                  className="p-1 rounded-md text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                                  title="Edit Store"
+                                >
+                                  <Pencil size={11} />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    if (
+                                      window.confirm(
+                                        `Are you sure you want to delete "${shop.name}"?`
+                                      )
+                                    ) {
+                                      try {
+                                        await api.delete(`/stores/${shop.id}`);
+                                        window.location.reload();
+                                      } catch (err) {
+                                        alert(
+                                          "Failed to delete store: " +
+                                          getErrorMessage(err, "Unknown error")
+                                        );
+                                      }
+                                    }
+                                  }}
+                                  className="p-1 rounded-md text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                  title="Delete Store"
+                                >
+                                  <svg
+                                    className="w-3 h-3"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={2}
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                                    />
+                                  </svg>
+                                </button>
+                              </div>
+
+                            </div>
+
+                            {isActive && (
+                              <div className="mt-1 text-[10px] text-primary font-medium">
+                                Active Store
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+            </div>
+          </div>
+        )}
 
         {/* Navigation */}
         <nav className="py-4 space-y-1.5 shrink-0 flex-1">
@@ -1329,10 +1586,10 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
             const showCategory = isEnterprise && !collapsed && (index === 0 || visibleNavItems[index - 1].category !== item.category);
 
             // Enterprise active styles (matching Stellar screenshot)
-            const enterpriseActiveClasses = isEnterprise && isActive 
+            const enterpriseActiveClasses = isEnterprise && isActive
               ? "text-white"
               : isEnterprise ? "text-sidebar-text-secondary hover:text-white" : "";
-              
+
             const saasActiveClasses = !isEnterprise && isActive
               ? "bg-sidebar-active text-sidebar-text"
               : !isEnterprise ? "text-sidebar-text-secondary hover:bg-white/5" : "";
@@ -1347,18 +1604,16 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
                   title={collapsed ? item.label : ""}
                   className={`flex items-center ${collapsed ? "justify-center p-3 mx-3" : isEnterprise ? "gap-4 px-6 py-2.5" : "gap-3 px-3 py-2 mx-3"} ${!isEnterprise && 'rounded-xl'} text-sm font-medium transition-all group ${enterpriseActiveClasses} ${saasActiveClasses}`}
                 >
-                  <div className={`shrink-0 w-8 h-8 flex items-center justify-center transition-colors ${
-                    isEnterprise
-                      ? isActive ? "text-primary" : "text-sidebar-text-secondary group-hover:text-primary"
-                      : isActive ? `${item.bg} ${item.color} rounded-lg shadow-sm ring-1 ring-black/5` : `${item.bg} ${item.color} rounded-lg opacity-80 group-hover:opacity-100`
-                  }`}>
+                  <div className={`shrink-0 w-8 h-8 flex items-center justify-center transition-colors ${isEnterprise
+                    ? isActive ? "text-primary" : "text-sidebar-text-secondary group-hover:text-primary"
+                    : isActive ? `${item.bg} ${item.color} rounded-lg shadow-sm ring-1 ring-black/5` : `${item.bg} ${item.color} rounded-lg opacity-80 group-hover:opacity-100`
+                    }`}>
                     <Icon size={isEnterprise ? 20 : 18} />
                   </div>
                   {!collapsed && <span className={`flex-1 ${isEnterprise && isActive ? "font-semibold" : "font-medium"}`}>{item.label}</span>}
                   {!collapsed && item.badge != null && (
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${
-                      isActive ? (isEnterprise ? "bg-primary text-sidebar-bg" : "bg-primary text-white") : "bg-sidebar-border text-sidebar-text"
-                    }`}>
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${isActive ? (isEnterprise ? "bg-primary text-sidebar-bg" : "bg-primary text-white") : "bg-sidebar-border text-sidebar-text"
+                      }`}>
                       {item.badge}
                     </span>
                   )}
@@ -1368,126 +1623,7 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
           })}
         </nav>
 
-        {/* Stores Section (Super Admin Only) */}
-        {isSuperAdmin && (
-        <div className="px-3 pb-4 flex-1">
-          <div className="border-t border-white/5 pt-4">
 
-            <div className="flex items-center justify-between px-1 mb-3">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted/70">
-                Stores ({shops.length})
-              </p>
-              <div className="flex items-center gap-1">
-                {shops.length > 1 && (
-                  <button
-                    onClick={() => setShowSwitcher(true)}
-                    className="flex items-center gap-1 text-[11px] font-semibold text-muted hover:text-primary bg-surface hover:bg-primary-light px-2 py-0.5 rounded-full transition-colors"
-                  >
-                    <ArrowLeftRight size={10} /> Switch
-                  </button>
-                )}
-                {isSuperAdmin && (
-                  <button
-                    onClick={() => setShowCreateStore(true)}
-                    className="flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-primary bg-primary-light hover:bg-primary-light px-2 py-0.5 rounded-full transition-colors"
-                  >
-                    <Plus size={11} /> New
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {shops.length === 0 ? (
-              <p className="text-[11px] text-muted/70 px-2 py-1">
-                No stores yet.{" "}
-                {isSuperAdmin && (
-                  <button
-                    onClick={() => setShowCreateStore(true)}
-                    className="text-primary hover:underline font-semibold"
-                  >
-                    Create one
-                  </button>
-                )}
-              </p>
-            ) : (
-              <div className="space-y-1">
-                {shops.map((shop) => {
-                  const isActive = shop.id === activeShopId;
-                  const catMeta  = CATEGORY_META[shop.category];
-                  const CatIcon  = catMeta.icon;
-                  return (
-                    <div key={shop.id} className="flex items-center gap-1">
-                      <button
-                        onClick={() => switchStore(shop.id)}
-                        className={`flex-1 flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all ${
-                          isActive
-                            ? "bg-gradient-to-r from-primary-light to-transparent border-l-2 border-primary text-primary shadow-sm"
-                            : "hover:bg-primary-light text-foreground/90"
-                        }`}
-                      >
-                        <div className={`w-7 h-7 rounded-md shrink-0 overflow-hidden flex items-center justify-center ${
-                          isActive ? "bg-primary-light" : catMeta.color
-                        }`}>
-                          {shop.logoUrl
-                            ? <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
-                            : <CatIcon size={13} className={isActive ? "text-white" : ""} />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className={`text-xs font-semibold truncate ${isActive ? "text-white" : "text-foreground"}`}>
-                            {shop.name}
-                          </p>
-                          <p className={`text-[10px] truncate ${isActive ? "text-white/70" : "text-muted/70"}`}>
-                            {shop.ownerName || catMeta.label}{shop.phone ? ` · ${shop.phone}` : ""}
-                          </p>
-                        </div>
-                        {isActive && <Check size={13} className="text-white shrink-0" />}
-                      </button>
-                      {/* Edit button per row */}
-                      <button
-                        onClick={() => setEditShop(shop)}
-                        className={`p-1.5 rounded-lg transition-colors ${
-                          isActive
-                            ? "text-white/70 hover:text-white hover:bg-white/10"
-                            : "text-muted/70 hover:text-amber-600 hover:bg-amber-50"
-                        }`}
-                        title="Edit store"
-                      >
-                        <Pencil size={12} />
-                      </button>
-                      
-                      {isSuperAdmin && (
-                        <button
-                          onClick={async () => {
-                            if (window.confirm(`Are you sure you want to delete "${shop.name}"? This will delete ALL data (products, staff, bills) for this store and CANNOT be undone.`)) {
-                              try {
-                                await api.delete(`/stores/${shop.id}`);
-                                window.location.reload();
-                              } catch (err) {
-                                alert("Failed to delete store: " + getErrorMessage(err, "Unknown error"));
-                              }
-                            }
-                          }}
-                          className={`p-1.5 rounded-lg transition-colors ${
-                              isActive
-                                ? "text-white/70 hover:text-white hover:bg-white/10"
-                                : "text-muted/70 hover:text-primary hover:bg-primary-light"
-                          }`}
-                          title="Delete store"
-                        >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                          </svg>
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-          </div>
-        </div>
-        )}
 
         {/* User Footer */}
         <div className="border-t border-sidebar-border p-4 shrink-0 mt-auto">

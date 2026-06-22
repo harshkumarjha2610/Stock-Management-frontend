@@ -25,12 +25,14 @@
   --info: #4BCBEB;
 
   --bg: #F4F6F9;
-  --surface: rgba(255, 255, 255, 0.5); /* Glass surface */
+  --surface: rgba(255, 255, 255, 0.5);
+  /* Glass surface */
 
   --orb-top-right: transparent;
   --orb-bottom-left: transparent;
 
-  --sidebar-bg: rgba(255, 255, 255, 0.4); /* Glass sidebar */
+  --sidebar-bg: rgba(255, 255, 255, 0.4);
+  /* Glass sidebar */
   --sidebar-active: rgba(255, 255, 255, 0.8);
   --sidebar-text: #2C2C34;
   --sidebar-text-secondary: #8C8A95;
@@ -168,7 +170,8 @@ select {
 }
 
 /* Make Sidebar and Header Transparent Glass */
-aside, header {
+aside,
+header {
   /* Completely transparent */
   background: transparent !important;
   backdrop-filter: blur(16px);
@@ -309,19 +312,61 @@ aside, header {
 
 /* Ambient Background Layer - First Background (Full Screen) */
 .app-background {
-  background-color: #f4f7fa;
-  /* Distinct colored side balls like in the reference image */
-  background-image: 
-    radial-gradient(circle at 95% 5%, rgba(160, 90, 255, 0.6) 0%, rgba(160, 90, 255, 0) 35%),
-    radial-gradient(circle at 5% 95%, rgba(160, 90, 255, 0.4) 0%, rgba(160, 90, 255, 0) 35%),
-    radial-gradient(circle at -5% 0%, rgba(150, 200, 255, 0.6) 0%, rgba(150, 200, 255, 0) 30%),
-    radial-gradient(circle at 100% 100%, rgba(27, 207, 180, 0.2) 0%, rgba(27, 207, 180, 0) 40%);
-  background-size: cover;
-  background-attachment: fixed;
   position: fixed;
   inset: 0;
   z-index: -1;
-  pointer-events: none;
+  overflow: hidden;
+  background: #f7f7f9;
+}
+
+/* Purple Orb */
+
+.orb-top-right {
+  position: absolute;
+
+  width: 500px;
+  height: 500px;
+
+  top: -120px;
+  right: -120px;
+
+  background: #a855f7;
+
+  border-radius: 50%;
+
+  opacity: 0.85;
+}
+
+/* Blue Orb */
+
+.orb-center {
+  position: absolute;
+
+  width: 250px;
+  height: 250px;
+
+  top: 50px;
+  left: 250px;
+
+  background: #d6e6f5;
+
+  border-radius: 50%;
+}
+
+/* Pink Orb */
+
+.orb-bottom-right {
+  position: absolute;
+
+  width: 700px;
+  height: 350px;
+
+  left: -250px;
+  bottom: -180px;
+
+  background: #f7e7ef;
+
+  border-radius: 50%;
 }
 
 [data-theme="enterprise"] .app-background {
@@ -329,38 +374,6 @@ aside, header {
   background-color: var(--bg) !important;
 }
 
-/* 
- * Second Background: The floating multi-screen glass sheet
- */
-.app-background::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 0;
-  /* Structured Glass Sheen */
-  background: 
-    linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.05) 20%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0.1) 100%),
-    repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.03) 10px, rgba(255, 255, 255, 0.03) 11px);
-  /* Balanced glass refraction */
-  backdrop-filter: blur(30px) saturate(1.2);
-  -webkit-backdrop-filter: blur(30px) saturate(1.2);
-  /* Clear reflective edges */
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-top: 2px solid rgba(255, 255, 255, 0.8);
-  border-left: 2px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 
-    0 0 0 1px rgba(0, 0, 0, 0.05),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.4),
-    0 40px 100px -20px rgba(0, 0, 0, 0.2);
-  z-index: 10;
-}
-
-/* Colorful orbs hidden to remove background tints */
-.orb-top-right,
-.orb-bottom-left,
-.orb-center {
-  display: none;
-}
 
 /* -----------------------------------------
    Enterprise Theme Overrides 
@@ -418,78 +431,275 @@ aside, header {
    KPI CARDS & GLASS PANELS (SaaS vs Enterprise)
    ═══════════════════════════════════════════════════════════ */
 
-.kpi-1 { --kpi-bg: linear-gradient(135deg, rgba(254, 148, 150, 0.9), rgba(255, 179, 180, 0.7)); --kpi-shadow: rgba(254, 148, 150, 0.2); }
-.kpi-2 { --kpi-bg: linear-gradient(135deg, rgba(75, 203, 235, 0.9), rgba(133, 224, 245, 0.7)); --kpi-shadow: rgba(75, 203, 235, 0.2); }
-.kpi-3 { --kpi-bg: linear-gradient(135deg, rgba(27, 207, 180, 0.9), rgba(91, 224, 199, 0.7)); --kpi-shadow: rgba(27, 207, 180, 0.2); }
-.kpi-4 { --kpi-bg: linear-gradient(135deg, rgba(160, 90, 255, 0.9), rgba(182, 109, 255, 0.7)); --kpi-shadow: rgba(160, 90, 255, 0.2); }
+.kpi-1 {
+  --kpi-bg: linear-gradient(135deg, rgba(254, 148, 150, 0.9), rgba(255, 179, 180, 0.7));
+  --kpi-shadow: rgba(254, 148, 150, 0.2);
+}
 
-.kpi-5 { --kpi-bg: linear-gradient(135deg, rgba(255, 152, 0, 0.9), rgba(255, 193, 7, 0.7)); --kpi-shadow: rgba(255, 152, 0, 0.2); }
-.kpi-6 { --kpi-bg: linear-gradient(135deg, rgba(233, 30, 99, 0.9), rgba(240, 98, 146, 0.7)); --kpi-shadow: rgba(233, 30, 99, 0.2); }
-.kpi-7 { --kpi-bg: linear-gradient(135deg, rgba(255, 193, 7, 0.9), rgba(255, 235, 59, 0.7)); --kpi-shadow: rgba(255, 193, 7, 0.2); }
-.kpi-8 { --kpi-bg: linear-gradient(135deg, rgba(156, 39, 176, 0.9), rgba(186, 104, 200, 0.7)); --kpi-shadow: rgba(156, 39, 176, 0.2); }
+.kpi-2 {
+  --kpi-bg: linear-gradient(135deg, rgba(75, 203, 235, 0.9), rgba(133, 224, 245, 0.7));
+  --kpi-shadow: rgba(75, 203, 235, 0.2);
+}
 
-.kpi-9 { --kpi-bg: linear-gradient(135deg, rgba(63, 81, 181, 0.9), rgba(121, 134, 203, 0.7)); --kpi-shadow: rgba(63, 81, 181, 0.2); }
-.kpi-10 { --kpi-bg: linear-gradient(135deg, rgba(3, 169, 244, 0.9), rgba(79, 195, 247, 0.7)); --kpi-shadow: rgba(3, 169, 244, 0.2); }
-.kpi-11 { --kpi-bg: linear-gradient(135deg, rgba(255, 87, 34, 0.9), rgba(255, 138, 101, 0.7)); --kpi-shadow: rgba(255, 87, 34, 0.2); }
-.kpi-12 { --kpi-bg: linear-gradient(135deg, rgba(205, 220, 57, 0.9), rgba(220, 231, 117, 0.7)); --kpi-shadow: rgba(205, 220, 57, 0.2); }
+.kpi-3 {
+  --kpi-bg: linear-gradient(135deg, rgba(27, 207, 180, 0.9), rgba(91, 224, 199, 0.7));
+  --kpi-shadow: rgba(27, 207, 180, 0.2);
+}
 
-.kpi-13 { --kpi-bg: linear-gradient(135deg, rgba(76, 175, 80, 0.9), rgba(129, 199, 132, 0.7)); --kpi-shadow: rgba(76, 175, 80, 0.2); }
-.kpi-14 { --kpi-bg: linear-gradient(135deg, rgba(121, 85, 72, 0.9), rgba(161, 136, 127, 0.7)); --kpi-shadow: rgba(121, 85, 72, 0.2); }
-.kpi-15 { --kpi-bg: linear-gradient(135deg, rgba(96, 125, 139, 0.9), rgba(144, 164, 174, 0.7)); --kpi-shadow: rgba(96, 125, 139, 0.2); }
-.kpi-16 { --kpi-bg: linear-gradient(135deg, rgba(103, 58, 183, 0.9), rgba(149, 117, 205, 0.7)); --kpi-shadow: rgba(103, 58, 183, 0.2); }
+.kpi-4 {
+  --kpi-bg: linear-gradient(135deg, rgba(160, 90, 255, 0.9), rgba(182, 109, 255, 0.7));
+  --kpi-shadow: rgba(160, 90, 255, 0.2);
+}
+
+.kpi-5 {
+  --kpi-bg: linear-gradient(135deg, rgba(255, 152, 0, 0.9), rgba(255, 193, 7, 0.7));
+  --kpi-shadow: rgba(255, 152, 0, 0.2);
+}
+
+.kpi-6 {
+  --kpi-bg: linear-gradient(135deg, rgba(233, 30, 99, 0.9), rgba(240, 98, 146, 0.7));
+  --kpi-shadow: rgba(233, 30, 99, 0.2);
+}
+
+.kpi-7 {
+  --kpi-bg: linear-gradient(135deg, rgba(255, 193, 7, 0.9), rgba(255, 235, 59, 0.7));
+  --kpi-shadow: rgba(255, 193, 7, 0.2);
+}
+
+.kpi-8 {
+  --kpi-bg: linear-gradient(135deg, rgba(156, 39, 176, 0.9), rgba(186, 104, 200, 0.7));
+  --kpi-shadow: rgba(156, 39, 176, 0.2);
+}
+
+.kpi-9 {
+  --kpi-bg: linear-gradient(135deg, rgba(63, 81, 181, 0.9), rgba(121, 134, 203, 0.7));
+  --kpi-shadow: rgba(63, 81, 181, 0.2);
+}
+
+.kpi-10 {
+  --kpi-bg: linear-gradient(135deg, rgba(3, 169, 244, 0.9), rgba(79, 195, 247, 0.7));
+  --kpi-shadow: rgba(3, 169, 244, 0.2);
+}
+
+.kpi-11 {
+  --kpi-bg: linear-gradient(135deg, rgba(255, 87, 34, 0.9), rgba(255, 138, 101, 0.7));
+  --kpi-shadow: rgba(255, 87, 34, 0.2);
+}
+
+.kpi-12 {
+  --kpi-bg: linear-gradient(135deg, rgba(205, 220, 57, 0.9), rgba(220, 231, 117, 0.7));
+  --kpi-shadow: rgba(205, 220, 57, 0.2);
+}
+
+.kpi-13 {
+  --kpi-bg: linear-gradient(135deg, rgba(76, 175, 80, 0.9), rgba(129, 199, 132, 0.7));
+  --kpi-shadow: rgba(76, 175, 80, 0.2);
+}
+
+.kpi-14 {
+  --kpi-bg: linear-gradient(135deg, rgba(121, 85, 72, 0.9), rgba(161, 136, 127, 0.7));
+  --kpi-shadow: rgba(121, 85, 72, 0.2);
+}
+
+.kpi-15 {
+  --kpi-bg: linear-gradient(135deg, rgba(96, 125, 139, 0.9), rgba(144, 164, 174, 0.7));
+  --kpi-shadow: rgba(96, 125, 139, 0.2);
+}
+
+.kpi-16 {
+  --kpi-bg: linear-gradient(135deg, rgba(103, 58, 183, 0.9), rgba(149, 117, 205, 0.7));
+  --kpi-shadow: rgba(103, 58, 183, 0.2);
+}
 
 .kpi-card {
   background: var(--kpi-bg, var(--surface));
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.4);
   padding: 1.25rem;
-  box-shadow: 0 10px 15px -3px var(--kpi-shadow, rgba(0,0,0,0.1));
+  box-shadow: 0 10px 15px -3px var(--kpi-shadow, rgba(0, 0, 0, 0.1));
   position: relative;
   overflow: hidden;
   color: white;
 }
+
 .kpi-card::before {
-  content: ''; position: absolute; right: -1.5rem; top: -1.5rem; width: 6rem; height: 6rem;
-  border-radius: 50%; background: rgba(255, 255, 255, 0.1); filter: blur(1px); transition: transform 0.3s;
+  content: '';
+  position: absolute;
+  right: -1.5rem;
+  top: -1.5rem;
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  filter: blur(1px);
+  transition: transform 0.3s;
 }
+
 .kpi-card::after {
-  content: ''; position: absolute; right: -2rem; top: 3rem; width: 8rem; height: 8rem;
-  border-radius: 50%; background: rgba(255, 255, 255, 0.1); filter: blur(1px); transition: transform 0.3s;
+  content: '';
+  position: absolute;
+  right: -2rem;
+  top: 3rem;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  filter: blur(1px);
+  transition: transform 0.3s;
 }
-.kpi-card:hover::before, .kpi-card:hover::after { transform: scale(1.1); }
+
+.kpi-card:hover::before,
+.kpi-card:hover::after {
+  transform: scale(1.1);
+}
 
 .kpi-icon-box {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 2.25rem; height: 2.25rem; border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.2); margin-bottom: 0.75rem;
-  position: relative; z-index: 10; color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  margin-bottom: 0.75rem;
+  position: relative;
+  z-index: 10;
+  color: white;
 }
-.kpi-value { font-size: 1.5rem; line-height: 2rem; font-weight: 700; position: relative; z-index: 10; color: white; }
-.kpi-label { font-size: 0.75rem; font-weight: 600; margin-top: 0.125rem; position: relative; z-index: 10; color: rgba(255,255,255,0.9); }
-.kpi-sub   { font-size: 0.75rem; margin-top: 0.125rem; position: relative; z-index: 10; color: rgba(255,255,255,0.8); }
+
+.kpi-value {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 700;
+  position: relative;
+  z-index: 10;
+  color: white;
+}
+
+.kpi-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.125rem;
+  position: relative;
+  z-index: 10;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.kpi-sub {
+  font-size: 0.75rem;
+  margin-top: 0.125rem;
+  position: relative;
+  z-index: 10;
+  color: rgba(255, 255, 255, 0.8);
+}
 
 [data-theme="enterprise"] .kpi-card {
-  background: var(--surface); border: 1px solid var(--border); box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); border-radius: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border-radius: 0.75rem;
 }
-[data-theme="enterprise"] .kpi-card::before, [data-theme="enterprise"] .kpi-card::after { display: none; }
-[data-theme="enterprise"] .kpi-card .kpi-icon-box { background: var(--primary-light); color: var(--primary); }
-[data-theme="enterprise"] .kpi-card.kpi-highlight { border-color: var(--warning); background: rgba(255, 222, 115, 0.1); }
-[data-theme="enterprise"] .kpi-card.kpi-highlight .kpi-icon-box { background: var(--warning); color: #B45309; }
-[data-theme="enterprise"] .kpi-card .kpi-value { color: var(--text-primary); }
-[data-theme="enterprise"] .kpi-card .kpi-label { color: var(--text-primary); }
-[data-theme="enterprise"] .kpi-card .kpi-sub   { color: var(--text-secondary); }
+
+[data-theme="enterprise"] .kpi-card::before,
+[data-theme="enterprise"] .kpi-card::after {
+  display: none;
+}
+
+[data-theme="enterprise"] .kpi-card .kpi-icon-box {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+[data-theme="enterprise"] .kpi-card.kpi-highlight {
+  border-color: var(--warning);
+  background: rgba(255, 222, 115, 0.1);
+}
+
+[data-theme="enterprise"] .kpi-card.kpi-highlight .kpi-icon-box {
+  background: var(--warning);
+  color: #B45309;
+}
+
+[data-theme="enterprise"] .kpi-card .kpi-value {
+  color: var(--text-primary);
+}
+
+[data-theme="enterprise"] .kpi-card .kpi-label {
+  color: var(--text-primary);
+}
+
+[data-theme="enterprise"] .kpi-card .kpi-sub {
+  color: var(--text-secondary);
+}
 
 .glass-panel {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1));
-  backdrop-filter: blur(30px) saturate(1.5); -webkit-backdrop-filter: blur(30px) saturate(1.5);
+  backdrop-filter: blur(30px) saturate(1.5);
+  -webkit-backdrop-filter: blur(30px) saturate(1.5);
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-top: 2px solid rgba(255, 255, 255, 0.8);
   border-left: 2px solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05), inset 0 0 20px rgba(255, 255, 255, 0.3);
-  border-radius: 1rem; position: relative; overflow: hidden;
+  border-radius: 1rem;
+  position: relative;
+  overflow: hidden;
 }
+
 [data-theme="enterprise"] .glass-panel {
-  background: var(--surface); border: 1px solid var(--border);
+  background: var(--surface);
+  border: 1px solid var(--border);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  backdrop-filter: none; -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.dashboard-wrapper {
+  width: calc(100vw - 60px);
+  height: calc(100vh - 60px);
+
+  margin: 30px auto;
+
+  display: flex;
+  gap: 20px;
+}
+
+.sidebar-shell {
+  width: 290px;
+  height: 100%;
+
+  border-radius: 30px;
+
+  background: rgba(255, 255, 255, 0.18);
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  border: 1px solid rgba(255, 255, 255, 0.4);
+
+  overflow: hidden;
+
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.08);
+}
+
+.content-shell {
+  flex: 1;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  border-radius: 30px;
+
+  background: rgba(255, 255, 255, 0.18);
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  border: 1px solid rgba(255, 255, 255, 0.4);
+
+  overflow: hidden;
+
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.08);
 }
