@@ -35,15 +35,15 @@ type Notification = {
 const EN = {
   nav: {
     dashboard: "Investor Dashboard",
-    wallet:    "Wallet",
-    projects:  "Projects",
+    wallet: "Wallet",
+    projects: "Projects",
   },
   notifications: {
-    title:       "Notifications",
-    unread:      (n: number) => `${n} unread`,
+    title: "Notifications",
+    unread: (n: number) => `${n} unread`,
     markAllRead: "Mark all read",
-    empty:       "No notifications",
-    viewAll:     "View all notifications",
+    empty: "No notifications",
+    viewAll: "View all notifications",
   },
   switchLabel: "AR",
 };
@@ -52,15 +52,15 @@ const EN = {
 const AR = {
   nav: {
     dashboard: "لوحة المستثمر",
-    wallet:    "المحفظة",
-    projects:  "المشاريع",
+    wallet: "المحفظة",
+    projects: "المشاريع",
   },
   notifications: {
-    title:       "الإشعارات",
-    unread:      (n: number) => `${n} غير مقروء`,
+    title: "الإشعارات",
+    unread: (n: number) => `${n} غير مقروء`,
     markAllRead: "تحديد الكل كمقروء",
-    empty:       "لا توجد إشعارات",
-    viewAll:     "عرض كل الإشعارات",
+    empty: "لا توجد إشعارات",
+    viewAll: "عرض كل الإشعارات",
   },
   switchLabel: "EN",
 };
@@ -69,14 +69,14 @@ const AR = {
 // ─── Token Helpers ─────────────────────────────────────────────────────────────
 function getTokens() {
   return {
-    accessToken:  localStorage.getItem("accessToken"),
+    accessToken: localStorage.getItem("accessToken"),
     refreshToken: localStorage.getItem("refreshToken"),
   };
 }
 
 
 function saveTokens(accessToken: string, refreshToken: string) {
-  localStorage.setItem("accessToken",  accessToken);
+  localStorage.setItem("accessToken", accessToken);
   localStorage.setItem("refreshToken", refreshToken);
 }
 
@@ -156,10 +156,10 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
 
 // ─── Static Data ───────────────────────────────────────────────────────────────
 const TYPE_DOT: Record<string, string> = {
-  SYSTEM:       "bg-blue-400",
+  SYSTEM: "bg-blue-400",
   ANNOUNCEMENT: "bg-yellow-400",
-  INVESTMENT:   "bg-green-400",
-  REWARD:       "bg-purple-400",
+  INVESTMENT: "bg-green-400",
+  REWARD: "bg-purple-400",
 };
 
 
@@ -175,9 +175,8 @@ const LangToggleButton = ({
 }) => (
   <button
     onClick={onSwitch}
-    className={`relative flex items-center justify-center rounded-full hover:bg-[#4a4a4a] transition-all ${
-      className ?? "w-[40px] h-[40px] sm:w-[45px] sm:h-[45px] lg:w-[50px] lg:h-[50px]"
-    }`}
+    className={`relative flex items-center justify-center rounded-full hover:bg-[#4a4a4a] transition-all ${className ?? "w-[40px] h-[40px] sm:w-[45px] sm:h-[45px] lg:w-[50px] lg:h-[50px]"
+      }`}
     title={`Switch to ${t.switchLabel === "AR" ? "Arabic" : "English"}`}
   >
     <svg
@@ -238,10 +237,10 @@ const NotificationDropdown = ({
   function timeAgo(iso: string) {
     const diff = Date.now() - new Date(iso).getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 1)  return "just now";
+    if (mins < 1) return "just now";
     if (mins < 60) return `${mins}m ago`;
     const hrs = Math.floor(mins / 60);
-    if (hrs < 24)  return `${hrs}h ago`;
+    if (hrs < 24) return `${hrs}h ago`;
     return `${Math.floor(hrs / 24)}d ago`;
   }
 
@@ -250,13 +249,13 @@ const NotificationDropdown = ({
       ref={dropdownRef}
       style={{
         position: "fixed",
-        top:      `${position.top}px`,
+        top: `${position.top}px`,
         // ✅ On mobile: stretch edge-to-edge with 8px margins using left+right
         // ✅ On desktop: anchor to bell button position
-        left:     position.isMobile ? "8px"               : `${position.left}px`,
-        right:    position.isMobile ? "8px"               : "auto",
-        width:    position.isMobile ? "auto"              : "400px",
-        zIndex:   9999,
+        left: position.isMobile ? "8px" : `${position.left}px`,
+        right: position.isMobile ? "8px" : "auto",
+        width: position.isMobile ? "auto" : "400px",
+        zIndex: 9999,
       }}
       className="bg-[#2a2a2a] rounded-lg shadow-lg border border-white/10 max-h-[500px] overflow-hidden flex flex-col"
     >
@@ -291,22 +290,19 @@ const NotificationDropdown = ({
             <div
               key={n.id}
               onClick={() => !n.isRead && onMarkRead(n.id)}
-              className={`px-4 py-3 border-b border-white/10 hover:bg-[#3a3a3a] cursor-pointer transition-colors ${
-                !n.isRead ? "bg-[#3a3a3a]/50" : ""
-              }`}
+              className={`px-4 py-3 border-b border-white/10 hover:bg-[#3a3a3a] cursor-pointer transition-colors ${!n.isRead ? "bg-[#3a3a3a]/50" : ""
+                }`}
             >
               <div className="flex items-start gap-2.5">
                 <span
-                  className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 ${
-                    TYPE_DOT[n.type] ?? "bg-gray-400"
-                  }`}
+                  className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 ${TYPE_DOT[n.type] ?? "bg-gray-400"
+                    }`}
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-1">
                     <h4
-                      className={`text-sm font-medium truncate ${
-                        n.isRead ? "text-gray-300" : "text-white"
-                      }`}
+                      className={`text-sm font-medium truncate ${n.isRead ? "text-gray-300" : "text-white"
+                        }`}
                     >
                       {n.title}
                     </h4>
@@ -342,29 +338,29 @@ const NotificationDropdown = ({
 
 // ─── Main Header ───────────────────────────────────────────────────────────────
 export const HeaderSection = (): JSX.Element => {
-  const locale   = useLocale();
-  const router   = useRouter();
+  const locale = useLocale();
+  const router = useRouter();
   const pathname = usePathname();
 
-  const t        = locale === 'ar' ? AR : EN;
+  const t = locale === 'ar' ? AR : EN;
   const isArabic = locale === 'ar';
 
-  const [isMobileMenuOpen,     setIsMobileMenuOpen]     = useState(false);
-  const [isNotificationOpen,   setIsNotificationOpen]   = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notificationPosition, setNotificationPosition] = useState({
     top: 0, left: 0, width: 0, isMobile: false,
   });
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount,   setUnreadCount]   = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // ✅ Two refs — desktop bell + mobile bell
-  const bellButtonRef       = useRef<HTMLButtonElement>(null);
+  const bellButtonRef = useRef<HTMLButtonElement>(null);
   const mobileBellButtonRef = useRef<HTMLButtonElement>(null);
 
   const navigationItems = [
     { label: t.nav.dashboard, route: "/Investordashboard" },
-    { label: t.nav.wallet,    route: "/simulator-wallet"  },
-    { label: t.nav.projects,  route: "/all-projects"      },
+    { label: t.nav.wallet, route: "/simulator-wallet" },
+    { label: t.nav.projects, route: "/all-projects" },
   ];
 
   const handleLanguageSwitch = () => {
@@ -376,7 +372,7 @@ export const HeaderSection = (): JSX.Element => {
     try {
       const { accessToken } = getTokens();
       if (!accessToken) return;
-      const res  = await fetchWithAuth(`${API_BASE_URL}/notifications/unread-count`);
+      const res = await fetchWithAuth(`${API_BASE_URL}/notifications/unread-count`);
       const data = await res.json();
       setUnreadCount(data.data?.count ?? 0);
     } catch {
@@ -388,7 +384,7 @@ export const HeaderSection = (): JSX.Element => {
     try {
       const { accessToken } = getTokens();
       if (!accessToken) return;
-      const res  = await fetchWithAuth(`${API_BASE_URL}/notifications`);
+      const res = await fetchWithAuth(`${API_BASE_URL}/notifications`);
       const data = await res.json();
       setNotifications(data.data ?? []);
     } catch {
@@ -436,20 +432,20 @@ export const HeaderSection = (): JSX.Element => {
 
   // ✅ Positions above bell on mobile, below on desktop
   const handleNotificationClick = (ref?: React.RefObject<HTMLButtonElement | null>) => {
-    const activeRef  = ref ?? bellButtonRef;
+    const activeRef = ref ?? bellButtonRef;
     if (!isNotificationOpen && activeRef.current) {
-      const rect        = activeRef.current.getBoundingClientRect();
-      const isMobile    = window.innerWidth < 768;
-      const dropdownH   = 500; // matches max-h-[500px]
+      const rect = activeRef.current.getBoundingClientRect();
+      const isMobile = window.innerWidth < 768;
+      const dropdownH = 500; // matches max-h-[500px]
 
       setNotificationPosition({
-        top:      isMobile
-                    ? Math.max(8, rect.top - dropdownH - 8)          // ✅ above button
-                    : rect.bottom + 8,                                // ✅ below button
-        left:     isMobile
-                    ? 8                                               // handled via right:"8px" in style
-                    : Math.max(8, Math.min(rect.right - 400, window.innerWidth - 408)),
-        width:    rect.width,
+        top: isMobile
+          ? Math.max(8, rect.top - dropdownH - 8)          // ✅ above button
+          : rect.bottom + 8,                                // ✅ below button
+        left: isMobile
+          ? 8                                               // handled via right:"8px" in style
+          : Math.max(8, Math.min(rect.right - 400, window.innerWidth - 408)),
+        width: rect.width,
         isMobile,
       });
       fetchNotifications();
@@ -462,7 +458,7 @@ export const HeaderSection = (): JSX.Element => {
       <div className="w-full h-4 sm:h-5 lg:h-6 bg-black" />
 
       <header
-        className="w-full max-w-[98vw] sm:max-w-[97vw] md:max-w-[96vw] lg:max-w-[1220px] xl:max-w-[1280px] 2xl:max-w-[1620px] mx-auto bg-[#3a3a3a] rounded-[15px] sm:rounded-[20px] lg:rounded-[30px] overflow-hidden relative mt-1 sm:mt-2 lg:mt-2"
+        className="w-full mx-auto bg-[#3a3a3a] rounded-[15px] sm:rounded-[20px] lg:rounded-[30px] overflow-hidden relative mt-1 sm:mt-2 lg:mt-2"
         dir={isArabic ? "rtl" : "ltr"}
       >
         <div className="flex items-center justify-between px-4 sm:px-6 lg:px-[26px] py-3 sm:py-4 lg:py-5 gap-2 sm:gap-4">
@@ -488,11 +484,10 @@ export const HeaderSection = (): JSX.Element => {
                     router.push(item.route as any);
                     setIsMobileMenuOpen(false);
                   }}
-                  className={`h-[60px] px-8 py-4 rounded-[22px] transition-all duration-300 ${
-                    isActive
-                      ? "bg-[#ef6b23] hover:bg-[#d95e1f] text-white"
-                      : "bg-transparent hover:bg-[#4a4a4a] text-white/80 hover:text-white"
-                  }`}
+                  className={`h-[60px] px-8 py-4 rounded-[22px] transition-all duration-300 ${isActive
+                    ? "bg-[#ef6b23] hover:bg-[#d95e1f] text-white"
+                    : "bg-transparent hover:bg-[#4a4a4a] text-white/80 hover:text-white"
+                    }`}
                 >
                   <span className="font-normal text-base whitespace-nowrap">
                     {item.label}
@@ -535,14 +530,14 @@ export const HeaderSection = (): JSX.Element => {
             </Button>
 
             {/* Settings */}
-            <Button
+            {/* <Button
               variant="ghost"
               size="icon"
               className="w-[40px] h-[40px] sm:w-[45px] sm:h-[45px] lg:w-[50px] lg:h-[50px] rounded-full hover:bg-[#4a4a4a]"
               onClick={() => router.push("/Editprofile" as any)}
             >
               <SettingsIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-            </Button>
+            </Button> */}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -553,7 +548,7 @@ export const HeaderSection = (): JSX.Element => {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen
-              ? <X    className="w-5 h-5 text-white" />
+              ? <X className="w-5 h-5 text-white" />
               : <Menu className="w-5 h-5 text-white" />
             }
           </Button>
@@ -572,11 +567,10 @@ export const HeaderSection = (): JSX.Element => {
                       router.push(item.route as any);
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-300 ${
-                      isActive
-                        ? "bg-[#ef6b23] text-white"
-                        : "hover:bg-[#4a4a4a] text-white/80"
-                    }`}
+                    className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-300 ${isActive
+                      ? "bg-[#ef6b23] text-white"
+                      : "hover:bg-[#4a4a4a] text-white/80"
+                      }`}
                   >
                     <span className="font-normal text-sm sm:text-base">{item.label}</span>
                   </button>

@@ -4,8 +4,8 @@ import { useLocale, useTranslations } from "next-intl";
 
 export function FooterSection() {
   const locale = useLocale();
-  const isRtl  = locale === 'ar';
-  const t      = useTranslations('Footer');
+  const isRtl = locale === 'ar';
+  const t = useTranslations('Footer');
 
   return (
     <footer className="bg-black border-t border-gray-800 mt-8 md:mt-12 w-full" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -87,15 +87,15 @@ export function FooterSection() {
           </div> */}
 
           {/* Support */}
-       <div className={`col-span-1 lg:col-span-2 lg:col-start-11 ${isRtl ? 'lg:text-left' : 'lg:text-right'}`}>
+          <div className={`col-span-1 lg:col-span-2 lg:col-start-11 ${isRtl ? 'lg:text-left' : 'lg:text-right'}`}>
             <h4 className="text-white font-semibold text-sm sm:text-base mb-3 sm:mb-4">
               {t('support.title')}
             </h4>
             <ul className="space-y-1.5 sm:space-y-2">
               <li>
-                <span className={`text-gray-400 transition-colors duration-200 text-xs sm:text-sm block select-all ${isRtl ? 'lg:text-left' : 'lg:text-right'}`}>
+                <a href="mailto:support@cobuild.capital" className={`text-gray-400 hover:text-orange-500 transition-colors duration-200 text-xs sm:text-sm block select-all ${isRtl ? 'lg:text-left' : 'lg:text-right'}`}>
                   support@cobuild.capital
-                </span>
+                </a>
               </li>
               <li>
                 <Link href="/privacy" className={`text-gray-400 hover:text-orange-500 transition-colors duration-200 text-xs sm:text-sm block ${isRtl ? 'lg:text-left' : 'lg:text-right'}`}>
@@ -122,14 +122,14 @@ export function FooterSection() {
             <p className={`text-gray-500 text-xs sm:text-sm text-center order-2 sm:order-1 ${isRtl ? 'sm:text-right' : 'sm:text-left'}`}>
               © {new Date().getFullYear()} CoBuild. {t('allRightsReserved')}
             </p>
-            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 order-1 sm:order-2">
+            {/* <div className="flex flex-wrap justify-center gap-4 sm:gap-6 order-1 sm:order-2">
               <Link href="/cookies" className="text-gray-500 hover:text-orange-500 transition-colors duration-200 text-xs sm:text-sm whitespace-nowrap">
                 {t('cookiePolicy')}
               </Link>
               <Link href="/sitemap" className="text-gray-500 hover:text-orange-500 transition-colors duration-200 text-xs sm:text-sm whitespace-nowrap">
                 {t('sitemap')}
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
 
