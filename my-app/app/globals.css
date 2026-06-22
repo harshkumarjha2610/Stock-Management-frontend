@@ -324,8 +324,8 @@ header {
 .orb-top-right {
   position: absolute;
 
-  width: 500px;
-  height: 500px;
+  width: 520px;
+  height: 520px;
 
   top: -120px;
   right: -120px;
@@ -337,13 +337,31 @@ header {
   opacity: 0.85;
 }
 
+/* .orb-top-right {
+  position: fixed;
+  top: -220px;
+  right: -220px;
+
+  width: 800px;
+  height: 800px;
+
+  border-radius: 50%;
+
+  background: rgba(168, 85, 247, 0.55);
+
+  filter: blur(120px);
+
+  z-index: 0;
+  pointer-events: none;
+} */
+
 /* Blue Orb */
 
 .orb-center {
   position: absolute;
 
-  width: 250px;
-  height: 250px;
+  width: 280px;
+  height: 280px;
 
   top: 50px;
   left: 250px;
@@ -351,6 +369,7 @@ header {
   background: #d6e6f5;
 
   border-radius: 50%;
+  opacity: 0.35
 }
 
 /* Pink Orb */
@@ -633,16 +652,42 @@ header {
 }
 
 .glass-panel {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1));
-  backdrop-filter: blur(30px) saturate(1.5);
-  -webkit-backdrop-filter: blur(30px) saturate(1.5);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-top: 2px solid rgba(255, 255, 255, 0.8);
-  border-left: 2px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05), inset 0 0 20px rgba(255, 255, 255, 0.3);
-  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(26px);
+  -webkit-backdrop-filter: blur(26px);
+  /* background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1)); */
+  /* backdrop-filter: blur(30px) saturate(1.5);
+  -webkit-backdrop-filter: blur(30px) saturate(1.5); */
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  /* border-top: 2px solid rgba(255, 255, 255, 0.8);
+  border-left: 2px solid rgba(255, 255, 255, 0.8); */
+  /* box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05), inset 0 0 20px rgba(255, 255, 255, 0.3); */
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.05),
+    inset 0 1px rgba(255, 255, 255, 0.6);
+  border-radius: 36px;
   position: relative;
   overflow: hidden;
+}
+
+.glass-panel::before {
+  content: "";
+
+  position: absolute;
+
+  top: 40px;
+  right: -80px;
+
+  width: 260px;
+  height: 260px;
+
+  border-radius: 9999px;
+
+  background: rgba(168, 85, 247, 0.35);
+
+  filter: blur(80px);
+
+  pointer-events: none;
 }
 
 [data-theme="enterprise"] .glass-panel {
@@ -664,22 +709,23 @@ header {
 }
 
 .sidebar-shell {
-  width: 290px;
+  width: 300px;
   height: 100%;
 
-  border-radius: 30px;
+  border-radius: 32px;
 
   background: rgba(255, 255, 255, 0.18);
 
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 
-  border: 1px solid rgba(255, 255, 255, 0.4);
-
-  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.45);
 
   box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.08);
+    0 12px 40px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+
+  overflow: hidden;
 }
 
 .content-shell {
@@ -689,17 +735,106 @@ header {
   display: flex;
   flex-direction: column;
 
-  border-radius: 30px;
+  border-radius: 32px;
 
   background: rgba(255, 255, 255, 0.18);
 
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 
-  border: 1px solid rgba(255, 255, 255, 0.4);
-
-  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.45);
 
   box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.08);
+    0 12px 40px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+
+  overflow: hidden;
 }
+
+/*Glassmorphism Utilities*/
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.18);
+
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+
+  border: 1px solid rgba(255, 255, 255, 0.45);
+
+  box-shadow:
+    0 8px 32px rgba(31, 38, 135, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+
+  position: relative;
+}
+
+.glass-card::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  border-radius: inherit;
+
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.20),
+      rgba(255, 255, 255, 0.02));
+
+  pointer-events: none;
+}
+
+.glass-card {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.08),
+    0 10px 20px rgba(160, 90, 255, 0.08);
+
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.purple-glow {
+  position: fixed;
+  top: 100px;
+  right: 260px;
+
+  width: 280px;
+  height: 280px;
+
+  border-radius: 9999px;
+
+  background: rgba(168, 85, 247, 0.7);
+
+  filter: blur(70px);
+
+  z-index: 0;
+
+  pointer-events: none;
+}
+
+/* .purple-glow {
+  position: fixed;
+
+  top: 120px;
+  right: 180px;
+
+  width: 350px;
+  height: 350px;
+
+  border-radius: 50%;
+
+  background: rgba(168, 85, 247, 0.45);
+
+  filter: blur(90px);
+
+  z-index: 0;
+  pointer-events: none;
+} */
