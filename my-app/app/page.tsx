@@ -56,8 +56,8 @@ export default function LoginPage() {
 
         {/* Brand */}
         <div className="flex flex-col items-center mb-8 gap-3">
-          <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary text-white shadow-md">
-            <Package className="w-8 h-8" />
+          <div className="flex items-center justify-center w-14 h-14 rounded-2xl overflow-hidden shadow-md border border-white/10">
+            <img src="/logo.png" alt="Stock Management Logo" className="w-full h-full object-cover scale-[1.1]" />
           </div>
           <div className="text-center">
             <h1 className="text-2xl font-bold tracking-tight text-text-primary">Stock Management</h1>
