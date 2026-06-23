@@ -77,46 +77,28 @@ export default function Header({
           />
         </div>
 
-        {/* Theme Switcher Icons */}
-        <div className="flex items-center gap-2">
-          {/* SaaS Theme */}
-          <button
-            onClick={() => setTheme("saas")}
-            title="SaaS Theme"
-            className={`
-              w-10 h-10 rounded-xl
-              border border-white/30
-              backdrop-blur-xl
-              flex items-center justify-center
-              transition-all duration-300
-              ${theme === "saas"
-                ? "bg-purple-500 text-white shadow-lg shadow-purple-500/30"
-                : "bg-white/25 text-slate-600 hover:bg-white/40"
-              }
-            `}
-          >
-            <Palette size={18} />
-          </button>
-
-          {/* Enterprise Theme */}
-          <button
-            onClick={() => setTheme("enterprise")}
-            title="Enterprise Theme"
-            className={`
-              w-10 h-10 rounded-xl
-              border border-white/30
-              backdrop-blur-xl
-              flex items-center justify-center
-              transition-all duration-300
-              ${theme === "enterprise"
-                ? "bg-slate-800 text-white shadow-lg shadow-slate-900/30"
-                : "bg-white/25 text-slate-600 hover:bg-white/40"
-              }
-            `}
-          >
-            <Building2 size={18} />
-          </button>
-        </div>
+        {/* Theme Switcher Toggle */}
+        <button
+          onClick={() => setTheme(theme === "saas" ? "enterprise" : "saas")}
+          title={`Switch to ${theme === "saas" ? "Enterprise" : "SaaS"} theme`}
+          className={`
+            w-10 h-10 rounded-xl
+            border border-white/30
+            backdrop-blur-xl
+            flex items-center justify-center
+            transition-all duration-300
+            ${theme === "saas"
+              ? "bg-purple-500 text-white shadow-lg shadow-purple-500/30 hover:bg-purple-600"
+              : "bg-slate-800 text-white shadow-lg shadow-slate-900/30 hover:bg-slate-700"
+            }
+          `}
+        >
+          {theme === "saas" ? (
+            <Palette size={18} className="transition-transform duration-300 hover:rotate-12" />
+          ) : (
+            <Building2 size={18} className="transition-transform duration-300 hover:scale-105" />
+          )}
+        </button>
 
         {/* Notifications */}
         <button

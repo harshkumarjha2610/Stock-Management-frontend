@@ -3,18 +3,47 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Package, LayoutDashboard, Receipt, ShoppingCart, Users, UserCheck, BarChart3, Settings, Calendar,
-  ChevronLeft, ChevronRight, LogOut, ArrowLeftRight, Plus, Check, Search, Bell, Upload, Pencil, Wallet,
-  Store, ShieldCheck, Mail, Phone, Moon, Sun, Salad, ShoppingBag, AlertCircle, UserPlus, X
+  Package,
+  LayoutDashboard,
+  Receipt,
+  ShoppingCart,
+  Users,
+  UserCheck,
+  BarChart3,
+  Settings,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
+  ArrowLeftRight,
+  Plus,
+  Check,
+  Upload,
+  Pencil,
+  Wallet,
+  Store,
+  Mail,
+  Phone,
+  Salad,
+  ShoppingBag,
+  AlertCircle,
+  UserPlus,
+  X,
 } from "lucide-react";
 import { type LucideIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { api } from "@/lib/api";
 import { useTheme } from "@/components/ThemeProvider";
 
-// ─── Types ─────────────────────────────────────────────────────────────────────
-
-type NavItem = { label: string; href: string; icon: LucideIcon; badge?: number; color?: string; bg?: string; category?: string };
+type NavItem = {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  badge?: number;
+  color?: string;
+  bg?: string;
+  category?: string;
+};
 
 type StoreCategory = "GROCERY" | "GARMENTS";
 
@@ -69,15 +98,13 @@ type BackendStore = {
   users?: BackendAdmin[];
 };
 
-// ─── Helpers ───────────────────────────────────────────────────────────────────
-
-function uid() { return Math.random().toString(36).slice(2, 10); }
+function uid() {
+  return Math.random().toString(36).slice(2, 10);
+}
 
 function getErrorMessage(err: unknown, fallback: string) {
   return err instanceof Error ? err.message : fallback;
 }
-
-// ─── Nav config ────────────────────────────────────────────────────────────────
 
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", category: "Dashboard", icon: LayoutDashboard, color: "text-[#A05AFF]", bg: "bg-[#A05AFF]/10" },
@@ -96,14 +123,20 @@ const CATEGORY_META: Record<StoreCategory, { label: string; icon: LucideIcon; co
   GARMENTS: { label: "Garments", icon: ShoppingBag, color: "text-purple-600 bg-purple-50 border-purple-200" },
 };
 
-// ─── Shared UI helpers ─────────────────────────────────────────────────────────
-
 const inputCls = (err?: string) =>
   `w-full px-3 py-2 text-sm text-foreground border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${err ? "border-primary bg-primary-light" : "border-white/10"
   }`;
 
-function Field({ label, required, error, children }: {
-  label: string; required?: boolean; error?: string; children: React.ReactNode;
+function Field({
+  label,
+  required,
+  error,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  error?: string;
+  children: React.ReactNode;
 }) {
   return (
     <div>
@@ -125,9 +158,10 @@ function ErrorBanner({ msg }: { msg: string }) {
   );
 }
 
-// ─── Logo Uploader ─────────────────────────────────────────────────────────────
-
-function LogoUploader({ value, onChange }: {
+function LogoUploader({
+  value,
+  onChange,
+}: {
   value: string | null;
   onChange: (v: string | null) => void;
 }) {
@@ -183,9 +217,11 @@ function LogoUploader({ value, onChange }: {
   );
 }
 
-// ─── Category Selector ─────────────────────────────────────────────────────────
-
-function CategorySelector({ value, onChange, disabled }: {
+function CategorySelector({
+  value,
+  onChange,
+  disabled,
+}: {
   value: StoreCategory;
   onChange: (v: StoreCategory) => void;
   disabled?: boolean;
@@ -201,9 +237,7 @@ function CategorySelector({ value, onChange, disabled }: {
             type="button"
             disabled={disabled}
             onClick={() => onChange(cat)}
-            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all ${active
-              ? `${color} border-current shadow-sm`
-              : "border-white/10 text-muted hover:border-white/20 hover:bg-surface"
+            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all ${active ? `${color} border-current shadow-sm` : "border-white/10 text-muted hover:border-white/20 hover:bg-surface"
               } disabled:opacity-50`}
           >
             <Icon size={15} /> {label}
@@ -214,9 +248,12 @@ function CategorySelector({ value, onChange, disabled }: {
   );
 }
 
-// ─── Add Admin Modal ───────────────────────────────────────────────────────────
-
-function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
+function AddAdminModal({
+  shopId,
+  shopName,
+  onClose,
+  onAdded,
+}: {
   shopId: string;
   shopName: string;
   onClose: () => void;
@@ -271,8 +308,6 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-background rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 w-full max-w-sm mx-auto">
-
-        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center">
@@ -288,7 +323,6 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
           </button>
         </div>
 
-        {/* Body */}
         <form onSubmit={handleSubmit} className="px-5 py-4 space-y-3">
           {apiError && <ErrorBanner msg={apiError} />}
 
@@ -297,7 +331,10 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
               type="text"
               placeholder="e.g. Rahul Sharma"
               value={form.name}
-              onChange={(e) => { setForm({ ...form, name: e.target.value }); setErrors({ ...errors, name: "" }); }}
+              onChange={(e) => {
+                setForm({ ...form, name: e.target.value });
+                setErrors({ ...errors, name: "" });
+              }}
               className={inputCls(errors.name)}
             />
           </Field>
@@ -309,7 +346,10 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
                 type="email"
                 placeholder="admin@store.com"
                 value={form.email}
-                onChange={(e) => { setForm({ ...form, email: e.target.value }); setErrors({ ...errors, email: "" }); }}
+                onChange={(e) => {
+                  setForm({ ...form, email: e.target.value });
+                  setErrors({ ...errors, email: "" });
+                }}
                 className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${errors.email ? "border-primary bg-primary-light" : "border-white/10"
                   }`}
               />
@@ -335,7 +375,10 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
               type="password"
               placeholder="Min 6 characters"
               value={form.password}
-              onChange={(e) => { setForm({ ...form, password: e.target.value }); setErrors({ ...errors, password: "" }); }}
+              onChange={(e) => {
+                setForm({ ...form, password: e.target.value });
+                setErrors({ ...errors, password: "" });
+              }}
               className={inputCls(errors.password)}
             />
           </Field>
@@ -363,9 +406,12 @@ function AddAdminModal({ shopId, shopName, onClose, onAdded }: {
   );
 }
 
-// ─── Edit Store Modal ──────────────────────────────────────────────────────────
-
-function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
+function EditStoreModal({
+  shop,
+  onClose,
+  onUpdate,
+  onAdminAdded,
+}: {
   shop: Shop;
   onClose: () => void;
   onUpdate: (updated: Shop) => void;
@@ -414,8 +460,6 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
         <div className="bg-background rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 w-full max-w-lg mx-auto flex flex-col max-h-[90vh]">
-
-          {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
@@ -431,15 +475,12 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
             </button>
           </div>
 
-          {/* Tabs */}
           <div className="flex px-6 pt-3 gap-1 shrink-0 border-b border-white/5">
             {(["details", "admins"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 ${activeTab === tab
-                  ? "text-primary border-primary bg-primary-light"
-                  : "text-muted border-transparent hover:text-foreground/90"
+                className={`px-4 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 ${activeTab === tab ? "text-primary border-primary bg-primary-light" : "text-muted border-transparent hover:text-foreground/90"
                   }`}
               >
                 {tab === "admins" ? `Admins (${admins.length})` : "Store Details"}
@@ -447,28 +488,23 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
             ))}
           </div>
 
-          {/* Body */}
           <div className="overflow-y-auto flex-1 px-6 py-4">
-
-            {/* ── Details Tab ── */}
             {activeTab === "details" && (
               <form id="edit-store-form" onSubmit={handleSave} className="space-y-4">
-
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-widest text-muted/70 mb-2">Store Logo</p>
-                  <LogoUploader
-                    value={form.logoUrl}
-                    onChange={(v) => setForm({ ...form, logoUrl: v })}
-                  />
+                  <LogoUploader value={form.logoUrl} onChange={(v) => setForm({ ...form, logoUrl: v })} />
                 </div>
 
                 <div className="border-t border-white/5 pt-3 space-y-3">
-
                   <Field label="Store Name" required error={errors.name}>
                     <input
                       type="text"
                       value={form.name}
-                      onChange={(e) => { setForm({ ...form, name: e.target.value }); setErrors({ ...errors, name: "" }); }}
+                      onChange={(e) => {
+                        setForm({ ...form, name: e.target.value });
+                        setErrors({ ...errors, name: "" });
+                      }}
                       className={inputCls(errors.name)}
                     />
                   </Field>
@@ -483,7 +519,6 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
                     />
                   </Field>
 
-                  {/* Email — read only */}
                   <div>
                     <label className="block text-xs font-medium text-muted mb-1">
                       Email <span className="text-muted/70 font-normal">(not editable)</span>
@@ -545,17 +580,12 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
 
                   <div>
                     <label className="block text-xs font-medium text-muted mb-2">Category</label>
-                    <CategorySelector
-                      value={form.category}
-                      onChange={(v) => setForm({ ...form, category: v })}
-                    />
+                    <CategorySelector value={form.category} onChange={(v) => setForm({ ...form, category: v })} />
                   </div>
-
                 </div>
               </form>
             )}
 
-            {/* ── Admins Tab ── */}
             {activeTab === "admins" && (
               <div className="space-y-3">
                 <button
@@ -574,10 +604,7 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
                 ) : (
                   <div className="space-y-2">
                     {admins.map((admin) => (
-                      <div
-                        key={admin.id}
-                        className="flex items-center gap-3 p-3 rounded-xl border border-white/5 bg-surface"
-                      >
+                      <div key={admin.id} className="flex items-center gap-3 p-3 rounded-xl border border-white/5 bg-surface">
                         <div className="w-9 h-9 rounded-full bg-primary-light flex items-center justify-center text-primary text-xs font-bold shrink-0">
                           {admin.name.slice(0, 2).toUpperCase()}
                         </div>
@@ -601,10 +628,8 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
                 )}
               </div>
             )}
-
           </div>
 
-          {/* Footer */}
           <div className="px-6 py-4 border-t border-white/5 flex gap-2 shrink-0">
             <button
               type="button"
@@ -623,7 +648,6 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
               </button>
             )}
           </div>
-
         </div>
       </div>
 
@@ -642,9 +666,10 @@ function EditStoreModal({ shop, onClose, onUpdate, onAdminAdded }: {
   );
 }
 
-// ─── Create Store Modal ────────────────────────────────────────────────────────
-
-function CreateStoreModal({ onClose, onSave }: {
+function CreateStoreModal({
+  onClose,
+  onSave,
+}: {
   onClose: () => void;
   onSave: (shop: Shop) => void;
 }) {
@@ -678,24 +703,20 @@ function CreateStoreModal({ onClose, onSave }: {
     if (parts.length !== 2) return null;
     const lat = Number(parts[0]);
     const lng = Number(parts[1]);
-    if (Number.isFinite(lat) && Number.isFinite(lng)) {
-      return { lat, lng };
-    }
+    if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
     return null;
   }
 
   async function resolveAddressToCoords(address: string) {
     const direct = parseLatLng(address);
-    if (direct) {
-      return direct;
-    }
+    if (direct) return direct;
 
     setLocationStatus("Resolving address...");
     setIsResolvingLocation(true);
 
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`,
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`
       );
       const results = await response.json();
       if (!Array.isArray(results) || results.length === 0) {
@@ -712,7 +733,7 @@ function CreateStoreModal({ onClose, onSave }: {
       }
 
       return { lat, lng };
-    } catch (err) {
+    } catch {
       setLocationStatus("Unable to resolve location.");
       return null;
     } finally {
@@ -758,13 +779,14 @@ function CreateStoreModal({ onClose, onSave }: {
       },
       () => {
         setLocationStatus("Unable to access current location.");
-      },
+      }
     );
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
+
     onSave({
       id: uid(),
       name: form.name.trim(),
@@ -783,8 +805,6 @@ function CreateStoreModal({ onClose, onSave }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div className="bg-background rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 w-full max-w-md mx-auto flex flex-col max-h-[90vh]">
-
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center">
@@ -800,24 +820,23 @@ function CreateStoreModal({ onClose, onSave }: {
           </button>
         </div>
 
-        {/* Body */}
         <div className="overflow-y-auto flex-1 px-6 py-4">
           <form id="create-store-form" onSubmit={handleSubmit} className="space-y-4">
-
-            {/* Logo */}
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-widest text-muted/70 mb-2">Store Logo</p>
               <LogoUploader value={logoUrl} onChange={setLogoUrl} />
             </div>
 
             <div className="border-t border-white/5 pt-3 space-y-3">
-
               <Field label="Store Name" required error={errors.name}>
                 <input
                   type="text"
                   placeholder="e.g. Downtown Branch"
                   value={form.name}
-                  onChange={(e) => { setForm({ ...form, name: e.target.value }); setErrors({ ...errors, name: "" }); }}
+                  onChange={(e) => {
+                    setForm({ ...form, name: e.target.value });
+                    setErrors({ ...errors, name: "" });
+                  }}
                   className={inputCls(errors.name)}
                 />
               </Field>
@@ -839,7 +858,10 @@ function CreateStoreModal({ onClose, onSave }: {
                     type="email"
                     placeholder="store@example.com"
                     value={form.email}
-                    onChange={(e) => { setForm({ ...form, email: e.target.value }); setErrors({ ...errors, email: "" }); }}
+                    onChange={(e) => {
+                      setForm({ ...form, email: e.target.value });
+                      setErrors({ ...errors, email: "" });
+                    }}
                     className={`w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${errors.email ? "border-primary bg-primary-light" : "border-white/10"
                       }`}
                   />
@@ -916,17 +938,11 @@ function CreateStoreModal({ onClose, onSave }: {
                     </button>
                   </div>
 
-                  {locationStatus && (
-                    <p className="text-[11px] text-muted">{locationStatus}</p>
-                  )}
+                  {locationStatus && <p className="text-[11px] text-muted">{locationStatus}</p>}
 
                   <div className="overflow-hidden rounded-xl border border-white/10">
                     {mapPreview ? (
-                      <iframe
-                        title="Location preview"
-                        src={buildEmbedUrl(mapPreview.lat, mapPreview.lng)}
-                        className="w-full h-44"
-                      />
+                      <iframe title="Location preview" src={buildEmbedUrl(mapPreview.lat, mapPreview.lng)} className="w-full h-44" />
                     ) : (
                       <div className="flex h-44 items-center justify-center bg-surface p-4 text-sm text-muted">
                         Enter a location and click View on map to preview it here.
@@ -940,17 +956,12 @@ function CreateStoreModal({ onClose, onSave }: {
                 <label className="block text-xs font-medium text-muted mb-2">
                   Store Category <span className="text-primary">*</span>
                 </label>
-                <CategorySelector
-                  value={form.category}
-                  onChange={(v) => setForm({ ...form, category: v })}
-                />
+                <CategorySelector value={form.category} onChange={(v) => setForm({ ...form, category: v })} />
               </div>
-
             </div>
           </form>
         </div>
 
-        {/* Footer */}
         <div className="px-6 py-4 border-t border-white/5 flex gap-2 shrink-0">
           <button
             type="button"
@@ -967,15 +978,17 @@ function CreateStoreModal({ onClose, onSave }: {
             <Store size={14} /> Create Store
           </button>
         </div>
-
       </div>
     </div>
   );
 }
 
-// ─── Store Switcher Modal ──────────────────────────────────────────────────────
-
-function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
+function StoreSwitcherModal({
+  shops,
+  activeShopId,
+  onSwitch,
+  onClose,
+}: {
   shops: Shop[];
   activeShopId: string | null;
   onSwitch: (id: string) => void;
@@ -993,6 +1006,7 @@ function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
             <X size={18} />
           </button>
         </div>
+
         <div className="p-3 space-y-1.5 max-h-80 overflow-y-auto">
           {shops.length === 0 ? (
             <p className="text-sm text-muted/70 text-center py-6">No stores created yet.</p>
@@ -1001,27 +1015,35 @@ function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
               const isActive = shop.id === activeShopId;
               const catMeta = CATEGORY_META[shop.category];
               const CatIcon = catMeta.icon;
+
               return (
                 <button
                   key={shop.id}
-                  onClick={() => { onSwitch(shop.id); onClose(); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${isActive
-                    ? "bg-primary text-white shadow-md"
-                    : "hover:bg-surface text-foreground/90"
+                  onClick={() => {
+                    onSwitch(shop.id);
+                    onClose();
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${isActive ? "bg-primary text-white shadow-md" : "hover:bg-surface text-foreground/90"
                     }`}
                 >
-                  <div className={`w-10 h-10 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${isActive ? "bg-primary-light" : catMeta.color
-                    }`}>
-                    {shop.logoUrl
-                      ? <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
-                      : <CatIcon size={18} className={isActive ? "text-white" : ""} />}
+                  <div
+                    className={`w-10 h-10 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${isActive ? "bg-primary-light" : catMeta.color
+                      }`}
+                  >
+                    {shop.logoUrl ? (
+                      <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <CatIcon size={18} className={isActive ? "text-white" : ""} />
+                    )}
                   </div>
+
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-semibold truncate ${isActive ? "text-white" : "text-foreground"}`}>
                       {shop.name}
                     </p>
                     <p className={`text-[11px] truncate ${isActive ? "text-white/70" : "text-muted/70"}`}>
-                      {shop.ownerName ? `${shop.ownerName} · ` : ""}{catMeta.label}
+                      {shop.ownerName ? `${shop.ownerName} · ` : ""}
+                      {catMeta.label}
                     </p>
                     {shop.phone && (
                       <p className={`text-[10px] ${isActive ? "text-white/60" : "text-muted/70"}`}>
@@ -1029,6 +1051,7 @@ function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
                       </p>
                     )}
                   </div>
+
                   {isActive && <Check size={16} className="text-white shrink-0" />}
                 </button>
               );
@@ -1040,63 +1063,6 @@ function StoreSwitcherModal({ shops, activeShopId, onSwitch, onClose }: {
   );
 }
 
-// ─── Active Store Banner ───────────────────────────────────────────────────────
-
-/*function ActiveStoreBanner({ shop, onSwitch, onEdit, isSuperAdmin }: {
-  shop: Shop;
-  onSwitch: () => void;
-  onEdit: () => void;
-  isSuperAdmin?: boolean;
-}) {
-  const catMeta = CATEGORY_META[shop.category];
-  const CatIcon = catMeta.icon;
-
-  return (
-    <div className="mx-3 mb-3 rounded-xl border border-primary bg-primary-light p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-primary mb-2">Active Store</p>
-      <div className="flex items-center gap-2.5">
-        <div className="w-10 h-10 rounded-lg bg-surface border border-primary flex items-center justify-center overflow-hidden shrink-0">
-          {shop.logoUrl
-            ? <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
-            : <CatIcon size={17} className="text-primary" />}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-foreground truncate">{shop.name}</p>
-          {shop.ownerName && (
-            <p className="text-[11px] text-muted truncate">{shop.ownerName}</p>
-          )}
-          <span className={`inline-flex items-center gap-1 text-[10px] font-semibold border px-1.5 py-0.5 rounded-full ${catMeta.color}`}>
-            <CatIcon size={8} /> {catMeta.label}
-          </span>
-          {shop.phone && (
-            <p className="text-[10px] text-muted/70 truncate mt-0.5">📞 +91 {shop.phone}</p>
-          )}
-          {shop.upiId && (
-            <p className="text-[10px] text-muted/70 truncate">
-              💳 {shop.upiId}{shop.upiPayeeName ? ` · ${shop.upiPayeeName}` : ""}
-            </p>
-          )}
-        </div>
-        {isSuperAdmin && (
-        <div className="flex flex-col gap-1 shrink-0">
-          <button
-            onClick={onEdit}
-            className="flex items-center gap-1 text-[11px] font-semibold text-amber-600 hover:text-amber-800 bg-surface hover:bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg transition-colors"
-          >
-            <Pencil size={10} /> Edit
-          </button>
-          <button
-            onClick={onSwitch}
-            className="flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-primary bg-surface hover:bg-primary-light border border-primary px-2 py-1 rounded-lg transition-colors"
-          >
-            <ArrowLeftRight size={10} /> Switch
-          </button>
-        </div>
-        )}
-      </div>
-    </div>
-  );
-}*/
 function ActiveStoreBanner({
   shop,
   onSwitch,
@@ -1113,41 +1079,24 @@ function ActiveStoreBanner({
 
   return (
     <div className="mx-3 mb-4 rounded-2xl border border-primary/30 bg-primary-light/50 backdrop-blur-md p-4 shadow-sm">
+      <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary mb-3">Active Store</p>
 
-      {/* Header */}
-      <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary mb-3">
-        Active Store
-      </p>
-
-      {/* Store Info */}
       <div className="flex items-center gap-3">
         <div className="w-14 h-14 rounded-xl bg-surface border border-primary/20 flex items-center justify-center overflow-hidden shrink-0">
           {shop.logoUrl ? (
-            <img
-              src={shop.logoUrl}
-              alt={shop.name}
-              className="w-full h-full object-cover"
-            />
+            <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
           ) : (
             <CatIcon size={24} className="text-primary" />
           )}
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-bold text-foreground truncate">
-            {shop.name}
-          </h3>
+          <h3 className="text-sm font-bold text-sidebar-text truncate">{shop.name}</h3>
 
-          {shop.ownerName && (
-            <p className="text-xs text-muted truncate mt-0.5">
-              {shop.ownerName}
-            </p>
-          )}
+          {shop.ownerName && <p className="text-xs text-sidebar-text-secondary truncate mt-0.5">{shop.ownerName}</p>}
 
           <div className="mt-2">
-            <span
-              className={`inline-flex items-center gap-1 text-[10px] font-semibold border px-2 py-1 rounded-full ${catMeta.color}`}
-            >
+            <span className={`inline-flex items-center gap-1 text-[10px] font-semibold border px-2 py-1 rounded-full ${catMeta.color}`}>
               <CatIcon size={10} />
               {catMeta.label}
             </span>
@@ -1155,46 +1104,42 @@ function ActiveStoreBanner({
         </div>
       </div>
 
-      {/* Contact Info */}
       {(shop.phone || shop.upiId) && (
         <div className="mt-3 space-y-1">
           {shop.phone && (
-            <p className="text-xs text-muted flex items-center gap-1">
+            <p className="text-xs text-sidebar-text-secondary flex items-center gap-1">
               <span>📞</span>
               <span>+91 {shop.phone}</span>
             </p>
           )}
 
           {shop.upiId && (
-            <p className="text-xs text-muted flex items-center gap-1 truncate">
+            <p className="text-xs text-sidebar-text-secondary flex items-center gap-1 truncate">
               <span>💳</span>
               <span className="truncate">
                 {shop.upiId}
-                {shop.upiPayeeName
-                  ? ` • ${shop.upiPayeeName}`
-                  : ""}
+                {shop.upiPayeeName ? ` • ${shop.upiPayeeName}` : ""}
               </span>
             </p>
           )}
         </div>
       )}
 
-      {/* Actions */}
       {isSuperAdmin && (
-        <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="mt-3 flex items-center justify-end gap-1">
           <button
             onClick={onEdit}
-            className="flex items-center justify-center gap-1 text-xs font-semibold text-amber-700 bg-white hover:bg-amber-50 border border-amber-200 py-2 rounded-xl transition-all duration-200 hover:shadow-sm"
+            className="flex items-center justify-center gap-0.5 text-[9px] font-medium text-amber-700 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 px-1.5 py-0.5 rounded-md transition-all duration-200"
           >
-            <Pencil size={13} />
+            <Pencil size={9} />
             Edit
           </button>
 
           <button
             onClick={onSwitch}
-            className="flex items-center justify-center gap-1 text-xs font-semibold text-primary bg-white hover:bg-primary-light border border-primary py-2 rounded-xl transition-all duration-200 hover:shadow-sm"
+            className="flex items-center justify-center gap-0.5 text-[9px] font-medium text-primary bg-primary/10 hover:bg-primary/20 border border-primary/20 px-1.5 py-0.5 rounded-md transition-all duration-200"
           >
-            <ArrowLeftRight size={13} />
+            <ArrowLeftRight size={9} />
             Switch
           </button>
         </div>
@@ -1203,9 +1148,42 @@ function ActiveStoreBanner({
   );
 }
 
-// ─── Main Sidebar ──────────────────────────────────────────────────────────────
+function CompactActiveStore({
+  shop,
+  onClick,
+}: {
+  shop: Shop;
+  onClick: () => void;
+}) {
+  const catMeta = CATEGORY_META[shop.category];
+  const CatIcon = catMeta.icon;
 
-export default function Sidebar({ collapsed = false, onToggleCollapse }: { collapsed?: boolean, onToggleCollapse?: () => void }) {
+  return (
+    <div className="px-3 pt-3">
+      <button
+        onClick={onClick}
+        title={`${shop.name} · Switch store`}
+        className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary-light/40 hover:bg-primary-light transition-all duration-200 hover:scale-[1.03]"
+      >
+        <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center bg-surface">
+          {shop.logoUrl ? (
+            <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
+          ) : (
+            <CatIcon size={18} className="text-primary" />
+          )}
+        </div>
+      </button>
+    </div>
+  );
+}
+
+export default function Sidebar({
+  collapsed = false,
+  onToggleCollapse,
+}: {
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const { theme } = useTheme();
@@ -1218,14 +1196,12 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
   const [user, setUser] = useState<StoredUser | null>(null);
 
   useEffect(() => {
-    // Load user only on client side to avoid hydration mismatch
     try {
       const u = localStorage.getItem("user");
       if (u) {
         const parsed = JSON.parse(u);
         setUser(parsed);
 
-        // Staff redirection logic
         if (parsed.role === "STAFF" && window.location.pathname !== "/attendance") {
           window.location.href = "/attendance";
         }
@@ -1235,7 +1211,6 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
     }
   }, []);
 
-  // Map backend store to frontend Shop type
   const mapStore = (s: BackendStore): Shop => ({
     id: s.id.toString(),
     name: s.name,
@@ -1247,41 +1222,41 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
     upiPayeeName: s.upi_payee_name || "",
     logoUrl: s.logo_url || null,
     category: s.category || "GROCERY",
-    admins: s.users?.map((u) => ({
-      id: u.id.toString(),
-      name: u.name,
-      email: u.email,
-      phone: u.phone || ""
-    })) || [],
+    admins:
+      s.users?.map((u) => ({
+        id: u.id.toString(),
+        name: u.name,
+        email: u.email,
+        phone: u.phone || "",
+      })) || [],
   });
 
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        // Fetch profile first to get last_active_store_id
-        const profileRes = await api.get('/users/profile');
+        const profileRes = await api.get("/users/profile");
         const dbLastActiveId = profileRes.data.last_active_store_id?.toString();
 
-        const response = await api.get('/stores');
+        const response = await api.get("/stores");
         const mappedStores = (response.data as BackendStore[]).map(mapStore);
         setShops(mappedStores);
 
-        const savedId = localStorage.getItem('activeStoreId') || dbLastActiveId;
+        const savedId = localStorage.getItem("activeStoreId") || dbLastActiveId;
 
         if (savedId && mappedStores.some((s: Shop) => s.id === savedId)) {
           setActiveShopId(savedId);
-          localStorage.setItem('activeStoreId', savedId);
+          localStorage.setItem("activeStoreId", savedId);
         } else if (mappedStores.length > 0) {
           const firstId = mappedStores[0].id;
           setActiveShopId(firstId);
-          localStorage.setItem('activeStoreId', firstId);
-          // Sync default store to DB if not already there
-          await api.patch('/users/active-store', { storeId: Number(firstId) });
+          localStorage.setItem("activeStoreId", firstId);
+          await api.patch("/users/active-store", { storeId: Number(firstId) });
         }
       } catch (err) {
-        console.error('Failed to fetch stores or profile:', err);
+        console.error("Failed to fetch stores or profile:", err);
       }
     };
+
     fetchInitialData();
   }, []);
 
@@ -1297,21 +1272,18 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
   async function switchStore(id: string) {
     try {
       setActiveShopId(id);
-      localStorage.setItem('activeStoreId', id);
-      // Persist to database
-      await api.patch('/users/active-store', { storeId: Number(id) });
-      // Optional: Refresh page or trigger a global state update to reload data for new store
+      localStorage.setItem("activeStoreId", id);
+      await api.patch("/users/active-store", { storeId: Number(id) });
       window.location.reload();
     } catch (err) {
-      console.error('Failed to sync active store to DB:', err);
-      // Still reload to update UI state from localStorage
+      console.error("Failed to sync active store to DB:", err);
       window.location.reload();
     }
   }
 
   async function handleCreateStore(shopData: Shop) {
     try {
-      const response = await api.post('/stores', {
+      const response = await api.post("/stores", {
         name: shopData.name,
         owner_name: shopData.ownerName,
         email: shopData.email,
@@ -1351,7 +1323,7 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
       });
 
       const updatedStore = mapStore(response.data);
-      setShops((prev) => prev.map((s) => s.id === updatedStore.id ? updatedStore : s));
+      setShops((prev) => prev.map((s) => (s.id === updatedStore.id ? updatedStore : s)));
       setEditShop(null);
     } catch (err: unknown) {
       alert(getErrorMessage(err, "Failed to update store"));
@@ -1362,31 +1334,30 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
   const isAdmin = user?.role === "ADMIN";
   const isStaff = user?.role === "STAFF";
 
-  // Filter navigation items based on role
   const visibleNavItems = navItems.filter((item) => {
     if (isStaff) {
       return ["Attendance"].includes(item.label);
     }
     if (isAdmin) {
-      // Admin restricted items
       if (["Dashboard", "Reports", "Settings", "Attendance"].includes(item.label)) return false;
       return true;
     }
-    // Superadmin (only hide Attendance as they manage it in Staff)
     if (item.label === "Attendance") return false;
     return true;
   });
 
   return (
     <>
-      <aside className={`flex h-full ${collapsed ? "w-20" : "w-64"} flex-col bg-transparent border-r-0 overflow-y-auto transition-all duration-300`}>
-
-        {/* Brand */}
-        <div className={`flex items-center justify-between px-5 py-5 border-b border-white/10 shrink-0 ${collapsed ? "flex-col gap-4" : "gap-3"}`}>
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary shrink-0 transition-colors shadow-sm">
+      <aside
+        className={`flex h-full ${collapsed ? "w-24" : "w-64"
+          } flex-col border-r border-sidebar-border bg-sidebar-bg backdrop-blur-xl overflow-y-auto transition-[width] duration-300`}
+      >
+        <div className="flex items-center justify-between px-4 py-4 border-b border-white/10 shrink-0">
+          <div className={`flex items-center min-w-0 ${collapsed ? "gap-0" : "gap-3"}`}>
+            <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-primary shrink-0 transition-colors shadow-sm">
               <Package className="w-5 h-5 text-white" />
             </div>
+
             {!collapsed && (
               <div className="whitespace-nowrap overflow-hidden">
                 <p className="text-sm font-bold text-sidebar-text leading-tight transition-colors">Stock</p>
@@ -1394,17 +1365,18 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
               </div>
             )}
           </div>
+
           {onToggleCollapse && (
             <button
               onClick={onToggleCollapse}
-              className="p-1.5 rounded-lg text-sidebar-text-secondary hover:bg-primary-light hover:text-primary transition-colors"
+              className="p-2 rounded-xl text-sidebar-text-secondary hover:bg-primary-light hover:text-primary transition-colors shrink-0"
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
-              {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+              {collapsed ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}
             </button>
           )}
         </div>
 
-        {/* Active Store Banner */}
         {activeShop && !isStaff && !collapsed && (
           <div className="pt-3">
             <ActiveStoreBanner
@@ -1415,46 +1387,46 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
             />
           </div>
         )}
-        {/* Stores Section (Super Admin Only) */}
-        {isSuperAdmin && (
-          <div className="px-3 pb-4 flex-1">
-            <div className="border-t border-white/5 pt-4">
 
+        {activeShop && !isStaff && collapsed && (
+          <CompactActiveStore shop={activeShop} onClick={() => setShowSwitcher(true)} />
+        )}
+
+        {isSuperAdmin && !collapsed && (
+          <div className="px-3 pb-4">
+            <div className="border-t border-white/5 pt-4">
               <div className="flex items-center justify-between px-1 mb-3">
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted/70">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-text-secondary/70">
                   Stores ({shops.length})
                 </p>
-                <div className="flex items-center gap-1">
+
+                <div className="flex items-center gap-1.5">
                   {shops.length > 1 && (
                     <button
                       onClick={() => setShowSwitcher(true)}
-                      className="flex items-center gap-0.5 text-[9px] font-medium text-muted hover:text-primary bg-surface hover:bg-primary-light px-1.5 py-0.5 rounded-md transition-colors"
+                      title="Switch store"
+                      className="flex h-5 w-5 items-center justify-center rounded bg-surface hover:bg-primary-light text-sidebar-text-secondary hover:text-primary transition-colors border border-white/10"
                     >
-                      <ArrowLeftRight size={8} /> Switch
+                      <ArrowLeftRight size={10} />
                     </button>
                   )}
-                  {isSuperAdmin && (
-                    <button
-                      onClick={() => setShowCreateStore(true)}
-                      className="flex items-center gap-0.5 text-[9px] font-medium text-primary hover:text-primary bg-primary-light hover:bg-primary-light px-1.5 py-0.5 rounded-md transition-colors"
-                    >
-                      <Plus size={8} /> New
-                    </button>
-                  )}
+
+                  <button
+                    onClick={() => setShowCreateStore(true)}
+                    title="Create store"
+                    className="flex h-5 w-5 items-center justify-center rounded bg-primary-light text-primary hover:opacity-90 transition-colors border border-primary/10"
+                  >
+                    <Plus size={10} />
+                  </button>
                 </div>
               </div>
 
               {shops.length === 0 ? (
                 <p className="text-[11px] text-muted/70 px-2 py-1">
                   No stores yet.{" "}
-                  {isSuperAdmin && (
-                    <button
-                      onClick={() => setShowCreateStore(true)}
-                      className="text-primary hover:underline font-semibold"
-                    >
-                      Create one
-                    </button>
-                  )}
+                  <button onClick={() => setShowCreateStore(true)} className="text-primary hover:underline font-semibold">
+                    Create one
+                  </button>
                 </p>
               ) : (
                 <div className="space-y-1">
@@ -1467,51 +1439,39 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
                       <div
                         key={shop.id}
                         onClick={() => switchStore(shop.id)}
-                        className={`w-full rounded-xl p-3 text-left transition-all border ${isActive
-                          ? "bg-white/40 border-primary/30 shadow-sm"
-                          : "bg-white/20 hover:bg-white/30 border-transparent"
+                        className={`w-full rounded-xl p-3 text-left transition-all border cursor-pointer ${isActive ? "bg-sidebar-active border-primary/30 shadow-sm" : "bg-transparent hover:bg-white/10 border-transparent"
                           }`}
                       >
                         <div className="flex items-start gap-3">
-
-                          {/* Store Logo */}
                           <div
-                            className={`w-8 h-8 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${isActive ? "bg-primary/10" : "bg-white/40"
+                            className={`w-8 h-8 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${isActive ? "bg-primary/10" : "bg-white/10"
                               }`}
                           >
                             {shop.logoUrl ? (
-                              <img
-                                src={shop.logoUrl}
-                                alt={shop.name}
-                                className="w-full h-full object-cover"
-                              />
+                              <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
                             ) : (
                               <CatIcon size={14} className="text-primary" />
                             )}
                           </div>
 
-                          {/* Store Info */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2">
-
                               <div className="min-w-0">
-                                <p className="text-xs font-semibold text-slate-800 truncate">
-                                  {shop.name}
-                                </p>
-
-                                <p className="text-[10px] text-slate-500 truncate">
+                                <p className="text-xs font-semibold text-sidebar-text truncate">{shop.name}</p>
+                                <p className="text-[10px] text-sidebar-text-secondary truncate">
                                   {shop.ownerName || catMeta.label}
                                   {shop.phone ? ` • ${shop.phone}` : ""}
                                 </p>
                               </div>
 
-                              {/* Action Buttons */}
-                              <div
-                                className="flex items-center gap-1"
-                              >
-                                <button type="button"
-                                  onClick={(e) => { e.stopPropagation(); setEditShop(shop); }}
-                                  className="p-1 rounded-md text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                              <div className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditShop(shop);
+                                  }}
+                                  className="p-1 rounded-md text-sidebar-text-secondary hover:text-amber-600 hover:bg-amber-500/10 transition-colors"
                                   title="Edit Store"
                                 >
                                   <Pencil size={11} />
@@ -1521,48 +1481,30 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
                                   type="button"
                                   onClick={async (e) => {
                                     e.stopPropagation();
-                                    if (
-                                      window.confirm(
-                                        `Are you sure you want to delete "${shop.name}"?`
-                                      )
-                                    ) {
+                                    if (window.confirm(`Are you sure you want to delete "${shop.name}"?`)) {
                                       try {
                                         await api.delete(`/stores/${shop.id}`);
                                         window.location.reload();
                                       } catch (err) {
-                                        alert(
-                                          "Failed to delete store: " +
-                                          getErrorMessage(err, "Unknown error")
-                                        );
+                                        alert("Failed to delete store: " + getErrorMessage(err, "Unknown error"));
                                       }
                                     }
                                   }}
-                                  className="p-1 rounded-md text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                  className="p-1 rounded-md text-sidebar-text-secondary hover:text-red-600 hover:bg-red-500/10 transition-colors"
                                   title="Delete Store"
                                 >
-                                  <svg
-                                    className="w-3 h-3"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={2}
-                                    viewBox="0 0 24 24"
-                                  >
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                                     <path
                                       strokeLinecap="round"
                                       strokeLinejoin="round"
-                                      d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                                      d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
                                     />
                                   </svg>
                                 </button>
                               </div>
-
                             </div>
 
-                            {isActive && (
-                              <div className="mt-1 text-[10px] text-primary font-medium">
-                                Active Store
-                              </div>
-                            )}
+                            {isActive && <div className="mt-1 text-[10px] text-primary font-medium">Active Store</div>}
                           </div>
                         </div>
                       </div>
@@ -1570,50 +1512,93 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
                   })}
                 </div>
               )}
-
             </div>
           </div>
         )}
 
-        {/* Navigation */}
-        <nav className="py-4 space-y-1.5 shrink-0 flex-1">
-          {!collapsed && theme !== "enterprise" && <p className="px-6 pb-2 text-[10px] font-semibold uppercase tracking-widest text-sidebar-text-secondary transition-colors">Main Menu</p>}
+        {isSuperAdmin && collapsed && (
+          <div className="px-3 pt-3">
+            <div className="border-t border-white/5 pt-3 flex flex-col items-center gap-2">
+              {shops.length > 1 && (
+                <button
+                  onClick={() => setShowSwitcher(true)}
+                  title="Switch store"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface hover:bg-primary-light text-sidebar-text-secondary hover:text-primary transition-colors border border-white/10"
+                >
+                  <ArrowLeftRight size={13} />
+                </button>
+              )}
+
+              <button
+                onClick={() => setShowCreateStore(true)}
+                title="Create store"
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-light text-primary hover:opacity-90 transition-colors border border-primary/10"
+              >
+                <Plus size={13} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        <nav className="py-4 space-y-2 shrink-0 flex-1">
+          {!collapsed && theme !== "enterprise" && (
+            <p className="px-6 pb-2 text-[10px] font-semibold uppercase tracking-widest text-sidebar-text-secondary transition-colors">
+              Main Menu
+            </p>
+          )}
+
           {visibleNavItems.map((item, index) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             const Icon = item.icon;
-
             const isEnterprise = theme === "enterprise";
             const showCategory = isEnterprise && !collapsed && (index === 0 || visibleNavItems[index - 1].category !== item.category);
 
-            // Enterprise active styles (matching Stellar screenshot)
             const enterpriseActiveClasses = isEnterprise && isActive
-              ? "text-white"
-              : isEnterprise ? "text-sidebar-text-secondary hover:text-white" : "";
-
-            const saasActiveClasses = !isEnterprise && isActive
-              ? "bg-sidebar-active text-sidebar-text"
-              : !isEnterprise ? "text-sidebar-text-secondary hover:bg-white/5" : "";
+              ? "bg-sidebar-active text-primary font-semibold border-l-4 border-primary"
+              : isEnterprise ? "text-sidebar-text-secondary hover:text-white hover:bg-white/5 border-l-4 border-transparent" : "";
+            const saasActiveClasses = !isEnterprise && isActive ? "bg-sidebar-active text-sidebar-text shadow-sm" : !isEnterprise ? "text-sidebar-text-secondary hover:bg-white/5" : "";
 
             return (
               <div key={item.href}>
                 {showCategory && (
                   <p className="px-6 pt-5 pb-3 text-xs font-semibold text-primary uppercase tracking-wider">{item.category}</p>
                 )}
+
                 <Link
                   href={item.href}
                   title={collapsed ? item.label : ""}
-                  className={`flex items-center ${collapsed ? "justify-center p-3 mx-3" : isEnterprise ? "gap-4 px-6 py-2.5" : "gap-3 px-3 py-2 mx-3"} ${!isEnterprise && 'rounded-xl'} text-sm font-medium transition-all group ${enterpriseActiveClasses} ${saasActiveClasses}`}
+                  className={`group flex items-center text-sm font-medium transition-all ${collapsed
+                    ? "mx-3 h-12 justify-center rounded-2xl"
+                    : isEnterprise
+                      ? "gap-4 px-6 py-2.5"
+                      : "mx-3 gap-3 px-3 py-2 rounded-xl"
+                    } ${enterpriseActiveClasses} ${saasActiveClasses}`}
                 >
-                  <div className={`shrink-0 w-8 h-8 flex items-center justify-center transition-colors ${isEnterprise
-                    ? isActive ? "text-primary" : "text-sidebar-text-secondary group-hover:text-primary"
-                    : isActive ? `${item.bg} ${item.color} rounded-lg shadow-sm ring-1 ring-black/5` : `${item.bg} ${item.color} rounded-lg opacity-80 group-hover:opacity-100`
-                    }`}>
+                  <div
+                    className={`relative shrink-0 flex items-center justify-center transition-colors ${collapsed ? "w-10 h-10 rounded-xl" : "w-8 h-8"
+                      } ${isEnterprise
+                        ? isActive
+                          ? "text-primary"
+                          : "text-sidebar-text-secondary group-hover:text-primary"
+                        : isActive
+                          ? `${item.bg} ${item.color} rounded-xl ring-1 ring-black/5`
+                          : `${item.bg} ${item.color} rounded-xl opacity-80 group-hover:opacity-100`
+                      }`}
+                  >
                     <Icon size={isEnterprise ? 20 : 18} />
                   </div>
+
                   {!collapsed && <span className={`flex-1 ${isEnterprise && isActive ? "font-semibold" : "font-medium"}`}>{item.label}</span>}
+
                   {!collapsed && item.badge != null && (
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${isActive ? (isEnterprise ? "bg-primary text-sidebar-bg" : "bg-primary text-white") : "bg-sidebar-border text-sidebar-text"
-                      }`}>
+                    <span
+                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${isActive
+                        ? isEnterprise
+                          ? "bg-primary text-sidebar-bg"
+                          : "bg-primary text-white"
+                        : "bg-sidebar-border text-sidebar-text"
+                        }`}
+                    >
                       {item.badge}
                     </span>
                   )}
@@ -1623,38 +1608,36 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
           })}
         </nav>
 
-
-
-        {/* User Footer */}
         <div className="border-t border-sidebar-border p-4 shrink-0 mt-auto">
           <div className={`flex items-center ${collapsed ? "justify-center" : "gap-3"} mb-3`}>
-            <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary text-xs font-bold shrink-0 transition-colors shadow-sm">
+            <div className="w-9 h-9 rounded-full bg-primary-light flex items-center justify-center text-primary text-xs font-bold shrink-0 transition-colors shadow-sm">
               {user?.name ? user.name.slice(0, 2).toUpperCase() : "SA"}
             </div>
+
             {!collapsed && (
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-sidebar-text truncate transition-colors">{user?.name || "Super Admin"}</p>
-                <p className="text-xs text-sidebar-text-secondary truncate transition-colors">{user?.email || "admin@stockmgmt.com"}</p>
+                <p className="text-xs text-sidebar-text-secondary truncate transition-colors">
+                  {user?.email || "admin@stockmgmt.com"}
+                </p>
               </div>
             )}
           </div>
+
           <button
             onClick={handleLogout}
             title={collapsed ? "Sign out" : ""}
-            className={`flex w-full items-center ${collapsed ? "justify-center" : "gap-2"} rounded-lg ${collapsed ? "p-2" : "px-3 py-2"} text-sm font-medium text-sidebar-text-secondary hover:bg-primary-light hover:text-primary transition-colors`}
+            className={`flex w-full items-center rounded-xl text-sm font-medium text-sidebar-text-secondary hover:bg-primary-light hover:text-primary transition-colors ${collapsed ? "justify-center p-3" : "gap-2 px-3 py-2"
+              }`}
           >
-            <LogOut size={collapsed ? 20 : 16} /> {!collapsed && "Sign out"}
+            <LogOut size={collapsed ? 18 : 16} />
+            {!collapsed && "Sign out"}
           </button>
         </div>
-
       </aside>
 
-      {showCreateStore && (
-        <CreateStoreModal
-          onClose={() => setShowCreateStore(false)}
-          onSave={handleCreateStore}
-        />
-      )}
+      {showCreateStore && <CreateStoreModal onClose={() => setShowCreateStore(false)} onSave={handleCreateStore} />}
+
       {showSwitcher && (
         <StoreSwitcherModal
           shops={shops}
@@ -1663,17 +1646,16 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: { colla
           onClose={() => setShowSwitcher(false)}
         />
       )}
+
       {editShop && (
         <EditStoreModal
           shop={editShop}
           onClose={() => setEditShop(null)}
           onUpdate={handleUpdateStore}
           onAdminAdded={(shopId, admin) => {
-            setShops((prev) => prev.map((shop) => (
-              shop.id === shopId
-                ? { ...shop, admins: [...shop.admins, admin] }
-                : shop
-            )));
+            setShops((prev) =>
+              prev.map((shop) => (shop.id === shopId ? { ...shop, admins: [...shop.admins, admin] } : shop))
+            );
           }}
         />
       )}

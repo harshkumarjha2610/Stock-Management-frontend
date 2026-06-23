@@ -169,8 +169,7 @@ select {
   transition: all 0.2s ease;
 }
 
-/* Make Sidebar and Header Transparent Glass */
-aside,
+/* Make Header Transparent Glass */
 header {
   /* Completely transparent */
   background: transparent !important;

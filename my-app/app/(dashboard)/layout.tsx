@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { useTheme } from "@/components/ThemeProvider";
@@ -12,66 +12,48 @@ export default function DashboardLayout({
 }) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { theme } = useTheme();
 
-  // Load state from localStorage on mount
   useEffect(() => {
     const savedState = localStorage.getItem("sidebarCollapsed");
-    if (savedState) {
+    if (savedState !== null) {
       setIsSidebarCollapsed(savedState === "true");
     }
     setMounted(true);
   }, []);
 
   const handleToggleSidebar = () => {
-    const newState = !isSidebarCollapsed;
-    setIsSidebarCollapsed(newState);
-    localStorage.setItem("sidebarCollapsed", String(newState));
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem("sidebarCollapsed", String(next));
+      return next;
+    });
   };
 
-  const { theme } = useTheme();
-
-  if (!mounted) return null; // Avoid hydration mismatch
+  if (!mounted) return null;
 
   const isSaas = theme === "saas";
 
   return (
     <div
-      className={`h-screen p-5 ${isSaas ? "bg-transparent" : "bg-background"
+      className={`h-screen w-full overflow-hidden ${isSaas ? "bg-transparent" : "bg-background"
         }`}
     >
-      {/* <div
-        className={`relative z-20 flex overflow-hidden ${isSaas
-          ? "dashboard-shell"
-          : "bg-background w-full h-screen"
-          }`}
-      >
-        <Sidebar collapsed={isSidebarCollapsed} onToggleCollapse={handleToggleSidebar} />
-        <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-          <Header toggleSidebar={handleToggleSidebar} />
-          <main className="flex-1 overflow-y-auto px-6 py-8 sm:px-8 text-foreground">
-            {children}
-          </main>
-        </div>
-      </div> */}
-      <div className="dashboard-wrapper">
-
-        {/* Sidebar Card */}
-        <div className="sidebar-shell">
+      <div className="flex h-full w-full overflow-hidden">
+        <div className="h-full flex-shrink-0">
           <Sidebar
             collapsed={isSidebarCollapsed}
             onToggleCollapse={handleToggleSidebar}
           />
         </div>
 
-        {/* Dashboard Card */}
-        <div className="content-shell">
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <Header toggleSidebar={handleToggleSidebar} />
 
-          <main className="flex-1 overflow-y-auto px-6 py-8 sm:px-8 text-foreground">
+          <main className="flex-1 min-w-0 overflow-y-auto px-6 py-8 sm:px-8 text-foreground">
             {children}
           </main>
         </div>
-
       </div>
     </div>
   );
