@@ -1023,36 +1023,36 @@ function StoreSwitcherModal({
                     onSwitch(shop.id);
                     onClose();
                   }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${isActive ? "bg-primary text-white shadow-md" : "hover:bg-surface text-foreground/90"
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${isActive ? "bg-purple-50 border border-purple-200 shadow-sm" : "hover:bg-purple-50/40 hover:border-purple-100 border border-transparent text-foreground/90"
                     }`}
                 >
                   <div
-                    className={`w-10 h-10 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${isActive ? "bg-primary-light" : catMeta.color
+                    className={`w-10 h-10 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${isActive ? "bg-purple-100" : catMeta.color
                       }`}
                   >
                     {shop.logoUrl ? (
                       <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
                     ) : (
-                      <CatIcon size={18} className={isActive ? "text-white" : ""} />
+                      <CatIcon size={18} className={isActive ? "text-purple-600" : ""} />
                     )}
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-semibold truncate ${isActive ? "text-white" : "text-foreground"}`}>
+                    <p className={`text-sm font-semibold truncate ${isActive ? "text-purple-900" : "text-foreground"}`}>
                       {shop.name}
                     </p>
-                    <p className={`text-[11px] truncate ${isActive ? "text-white/70" : "text-muted/70"}`}>
+                    <p className={`text-[11px] truncate ${isActive ? "text-purple-700/80" : "text-muted/70"}`}>
                       {shop.ownerName ? `${shop.ownerName} · ` : ""}
                       {catMeta.label}
                     </p>
                     {shop.phone && (
-                      <p className={`text-[10px] ${isActive ? "text-white/60" : "text-muted/70"}`}>
+                      <p className={`text-[10px] ${isActive ? "text-purple-600/70" : "text-muted/70"}`}>
                         +91 {shop.phone}
                       </p>
                     )}
                   </div>
 
-                  {isActive && <Check size={16} className="text-white shrink-0" />}
+                  {isActive && <Check size={16} className="text-purple-600 shrink-0" />}
                 </button>
               );
             })
@@ -1194,6 +1194,7 @@ export default function Sidebar({
   const [showSwitcher, setShowSwitcher] = useState(false);
   const [editShop, setEditShop] = useState<Shop | null>(null);
   const [user, setUser] = useState<StoredUser | null>(null);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     try {
@@ -1263,6 +1264,7 @@ export default function Sidebar({
   const activeShop = shops.find((s) => s.id === activeShopId) ?? null;
 
   function handleLogout() {
+    setShowLogoutConfirm(false);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("activeStoreId");
@@ -1377,7 +1379,8 @@ export default function Sidebar({
           )}
         </div>
 
-        {activeShop && !isStaff && !collapsed && (
+        {/* ── Active Store Banner (commented out) ── */}
+        {/* {activeShop && !isStaff && !collapsed && (
           <div className="pt-3">
             <ActiveStoreBanner
               shop={activeShop}
@@ -1390,7 +1393,7 @@ export default function Sidebar({
 
         {activeShop && !isStaff && collapsed && (
           <CompactActiveStore shop={activeShop} onClick={() => setShowSwitcher(true)} />
-        )}
+        )} */}
 
         {isSuperAdmin && !collapsed && (
           <div className="px-3 pb-4">
@@ -1439,26 +1442,30 @@ export default function Sidebar({
                       <div
                         key={shop.id}
                         onClick={() => switchStore(shop.id)}
-                        className={`w-full rounded-xl p-3 text-left transition-all border cursor-pointer ${isActive ? "bg-sidebar-active border-primary/30 shadow-sm" : "bg-transparent hover:bg-white/10 border-transparent"
+                        className={`w-full rounded-xl p-3 text-left transition-all duration-200 border cursor-pointer
+                          ${isActive
+                            ? "bg-purple-50/80 border-purple-200 shadow-sm"
+                            : "bg-transparent hover:bg-purple-50/40 hover:border-purple-100 hover:shadow-sm hover:scale-[1.01] border-transparent"
                           }`}
                       >
                         <div className="flex items-start gap-3">
                           <div
-                            className={`w-8 h-8 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${isActive ? "bg-primary/10" : "bg-white/10"
-                              }`}
+                            className={`w-8 h-8 rounded-lg shrink-0 overflow-hidden flex items-center justify-center
+                              ${isActive ? "bg-purple-100" : "bg-white/10"}
+                            `}
                           >
                             {shop.logoUrl ? (
                               <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
                             ) : (
-                              <CatIcon size={14} className="text-primary" />
+                              <CatIcon size={14} className={isActive ? "text-purple-600" : "text-primary"} />
                             )}
                           </div>
 
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2">
                               <div className="min-w-0">
-                                <p className="text-xs font-semibold text-sidebar-text truncate">{shop.name}</p>
-                                <p className="text-[10px] text-sidebar-text-secondary truncate">
+                                <p className={`text-xs font-semibold truncate ${isActive ? "text-purple-900" : "text-sidebar-text"}`}>{shop.name}</p>
+                                <p className={`text-[10px] truncate ${isActive ? "text-purple-700/80" : "text-sidebar-text-secondary"}`}>
                                   {shop.ownerName || catMeta.label}
                                   {shop.phone ? ` • ${shop.phone}` : ""}
                                 </p>
@@ -1504,7 +1511,7 @@ export default function Sidebar({
                               </div>
                             </div>
 
-                            {isActive && <div className="mt-1 text-[10px] text-primary font-medium">Active Store</div>}
+                            {isActive && <div className="mt-1 text-[10px] text-purple-600 font-medium">Active Store</div>}
                           </div>
                         </div>
                       </div>
@@ -1625,7 +1632,7 @@ export default function Sidebar({
           </div>
 
           <button
-            onClick={handleLogout}
+            onClick={() => setShowLogoutConfirm(true)}
             title={collapsed ? "Sign out" : ""}
             className={`flex w-full items-center rounded-xl text-sm font-medium text-sidebar-text-secondary hover:bg-primary-light hover:text-primary transition-colors ${collapsed ? "justify-center p-3" : "gap-2 px-3 py-2"
               }`}
@@ -1658,6 +1665,35 @@ export default function Sidebar({
             );
           }}
         />
+      )}
+
+      {/* ── Logout Confirmation Modal ── */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-background rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 w-full max-w-sm mx-auto p-6">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-coral-light mx-auto mb-4">
+              <LogOut className="w-5 h-5 text-coral" />
+            </div>
+            <h2 className="text-base font-bold text-foreground text-center">Sign Out?</h2>
+            <p className="text-sm text-muted text-center mt-1 mb-6">
+              Do you really want to sign out?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 h-10 rounded-lg border border-white/10 text-sm font-medium text-muted hover:bg-surface transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex-1 h-10 rounded-lg bg-primary text-sm font-semibold text-white hover:opacity-95 transition-colors"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

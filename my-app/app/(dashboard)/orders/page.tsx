@@ -323,10 +323,10 @@ export default function OrdersPage() {
       .filter((o) => {
         const q = search.toLowerCase();
         const matchSearch = !q ||
-          o.customer.toLowerCase().includes(q) ||
-          o.id.toLowerCase().includes(q) ||
-          o.invoiceNo.toLowerCase().includes(q) ||
-          o.phone.includes(q);
+          String(o.customer).toLowerCase().includes(q) ||
+          String(o.id).toLowerCase().includes(q) ||
+          String(o.invoiceNo).toLowerCase().includes(q) ||
+          String(o.phone).includes(q);
         const matchStatus = statusF === "All" || o.status === statusF;
         const matchPay    = payF    === "All" || o.paymentStatus === payF;
         const matchMethod = methodF === "All" || o.paymentMethod === methodF;
@@ -533,10 +533,10 @@ export default function OrdersPage() {
             <div className="flex items-center gap-2">
               <CalendarDays size={14} className="text-text-secondary shrink-0" />
               <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}
-                className={inputCls + " w-36"} />
-              <span className="text-xs text-text-secondary">to</span>
+                className={inputCls + " w-48"} />
+              <span className="text-xs text-text-secondary whitespace-nowrap">to</span>
               <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
-                className={inputCls + " w-36"} />
+                className={inputCls + " w-48"} />
             </div>
 
             {hasFilters && (

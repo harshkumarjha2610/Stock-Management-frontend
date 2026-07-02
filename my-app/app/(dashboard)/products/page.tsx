@@ -1445,29 +1445,28 @@ export default function ProductsPage() {
 
         {/* Low stock banner */}
         {(lowCount > 0 || outCount > 0) && (
-          <div className="flex items-start gap-3 bg-warning/10 border border-warning rounded-xl px-5 py-4">
-            <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-amber-800">Stock Alert</p>
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {products
-                  .filter((p) => getStockBadge(p).label !== "In Stock")
-                  .map((p) => {
-                    const b = getStockBadge(p);
-                    return (
-                      <button
-                        key={p.id}
-                        onClick={() => { setSelected(p); setModal("view"); }}
-                        className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border hover:opacity-70 ${b.cls}`}
-                      >
-                        {p.name} — {totalStock(p) === 0 ? "OUT" : `${totalStock(p)} left`}
-                      </button>
-                    );
-                  })}
-              </div>
-            </div>
-          </div>
-        )}
+  <div className="flex items-start gap-3 bg-warning/10 rounded-xl px-5 py-4">
+    <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+    <div className="flex-1 min-w-0">
+      <p className="text-sm font-bold text-amber-800">Stock Alert</p>
+      <div className="flex flex-wrap gap-1.5 mt-2">
+        {products
+          .filter((p) => getStockBadge(p).label !== "In Stock")
+          .map((p) => {
+            return (
+              <button
+                key={p.id}
+                onClick={() => { setSelected(p); setModal("view"); }}
+                className="px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-white text-neutral-500 border border-red-500 transition-all duration-150 ease-out hover:scale-[1.03] hover:bg-pink-50"
+              >
+                {p.name} — {totalStock(p) === 0 ? "OUT" : `${totalStock(p)} left`}
+              </button>
+            );
+          })}
+      </div>
+    </div>
+  </div>
+)}
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
@@ -1743,7 +1742,7 @@ export default function ProductsPage() {
                   return (
                     <div
                       key={p.id}
-                      className="glass-panel overflow-visible hover:border-coral hover:shadow-md transition-all group"
+                      className="glass-panel !rounded overflow-hidden hover:border-coral hover:shadow-md transition-all group"
                     >
                       <div className="relative w-full aspect-[3/4] bg-background border-b border-border">
                         {p.image ? (

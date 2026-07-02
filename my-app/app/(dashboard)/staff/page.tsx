@@ -5,7 +5,8 @@ import {
   Search, Plus, Eye, Pencil, Trash2, X, ChevronDown,
   UserCheck, Clock, BadgeIndianRupee, Phone, CalendarDays,
   CheckCircle, XCircle, LogIn, LogOut, FileText,
-  TrendingUp, Users, AlertCircle, Download, Loader2, Camera, Upload
+  TrendingUp, Users, AlertCircle, Download, Loader2, Camera, Upload,
+  EyeOff
 } from "lucide-react";
 import { api } from "@/lib/api";
 
@@ -199,6 +200,7 @@ export default function StaffManagementPage() {
     emailId: "", photoUrl: "", joiningDate: TODAY, salary: 0, status: "Active",
     password: ""
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const [showMarkModal, setShowMarkModal] = useState(false);
   const [markForm, setMarkForm] = useState({
@@ -320,7 +322,7 @@ export default function StaffManagementPage() {
   const filteredStaff = useMemo(() => {
     const q = staffSearch.toLowerCase();
     return staffList.filter((s) => {
-      const match = s.name.toLowerCase().includes(q) || s.phone.includes(q) || s.id.toLowerCase().includes(q);
+      const match = String(s.name).toLowerCase().includes(q) || String(s.phone).includes(q) || String(s.id).toLowerCase().includes(q);
       const st = staffStatus === "All" || s.status === staffStatus;
       return match && st;
     });
@@ -527,7 +529,7 @@ export default function StaffManagementPage() {
     const q = salarySearch.toLowerCase();
     return salaryList.filter((s) => {
       const matchMonth = !salaryMonth || s.month === salaryMonth;
-      const matchSearch = s.staffName.toLowerCase().includes(q) || s.staffId.toLowerCase().includes(q);
+      const matchSearch = String(s.staffName).toLowerCase().includes(q) || String(s.staffId).toLowerCase().includes(q);
       const matchStatus = salaryStatusFilter === "All" || s.status === salaryStatusFilter;
       return matchMonth && matchSearch && matchStatus;
     });
@@ -1193,18 +1195,33 @@ export default function StaffManagementPage() {
                 </Field>
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="Phone Number *">
-                    <input type="tel" placeholder="e.g. 9876543210" value={staffForm.phone}
-                      onChange={(e) => setStaffForm((p) => ({ ...p, phone: e.target.value }))} className={inputCls} />
-                  </Field>
-                  <Field label="Email ID *">
-                    <input type="email" placeholder="e.g. aditi@example.com" value={staffForm.emailId}
-                      onChange={(e) => setStaffForm((p) => ({ ...p, emailId: e.target.value }))} className={inputCls} />
+                   <input
+                     type="text"
+                     inputMode="numeric"
+                     pattern="[0-9]*"
+                     placeholder="e.g. 9876543210"
+                     value={staffForm.phone}
+                     maxLength={10}
+                     onChange={(e) => {
+                       const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                       setStaffForm((p) => ({ ...p, phone: val }));
+                     }}
+                     onKeyDown={(e) => {
+                       if (e.key.length === 1 && !/\d/.test(e.key) && !e.ctrlKey && !e.metaKey) {
+                         e.preventDefault();
+                       }
+                     }}
+                     className={inputCls}
+                   />
                   </Field>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="Aadhar Card">
-                    <input type="text" placeholder="e.g. 1234 5678 9012" value={staffForm.aadharCard}
-                      onChange={(e) => setStaffForm((p) => ({ ...p, aadharCard: e.target.value }))} className={inputCls} />
+                    <input type="text" placeholder="e.g. 1234 5678 9012" value={staffForm.aadharCard} maxLength={12}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 12);
+                        setStaffForm((p) => ({ ...p, aadharCard: val }));
+                      }} className={inputCls} />
                   </Field>
                   <Field label="Joining Date">
                     <input type="date" value={staffForm.joiningDate}
@@ -1230,14 +1247,28 @@ export default function StaffManagementPage() {
                 </div>
                 {!editingStaff && (
                   <Field label="Password *">
-                    <input type="password" placeholder="Set login password for staff" value={staffForm.password || ""}
-                      onChange={(e) => setStaffForm((p) => ({ ...p, password: e.target.value }))} className={inputCls} />
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Set login password for staff"
+                        value={staffForm.password || ""}
+                        onChange={(e) => setStaffForm((p) => ({ ...p, password: e.target.value }))}
+                        className={inputCls + " pr-10"}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary transition-colors"
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                   </Field>
                 )}
                 <Field label="Address">
                   <textarea placeholder="e.g. 22, Rajouri Garden, Delhi" value={staffForm.address}
                     onChange={(e) => setStaffForm((p) => ({ ...p, address: e.target.value }))}
-                    rows={2} className={inputCls + " resize-none"} />
+                    rows={3} className={inputCls + " resize-none py-2.5 leading-normal"} />
                 </Field>
               </div>
             </div>
