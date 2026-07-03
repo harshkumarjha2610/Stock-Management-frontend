@@ -3,12 +3,12 @@
 import { useState, useMemo, useEffect } from "react";
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
-  PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid,
+  Cell, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
 import {
   TrendingUp, Package, Users, BadgeIndianRupee,
-  CalendarDays, ShoppingBag, ChevronDown, Loader2,
+  ChevronDown, Loader2,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useTheme } from "@/components/ThemeProvider";
@@ -82,44 +82,20 @@ function ChartCard({
   children: React.ReactNode;
   action?: React.ReactNode;
 }) {
-  // return (
-  //   <div className="glass-card p-5 flex flex-col gap-4 relative overflow-hidden transition-all duration-300">
-  //     <div className="flex items-start justify-between gap-3 relative z-10">
-  //       <div>
-  //         <h2 className="text-sm font-bold text-text-primary">{title}</h2>
-  //         {subtitle && <p className="text-xs text-text-muted mt-0.5">{subtitle}</p>}
-  //       </div>
-  //       {action}
-  //     </div>
-  //     <div className="relative z-10">{children}</div>
-  //   </div>
-  // );
   return (
     <div className="glass-card rounded-[28px] p-5 flex flex-col gap-4 relative overflow-hidden transition-all duration-300">
-
-      {/* Floating Glow Effects */}
       <div className="absolute -top-12 -right-12 w-36 h-36 rounded-full bg-white/10 blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-10 w-24 h-24 rounded-full bg-white/5 blur-2xl pointer-events-none" />
 
       <div className="flex items-start justify-between gap-3 relative z-10">
         <div>
-          <h2 className="text-sm font-bold text-text-primary">
-            {title}
-          </h2>
-
-          {subtitle && (
-            <p className="text-xs text-text-muted mt-0.5">
-              {subtitle}
-            </p>
-          )}
+          <h2 className="text-sm font-bold text-text-primary">{title}</h2>
+          {subtitle && <p className="text-xs text-text-muted mt-0.5">{subtitle}</p>}
         </div>
-
         {action}
       </div>
 
-      <div className="relative z-10">
-        {children}
-      </div>
+      <div className="relative z-10">{children}</div>
     </div>
   );
 }
@@ -127,6 +103,7 @@ function ChartCard({
 // ─── Page ───────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [salesView, setSalesView] = useState<"daily" | "monthly">("daily");
 
@@ -147,6 +124,10 @@ export default function DashboardPage() {
   const [stockData, setStockData] = useState<any[]>([]);
   const [attendanceData, setAttendanceData] = useState<any[]>([]);
   const [gstSummary, setGstSummary] = useState<any>({ history: [], ytd_collected: 0 });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -176,7 +157,6 @@ export default function DashboardPage() {
         setGstSummary(gstRes.data);
       } catch (error) {
         console.warn("Failed to fetch dashboard data, using mock data for UI visualization.");
-        // Fallback to mock data for UI viewing
         setSummary({
           today_sales: 45200,
           today_profit: 12500,
@@ -221,15 +201,15 @@ export default function DashboardPage() {
   const isEnterprise = theme === "enterprise";
 
   const stats = isEnterprise ? [
-    { label: "Today's Revenue", value: `₹${summary.today_sales.toLocaleString()}`, sub: "Increased by 60%", icon: BadgeIndianRupee, iconColor: "text-primary", iconBg: "bg-primary-light", cardStyle: { background: "var(--surface)" }, cardBorder: "border-border shadow-sm border" },
-    { label: "Today's Profit", value: `₹${summary.today_profit.toLocaleString()}`, sub: "Decreased by 10%", icon: TrendingUp, iconColor: "text-primary", iconBg: "bg-primary-light", cardStyle: { background: "var(--surface)" }, cardBorder: "border-border shadow-sm border" },
-    { label: "Visitors Online", value: "95,574", sub: "Increased by 5%", icon: Users, iconColor: "text-primary", iconBg: "bg-primary-light", cardStyle: { background: "var(--surface)" }, cardBorder: "border-border shadow-sm border" },
-    { label: "Total Stock", value: summary.total_products.toString(), sub: "Active stock items", icon: Package, iconColor: "text-primary", iconBg: "bg-primary-light", cardStyle: { background: "var(--surface)" }, cardBorder: "border-border shadow-sm border" },
+    { label: "Today's Revenue", value: `₹${summary.today_sales.toLocaleString()}`, sub: "Increased by 60%", icon: BadgeIndianRupee, iconColor: "text-primary", iconBg: "bg-primary-light", cardStyle: { background: "var(--surface)" } },
+    { label: "Today's Profit", value: `₹${summary.today_profit.toLocaleString()}`, sub: "Decreased by 10%", icon: TrendingUp, iconColor: "text-primary", iconBg: "bg-primary-light", cardStyle: { background: "var(--surface)" } },
+    { label: "Visitors Online", value: "95,574", sub: "Increased by 5%", icon: Users, iconColor: "text-primary", iconBg: "bg-primary-light", cardStyle: { background: "var(--surface)" } },
+    { label: "Total Stock", value: summary.total_products.toString(), sub: "Active stock items", icon: Package, iconColor: "text-primary", iconBg: "bg-primary-light", cardStyle: { background: "var(--surface)" } },
   ] : [
-    { label: "Today's Revenue", value: `₹${summary.today_sales.toLocaleString()}`, sub: "Increased by 60%", icon: BadgeIndianRupee, iconColor: "text-white", iconBg: "bg-white/20", cardStyle: { background: "linear-gradient(135deg, rgba(254, 148, 150, 0.9), rgba(255, 179, 180, 0.7))", border: "none" }, cardBorder: "shadow-lg shadow-[#FE9496]/20" },
-    { label: "Today's Profit", value: `₹${summary.today_profit.toLocaleString()}`, sub: "Decreased by 10%", icon: TrendingUp, iconColor: "text-white", iconBg: "bg-white/20", cardStyle: { background: "linear-gradient(135deg, rgba(75, 203, 235, 0.9), rgba(133, 224, 245, 0.7))", border: "none" }, cardBorder: "shadow-lg shadow-[#4BCBEB]/20" },
-    { label: "Visitors Online", value: "95,574", sub: "Increased by 5%", icon: Users, iconColor: "text-white", iconBg: "bg-white/20", cardStyle: { background: "linear-gradient(135deg, rgba(27, 207, 180, 0.9), rgba(91, 224, 199, 0.7))", border: "none" }, cardBorder: "shadow-lg shadow-[#1BCFB4]/20" },
-    { label: "Total Stock", value: summary.total_products.toString(), sub: "Active stock items", icon: Package, iconColor: "text-white", iconBg: "bg-white/20", cardStyle: { background: "linear-gradient(135deg, rgba(160, 90, 255, 0.9), rgba(182, 109, 255, 0.7))", border: "none" }, cardBorder: "shadow-lg shadow-[#A05AFF]/20" },
+    { label: "Today's Revenue", value: `₹${summary.today_sales.toLocaleString()}`, sub: "Increased by 60%", icon: BadgeIndianRupee, iconColor: "text-white", iconBg: "bg-white/20", cardStyle: { background: "linear-gradient(135deg, rgba(254, 148, 150, 0.9), rgba(255, 179, 180, 0.7))" } },
+    { label: "Today's Profit", value: `₹${summary.today_profit.toLocaleString()}`, sub: "Decreased by 10%", icon: TrendingUp, iconColor: "text-white", iconBg: "bg-white/20", cardStyle: { background: "linear-gradient(135deg, rgba(75, 203, 235, 0.9), rgba(133, 224, 245, 0.7))" } },
+    { label: "Visitors Online", value: "95,574", sub: "Increased by 5%", icon: Users, iconColor: "text-white", iconBg: "bg-white/20", cardStyle: { background: "linear-gradient(135deg, rgba(27, 207, 180, 0.9), rgba(91, 224, 199, 0.7))" } },
+    { label: "Total Stock", value: summary.total_products.toString(), sub: "Active stock items", icon: Package, iconColor: "text-white", iconBg: "bg-white/20", cardStyle: { background: "linear-gradient(135deg, rgba(160, 90, 255, 0.9), rgba(182, 109, 255, 0.7))" } },
   ];
 
   const salesChartData = useMemo(() => {
@@ -243,7 +223,6 @@ export default function DashboardPage() {
     }));
   }, [salesView, dailySalesData, monthlySalesData]);
 
-  const salesXKey = "day";
   const attendanceTotal = useMemo(() => {
     return attendanceData.reduce(
       (acc, day) => ({
@@ -265,7 +244,6 @@ export default function DashboardPage() {
     );
   }, [gstHistory]);
 
-  // Stock bar colors: Use Coral for OOS/Low, Mint for OK
   const stockBarColors = stockData.map((item) =>
     item.stock === 0
       ? C.coral
@@ -273,6 +251,17 @@ export default function DashboardPage() {
         ? C.warning
         : C.mint
   );
+
+  if (!mounted) {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm font-medium text-text-muted">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -299,31 +288,13 @@ export default function DashboardPage() {
         {stats.map((s) => (
           <div
             key={s.label}
-            className={`
-    glass-card
-    rounded-[28px]
-    p-5
-    relative
-    overflow-hidden
-    group
-    hover:scale-[1.02]
-    transition-all
-    duration-300
-    ${s.cardBorder}
-  `}
+            className="glass-card rounded-[28px] p-5 relative overflow-hidden group hover:scale-[1.02] transition-all duration-300"
             style={s.cardStyle}
           >
-            {/* <div key={s.label} className={`glass-card p-5 ${s.cardBorder} relative overflow-hidden group`} style={s.cardStyle}>
-             */}
-            {/* Exact overlapping circle patterns from screenshot - only show in SaaS */}
             {!isEnterprise && (
               <>
-                {/* <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/10 blur-[1px] group-hover:scale-110 transition-transform" />
-                <div className="absolute -right-8 top-12 w-32 h-32 rounded-full bg-white/10 blur-[1px] group-hover:scale-110 transition-transform" /> */}
                 <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-white/10 blur-sm" />
-
                 <div className="absolute -right-10 top-10 w-40 h-40 rounded-full bg-white/8 blur-sm" />
-
                 <div className="absolute left-8 bottom-6 w-16 h-16 rounded-full bg-white/5 blur-sm" />
               </>
             )}
@@ -495,8 +466,8 @@ export default function DashboardPage() {
                   ))}
                 </Bar>
               </BarChart>
-            </ResponsiveContainer></div>
-
+            </ResponsiveContainer>
+          </div>
 
           {/* Stock Alerts */}
           <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
@@ -539,8 +510,8 @@ export default function DashboardPage() {
                 <Bar dataKey="present" name="Present" stackId="attendance" fill={C.mint} radius={[0, 0, 4, 4]} />
                 <Bar dataKey="absent" name="Absent" stackId="attendance" fill={C.coral} radius={[4, 4, 0, 0]} />
               </BarChart>
-            </ResponsiveContainer></div>
-
+            </ResponsiveContainer>
+          </div>
 
           <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
             {[
@@ -602,8 +573,8 @@ export default function DashboardPage() {
                   activeDot={{ r: 5, fill: C.warning, stroke: '#fff', strokeWidth: 2 }}
                 />
               </LineChart>
-            </ResponsiveContainer></div>
-
+            </ResponsiveContainer>
+          </div>
 
           <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-2">
             {[
