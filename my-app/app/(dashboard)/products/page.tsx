@@ -6,6 +6,7 @@ import {
   Package, Tag, AlertTriangle, Camera, Upload,
   IndianRupee, Percent, BarChart3, ImageOff, CheckCircle,
   ArrowUpDown, Grid3X3, List, XCircle, Shirt, Loader2, Printer,
+  Lightbulb, Sparkles,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import Barcode from "@/components/Barcode";
@@ -19,7 +20,7 @@ type Product = {
   id: string;
   name: string;
   category: string;
-  
+
   // Garment specific
   gender?: string;
   fabric?: string;
@@ -31,7 +32,7 @@ type Product = {
   expiryDate?: string;
   mfgDate?: string;
   hsnCode?: string;
-  stockQuantity?: number; // Used for grocery if sizes not present
+  stockQuantity?: number;
 
   brand?: string;
   purchasePrice: number;
@@ -68,7 +69,7 @@ const CLOTHING_CATEGORIES = [
   "Winterwear", "Ethnic Wear", "Other",
 ];
 
-const GENDERS = ["Men", "Women", "Kids", "Unisex"];
+const GENDERS = ["Men", "Women", "Kids", "Child", "Unisex"];
 
 const FABRICS = [
   "Cotton", "Polyester", "Linen", "Silk", "Wool",
@@ -91,10 +92,52 @@ const UNITS = ["kg", "g", "liter", "ml", "pcs", "packet", "bottle", "box"];
 const GST_OPTIONS = [0, 5, 12, 18];
 
 // ═══════════════════════════════════════════════════════════════
-// SEED DATA
+// SUGGESTION DATA
 // ═══════════════════════════════════════════════════════════════
 
-// Products will be fetched from API
+const PRODUCT_NAME_SUGGESTIONS = [
+  "Classic White Formal Shirt",
+  "Slim Fit Denim Jeans",
+  "Cotton Crew Neck T-Shirt",
+  "Floral Print Summer Dress",
+  "Running Sports Shoes",
+  "Leather Formal Belt",
+  "Woolen Winter Sweater",
+  "Printed Casual Kurti",
+  "Silk Embroidered Saree",
+  "Hooded Zip-Up Jacket",
+  "Chino Stretchable Pants",
+  "Linen Blend Kurta Set",
+  "Padded Push-Up Bra",
+  "Athletic Jogger Shorts",
+  "Velvet Party Wear Lehenga",
+];
+
+const BRAND_SUGGESTIONS = [
+  "Nike",
+  "Adidas",
+  "Levi's",
+  "Zara",
+  "H&M",
+  "Puma",
+  "Tommy Hilfiger",
+  "Calvin Klein",
+  "Raymond",
+  "Biba",
+];
+
+const COLOR_SUGGESTIONS = [
+  "Navy Blue",
+  "Black",
+  "White",
+  "Maroon",
+  "Olive Green",
+  "Charcoal Grey",
+  "Beige",
+  "Burgundy",
+  "Teal",
+  "Mustard Yellow",
+];
 
 // ═══════════════════════════════════════════════════════════════
 // HELPERS
@@ -132,7 +175,7 @@ function sellingWithGST(p: Product) {
 function getSizesForCategory(category: string, gender: string): string[] {
   if (["Jeans", "Pant", "Shorts", "Skirt"].includes(category))
     return BOTTOM_SIZES;
-  if (gender === "Kids")
+  if (gender === "Kids" || gender === "Child")
     return KIDS_SIZES;
   return APPAREL_SIZES;
 }
@@ -203,6 +246,132 @@ function SelectField({
   );
 }
 
+// ═══════════════════════════════════════════════════════════════
+// SUGGESTION INPUT COMPONENT
+// ═══════════════════════════════════════════════════════════════
+
+function SuggestionInput({
+  label,
+  value,
+  onChange,
+  suggestions,
+  placeholder,
+  error,
+  span = 1,
+  icon: Icon,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  suggestions: string[];
+  placeholder?: string;
+  error?: string;
+  span?: number;
+  icon?: React.ElementType;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState(value);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setQuery(value);
+  }, [value]);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const filtered = useMemo(() => {
+    if (!query.trim() || query === value) return suggestions;
+    const q = query.toLowerCase();
+    return suggestions.filter((s) => s.toLowerCase().includes(q));
+  }, [query, value, suggestions]);
+
+  function handleSelect(s: string) {
+    onChange(s);
+    setQuery(s);
+    setOpen(false);
+  }
+
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const v = e.target.value;
+    setQuery(v);
+    onChange(v);
+    setOpen(true);
+  }
+
+  return (
+    <Field label={label} span={span}>
+      <div ref={containerRef} className="relative">
+        <div className="relative">
+          {Icon && (
+            <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
+          )}
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder={placeholder}
+            value={query}
+            onChange={handleInputChange}
+            onFocus={(e) => {
+              setOpen(true);
+              e.target.select();
+            }}
+            className={`${inputCls} ${Icon ? "pl-8" : ""} ${error ? "border-red-400 bg-coral-light" : ""} pr-8`}
+          />
+          <button
+            type="button"
+            onClick={() => {
+              setOpen((o) => !o);
+              inputRef.current?.focus();
+            }}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-secondary hover:text-primary transition-colors"
+          >
+            <Sparkles size={14} className={open ? "text-primary" : ""} />
+          </button>
+        </div>
+
+        {error && <p className="text-[11px] text-coral mt-1">{error}</p>}
+
+        {open && (
+          <div className="absolute z-50 mt-1 w-full bg-white rounded-xl border border-border shadow-lg shadow-black/5 max-h-52 overflow-y-auto">
+            <div className="px-3 py-2 border-b border-border bg-background/50">
+              <p className="text-[10px] font-semibold text-text-secondary uppercase tracking-wide flex items-center gap-1">
+                <Lightbulb size={10} /> Suggestions
+              </p>
+            </div>
+            {filtered.length === 0 ? (
+              <p className="px-3 py-2.5 text-xs text-text-secondary text-center">No suggestions found</p>
+            ) : (
+              filtered.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => handleSelect(s)}
+                  className={`w-full text-left px-3 py-2 text-sm hover:bg-primary-light transition-colors flex items-center gap-2 ${
+                    value === s ? "bg-primary-light text-primary font-semibold" : "text-text-primary"
+                  }`}
+                >
+                  <Sparkles size={12} className="text-text-secondary shrink-0" />
+                  {s}
+                </button>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+    </Field>
+  );
+}
+
+
 function StatCard({
   label,
   value,
@@ -257,7 +426,6 @@ function ProductImage({
     );
   }
   return (
-    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
       alt={name}
@@ -301,7 +469,6 @@ function SizeStockEditor({
 
   return (
     <div className="space-y-3">
-      {/* Size toggle buttons */}
       <div className="flex flex-wrap gap-1.5">
         {availableSizes.map((size) => {
           const isActive = active.includes(size);
@@ -322,7 +489,6 @@ function SizeStockEditor({
         })}
       </div>
 
-      {/* Qty inputs for selected sizes */}
       {sizes.length > 0 && (
         <div className="grid grid-cols-3 gap-2 pt-1">
           {sizes.map((s) => (
@@ -383,8 +549,7 @@ function ImageUploader({
   return (
     <div className="space-y-3">
       {value ? (
-        <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden border border-border bg-background">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+        <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden border border-border bg-background p-3">
           <img
             src={value}
             alt="Product"
@@ -500,14 +665,12 @@ const EMPTY_FORM: Omit<Product, "id" | "createdDate"> = {
   barcode: "",
   barcodeImageUrl: "",
   image: "",
-  
-  // Garment defaults
+
   gender: "Men",
   fabric: "Cotton",
   color: "",
   sizes: [],
 
-  // Grocery defaults
   unit: "pcs",
   expiryDate: "",
   mfgDate: "",
@@ -515,8 +678,9 @@ const EMPTY_FORM: Omit<Product, "id" | "createdDate"> = {
   stockQuantity: 0,
 };
 
+
 // ═══════════════════════════════════════════════════════════════
-// PRODUCT MODAL — ADD / EDIT / VIEW
+// PRODUCT MODAL
 // ═══════════════════════════════════════════════════════════════
 
 function ProductModal({
@@ -610,7 +774,7 @@ function ProductModal({
       } else {
         res = await api.put(`/products/${product?.id}`, payload);
       }
-      
+
       const saved: Product = {
         ...product,
         ...form,
@@ -710,7 +874,6 @@ function ProductModal({
     const badge = getStockBadge(product);
     const total = totalStock(product);
 
-    // Safe number coercion — API may return strings or null for price fields
     const sellingPrice  = parseFloat(product.sellingPrice  as any) || 0;
     const purchasePrice = parseFloat(product.purchasePrice as any) || 0;
     const gstPercent    = parseFloat(product.gstPercent    as any) || 0;
@@ -720,7 +883,6 @@ function ProductModal({
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
         <div className="w-[80%] bg-white rounded-2xl shadow-xl border border-border overflow-hidden max-h-[92vh] flex flex-col">
 
-          {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
             <div className="flex items-center gap-3">
               <ProductImage src={product.image} name={product.name} size="md" />
@@ -755,15 +917,12 @@ function ProductModal({
 
           <div className="overflow-y-auto flex-1 px-6 py-5 space-y-6">
 
-            {/* Product Image */}
             {product.image && (
-              <div className="w-full h-52 rounded-xl overflow-hidden border border-border bg-background">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+              <div className="w-full h-52 rounded-xl overflow-hidden border border-border bg-background p-3">
                 <img src={product.image} alt={product.name} className="w-full h-full object-contain" />
               </div>
             )}
 
-            {/* ── Pricing ── */}
             <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-coral p-4">
               <p className="text-xs font-bold text-coral uppercase tracking-widest mb-3">Pricing</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -788,7 +947,6 @@ function ProductModal({
               </div>
             </div>
 
-            {/* ── General Info ── */}
             <div>
               <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">General Information</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
@@ -808,7 +966,6 @@ function ProductModal({
               </div>
             </div>
 
-            {/* ── Garment Details ── */}
             {!isGrocery && (
               <div>
                 <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Garment Details</p>
@@ -827,7 +984,6 @@ function ProductModal({
               </div>
             )}
 
-            {/* ── Grocery Details ── */}
             {isGrocery && (
               <div>
                 <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Grocery Details</p>
@@ -848,7 +1004,6 @@ function ProductModal({
               </div>
             )}
 
-            {/* ── Size-wise Stock & Barcodes (Garments only) ── */}
             {!isGrocery && product.sizes && product.sizes.length > 0 && (
               <div>
                 <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Size-wise Stock &amp; Barcodes</p>
@@ -888,7 +1043,6 @@ function ProductModal({
               </div>
             )}
 
-            {/* ── Product Barcode (Grocery only) ── */}
             {isGrocery && product.barcode && (
               <div className="bg-background rounded-xl border border-border p-4">
                 <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Product Barcode</p>
@@ -905,7 +1059,6 @@ function ProductModal({
               </div>
             )}
 
-            {/* ── Description ── */}
             {product.description && (
               <div>
                 <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1.5">Description</p>
@@ -927,12 +1080,12 @@ function ProductModal({
     );
   }
 
+
   // ── ADD / EDIT FORM ───────────────────────────────────────────
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
       <div className="w-[80%] bg-white rounded-2xl shadow-xl border border-border overflow-hidden max-h-[94vh] flex flex-col">
 
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
           <div>
             <h2 className="text-base font-bold text-text-primary">
@@ -956,70 +1109,69 @@ function ProductModal({
         <div className="overflow-y-auto flex-1">
           <div className="grid grid-cols-[1fr_260px] divide-x divide-slate-100">
 
-            {/* Left — Form */}
             <div className="px-6 py-5 space-y-6">
 
-              {/* Basic Info */}
               <div>
                 <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4">Basic Information</p>
                 <div className="grid grid-cols-2 gap-4">
-                  <Field label="Product Name *" span={2}>
-                    <input
-                      type="text"
-                      placeholder="e.g. Classic White Formal Shirt"
-                      value={form.name}
-                      onChange={(e) => set("name", e.target.value)}
-                      className={`${inputCls} ${errors.name ? "border-red-400 bg-coral-light" : ""}`}
-                    />
-                    {errors.name && <p className="text-[11px] text-coral">{errors.name}</p>}
-                  </Field>
+                  {/* Product Name with Suggestions */}
+                  <SuggestionInput
+                    label="Product Name *"
+                    value={form.name}
+                    onChange={(v) => set("name", v)}
+                    suggestions={PRODUCT_NAME_SUGGESTIONS}
+                    placeholder="e.g. Classic White Formal Shirt"
+                    error={errors.name}
+                    span={2}
+                  />
 
-                  <SelectField
+                  <SuggestionInput
                     label="Category *"
                     value={form.category}
                     onChange={(v) => {
                       set("category", v);
                       if (!isGrocery) set("sizes", []);
                     }}
-                    options={isGrocery ? GROCERY_CATEGORIES : CLOTHING_CATEGORIES}
+                    suggestions={isGrocery ? GROCERY_CATEGORIES : CLOTHING_CATEGORIES}
+                    placeholder="e.g. T-Shirt, Shirt, Pant"
                   />
 
                   {!isGrocery ? (
                     <>
-                      <SelectField
+                      <SuggestionInput
                         label="Gender *"
                         value={form.gender || "Men"}
                         onChange={(v) => {
                           set("gender", v);
                           set("sizes", []); 
                         }}
-                        options={GENDERS}
+                        suggestions={GENDERS}
+                        placeholder="e.g. Men, Women, Kids"
                       />
-                      <Field label="Brand">
-                        <input
-                          type="text"
-                          placeholder="e.g. Levis, Zara, Biba"
-                          value={form.brand}
-                          onChange={(e) => set("brand", e.target.value)}
-                          className={inputCls}
-                        />
-                      </Field>
-                      <SelectField
+                      {/* Brand with Suggestions */}
+                      <SuggestionInput
+                        label="Brand"
+                        value={form.brand || ""}
+                        onChange={(v) => set("brand", v)}
+                        suggestions={BRAND_SUGGESTIONS}
+                        placeholder="e.g. Levis, Zara, Biba"
+                      />
+                      <SuggestionInput
                         label="Fabric *"
                         value={form.fabric || "Cotton"}
                         onChange={(v) => set("fabric", v)}
-                        options={FABRICS}
+                        suggestions={FABRICS}
+                        placeholder="e.g. Cotton, Denim"
                       />
-                      <Field label="Color *">
-                        <input
-                          type="text"
-                          placeholder="e.g. Navy Blue, Floral Pink"
-                          value={form.color}
-                          onChange={(e) => set("color", e.target.value)}
-                          className={`${inputCls} ${errors.color ? "border-red-400 bg-coral-light" : ""}`}
-                        />
-                        {errors.color && <p className="text-[11px] text-coral">{errors.color}</p>}
-                      </Field>
+                      {/* Color with Suggestions */}
+                      <SuggestionInput
+                        label="Color *"
+                        value={form.color || ""}
+                        onChange={(v) => set("color", v)}
+                        suggestions={COLOR_SUGGESTIONS}
+                        placeholder="e.g. Navy Blue, Floral Pink"
+                        error={errors.color}
+                      />
                     </>
                   ) : (
                     <>
@@ -1054,22 +1206,20 @@ function ProductModal({
                           className={inputCls}
                         />
                       </Field>
-                      <Field label="Brand">
-                        <input
-                          type="text"
-                          placeholder="e.g. Nestle, Amul"
-                          value={form.brand}
-                          onChange={(e) => set("brand", e.target.value)}
-                          className={inputCls}
-                        />
-                      </Field>
+                      {/* Brand with Suggestions for Grocery too */}
+                      <SuggestionInput
+                        label="Brand"
+                        value={form.brand || ""}
+                        onChange={(v) => set("brand", v)}
+                        suggestions={BRAND_SUGGESTIONS}
+                        placeholder="e.g. Nestle, Amul"
+                      />
                     </>
                   )}
 
                 </div>
               </div>
 
-              {/* Size & Stock (Garments) or Simple Stock (Grocery) */}
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">
@@ -1081,7 +1231,7 @@ function ProductModal({
                     </span>
                   )}
                 </div>
-                
+
                 {isGrocery ? (
                   <Field label="Quantity">
                     <div className="relative">
@@ -1113,7 +1263,6 @@ function ProductModal({
                 )}
               </div>
 
-              {/* Pricing */}
               <div>
                 <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4">Pricing</p>
                 <div className="grid grid-cols-3 gap-4">
@@ -1164,7 +1313,6 @@ function ProductModal({
                   </Field>
                 </div>
 
-                {/* Pricing preview */}
                 {(form.purchasePrice > 0 || form.sellingPrice > 0) && (
                   <div className="mt-3 grid grid-cols-3 gap-2">
                     <div className="bg-background rounded-lg border border-border px-3 py-2 text-center">
@@ -1187,7 +1335,6 @@ function ProductModal({
                 )}
               </div>
 
-              {/* Extra */}
               <div>
                 <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4">Extra</p>
                 <div className="grid grid-cols-2 gap-4">
@@ -1201,7 +1348,7 @@ function ProductModal({
                       className={inputCls}
                     />
                   </Field>
-                  <div /> {/* empty col */}
+                  <div />
                   <Field label="Description" span={2}>
                     <textarea
                       placeholder="Fabric details, care instructions, style notes…"
@@ -1215,7 +1362,6 @@ function ProductModal({
               </div>
             </div>
 
-            {/* Right — Image */}
             <div className="px-5 py-5">
               <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4">Product Image</p>
               <ImageUploader value={form.image} onChange={(url) => set("image", url)} />
@@ -1238,7 +1384,6 @@ function ProductModal({
           </div>
         </div>
 
-        {/* Footer */}
         <div className="flex gap-3 px-6 py-4 border-t border-border shrink-0">
           <button
             onClick={onClose}
@@ -1259,6 +1404,7 @@ function ProductModal({
     </div>
   );
 }
+
 
 // ═══════════════════════════════════════════════════════════════
 // MAIN PAGE
@@ -1332,7 +1478,6 @@ export default function ProductsPage() {
 
   const isGrocery = store?.category === "GROCERY";
 
-  // ── Derived stats ─────────────────────────────────────────────
   const inStockCount = products.filter((p) => getStockBadge(p).label === "In Stock").length;
   const lowCount     = products.filter((p) => getStockBadge(p).label === "Low Stock").length;
   const outCount     = products.filter((p) => getStockBadge(p).label === "Out of Stock").length;
@@ -1343,7 +1488,6 @@ export default function ProductsPage() {
     [products]
   );
 
-  // ── Filtered + sorted list ────────────────────────────────────
   const filtered = useMemo(() => {
     return products
       .filter((p) => {
@@ -1403,7 +1547,6 @@ export default function ProductsPage() {
     }
   }
 
-  // ── RENDER ────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="flex h-[80vh] items-center justify-center">
@@ -1419,7 +1562,6 @@ export default function ProductsPage() {
     <>
       <div className="space-y-6">
 
-        {/* Page Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-xl font-bold text-text-primary">{isGrocery ? "Grocery Inventory" : "Clothing Products"}</h1>
@@ -1435,7 +1577,6 @@ export default function ProductsPage() {
           </button>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
           <StatCard index={0} label="Total Products"  value={products.length} sub="All categories"    icon={Package}       bg="bg-coral-light"   ic="text-primary"   />
           <StatCard index={1} label="In Stock"        value={inStockCount}    sub="Available"          icon={CheckCircle}   bg="bg-mint-light"  ic="text-success"  />
@@ -1443,32 +1584,30 @@ export default function ProductsPage() {
           <StatCard index={3} label="Inventory Value" value={fmt(totalValue)} sub="At purchase price" icon={BarChart3}      bg="bg-purple-50" ic="text-purple-600" />
         </div>
 
-        {/* Low stock banner */}
         {(lowCount > 0 || outCount > 0) && (
-  <div className="flex items-start gap-3 bg-warning/10 rounded-xl px-5 py-4">
-    <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
-    <div className="flex-1 min-w-0">
-      <p className="text-sm font-bold text-amber-800">Stock Alert</p>
-      <div className="flex flex-wrap gap-1.5 mt-2">
-        {products
-          .filter((p) => getStockBadge(p).label !== "In Stock")
-          .map((p) => {
-            return (
-              <button
-                key={p.id}
-                onClick={() => { setSelected(p); setModal("view"); }}
-                className="px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-white text-neutral-500 border border-red-500 transition-all duration-150 ease-out hover:scale-[1.03] hover:bg-pink-50"
-              >
-                {p.name} — {totalStock(p) === 0 ? "OUT" : `${totalStock(p)} left`}
-              </button>
-            );
-          })}
-      </div>
-    </div>
-  </div>
-)}
+          <div className="flex items-start gap-3 bg-warning/10 rounded-xl px-5 py-4">
+            <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-amber-800">Stock Alert</p>
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {products
+                  .filter((p) => getStockBadge(p).label !== "In Stock")
+                  .map((p) => {
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => { setSelected(p); setModal("view"); }}
+                        className="px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-white text-neutral-500 border border-red-500 transition-all duration-150 ease-out hover:scale-[1.03] hover:bg-pink-50"
+                      >
+                        {p.name} — {totalStock(p) === 0 ? "OUT" : `${totalStock(p)} left`}
+                      </button>
+                    );
+                  })}
+              </div>
+            </div>
+          </div>
+        )}
 
-        {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
@@ -1542,7 +1681,6 @@ export default function ProductsPage() {
           </div>
         </div>
 
-        {/* ── TABLE VIEW ── */}
         {viewMode === "table" && (
           <div className="glass-panel">
             <div className="overflow-x-auto">
@@ -1719,7 +1857,6 @@ export default function ProductsPage() {
           </div>
         )}
 
-        {/* ── GRID VIEW ── */}
         {viewMode === "grid" && (
           <>
             {filtered.length === 0 ? (
@@ -1744,9 +1881,8 @@ export default function ProductsPage() {
                       key={p.id}
                       className="glass-panel !rounded overflow-hidden hover:border-coral hover:shadow-md transition-all group"
                     >
-                      <div className="relative w-full aspect-[3/4] bg-background border-b border-border">
+                      <div className="relative w-full aspect-[3/4] bg-background border-b border-border p-3">
                         {p.image ? (
-                          // eslint-disable-next-line @next/next/no-img-element
                           <img src={p.image} alt={p.name} className="w-full h-full object-contain" />
                         ) : (
                           <div className="flex items-center justify-center h-full">
@@ -1782,7 +1918,6 @@ export default function ProductsPage() {
                           )}
                         </div>
 
-                        {/* Size chips (Garments) */}
                         {!isGrocery && p.sizes && (
                           <div className="flex flex-wrap gap-1">
                             {p.sizes.map((s) => (
@@ -1866,7 +2001,6 @@ export default function ProductsPage() {
 
       </div>
 
-      {/* Modals */}
       {modal && (
         <ProductModal
           mode={modal}
@@ -1878,7 +2012,6 @@ export default function ProductsPage() {
         />
       )}
 
-      {/* Delete Confirm */}
       {deleteId &&
         (() => {
           const p = products.find((x) => x.id === deleteId);
