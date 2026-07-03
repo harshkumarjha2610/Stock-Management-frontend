@@ -1597,7 +1597,7 @@ export default function ProductsPage() {
                       <button
                         key={p.id}
                         onClick={() => { setSelected(p); setModal("view"); }}
-                        className="px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-white text-neutral-500 border border-red-500 transition-all duration-150 ease-out hover:scale-[1.03] hover:bg-pink-50"
+                        className="px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-red-600 text-white border border-red-600 transition-all duration-150 ease-out hover:scale-[1.03] hover:bg-red-700 shadow-sm"
                       >
                         {p.name} — {totalStock(p) === 0 ? "OUT" : `${totalStock(p)} left`}
                       </button>
