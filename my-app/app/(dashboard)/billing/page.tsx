@@ -5,6 +5,7 @@ import {
   Search, Plus, Minus, Trash2, Printer, CheckCircle,
   X, ShoppingCart, User, Phone, IndianRupee, Receipt,
   Tag, Package, ScanLine, RotateCcw, Loader2, QrCode,
+  CreditCard, Building2, FileText, Monitor, Store, CalendarCheck, ClipboardCheck, StickyNote, ChevronDown,
 } from "lucide-react";
 import { api } from "@/lib/api";
 
@@ -38,6 +39,10 @@ type StorePayment = {
   upiPayeeName: string;
 };
 
+type CardType = "Visa" | "Mastercard" | "RuPay" | "American Express" | "Maestro" | "Diners Club" | "Other";
+type PaymentMode = "Tap (Contactless)" | "Chip (Insert)" | "Swipe";
+type CardStatus = "Pending" | "Successful" | "Failed";
+
 // ═══════════════════════════════════════════════════════════
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════
@@ -48,8 +53,23 @@ const PAYMENT_METHODS: { key: PaymentMethod; label: string; icon: string }[] = [
   { key: "card", label: "Card", icon: "💳" },
 ];
 
+const CARD_TYPES: CardType[] = [
+  "Visa", "Mastercard", "RuPay", "American Express", "Maestro", "Diners Club", "Other"
+];
+
+const PAYMENT_MODES: PaymentMode[] = [
+  "Tap (Contactless)", "Chip (Insert)", "Swipe"
+];
+
+const BANK_NAMES = [
+  "SBI", "HDFC", "ICICI", "Axis", "Kotak Mahindra",
+  "Punjab National Bank", "Bank of Baroda", "Canara Bank", "Union Bank", "Other"
+];
+
 const inputCls =
   "h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm text-text-primary outline-none focus:border-red-400 focus:ring-2 focus:ring-primary transition-colors";
+
+const selectCls = inputCls + " appearance-none pr-8 cursor-pointer";
 
 function fmt(n: number) {
   return "₹" + n.toLocaleString("en-IN");
@@ -64,6 +84,27 @@ function buildUpiLink(upiId: string, payeeName: string, amount: number, note: st
     tn: note,
   });
   return `upi://pay?${params.toString()}`;
+}
+
+// Inject fade-in-up keyframes for card payment animation
+function useFadeInUpKeyframes() {
+  useEffect(() => {
+    const id = "billing-fade-in-up-keyframes";
+    if (document.getElementById(id)) return;
+    const style = document.createElement("style");
+    style.id = id;
+    style.textContent = `
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      const existing = document.getElementById(id);
+      if (existing) existing.remove();
+    };
+  }, []);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -82,6 +123,18 @@ function printInvoice(
     totalGST: number;
     grandTotal: number;
     cashReceived: number;
+  },
+  cardDetails?: {
+    cardType: string;
+    paymentMode: string;
+    bankName: string;
+    last4Digits: string;
+    rrn: string;
+    approvalCode?: string;
+    terminalId?: string;
+    merchantId?: string;
+    status: string;
+    notes?: string;
   }
 ) {
   const rows = cart.map((item) => {
@@ -101,6 +154,26 @@ function printInvoice(
         <td style="text-align:right">₹${total.toLocaleString("en-IN")}</td>
       </tr>`;
   }).join("");
+
+  let cardInfoHtml = "";
+  if (payment === "card" && cardDetails) {
+    cardInfoHtml = `
+      <div style="background:#faf5ff; border:1px solid #e9d5ff; border-radius:8px; padding:12px 16px; margin-bottom:16px;">
+        <p style="font-size:11px; color:#7c3aed; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">💳 Card Payment Details</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px 24px; font-size:12px;">
+          <div><span style="color:#64748b">Card Type:</span> <strong style="color:#1e293b">${cardDetails.cardType}</strong></div>
+          <div><span style="color:#64748b">Payment Mode:</span> <strong style="color:#1e293b">${cardDetails.paymentMode}</strong></div>
+          <div><span style="color:#64748b">Bank:</span> <strong style="color:#1e293b">${cardDetails.bankName}</strong></div>
+          <div><span style="color:#64748b">Last 4 Digits:</span> <strong style="color:#1e293b">**** ${cardDetails.last4Digits}</strong></div>
+          <div><span style="color:#64748b">RRN:</span> <strong style="color:#1e293b">${cardDetails.rrn}</strong></div>
+          ${cardDetails.approvalCode ? `<div><span style="color:#64748b">Approval Code:</span> <strong style="color:#1e293b">${cardDetails.approvalCode}</strong></div>` : ""}
+          ${cardDetails.terminalId ? `<div><span style="color:#64748b">Terminal ID:</span> <strong style="color:#1e293b">${cardDetails.terminalId}</strong></div>` : ""}
+          ${cardDetails.merchantId ? `<div><span style="color:#64748b">Merchant ID:</span> <strong style="color:#1e293b">${cardDetails.merchantId}</strong></div>` : ""}
+          <div><span style="color:#64748b">Status:</span> <strong style="color:${cardDetails.status === "Successful" ? "#16a34a" : cardDetails.status === "Failed" ? "#dc2626" : "#ca8a04"}">${cardDetails.status}</strong></div>
+        </div>
+        ${cardDetails.notes ? `<p style="margin-top:8px; font-size:11px; color:#64748b; border-top:1px solid #e9d5ff; padding-top:6px;">📝 ${cardDetails.notes}</p>` : ""}
+      </div>`;
+  }
 
   const html = `
     <html>
@@ -150,6 +223,8 @@ function printInvoice(
         <div><p>Customer Name</p><strong>${customer.name || "Walk-in Customer"}</strong></div>
         <div><p>Phone</p><strong>${customer.phone || "—"}</strong></div>
       </div>
+
+      ${cardInfoHtml}
 
       <table>
         <thead>
@@ -202,6 +277,7 @@ function printInvoice(
 // ═══════════════════════════════════════════════════════════
 
 export default function BillingPage() {
+  useFadeInUpKeyframes();
   const [products, setProducts] = useState<Product[]>([]);
   const [storePayment, setStorePayment] = useState<StorePayment | null>(null);
   const [loading, setLoading] = useState(true);
@@ -286,10 +362,41 @@ export default function BillingPage() {
   const [billDiscount, setBillDiscount] = useState(0);
   const [showUpiPopup, setShowUpiPopup] = useState(false);
 
+  // ── Card Payment State ──────────────────────────────────────
+  const [cardType, setCardType] = useState<CardType>("Visa");
+  const [cardPaymentMode, setCardPaymentMode] = useState<PaymentMode>("Tap (Contactless)");
+  const [cardBankName, setCardBankName] = useState<string>("SBI");
+  const [cardLast4, setCardLast4] = useState("");
+  const [cardRRN, setCardRRN] = useState("");
+  const [cardApprovalCode, setCardApprovalCode] = useState("");
+  const [cardTerminalId, setCardTerminalId] = useState("");
+  const [cardMerchantId, setCardMerchantId] = useState("");
+  const [cardStatus, setCardStatus] = useState<CardStatus>("Pending");
+  const [cardNotes, setCardNotes] = useState("");
+  const [cardDateTime, setCardDateTime] = useState("");
+  const [cardErrors, setCardErrors] = useState<Record<string, string>>({});
+
   const [mode, setMode] = useState<"sale" | "return">("sale");
   const [success, setSuccess] = useState(false);
   const [lastInvoice, setLastInvoice] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // Update card datetime when card is selected
+  useEffect(() => {
+    if (payMethod === "card") {
+      const now = new Date();
+      const formatted = now.toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      });
+      setCardDateTime(formatted);
+    }
+  }, [payMethod]);
 
   const searchResults = useMemo(() => {
     if (!search.trim()) return [];
@@ -361,6 +468,19 @@ export default function BillingPage() {
     setShowUpiPopup(false);
     setSuccess(false);
     setMode("sale");
+    // Reset card fields
+    setCardType("Visa");
+    setCardPaymentMode("Tap (Contactless)");
+    setCardBankName("SBI");
+    setCardLast4("");
+    setCardRRN("");
+    setCardApprovalCode("");
+    setCardTerminalId("");
+    setCardMerchantId("");
+    setCardStatus("Pending");
+    setCardNotes("");
+    setCardDateTime("");
+    setCardErrors({});
   }
 
   const totals = useMemo(() => {
@@ -391,13 +511,31 @@ export default function BillingPage() {
     };
   }, [cart, billDiscount, cashReceived, payMethod]);
 
+  function validateCardPayment(): boolean {
+    const errors: Record<string, string> = {};
+
+    if (!cardLast4 || cardLast4.length !== 4 || !/^\d{4}$/.test(cardLast4)) {
+      errors.last4 = "Enter valid 4 digits";
+    }
+    if (!cardRRN.trim()) {
+      errors.rrn = "Transaction RRN is required";
+    }
+
+    setCardErrors(errors);
+    return Object.keys(errors).length === 0;
+  }
+
   async function submitBill(paidStatus: "PAID" | "UNPAID" = "PAID") {
     if (cart.length === 0) return;
+
+    if (payMethod === "card" && !validateCardPayment()) {
+      return;
+    }
 
     setSubmitting(true);
 
     try {
-      const payload = {
+      const payload: any = {
         customer_name: custName,
         customer_phone: custPhone,
         payment_method: payMethod,
@@ -415,10 +553,40 @@ export default function BillingPage() {
         type: mode.toUpperCase(),
       };
 
+      // Include card payment details in payload
+      if (payMethod === "card") {
+        payload.card_details = {
+          card_type: cardType,
+          payment_mode: cardPaymentMode,
+          bank_name: cardBankName,
+          last_4_digits: cardLast4,
+          rrn: cardRRN,
+          approval_code: cardApprovalCode || undefined,
+          terminal_id: cardTerminalId || undefined,
+          merchant_id: cardMerchantId || undefined,
+          status: cardStatus,
+          notes: cardNotes || undefined,
+          transaction_time: cardDateTime,
+        };
+      }
+
       const res = await api.post("/bills", payload);
       const invNo = res.data.invoice_no || res.data.invoice_number;
 
       setLastInvoice(invNo);
+
+      const cardDetails = payMethod === "card" ? {
+        cardType,
+        paymentMode: cardPaymentMode,
+        bankName: cardBankName,
+        last4Digits: cardLast4,
+        rrn: cardRRN,
+        approvalCode: cardApprovalCode,
+        terminalId: cardTerminalId,
+        merchantId: cardMerchantId,
+        status: cardStatus,
+        notes: cardNotes,
+      } : undefined;
 
       printInvoice(
         cart,
@@ -432,7 +600,8 @@ export default function BillingPage() {
           totalGST: totals.totalGST,
           grandTotal: totals.grandTotal,
           cashReceived,
-        }
+        },
+        cardDetails
       );
 
       setSuccess(true);
@@ -676,7 +845,9 @@ export default function BillingPage() {
           </div>
         </div>
 
-        <div className="relative">
+        {/* relative + z-40 so this whole search block establishes a stacking
+            context above the cart panel beneath it */}
+        <div className="relative z-40">
           <div
             className={`flex h-11 items-center gap-2 rounded-xl border border-border bg-surface px-4 transition-all ${mode === "sale"
               ? "focus-within:border-red-400 focus-within:ring-2 focus-within:ring-red-500/20"
@@ -716,13 +887,20 @@ export default function BillingPage() {
           </div>
 
           {showSearch && searchResults.length > 0 && (
-            <div className="absolute left-0 right-0 top-full z-30 mt-1.5 overflow-hidden rounded-xl border border-border bg-surface shadow-lg">
+            // Solid, fully opaque background (not the translucent `bg-surface`
+            // token used elsewhere) so the Cart header text behind it can no
+            // longer show through. Raised z-index + isolate keeps it above
+            // every panel in the layout regardless of their own stacking
+            // contexts.
+            <div
+              className="absolute left-0 right-0 top-full z-50 mt-1.5 isolate overflow-hidden rounded-xl border border-border bg-white shadow-2xl ring-1 ring-black/5 backdrop-blur-0"
+              style={{ backgroundColor: "#ffffff" }}
+            >
               {searchResults.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => addToCart(p)}
-                  className={`flex w-full items-center gap-3 border-b border-slate-50 px-4 py-3 text-left transition-colors last:border-0 ${mode === "sale" ? "hover:bg-red-50" : "hover:bg-amber-50"
-                    }`}
+                  className="flex w-full items-center gap-3 border-b border-slate-50 bg-white px-4 py-3 text-left transition-colors duration-150 last:border-0 hover:bg-yellow-50 focus:bg-yellow-50 focus:outline-none"
                 >
                   <div
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${p.size
@@ -765,7 +943,7 @@ export default function BillingPage() {
 
           {showSearch && (
             <div
-              className="fixed inset-0 z-20"
+              className="fixed inset-0 z-40"
               onClick={() => setShowSearch(false)}
             />
           )}
@@ -949,14 +1127,6 @@ export default function BillingPage() {
               <button
                 key={m.key}
                 onClick={() => setPayMethod(m.key)}
-                // className={`flex flex-col items-center gap-1 rounded-xl border py-2.5 text-xs font-semibold transition-all ${payMethod === m.key
-                //     ? mode === "sale"
-                //       ? "border-red-600 bg-red-600 text-white shadow-sm shadow-red-200"
-                //       : "border-amber-600 bg-amber-600 text-white shadow-sm shadow-amber-200"
-                //     : mode === "sale"
-                //       ? "border-border text-text-primary hover:border-red-200 hover:bg-red-50"
-                //       : "border-border text-text-primary hover:border-amber-200 hover:bg-amber-50"
-                //   }`}
                 className={`flex flex-col items-center gap-1 rounded-xl border py-2.5 text-xs font-semibold transition-all duration-300
   ${payMethod === m.key
                     ? "border-violet-500 bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-300/40 scale-[1.02]"
@@ -970,8 +1140,9 @@ export default function BillingPage() {
             ))}
           </div>
 
+          {/* ── CASH PAYMENT ─────────────────────────────────────── */}
           {payMethod === "cash" && (
-            <div className="space-y-2">
+            <div className="space-y-2" style={{ animation: "fadeInUp 0.3s ease-out both" }}>
               <div className="relative">
                 <IndianRupee className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-secondary" />
                 <input
@@ -999,6 +1170,227 @@ export default function BillingPage() {
                   </p>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* ── CARD PAYMENT ─────────────────────────────────────── */}
+          {payMethod === "card" && (
+            <div className="space-y-3" style={{ animation: "fadeInUp 0.35s ease-out both" }}>
+              {/* Section Header */}
+              <div className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-100 px-3 py-2">
+                <CreditCard className="w-4 h-4 text-violet-600" />
+                <p className="text-xs font-bold text-violet-700 uppercase tracking-wide">Card Payment Details</p>
+                <span className="ml-auto text-[10px] font-mono text-violet-500 bg-white/70 px-1.5 py-0.5 rounded">POS</span>
+              </div>
+
+              {/* Payment Amount — Read Only */}
+              <div className="relative">
+                <IndianRupee className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-secondary" />
+                <input
+                  type="text"
+                  readOnly
+                  value={fmt(totals.grandTotal)}
+                  className={`${inputCls} pl-8 bg-violet-50/50 border-violet-200 text-violet-800 font-bold cursor-not-allowed`}
+                />
+                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-violet-500 uppercase tracking-wide">Amount</span>
+              </div>
+
+              {/* Two Column Layout */}
+              <div className="grid grid-cols-2 gap-2.5">
+                {/* Card Type */}
+                <div className="space-y-1">
+                  <label className="flex items-center gap-1 text-[10px] font-bold text-text-secondary uppercase tracking-wide">
+                    <CreditCard size={10} className="text-violet-500" /> Card Type
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={cardType}
+                      onChange={(e) => setCardType(e.target.value as CardType)}
+                      className={`${selectCls} text-xs`}
+                    >
+                      {CARD_TYPES.map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-text-secondary pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* Payment Mode */}
+                <div className="space-y-1">
+                  <label className="flex items-center gap-1 text-[10px] font-bold text-text-secondary uppercase tracking-wide">
+                    <ScanLine size={10} className="text-violet-500" /> Payment Mode
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={cardPaymentMode}
+                      onChange={(e) => setCardPaymentMode(e.target.value as PaymentMode)}
+                      className={`${selectCls} text-xs`}
+                    >
+                      {PAYMENT_MODES.map((m) => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-text-secondary pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* Bank Name */}
+                <div className="space-y-1">
+                  <label className="flex items-center gap-1 text-[10px] font-bold text-text-secondary uppercase tracking-wide">
+                    <Building2 size={10} className="text-violet-500" /> Bank
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={cardBankName}
+                      onChange={(e) => setCardBankName(e.target.value)}
+                      className={`${selectCls} text-xs`}
+                    >
+                      {BANK_NAMES.map((b) => (
+                        <option key={b} value={b}>{b}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-text-secondary pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* Last 4 Digits */}
+                <div className="space-y-1">
+                  <label className="flex items-center gap-1 text-[10px] font-bold text-text-secondary uppercase tracking-wide">
+                    <CreditCard size={10} className="text-violet-500" /> Last 4 Digits
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={4}
+                      placeholder="4582"
+                      value={cardLast4}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                        setCardLast4(val);
+                        if (cardErrors.last4) setCardErrors((prev) => { const n = { ...prev }; delete n.last4; return n; });
+                      }}
+                      className={`${inputCls} text-xs font-mono tracking-widest text-center ${cardErrors.last4 ? "border-red-400 bg-red-50" : ""}`}
+                    />
+                  </div>
+                  {cardErrors.last4 && <p className="text-[10px] text-red-500">{cardErrors.last4}</p>}
+                </div>
+              </div>
+
+              {/* Transaction Reference Number (RRN) — Full Width */}
+              <div className="space-y-1">
+                <label className="flex items-center gap-1 text-[10px] font-bold text-text-secondary uppercase tracking-wide">
+                  <FileText size={10} className="text-violet-500" /> Transaction RRN <span className="text-red-400">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="123456789012"
+                    value={cardRRN}
+                    onChange={(e) => {
+                      setCardRRN(e.target.value);
+                      if (cardErrors.rrn) setCardErrors((prev) => { const n = { ...prev }; delete n.rrn; return n; });
+                    }}
+                    className={`${inputCls} text-xs font-mono ${cardErrors.rrn ? "border-red-400 bg-red-50" : ""}`}
+                  />
+                </div>
+                {cardErrors.rrn && <p className="text-[10px] text-red-500">{cardErrors.rrn}</p>}
+              </div>
+
+              {/* Two Column — Approval Code & Terminal ID */}
+              <div className="grid grid-cols-2 gap-2.5">
+                <div className="space-y-1">
+                  <label className="flex items-center gap-1 text-[10px] font-bold text-text-secondary uppercase tracking-wide">
+                    <ClipboardCheck size={10} className="text-violet-500" /> Approval Code
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="458712"
+                    value={cardApprovalCode}
+                    onChange={(e) => setCardApprovalCode(e.target.value)}
+                    className={`${inputCls} text-xs font-mono`}
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="flex items-center gap-1 text-[10px] font-bold text-text-secondary uppercase tracking-wide">
+                    <Monitor size={10} className="text-violet-500" /> Terminal ID
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="POS001"
+                    value={cardTerminalId}
+                    onChange={(e) => setCardTerminalId(e.target.value)}
+                    className={`${inputCls} text-xs font-mono`}
+                  />
+                </div>
+              </div>
+
+              {/* Two Column — Merchant ID & Date/Time */}
+              <div className="grid grid-cols-2 gap-2.5">
+                <div className="space-y-1">
+                  <label className="flex items-center gap-1 text-[10px] font-bold text-text-secondary uppercase tracking-wide">
+                    <Store size={10} className="text-violet-500" /> Merchant ID
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="MER12345"
+                    value={cardMerchantId}
+                    onChange={(e) => setCardMerchantId(e.target.value)}
+                    className={`${inputCls} text-xs font-mono`}
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="flex items-center gap-1 text-[10px] font-bold text-text-secondary uppercase tracking-wide">
+                    <CalendarCheck size={10} className="text-violet-500" /> Date & Time
+                  </label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={cardDateTime}
+                    className={`${inputCls} text-xs bg-slate-50 cursor-not-allowed text-text-secondary`}
+                  />
+                </div>
+              </div>
+
+              {/* Payment Status */}
+              <div className="space-y-1">
+                <label className="flex items-center gap-1 text-[10px] font-bold text-text-secondary uppercase tracking-wide">
+                  <ClipboardCheck size={10} className="text-violet-500" /> Payment Status
+                </label>
+                <div className="relative">
+                  <select
+                    value={cardStatus}
+                    onChange={(e) => setCardStatus(e.target.value as CardStatus)}
+                    className={`${selectCls} text-xs ${
+                      cardStatus === "Successful" ? "bg-green-50 border-green-200 text-green-700" :
+                      cardStatus === "Failed" ? "bg-red-50 border-red-200 text-red-700" :
+                      "bg-amber-50 border-amber-200 text-amber-700"
+                    }`}
+                  >
+                    <option value="Pending">⏳ Pending</option>
+                    <option value="Successful">✅ Successful</option>
+                    <option value="Failed">❌ Failed</option>
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-text-secondary pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div className="space-y-1">
+                <label className="flex items-center gap-1 text-[10px] font-bold text-text-secondary uppercase tracking-wide">
+                  <StickyNote size={10} className="text-violet-500" /> Notes
+                </label>
+                <textarea
+                  placeholder="Additional payment remarks..."
+                  value={cardNotes}
+                  onChange={(e) => setCardNotes(e.target.value)}
+                  rows={2}
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-xs text-text-primary placeholder:text-text-secondary outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-500/20 transition-colors resize-none"
+                />
+              </div>
             </div>
           )}
         </div>
@@ -1075,7 +1467,8 @@ export default function BillingPage() {
             submitting ||
             (payMethod === "cash" &&
               cashReceived > 0 &&
-              cashReceived < totals.grandTotal)
+              cashReceived < totals.grandTotal) ||
+            (payMethod === "card" && Object.keys(cardErrors).length > 0)
           }
           className={`flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${mode === "sale"
             ? "bg-primary hover:bg-red-700 shadow-red-200"
@@ -1094,15 +1487,19 @@ export default function BillingPage() {
             ? "Processing..."
             : payMethod === "upi" && mode === "sale"
               ? "Show UPI QR"
-              : mode === "sale"
-                ? "Generate Bill & Print"
-                : "Process Return & Print"}
+              : payMethod === "card" && mode === "sale"
+                ? "Process Card Payment & Print"
+                : mode === "sale"
+                  ? "Generate Bill & Print"
+                  : "Process Return & Print"}
         </button>
 
         <p className="-mt-1 text-center text-xs text-text-secondary">
           {payMethod === "upi" && mode === "sale"
             ? "Confirm payment after scanning QR"
-            : "Bill will open in a print dialog"}
+            : payMethod === "card" && mode === "sale"
+              ? "Verify card details before processing"
+              : "Bill will open in a print dialog"}
         </p>
       </div>
     </div>

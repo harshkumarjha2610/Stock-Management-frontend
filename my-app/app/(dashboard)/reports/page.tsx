@@ -149,7 +149,7 @@ function DailySalesReport({ data }: { data: any[] }) {
 
       <ChartCard title="Daily Sales Trend">
         <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+          <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }} barCategoryGap="40%" barGap={4}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
             <YAxis tickFormatter={fmtK} tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
@@ -160,8 +160,8 @@ function DailySalesReport({ data }: { data: any[] }) {
               labelFormatter={(label) => label}
             />
             <Legend />
-            <Bar dataKey="sales"   name="Sales"   fill={CHART_COLORS.red}  radius={[4, 4, 0, 0]} />
-            <Bar dataKey="returns" name="Returns" fill={CHART_COLORS.amber}   radius={[4, 4, 0, 0]} />
+            <Bar dataKey="sales"   name="Sales"   fill={CHART_COLORS.red}  radius={[4, 4, 0, 0]} barSize={56} />
+            <Bar dataKey="returns" name="Returns" fill={CHART_COLORS.amber}   radius={[4, 4, 0, 0]} barSize={56} />
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -215,12 +215,12 @@ function MonthlySalesReport({ data }: { data: any[] }) {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
         <ChartCard title="Monthly Revenue">
           <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+            <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }} barCategoryGap="40%" barGap={4}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
               <YAxis tickFormatter={fmtK} tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
               <Tooltip formatter={(v: any) => typeof v === "number" ? [fmt(v), "Revenue"] : v} contentStyle={customTooltipStyle} cursor={{ fill: "#f8fafc" }} />
-              <Bar dataKey="sales" fill={CHART_COLORS.red} radius={[6, 6, 0, 0]} />
+              <Bar dataKey="sales" fill={CHART_COLORS.red} radius={[6, 6, 0, 0]} barSize={56} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -261,15 +261,15 @@ function ProfitReport({ data }: { data: any[] }) {
 
       <ChartCard title="Revenue vs Cost vs Profit">
         <ResponsiveContainer width="100%" height={260}>
-          <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+          <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }} barCategoryGap="40%" barGap={4}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
             <YAxis tickFormatter={fmtK} tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
             <Tooltip formatter={(v) => typeof v === "number" ? fmt(v) : v} contentStyle={customTooltipStyle} cursor={{ fill: "#f8fafc" }} />
             <Legend />
-            <Bar dataKey="revenue" name="Revenue" fill={CHART_COLORS.red}  radius={[4, 4, 0, 0]} />
-            <Bar dataKey="cost"    name="Cost"    fill={CHART_COLORS.red}   radius={[4, 4, 0, 0]} />
-            <Bar dataKey="profit"  name="Profit"  fill={CHART_COLORS.green} radius={[4, 4, 0, 0]} />
+            <Bar dataKey="revenue" name="Revenue" fill={CHART_COLORS.red}  radius={[4, 4, 0, 0]} barSize={48} />
+            <Bar dataKey="cost"    name="Cost"    fill={CHART_COLORS.red}   radius={[4, 4, 0, 0]} barSize={48} />
+            <Bar dataKey="profit"  name="Profit"  fill={CHART_COLORS.green} radius={[4, 4, 0, 0]} barSize={48} />
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -290,16 +290,16 @@ function GstReport({ data }: { data: any[] }) {
 
       <ChartCard title="GST Collection by Slab">
         <ResponsiveContainer width="100%" height={260}>
-          <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+          <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }} barCategoryGap="40%" barGap={2}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
             <YAxis tickFormatter={fmtK} tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
             <Tooltip formatter={(v: any) => typeof v === "number" ? fmt(v) : v} contentStyle={customTooltipStyle} cursor={{ fill: "#f8fafc" }} />
             <Legend />
-            <Bar dataKey="gst5"  name="5%"  fill={CHART_COLORS.red}   radius={[3, 3, 0, 0]} stackId="a" />
-            <Bar dataKey="gst12" name="12%" fill={CHART_COLORS.teal}   radius={[0, 0, 0, 0]} stackId="a" />
-            <Bar dataKey="gst18" name="18%" fill={CHART_COLORS.amber}  radius={[0, 0, 0, 0]} stackId="a" />
-            <Bar dataKey="gst28" name="28%" fill={CHART_COLORS.red}    radius={[3, 3, 0, 0]} stackId="a" />
+            <Bar dataKey="gst5"  name="5%"  fill={CHART_COLORS.red}   radius={[3, 3, 0, 0]} stackId="a" barSize={48} />
+            <Bar dataKey="gst12" name="12%" fill={CHART_COLORS.teal}   radius={[0, 0, 0, 0]} stackId="a" barSize={48} />
+            <Bar dataKey="gst18" name="18%" fill={CHART_COLORS.amber}  radius={[0, 0, 0, 0]} stackId="a" barSize={48} />
+            <Bar dataKey="gst28" name="28%" fill={CHART_COLORS.red}    radius={[3, 3, 0, 0]} stackId="a" barSize={48} />
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
