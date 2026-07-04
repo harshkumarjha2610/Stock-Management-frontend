@@ -29,6 +29,7 @@ import {
   AlertCircle,
   UserPlus,
   X,
+  Percent,
 } from "lucide-react";
 import { type LucideIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
@@ -112,6 +113,7 @@ const navItems: NavItem[] = [
   { label: "Billing", href: "/billing", category: "Business", icon: Receipt, color: "text-[#FE9496]", bg: "bg-[#FE9496]/10" },
   { label: "Orders", href: "/orders", category: "Business", icon: ShoppingCart, badge: 12, color: "text-[#4BCBEB]", bg: "bg-[#4BCBEB]/10" },
   { label: "Customers", href: "/customers", category: "Business", icon: Users, color: "text-[#A05AFF]", bg: "bg-[#A05AFF]/10" },
+  { label: "Discount", href: "/discount", category: "Business", icon: Percent, color: "text-[#FFD166]", bg: "bg-[#FFD166]/10" },
   { label: "Reports", href: "/reports", category: "Analytics", icon: BarChart3, color: "text-[#FE9496]", bg: "bg-[#FE9496]/10" },
   { label: "Staff", href: "/staff", category: "Management", icon: UserCheck, color: "text-[#1BCFB4]", bg: "bg-[#1BCFB4]/10" },
   { label: "Attendance", href: "/attendance", category: "Management", icon: Calendar, color: "text-[#4BCBEB]", bg: "bg-[#4BCBEB]/10" },
