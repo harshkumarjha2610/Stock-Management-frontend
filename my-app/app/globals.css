@@ -43,6 +43,9 @@
 
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains-mono);
+
+  /* ── Font Size Variable (default: normal 1rem) ── */
+  --font-size-base: 1rem;
 }
 
 [data-theme="enterprise"] {
@@ -87,6 +90,9 @@
 
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains-mono);
+
+  /* ── Font Size Variable (default: normal 1rem) ── */
+  --font-size-base: 1rem;
 }
 
 @theme inline {
@@ -133,6 +139,10 @@
 html,
 body {
   min-height: 100%;
+}
+
+html {
+  font-size: var(--font-size-base);
 }
 
 body {
