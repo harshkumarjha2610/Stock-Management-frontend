@@ -185,6 +185,7 @@ function StatCard({
 
 export default function StaffManagementPage() {
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [mainTab, setMainTab] = useState<MainTab>("staff");
 
   // ── Staff State ──────────────────────────────────────────────
@@ -361,7 +362,7 @@ export default function StaffManagementPage() {
 
   async function saveStaff() {
     if (!staffForm.name.trim() || !staffForm.phone.trim()) return;
-    setLoading(true);
+    setSaving(true);
     try {
       const payload = {
         name: staffForm.name,
@@ -403,12 +404,12 @@ export default function StaffManagementPage() {
     } catch (error: any) {
       alert(error.message || "Failed to save staff");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   }
 
   async function updateStatus(staffId: string, status: string) {
-    setLoading(true);
+    setSaving(true);
     try {
       const res = await api.post('/staff/attendance', {
         staff_id: staffId,
@@ -440,14 +441,14 @@ export default function StaffManagementPage() {
     } catch (error: any) {
       alert(error.message || "Failed to update status");
     } finally {
-      setLoading(false);
+      setSaving(false);
       setMarkModal(null);
     }
   }
 
   async function deleteStaff(id: string) {
     if (!confirm("Are you sure you want to delete this staff member?")) return;
-    setLoading(true);
+    setSaving(true);
     try {
       await api.delete(`/staff/${id}`);
       setStaffList((p) => p.filter((s) => s.id !== id));
@@ -455,12 +456,12 @@ export default function StaffManagementPage() {
     } catch (error: any) {
       alert(error.message || "Failed to delete staff");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   }
 
   async function doCheckOut(rec: Attendance, time: string) {
-    setLoading(true);
+    setSaving(true);
     try {
       const res = await api.put(`/attendance/${rec.id}`, {
         check_out: time
@@ -476,13 +477,13 @@ export default function StaffManagementPage() {
     } catch (error: any) {
       alert(error.message || "Failed to check out");
     } finally {
-      setLoading(false);
+      setSaving(false);
       setCheckoutModal(null);
     }
   }
 
   async function doCheckIn(staff: Staff, time: string) {
-    setLoading(true);
+    setSaving(true);
     try {
       const res = await api.post('/staff/attendance', {
         staff_id: staff.id,
@@ -515,7 +516,7 @@ export default function StaffManagementPage() {
     } catch (error: any) {
       alert(error.message || "Failed to check in");
     } finally {
-      setLoading(false);
+      setSaving(false);
       setCheckinModal(null);
     }
   }
@@ -541,7 +542,7 @@ export default function StaffManagementPage() {
   const unpaidCount = filteredSalary.filter((s) => s.status === "Unpaid").length;
 
   async function markPaid(rec: SalaryRecord) {
-    setLoading(true);
+    setSaving(true);
     try {
       await api.put(`/salaries/${rec.id}`, {
         status: 'Paid',
@@ -559,7 +560,7 @@ export default function StaffManagementPage() {
     } catch (error: any) {
       alert(error.message || "Failed to mark salary as paid");
     } finally {
-      setLoading(false);
+      setSaving(false);
       setPayModal(null);
     }
   }
@@ -575,7 +576,7 @@ export default function StaffManagementPage() {
 
   async function createSalaryPayment() {
     if (!payStaffModal || !payStaffSummary) return;
-    setLoading(true);
+    setSaving(true);
     try {
       const staffId = Number(payStaffModal.staff.id);
       const payload = {
@@ -593,15 +594,14 @@ export default function StaffManagementPage() {
     } catch (error: any) {
       alert(error.message || "Failed to process salary payment");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   }
 
   async function bulkMarkAttendance() {
     if (!markForm.staffId || markForm.dates.length === 0) return;
-    setLoading(true);
+    setSaving(true);
     try {
-      // Loop through dates and mark attendance
       for (const date of markForm.dates) {
         await api.post("/attendance/mark", {
           staff_id: markForm.staffId,
@@ -610,7 +610,6 @@ export default function StaffManagementPage() {
         });
       }
 
-      // Refresh attendance list
       const res = await api.get("/attendance/all");
       setAttendance(res.data.map((a: any) => ({
         id: a.id,
@@ -998,12 +997,12 @@ export default function StaffManagementPage() {
                               {r.absent} days
                             </span>
                           </td>
-                          <td className="px-5 py-3.5 font-semibold text-text-primary">{r.totalHours.toFixed(1)}h</td>
+                          <td className="px-5 py-3.5 font-semibold text-text-primary">{(r.hours ?? 0).toFixed(1)}h</td>
                           <td className="px-5 py-3.5">
                             <div className="flex items-center gap-2">
                               <div className="flex-1 max-w-[80px] bg-background rounded-full h-1.5">
                                 <div
-                                  className={`h-1.5 rounded-full ${pct >= 80 ? "bg-mint-light0" : pct >= 60 ? "bg-warning/100" : "bg-primary"}`}
+                                  className={`h-1.5 rounded-full ${pct >= 80 ? "bg-success" : pct >= 60 ? "bg-warning" : "bg-primary"}`}
                                   style={{ width: `${pct}%` }}
                                 />
                               </div>
@@ -1214,6 +1213,15 @@ export default function StaffManagementPage() {
                      className={inputCls}
                    />
                   </Field>
+                  <Field label="Email ID *">
+                    <input
+                      type="email"
+                      placeholder="e.g. staff@example.com"
+                      value={staffForm.emailId}
+                      onChange={(e) => setStaffForm((p) => ({ ...p, emailId: e.target.value }))}
+                      className={inputCls}
+                    />
+                  </Field>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="Aadhar Card">
@@ -1276,8 +1284,8 @@ export default function StaffManagementPage() {
           <ModalFooter
             onCancel={() => setShowStaffModal(false)}
             onConfirm={saveStaff}
-            confirmLabel={editingStaff ? "Save Changes" : "Add Staff"}
-            disabled={!staffForm.name.trim() || !staffForm.phone.trim() || !staffForm.emailId?.trim() || (!editingStaff && !staffForm.password?.trim())}
+            confirmLabel={saving ? "Saving…" : editingStaff ? "Save Changes" : "Add Staff"}
+            disabled={saving || !staffForm.name.trim() || !staffForm.phone.trim() || !staffForm.emailId?.trim() || (!editingStaff && !staffForm.password?.trim())}
           />
         </Modal>
       )}
