@@ -371,51 +371,84 @@ export default function BillingPage() {
           activeStoreId ? apiFetch(`/stores/${activeStoreId}`) : Promise.resolve(null),
         ]);
 
+        // DEBUG: show full raw response
+        console.log("[Billing] RAW res:", JSON.stringify(res)?.slice(0, 500));
+        console.log("[Billing] res is Array?", Array.isArray(res));
+        console.log("[Billing] res keys:", res && typeof res === "object" ? Object.keys(res) : typeof res);
+
+        // Unwrap all known API response shapes
+        let productList: any[] = [];
+        if (Array.isArray(res)) {
+          productList = res;
+        } else if (Array.isArray(res?.data)) {
+          productList = res.data;
+        } else if (Array.isArray((res as any)?.products)) {
+          productList = (res as any).products;
+        } else if (Array.isArray((res as any)?.items)) {
+          productList = (res as any).items;
+        } else if (Array.isArray((res as any)?.result)) {
+          productList = (res as any).result;
+        }
+
+        console.log("[Billing] productList length:", productList.length);
+        if (productList.length > 0) {
+          console.log("[Billing] first product (raw):", JSON.stringify(productList[0]));
+        }
+
         const mapped: Product[] = [];
 
-        for (const p of res) {
+        for (const p of productList) {
           const base = {
-            id: String(p.id),
-            name: p.name,
-            category: p.category,
-            brand: p.brand || "",
-            sellingPrice: parseFloat(p.selling_price ?? p.sellingprice ?? 0),
-            gstPercent: parseFloat(p.gst_percent ?? p.gstpercent ?? 0),
+            id: String(p.id ?? ""),
+            name: String(p.name ?? p.product_name ?? ""),
+            category: String(p.category ?? ""),
+            brand: String(p.brand ?? ""),
+            sellingPrice: parseFloat(p.selling_price ?? p.sellingprice ?? p.selling_Price ?? 0) || 0,
+            gstPercent: parseFloat(p.gst_percent ?? p.gstpercent ?? p.gst ?? 0) || 0,
           };
 
-          if (p.sizes && p.sizes.length > 0) {
-            for (const s of p.sizes) {
+          // Guard: p.sizes must be a real array
+          const sizes = Array.isArray(p.sizes) ? p.sizes : [];
+          if (sizes.length > 0) {
+            for (const s of sizes) {
               mapped.push({
                 ...base,
-                id: `${p.id}-${s.size}`,
-                productId: String(p.id),
-                name: `${p.name} (${s.size})`,
-                size: s.size,
-                stock: parseInt(s.quantity || "0") || 0,
-                barcode: s.barcode || p.barcode || p.sku || "",
+                id: `${base.id}-${String(s?.size ?? "")}`,
+                productId: base.id,
+                name: `${base.name} (${String(s?.size ?? "")})`,
+                size: String(s?.size ?? ""),
+                stock: Number(s?.quantity ?? s?.stock ?? 0),
+                barcode: String(s?.barcode ?? p?.barcode ?? p?.sku ?? ""),
               });
             }
           } else {
             mapped.push({
               ...base,
-              stock: parseInt(p.stock_quantity ?? p.stockquantity ?? "0") || 0,
-              barcode: p.barcode || p.sku || "",
+              productId: base.id,
+              stock: Number(p.stock_quantity ?? p.stockquantity ?? p.stock ?? 0),
+              barcode: String(p.barcode ?? p.sku ?? ""),
             });
           }
         }
 
+        console.log("[Billing] mapped products count:", mapped.length);
+        if (mapped.length > 0) console.log("[Billing] first mapped product:", mapped[0]);
+
         setProducts(mapped);
 
-        if (storeRes) {
+        // Unwrap store response
+        const store = storeRes?.data ?? storeRes;
+        if (store && typeof store === "object") {
           setStorePayment({
-            name: storeRes.name || "",
-            upiId: storeRes.upi_id || storeRes.upiid || "",
-            upiPayeeName:
-              storeRes.upi_payee_name || storeRes.upipayeename || storeRes.name || "",
+            name: String(store.name ?? ""),
+            upiId: String(store.upi_id ?? store.upiid ?? store.upi ?? ""),
+            upiPayeeName: String(
+              store.upi_payee_name ?? store.upipayeename ?? store.name ?? ""
+            ),
           });
         }
       } catch (error) {
-        console.error("Failed to fetch billing data", error);
+        console.error("[Billing] Failed to fetch billing data:", error);
       } finally {
         setLoading(false);
       }
@@ -471,16 +504,30 @@ export default function BillingPage() {
 
   const searchResults = useMemo(() => {
     if (!search.trim()) return [];
-    const q = search.toLowerCase();
+    const q = search.trim().toLowerCase();
+    console.log("[Billing] search q:", q, "| products count:", products.length);
+    if (products.length > 0) console.log("[Billing] first product name:", products[0].name);
 
     return products
-      .filter(
-        (p) =>
-          (p.name?.toLowerCase() || "").includes(q) ||
-          (p.barcode?.toLowerCase() || "").includes(q) ||
-          String(p.id).toLowerCase().includes(q) ||
-          (p.brand?.toLowerCase() || "").includes(q)
-      )
+      .filter((p) => {
+        const name = (p.name ?? "").toLowerCase();
+        const barcode = (p.barcode ?? "").toLowerCase();
+        const id = String(p.id ?? "").toLowerCase();
+        const productId = String(p.productId ?? "").toLowerCase();
+        const brand = (p.brand ?? "").toLowerCase();
+        const category = (p.category ?? "").toLowerCase();
+        const size = (p.size ?? "").toLowerCase();
+
+        return (
+          name.includes(q) ||
+          barcode.includes(q) ||
+          id.includes(q) ||
+          productId.includes(q) ||
+          brand.includes(q) ||
+          category.includes(q) ||
+          size.includes(q)
+        );
+      })
       .slice(0, 6);
   }, [search, products]);
 
@@ -1008,6 +1055,12 @@ export default function BillingPage() {
                   </div>
                 </button>
               ))}
+            </div>
+          )}
+
+          {showSearch && search.trim() && searchResults.length === 0 && (
+            <div className="absolute left-0 right-0 top-full z-50 mt-1.5 rounded-md border border-border bg-white px-4 py-3 text-sm text-text-secondary shadow-2xl ring-1 ring-black/5">
+              No matching product found.
             </div>
           )}
 
