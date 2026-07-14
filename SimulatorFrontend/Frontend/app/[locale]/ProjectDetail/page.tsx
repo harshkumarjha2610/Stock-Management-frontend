@@ -445,7 +445,7 @@ function ProjectDetailContent() {
       : tx.daysLeft(project.timelineDays)
     : '—';
 
-  // ✅ API-driven progress — used for Construction Progress card
+  // ✅ API-driven progress — used for Funding Progress card
   const progressPercent = project?.latestProgress ?? 0;
 
   // ✅ Funding progress — 80% if not invested, 100% if invested

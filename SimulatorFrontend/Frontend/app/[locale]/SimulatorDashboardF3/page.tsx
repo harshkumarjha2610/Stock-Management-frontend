@@ -116,7 +116,7 @@ const AR = {
   phase1:           'المرحلة 1',
   complete:         'مكتملة',
   inProgress:       'جارٍ التنفيذ',
-  foundingProgress: 'تقدم التمويل',
+  constructionProgress: 'تقدم البناء',
   totalValue:       'القيمة الإجمالية',
   return:           'العائد',
   timeline:         'الجدول الزمني',
@@ -445,7 +445,7 @@ function SimulatorDashboardF3Content(): JSX.Element {
                     className="text-white/50 text-xs sm:text-sm"
                     style={{ fontFamily: 'Satoshi, sans-serif' }}
                   >
-                    {tr('Founding Progress', 'foundingProgress', isArabic)}
+                    {tr('Construction Progress', 'constructionProgress', isArabic)}
                   </span>
                   <span
                     className="font-bold text-sm sm:text-base"

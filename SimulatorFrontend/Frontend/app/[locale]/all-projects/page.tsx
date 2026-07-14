@@ -395,7 +395,7 @@ function FeaturedProjectCard({ data }: { data: ProjectData }) {
     ? `${Math.round(data.timelineDays / 365)} ${t('yearsLeft')}`
     : `${data.timelineDays} ${t('daysLeft')}`;
 
-  const progressPercent = 80;
+  const progressPercent = isAlreadyInvested ? 100 : 80;
   const investedAmount = (Number(data.totalValue) * progressPercent) / 100;
   const formattedInvestedAmount = `$${investedAmount.toLocaleString()}`;
   const resolvedImage = resolveImageUrl(data.imageUrl);
@@ -518,12 +518,6 @@ function FeaturedProjectCard({ data }: { data: ProjectData }) {
 
               <div className="flex items-center gap-2">
                 <span className="text-[10px] text-white/40">{formattedInvestedAmount} invested</span>
-                <span
-                  className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                  style={{ background: 'rgba(239,107,35,0.15)', color: '#EF6B23', border: '1px solid rgba(239,107,35,0.3)' }}
-                >
-                  {progressPercent}%
-                </span>
               </div>
             </div>
 
@@ -631,7 +625,7 @@ function RegularProjectCard({ data }: { data: ProjectData }) {
     ? `${Math.round(data.timelineDays / 365)} ${t('yearsLeft')}`
     : `${data.timelineDays} ${t('daysLeft')}`;
 
-  const progressPercent = 80;
+  const progressPercent = isAlreadyInvested ? 100 : 80;
   const investedAmount = (Number(data.totalValue) * progressPercent) / 100;
   const formattedInvestedAmount = `$${investedAmount.toLocaleString()}`;
   const resolvedImage = resolveImageUrl(data.imageUrl);
