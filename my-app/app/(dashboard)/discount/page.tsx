@@ -185,6 +185,9 @@ export default function DiscountPage() {
     const [categoryRuleLoading, setCategoryRuleLoading] = useState(false);
     const [categoryRuleError, setCategoryRuleError] = useState<string | null>(null);
     const [categoryRuleSuccess, setCategoryRuleSuccess] = useState<string | null>(null);
+    const [brandRuleLoading, setBrandRuleLoading] = useState(false);
+    const [brandRuleError, setBrandRuleError] = useState<string | null>(null);
+    const [brandRuleSuccess, setBrandRuleSuccess] = useState<string | null>(null);
 
     const [products, setProducts] = useState<Product[]>([]);
     const [categoryRules, setCategoryRules] = useState<CategoryRule[]>([]);
@@ -256,12 +259,27 @@ export default function DiscountPage() {
         }
     }, []);
 
+    const fetchBrandRules = useCallback(async () => {
+        try {
+            const res = await api.get("/discounts/brand");
+            const mapped = (res.data || []).map((r: any) => ({
+                id: String(r.id),
+                brand: r.target,
+                discountType: r.discount_type as DiscountType,
+                value: Number(r.value),
+                status: r.status as RuleStatus,
+            }));
+            setBrandRules(mapped);
+        } catch {
+            setBrandRules(mockBrandRules);
+        }
+    }, []);
+
     useEffect(() => {
         async function fetchDiscountData() {
             try {
                 setLoading(true);
-                await Promise.all([fetchProducts(), fetchCategoryRules()]);
-                setBrandRules(mockBrandRules);
+                await Promise.all([fetchProducts(), fetchCategoryRules(), fetchBrandRules()]);
                 setBulkRules(mockBulkRules);
             } catch {
                 setProducts(mockProducts);
@@ -273,7 +291,7 @@ export default function DiscountPage() {
             }
         }
         fetchDiscountData();
-    }, [fetchProducts, fetchCategoryRules]);
+    }, [fetchProducts, fetchCategoryRules, fetchBrandRules]);
 
     const categories = useMemo(
         () => Array.from(new Set(products.map((p) => p.category))).sort(),
@@ -393,19 +411,48 @@ export default function DiscountPage() {
         }
     }
 
-    function addBrandRule() {
+    async function addBrandRule() {
         if (!brandForm.brand || !brandForm.value) return;
 
-        const newRule: BrandRule = {
-            id: uid("BR"),
-            brand: brandForm.brand,
-            discountType: brandForm.discountType,
-            value: Number(brandForm.value),
-            status: brandForm.status,
-        };
+        setBrandRuleLoading(true);
+        setBrandRuleError(null);
+        setBrandRuleSuccess(null);
 
-        setBrandRules((prev) => [newRule, ...prev]);
-        resetBrandForm();
+        try {
+            const res = await api.post("/discounts/brand", {
+                brand: brandForm.brand,
+                discount_type: brandForm.discountType,
+                value: Number(brandForm.value),
+                status: brandForm.status,
+            });
+
+            const r = res.data.rule;
+            const newRule: BrandRule = {
+                id: String(r.id),
+                brand: r.target,
+                discountType: r.discount_type as DiscountType,
+                value: Number(r.value),
+                status: r.status as RuleStatus,
+            };
+            setBrandRules((prev) => {
+                // Replace any existing rule for the same brand
+                const filtered = prev.filter((x) => x.brand !== newRule.brand);
+                return [newRule, ...filtered];
+            });
+
+            // Re-fetch products so discounted_price column updates
+            await fetchProducts();
+
+            setBrandRuleSuccess(`Discount applied to ${res.data.affectedCount} product(s) for brand "${brandForm.brand}".`);
+            resetBrandForm();
+
+            setTimeout(() => setBrandRuleSuccess(null), 4000);
+        } catch (err: any) {
+            setBrandRuleError(err.message || "Failed to apply brand discount.");
+            setTimeout(() => setBrandRuleError(null), 5000);
+        } finally {
+            setBrandRuleLoading(false);
+        }
     }
 
     function addBulkRule() {
@@ -660,12 +707,30 @@ export default function DiscountPage() {
                             </div>
                         </div>
 
+                        {brandRuleError && (
+                            <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs font-medium text-red-700 flex items-center gap-2">
+                                <X size={13} className="shrink-0" />
+                                {brandRuleError}
+                            </div>
+                        )}
+
+                        {brandRuleSuccess && (
+                            <div className="rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-xs font-medium text-green-700 flex items-center gap-2">
+                                <CheckCircle2 size={13} className="shrink-0" />
+                                {brandRuleSuccess}
+                            </div>
+                        )}
+
                         <button
                             onClick={addBrandRule}
-                            className="w-full h-10 rounded-xl bg-primary hover:bg-red-700 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                            disabled={brandRuleLoading || !brandForm.brand || !brandForm.value}
+                            className="w-full h-10 rounded-xl bg-primary hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
                         >
-                            <Plus size={16} />
-                            Add Brand Rule
+                            {brandRuleLoading ? (
+                                <><Loader2 size={15} className="animate-spin" /> Applying...</>
+                            ) : (
+                                <><Plus size={16} /> Add Brand Rule</>
+                            )}
                         </button>
                     </div>
                 </SectionCard>
@@ -972,7 +1037,14 @@ export default function DiscountPage() {
                                         <DiscountValue type={rule.discountType} value={rule.value} />
                                     </div>
                                     <button
-                                        onClick={() => setBrandRules((prev) => prev.filter((x) => x.id !== rule.id))}
+                                        onClick={() => {
+                                            api.delete(`/discounts/${rule.id}`)
+                                                .then(() => {
+                                                    setBrandRules((prev) => prev.filter((x) => x.id !== rule.id));
+                                                    fetchProducts();
+                                                })
+                                                .catch(() => {});
+                                        }}
                                         className="w-8 h-8 rounded-lg bg-coral-light hover:bg-red-100 text-coral flex items-center justify-center transition-colors"
                                         title="Delete rule"
                                     >
