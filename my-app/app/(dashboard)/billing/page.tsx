@@ -38,6 +38,8 @@ type Product = {
   category: string;
   brand: string;
   sellingPrice: number;
+  discountedPrice?: number | null;
+  discountPercent?: number | null;
   gstPercent: number;
   stock: number;
   barcode: string;
@@ -404,6 +406,8 @@ export default function BillingPage() {
             category: String(p.category ?? ""),
             brand: String(p.brand ?? ""),
             sellingPrice: parseFloat(p.selling_price ?? p.sellingprice ?? p.selling_Price ?? 0) || 0,
+            discountedPrice: p.discounted_price != null ? parseFloat(p.discounted_price) : null,
+            discountPercent: p.discount_percent != null ? parseFloat(p.discount_percent) : null,
             gstPercent: parseFloat(p.gst_percent ?? p.gstpercent ?? p.gst ?? 0) || 0,
           };
 
@@ -543,7 +547,12 @@ export default function BillingPage() {
         );
       }
 
-      return [...prev, { ...product, qty: 1, discount: 0 }];
+      const defaultDiscount =
+        product.discountedPrice != null && product.discountedPrice < product.sellingPrice
+          ? Math.max(0, product.sellingPrice - product.discountedPrice)
+          : 0;
+
+      return [...prev, { ...product, qty: 1, discount: defaultDiscount }];
     });
 
     setSearch("");
@@ -1045,12 +1054,19 @@ export default function BillingPage() {
                   </div>
 
                   <div className="shrink-0 text-right">
-                    <p
-                      className={`text-sm font-bold ${mode === "sale" ? "text-red-700" : "text-amber-700"
-                        }`}
-                    >
-                      {fmt(p.sellingPrice)}
-                    </p>
+                    {p.discountedPrice != null && p.discountedPrice < p.sellingPrice ? (
+                      <div>
+                        <p className="text-sm font-bold text-success">{fmt(p.discountedPrice)}</p>
+                        <p className="text-[10px] line-through text-text-secondary">{fmt(p.sellingPrice)}</p>
+                      </div>
+                    ) : (
+                      <p
+                        className={`text-sm font-bold ${mode === "sale" ? "text-red-700" : "text-amber-700"
+                          }`}
+                      >
+                        {fmt(p.sellingPrice)}
+                      </p>
+                    )}
                     <p className="text-xs text-text-secondary">+{p.gstPercent}% GST</p>
                   </div>
                 </button>
@@ -1162,9 +1178,18 @@ export default function BillingPage() {
                         </button>
                       </div>
 
-                      <p className="text-right text-sm font-medium tabular-nums text-text-primary">
-                        {fmt(item.sellingPrice)}
-                      </p>
+                      <div className="text-right">
+                        {item.discountedPrice != null && item.discountedPrice < item.sellingPrice ? (
+                          <div>
+                            <p className="text-sm font-bold text-success tabular-nums">{fmt(item.discountedPrice)}</p>
+                            <p className="text-[10px] line-through text-text-secondary tabular-nums">{fmt(item.sellingPrice)}</p>
+                          </div>
+                        ) : (
+                          <p className="text-sm font-medium tabular-nums text-text-primary">
+                            {fmt(item.sellingPrice)}
+                          </p>
+                        )}
+                      </div>
 
                       <div className="flex items-center justify-center">
                         <div className="relative">

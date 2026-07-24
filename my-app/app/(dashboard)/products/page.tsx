@@ -37,6 +37,8 @@ type Product = {
   brand?: string;
   purchasePrice: number;
   sellingPrice: number;
+  discountedPrice?: number | null;
+  discountPercent?: number | null;
   gstPercent: number;
   minStockAlert: number;
   description?: string;
@@ -928,7 +930,14 @@ function ProductModal({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div>
                   <p className="text-[10px] font-semibold text-text-secondary uppercase tracking-wide">Selling Price</p>
-                  <p className="text-xl font-bold text-primary mt-0.5">₹{sellingPrice.toLocaleString("en-IN")}</p>
+                  {product.discountedPrice != null && product.discountedPrice < sellingPrice ? (
+                    <div className="mt-0.5">
+                      <p className="text-xl font-bold text-success">₹{product.discountedPrice.toLocaleString("en-IN")}</p>
+                      <p className="text-xs line-through text-text-secondary">₹{sellingPrice.toLocaleString("en-IN")}</p>
+                    </div>
+                  ) : (
+                    <p className="text-xl font-bold text-primary mt-0.5">₹{sellingPrice.toLocaleString("en-IN")}</p>
+                  )}
                 </div>
                 <div>
                   <p className="text-[10px] font-semibold text-text-secondary uppercase tracking-wide">Purchase Price</p>
@@ -1441,6 +1450,8 @@ export default function ProductsPage() {
           stockQuantity: p.stock_quantity,
           purchasePrice: parseFloat(p.purchase_price),
           sellingPrice: parseFloat(p.selling_price),
+          discountedPrice: p.discounted_price != null ? parseFloat(p.discounted_price) : null,
+          discountPercent: p.discount_percent != null ? parseFloat(p.discount_percent) : null,
           gstPercent: parseFloat(p.gst_percent),
           minStockAlert: p.min_stock_level,
           description: p.description,
@@ -1767,7 +1778,21 @@ export default function ProductsPage() {
                             <p className="text-xs text-text-secondary">{isGrocery ? `HSN: ${p.hsnCode || 'N/A'}` : p.color}</p>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <p className="font-bold text-text-primary">{fmt(p.sellingPrice)}</p>
+                            {p.discountedPrice != null && p.discountedPrice < p.sellingPrice ? (
+                              <div>
+                                <div className="flex items-center gap-1">
+                                  <span className="font-bold text-success text-sm">{fmt(p.discountedPrice)}</span>
+                                  <span className="line-through text-text-secondary text-xs">{fmt(p.sellingPrice)}</span>
+                                </div>
+                                {p.discountPercent != null && (
+                                  <span className="inline-block text-[10px] font-semibold text-green-700 bg-green-100 px-1.5 py-0.5 rounded">
+                                    {p.discountPercent}% OFF
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <p className="font-bold text-text-primary">{fmt(p.sellingPrice)}</p>
+                            )}
                             <p className="text-xs text-text-secondary">Cost: {fmt(p.purchasePrice)}</p>
                             <p className={`text-xs font-semibold ${m >= 0 ? "text-success" : "text-coral"}`}>
                               {m >= 0 ? "+" : ""}{m}% margin
@@ -1938,7 +1963,14 @@ export default function ProductsPage() {
                         <div className="grid grid-cols-2 gap-2">
                           <div className="bg-background rounded-lg p-2 text-center">
                             <p className="text-xs text-text-secondary">Selling</p>
-                            <p className="text-sm font-bold text-text-primary">{fmt(p.sellingPrice)}</p>
+                            {p.discountedPrice != null && p.discountedPrice < p.sellingPrice ? (
+                              <div>
+                                <p className="text-sm font-bold text-success">{fmt(p.discountedPrice)}</p>
+                                <p className="text-[10px] line-through text-text-secondary">{fmt(p.sellingPrice)}</p>
+                              </div>
+                            ) : (
+                              <p className="text-sm font-bold text-text-primary">{fmt(p.sellingPrice)}</p>
+                            )}
                           </div>
                           <div className="bg-background rounded-lg p-2 text-center">
                             <p className="text-xs text-text-secondary">Stock</p>
