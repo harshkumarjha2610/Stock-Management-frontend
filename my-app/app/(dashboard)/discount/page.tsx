@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
     BadgePercent,
     Boxes,
@@ -38,6 +38,7 @@ type Product = {
     category: string;
     price: number;
     stock: number;
+    discounted_price: number | null;
 };
 
 type CategoryRule = {
@@ -181,6 +182,9 @@ export default function DiscountPage() {
     const isEnterprise = theme === "enterprise";
 
     const [loading, setLoading] = useState(true);
+    const [categoryRuleLoading, setCategoryRuleLoading] = useState(false);
+    const [categoryRuleError, setCategoryRuleError] = useState<string | null>(null);
+    const [categoryRuleSuccess, setCategoryRuleSuccess] = useState<string | null>(null);
 
     const [products, setProducts] = useState<Product[]>([]);
     const [categoryRules, setCategoryRules] = useState<CategoryRule[]>([]);
@@ -216,31 +220,47 @@ export default function DiscountPage() {
 
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
+    const fetchProducts = useCallback(async () => {
+        try {
+            const res = await api.get("/products");
+            const mapped = (res.data || []).map((p: any) => ({
+                id: String(p.id),
+                name: p.name,
+                sku: p.sku || `SKU-${p.id}`,
+                brand: p.brand || "Unbranded",
+                category: p.category || "General",
+                price: Number(p.selling_price || p.price || 0),
+                stock: Number(p.stock_quantity || p.stock || 0),
+                discounted_price: p.discounted_price != null ? Number(p.discounted_price) : null,
+            }));
+            setProducts(mapped.length ? mapped : mockProducts);
+        } catch {
+            setProducts(mockProducts);
+        }
+    }, []);
+
+    const fetchCategoryRules = useCallback(async () => {
+        try {
+            const res = await api.get("/discounts/category");
+            const mapped = (res.data || []).map((r: any) => ({
+                id: String(r.id),
+                category: r.target,
+                discountType: r.discount_type as DiscountType,
+                value: Number(r.value),
+                appliesToAllBrands: r.applies_to_all_brands,
+                status: r.status as RuleStatus,
+            }));
+            setCategoryRules(mapped);
+        } catch {
+            setCategoryRules(mockCategoryRules);
+        }
+    }, []);
+
     useEffect(() => {
         async function fetchDiscountData() {
             try {
                 setLoading(true);
-
-                const [productsRes] = await Promise.allSettled([
-                    api.get("/products"),
-                ]);
-
-                if (productsRes.status === "fulfilled") {
-                    const mapped = (productsRes.value.data || []).map((p: any) => ({
-                        id: String(p.id),
-                        name: p.name,
-                        sku: p.sku || `SKU-${p.id}`,
-                        brand: p.brand || "Unbranded",
-                        category: p.category || "General",
-                        price: Number(p.price || 0),
-                        stock: Number(p.stock || 0),
-                    }));
-                    setProducts(mapped.length ? mapped : mockProducts);
-                } else {
-                    setProducts(mockProducts);
-                }
-
-                setCategoryRules(mockCategoryRules);
+                await Promise.all([fetchProducts(), fetchCategoryRules()]);
                 setBrandRules(mockBrandRules);
                 setBulkRules(mockBulkRules);
             } catch {
@@ -252,9 +272,8 @@ export default function DiscountPage() {
                 setLoading(false);
             }
         }
-
         fetchDiscountData();
-    }, []);
+    }, [fetchProducts, fetchCategoryRules]);
 
     const categories = useMemo(
         () => Array.from(new Set(products.map((p) => p.category))).sort(),
@@ -326,20 +345,52 @@ export default function DiscountPage() {
         setSelectedProducts([]);
     }
 
-    function addCategoryRule() {
+    async function addCategoryRule() {
         if (!categoryForm.category || !categoryForm.value) return;
 
-        const newRule: CategoryRule = {
-            id: uid("CAT"),
-            category: categoryForm.category,
-            discountType: categoryForm.discountType,
-            value: Number(categoryForm.value),
-            appliesToAllBrands: categoryForm.appliesToAllBrands,
-            status: categoryForm.status,
-        };
+        setCategoryRuleLoading(true);
+        setCategoryRuleError(null);
+        setCategoryRuleSuccess(null);
 
-        setCategoryRules((prev) => [newRule, ...prev]);
-        resetCategoryForm();
+        try {
+            const res = await api.post("/discounts/category", {
+                category: categoryForm.category,
+                discount_type: categoryForm.discountType,
+                value: Number(categoryForm.value),
+                status: categoryForm.status,
+                applies_to_all_brands: categoryForm.appliesToAllBrands,
+            });
+
+            // Add the returned rule to the list
+            const r = res.data.rule;
+            const newRule: CategoryRule = {
+                id: String(r.id),
+                category: r.target,
+                discountType: r.discount_type as DiscountType,
+                value: Number(r.value),
+                appliesToAllBrands: r.applies_to_all_brands,
+                status: r.status as RuleStatus,
+            };
+            setCategoryRules((prev) => {
+                // Replace any existing rule for same category
+                const filtered = prev.filter((x) => x.category !== newRule.category);
+                return [newRule, ...filtered];
+            });
+
+            // Re-fetch products so discounted_price column updates
+            await fetchProducts();
+
+            setCategoryRuleSuccess(`Discount applied to ${res.data.affectedCount} product(s) in "${categoryForm.category}".`);
+            resetCategoryForm();
+
+            // Auto-clear success toast
+            setTimeout(() => setCategoryRuleSuccess(null), 4000);
+        } catch (err: any) {
+            setCategoryRuleError(err.message || "Failed to apply discount.");
+            setTimeout(() => setCategoryRuleError(null), 5000);
+        } finally {
+            setCategoryRuleLoading(false);
+        }
     }
 
     function addBrandRule() {
@@ -516,12 +567,30 @@ export default function DiscountPage() {
                             </div>
                         </div>
 
+                        {categoryRuleError && (
+                            <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs font-medium text-red-700 flex items-center gap-2">
+                                <X size={13} className="shrink-0" />
+                                {categoryRuleError}
+                            </div>
+                        )}
+
+                        {categoryRuleSuccess && (
+                            <div className="rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-xs font-medium text-green-700 flex items-center gap-2">
+                                <CheckCircle2 size={13} className="shrink-0" />
+                                {categoryRuleSuccess}
+                            </div>
+                        )}
+
                         <button
                             onClick={addCategoryRule}
-                            className="w-full h-10 rounded-xl bg-primary hover:bg-red-700 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                            disabled={categoryRuleLoading || !categoryForm.category || !categoryForm.value}
+                            className="w-full h-10 rounded-xl bg-primary hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
                         >
-                            <Plus size={16} />
-                            Add Category Rule
+                            {categoryRuleLoading ? (
+                                <><Loader2 size={15} className="animate-spin" /> Applying...</>  
+                            ) : (
+                                <><Plus size={16} /> Add Category Rule</>
+                            )}
                         </button>
                     </div>
                 </SectionCard>
@@ -759,7 +828,7 @@ export default function DiscountPage() {
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="border-b border-border bg-background">
-                                {["Select", "Product", "Brand", "Category", "Price", "Stock"].map((label) => (
+                                {["Select", "Product", "Brand", "Category", "Original Price", "Discounted Price", "Stock"].map((label) => (
                                     <th
                                         key={label}
                                         className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wide whitespace-nowrap"
@@ -799,7 +868,19 @@ export default function DiscountPage() {
 
                                         <td className="px-4 py-3 text-text-primary">{p.brand}</td>
                                         <td className="px-4 py-3 text-text-primary">{p.category}</td>
-                                        <td className="px-4 py-3 font-bold text-text-primary tabular-nums">{money(p.price)}</td>
+                                        <td className="px-4 py-3 font-bold text-text-primary tabular-nums">
+                                            {p.discounted_price != null ? (
+                                                <span className="line-through text-text-secondary font-normal text-xs mr-1">{money(p.price)}</span>
+                                            ) : null}
+                                            {money(p.discounted_price != null ? p.discounted_price : p.price)}
+                                        </td>
+                                        <td className="px-4 py-3 tabular-nums">
+                                            {p.discounted_price != null ? (
+                                                <span className="font-bold text-green-600">{money(p.discounted_price)}</span>
+                                            ) : (
+                                                <span className="text-text-secondary text-xs">No discount</span>
+                                            )}
+                                        </td>
                                         <td className="px-4 py-3 text-text-secondary">{p.stock}</td>
                                     </tr>
                                 );
@@ -843,7 +924,14 @@ export default function DiscountPage() {
                                         <DiscountValue type={rule.discountType} value={rule.value} />
                                     </div>
                                     <button
-                                        onClick={() => setCategoryRules((prev) => prev.filter((x) => x.id !== rule.id))}
+                                        onClick={() => {
+                                    api.delete(`/discounts/${rule.id}`)
+                                        .then(() => {
+                                            setCategoryRules((prev) => prev.filter((x) => x.id !== rule.id));
+                                            fetchProducts();
+                                        })
+                                        .catch(() => {});
+                                }}
                                         className="w-8 h-8 rounded-lg bg-coral-light hover:bg-red-100 text-coral flex items-center justify-center transition-colors"
                                         title="Delete rule"
                                     >
