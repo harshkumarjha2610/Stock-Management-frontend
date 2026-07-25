@@ -34,6 +34,10 @@ type Product = {
   hsnCode?: string;
   stockQuantity?: number;
 
+  // Purchase details
+  invoiceNumber?: string;
+  purchaseDate?: string;
+
   brand?: string;
   purchasePrice: number;
   sellingPrice: number;
@@ -57,8 +61,8 @@ type SizeStock = {
 };
 
 type ModalMode = "add" | "edit" | "view" | null;
-type ViewMode  = "table" | "grid";
-type SortKey   = "name" | "totalStock" | "sellingPrice" | "createdDate";
+type ViewMode = "table" | "grid";
+type SortKey = "name" | "totalStock" | "sellingPrice" | "createdDate";
 
 // ═══════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -79,9 +83,9 @@ const FABRICS = [
   "Nylon", "Spandex", "Blended", "Other",
 ];
 
-const APPAREL_SIZES    = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
-const BOTTOM_SIZES     = ["26", "28", "30", "32", "34", "36", "38", "40", "42"];
-const KIDS_SIZES       = ["0-6M", "6-12M", "1Y", "2Y", "3Y", "4Y", "6Y", "8Y", "10Y", "12Y"];
+const APPAREL_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
+const BOTTOM_SIZES = ["26", "28", "30", "32", "34", "36", "38", "40", "42"];
+const KIDS_SIZES = ["0-6M", "6-12M", "1Y", "2Y", "3Y", "4Y", "6Y", "8Y", "10Y", "12Y"];
 
 const GROCERY_CATEGORIES = [
   "Fruits & Vegetables", "Dairy & Bakery", "Staples",
@@ -160,9 +164,9 @@ function totalStock(p: Product) {
 
 function getStockBadge(p: Product) {
   const total = totalStock(p);
-  if (total === 0)              return { label: "Out of Stock", cls: "bg-coral-light text-primary border-coral" };
-  if (total <= p.minStockAlert) return { label: "Low Stock",    cls: "bg-warning/10 text-warning border-warning" };
-  return                               { label: "In Stock",     cls: "bg-mint-light text-success border-mint" };
+  if (total === 0) return { label: "Out of Stock", cls: "bg-coral-light text-primary border-coral" };
+  if (total <= p.minStockAlert) return { label: "Low Stock", cls: "bg-warning/10 text-warning border-warning" };
+  return { label: "In Stock", cls: "bg-mint-light text-success border-mint" };
 }
 
 function marginPct(p: Product) {
@@ -357,9 +361,8 @@ function SuggestionInput({
                   key={s}
                   type="button"
                   onClick={() => handleSelect(s)}
-                  className={`w-full text-left px-3 py-2 text-sm hover:bg-primary-light transition-colors flex items-center gap-2 ${
-                    value === s ? "bg-primary-light text-primary font-semibold" : "text-text-primary"
-                  }`}
+                  className={`w-full text-left px-3 py-2 text-sm hover:bg-primary-light transition-colors flex items-center gap-2 ${value === s ? "bg-primary-light text-primary font-semibold" : "text-text-primary"
+                    }`}
                 >
                   <Sparkles size={12} className="text-text-secondary shrink-0" />
                   {s}
@@ -479,11 +482,10 @@ function SizeStockEditor({
               key={size}
               type="button"
               onClick={() => toggleSize(size)}
-              className={`h-8 min-w-[2.5rem] px-2.5 rounded-lg text-xs font-bold border transition-all ${
-                isActive
+              className={`h-8 min-w-[2.5rem] px-2.5 rounded-lg text-xs font-bold border transition-all ${isActive
                   ? "bg-primary text-white border-primary shadow-sm"
                   : "bg-background text-text-secondary border-border hover:border-primary hover:text-primary"
-              }`}
+                }`}
             >
               {size}
             </button>
@@ -592,11 +594,10 @@ function ImageUploader({
             const f = e.dataTransfer.files[0];
             if (f) handleFile(f);
           }}
-          className={`flex flex-col items-center justify-center gap-3 w-full aspect-[3/4] rounded-xl border-2 border-dashed cursor-pointer transition-all ${
-            dragging
+          className={`flex flex-col items-center justify-center gap-3 w-full aspect-[3/4] rounded-xl border-2 border-dashed cursor-pointer transition-all ${dragging
               ? "border-red-400 bg-coral-light"
               : "border-border bg-background hover:border-primary hover:bg-primary-light/50"
-          }`}
+            }`}
         >
           <div className="w-10 h-10 rounded-xl bg-surface border border-border flex items-center justify-center shadow-sm">
             <Camera size={20} className="text-text-secondary" />
@@ -678,6 +679,9 @@ const EMPTY_FORM: Omit<Product, "id" | "createdDate"> = {
   mfgDate: "",
   hsnCode: "",
   stockQuantity: 0,
+
+  invoiceNumber: "",
+  purchaseDate: "",
 };
 
 
@@ -709,10 +713,10 @@ function ProductModal({
         const { id, createdDate, ...rest } = product;
         return rest;
       }
-      return { 
-        ...EMPTY_FORM, 
+      return {
+        ...EMPTY_FORM,
         category: isGrocery ? GROCERY_CATEGORIES[0] : CLOTHING_CATEGORIES[0],
-        sizes: [] 
+        sizes: []
       };
     }
   );
@@ -726,15 +730,15 @@ function ProductModal({
 
   function validate() {
     const e: Record<string, string> = {};
-    if (!form.name.trim())        e.name = "Required";
+    if (!form.name.trim()) e.name = "Required";
     if (!isGrocery) {
-      if (!form.color?.trim())     e.color = "Required";
-      if (!form.sizes || form.sizes.length === 0)  e.sizes = "Select at least one size";
+      if (!form.color?.trim()) e.color = "Required";
+      if (!form.sizes || form.sizes.length === 0) e.sizes = "Select at least one size";
     } else {
-      if (!form.unit?.trim())      e.unit = "Required";
+      if (!form.unit?.trim()) e.unit = "Required";
     }
-    if (!form.purchasePrice)      e.purchasePrice = "Required";
-    if (!form.sellingPrice)       e.sellingPrice = "Required";
+    if (!form.purchasePrice) e.purchasePrice = "Required";
+    if (!form.sellingPrice) e.sellingPrice = "Required";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -755,6 +759,8 @@ function ProductModal({
         min_stock_level: form.minStockAlert,
         description: form.description,
         image_url: form.image,
+        invoice_number: form.invoiceNumber,
+        purchase_date: form.purchaseDate,
       };
 
       if (isGrocery) {
@@ -798,8 +804,8 @@ function ProductModal({
   const marginVal =
     form.purchasePrice > 0
       ? Math.round(
-          ((form.sellingPrice - form.purchasePrice) / form.purchasePrice) * 100
-        )
+        ((form.sellingPrice - form.purchasePrice) / form.purchasePrice) * 100
+      )
       : 0;
   const withTax = Math.round(
     form.sellingPrice * (1 + form.gstPercent / 100)
@@ -876,10 +882,10 @@ function ProductModal({
     const badge = getStockBadge(product);
     const total = totalStock(product);
 
-    const sellingPrice  = parseFloat(product.sellingPrice  as any) || 0;
+    const sellingPrice = parseFloat(product.sellingPrice as any) || 0;
     const purchasePrice = parseFloat(product.purchasePrice as any) || 0;
-    const gstPercent    = parseFloat(product.gstPercent    as any) || 0;
-    const margin        = sellingPrice - purchasePrice;
+    const gstPercent = parseFloat(product.gstPercent as any) || 0;
+    const margin = sellingPrice - purchasePrice;
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
@@ -960,12 +966,14 @@ function ProductModal({
               <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">General Information</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
                 {[
-                  { label: "Brand",    value: product.brand || "—" },
+                  { label: "Brand", value: product.brand || "—" },
                   { label: "Category", value: product.category },
-                  { label: "SKU",      value: product.sku || "—" },
+                  { label: "SKU", value: product.sku || "—" },
                   { label: "Min Stock Alert", value: `${product.minStockAlert} pcs` },
                   { label: "Total Stock", value: `${total} pcs` },
                   { label: "Added On", value: product.createdDate ? new Date(product.createdDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—" },
+                  { label: "Invoice Number", value: product.invoiceNumber || "—" },
+                  { label: "Purchase Date", value: product.purchaseDate ? new Date(product.purchaseDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—" },
                 ].map((d) => (
                   <div key={d.label}>
                     <p className="text-[10px] font-semibold text-text-secondary uppercase tracking-wide">{d.label}</p>
@@ -980,9 +988,9 @@ function ProductModal({
                 <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Garment Details</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
                   {[
-                    { label: "Gender",  value: product.gender  || "—" },
-                    { label: "Fabric",  value: product.fabric  || "—" },
-                    { label: "Color",   value: product.color   || "—" },
+                    { label: "Gender", value: product.gender || "—" },
+                    { label: "Fabric", value: product.fabric || "—" },
+                    { label: "Color", value: product.color || "—" },
                   ].map((d) => (
                     <div key={d.label}>
                       <p className="text-[10px] font-semibold text-text-secondary uppercase tracking-wide">{d.label}</p>
@@ -998,11 +1006,11 @@ function ProductModal({
                 <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Grocery Details</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
                   {[
-                    { label: "Unit",         value: product.unit      || "—" },
-                    { label: "HSN Code",     value: product.hsnCode   || "—" },
-                    { label: "Stock Qty",    value: product.stockQuantity != null ? `${product.stockQuantity} units` : "—" },
-                    { label: "Mfg. Date",    value: product.mfgDate    ? new Date(product.mfgDate).toLocaleDateString("en-IN",    { day: "2-digit", month: "short", year: "numeric" }) : "—" },
-                    { label: "Expiry Date",  value: product.expiryDate ? new Date(product.expiryDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—" },
+                    { label: "Unit", value: product.unit || "—" },
+                    { label: "HSN Code", value: product.hsnCode || "—" },
+                    { label: "Stock Qty", value: product.stockQuantity != null ? `${product.stockQuantity} units` : "—" },
+                    { label: "Mfg. Date", value: product.mfgDate ? new Date(product.mfgDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—" },
+                    { label: "Expiry Date", value: product.expiryDate ? new Date(product.expiryDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—" },
                   ].map((d) => (
                     <div key={d.label}>
                       <p className="text-[10px] font-semibold text-text-secondary uppercase tracking-wide">{d.label}</p>
@@ -1020,9 +1028,8 @@ function ProductModal({
                   {product.sizes.map((s) => (
                     <div
                       key={s.size}
-                      className={`flex flex-col p-3 rounded-xl border text-xs ${
-                        s.qty === 0 ? "bg-coral-light/60 border-coral" : "bg-background border-border"
-                      }`}
+                      className={`flex flex-col p-3 rounded-xl border text-xs ${s.qty === 0 ? "bg-coral-light/60 border-coral" : "bg-background border-border"
+                        }`}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-sm font-bold text-text-primary">{s.size}</span>
@@ -1101,8 +1108,8 @@ function ProductModal({
               {mode === "add" ? "Add New Product" : `Edit — ${product?.name}`}
             </h2>
             <p className="text-xs text-text-secondary mt-0.5">
-              {mode === "add" 
-                ? `Fill in ${isGrocery ? "grocery" : "clothing"} details below` 
+              {mode === "add"
+                ? `Fill in ${isGrocery ? "grocery" : "clothing"} details below`
                 : "Update product information"}
             </p>
           </div>
@@ -1152,7 +1159,7 @@ function ProductModal({
                         value={form.gender || "Men"}
                         onChange={(v) => {
                           set("gender", v);
-                          set("sizes", []); 
+                          set("sizes", []);
                         }}
                         suggestions={GENDERS}
                         placeholder="e.g. Men, Women, Kids"
@@ -1226,6 +1233,25 @@ function ProductModal({
                     </>
                   )}
 
+                  {/* Purchase Details — shown for both Grocery & Garments */}
+                  <Field label="Invoice Number">
+                    <input
+                      type="text"
+                      placeholder="e.g. INV-2024-001"
+                      value={form.invoiceNumber}
+                      onChange={(e) => set("invoiceNumber", e.target.value)}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="Purchase Date">
+                    <input
+                      type="date"
+                      value={form.purchaseDate}
+                      onChange={(e) => set("purchaseDate", e.target.value)}
+                      className={inputCls}
+                    />
+                  </Field>
+
                 </div>
               </div>
 
@@ -1263,7 +1289,7 @@ function ProductModal({
                       sizes={form.sizes || []}
                       category={form.category}
                       gender={form.gender || "Men"}
-                      onChange={(s) => { set("sizes", s); setErrors((e) => { const n = {...e}; delete n.sizes; return n; }); }}
+                      onChange={(s) => { set("sizes", s); setErrors((e) => { const n = { ...e }; delete n.sizes; return n; }); }}
                     />
                     {errors.sizes && (
                       <p className="text-[11px] text-coral mt-1">{errors.sizes}</p>
@@ -1421,8 +1447,8 @@ function ProductModal({
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [store, setStore]       = useState<any>(null);
-  const [loading, setLoading]   = useState(true);
+  const [store, setStore] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
@@ -1460,12 +1486,14 @@ export default function ProductsPage() {
           barcodeImageUrl: p.barcode_image_url,
           image: p.image_url,
           createdDate: p.created_at?.split('T')[0],
-           sizes: p.sizes?.map((s: any) => ({
-             size: s.size,
-             qty: s.quantity,
-             barcode: s.barcode,
-             barcodeImageUrl: s.barcode_image_url,
-           })) || []
+          invoiceNumber: p.invoice_number,
+          purchaseDate: p.purchase_date,
+          sizes: p.sizes?.map((s: any) => ({
+            size: s.size,
+            qty: s.quantity,
+            barcode: s.barcode,
+            barcodeImageUrl: s.barcode_image_url,
+          })) || []
         }));
         setProducts(mapped);
       } catch (error) {
@@ -1476,23 +1504,23 @@ export default function ProductsPage() {
     }
     fetchData();
   }, []);
-  const [search, setSearch]     = useState("");
-  const [catFilter, setCatFilter]   = useState("All");
+  const [search, setSearch] = useState("");
+  const [catFilter, setCatFilter] = useState("All");
   const [genderFilter, setGenderFilter] = useState("All");
-  const [stockFilter, setStockFilter]   = useState("All");
-  const [sortKey, setSortKey]   = useState<SortKey>("createdDate");
-  const [sortDir, setSortDir]   = useState<"asc" | "desc">("desc");
+  const [stockFilter, setStockFilter] = useState("All");
+  const [sortKey, setSortKey] = useState<SortKey>("createdDate");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [viewMode, setViewMode] = useState<ViewMode>("table");
-  const [modal, setModal]       = useState<ModalMode>(null);
+  const [modal, setModal] = useState<ModalMode>(null);
   const [selected, setSelected] = useState<Product | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const isGrocery = store?.category === "GROCERY";
 
   const inStockCount = products.filter((p) => getStockBadge(p).label === "In Stock").length;
-  const lowCount     = products.filter((p) => getStockBadge(p).label === "Low Stock").length;
-  const outCount     = products.filter((p) => getStockBadge(p).label === "Out of Stock").length;
-  const totalValue   = products.reduce((t, p) => t + totalStock(p) * p.purchasePrice, 0);
+  const lowCount = products.filter((p) => getStockBadge(p).label === "Low Stock").length;
+  const outCount = products.filter((p) => getStockBadge(p).label === "Out of Stock").length;
+  const totalValue = products.reduce((t, p) => t + totalStock(p) * p.purchasePrice, 0);
 
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(products.map((p) => p.category)))],
@@ -1510,20 +1538,21 @@ export default function ProductsPage() {
           p.sku?.toLowerCase().includes(q) ||
           p.color?.toLowerCase().includes(q) ||
           p.barcode?.toLowerCase().includes(q) ||
+          p.invoiceNumber?.toLowerCase().includes(q) ||
           p.sizes?.some((s: any) => s.barcode?.toLowerCase().includes(q));
-        const matchCat    = catFilter === "All" || p.category === catFilter;
+        const matchCat = catFilter === "All" || p.category === catFilter;
         const matchGender = isGrocery || genderFilter === "All" || p.gender === genderFilter;
-        const badge       = getStockBadge(p).label;
-        const matchStock  = stockFilter === "All" || badge === stockFilter;
+        const badge = getStockBadge(p).label;
+        const matchStock = stockFilter === "All" || badge === stockFilter;
         return matchSearch && matchCat && matchGender && matchStock;
       })
       .sort((a, b) => {
         let va: number | string = 0,
           vb: number | string = 0;
-        if (sortKey === "name")         { va = a.name;           vb = b.name;           }
-        if (sortKey === "totalStock")   { va = totalStock(a);    vb = totalStock(b);    }
-        if (sortKey === "sellingPrice") { va = a.sellingPrice;   vb = b.sellingPrice;   }
-        if (sortKey === "createdDate")  { va = a.createdDate;    vb = b.createdDate;    }
+        if (sortKey === "name") { va = a.name; vb = b.name; }
+        if (sortKey === "totalStock") { va = totalStock(a); vb = totalStock(b); }
+        if (sortKey === "sellingPrice") { va = a.sellingPrice; vb = b.sellingPrice; }
+        if (sortKey === "createdDate") { va = a.createdDate; vb = b.createdDate; }
         if (va < vb) return sortDir === "asc" ? -1 : 1;
         if (va > vb) return sortDir === "asc" ? 1 : -1;
         return 0;
@@ -1589,10 +1618,10 @@ export default function ProductsPage() {
         </div>
 
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-          <StatCard index={0} label="Total Products"  value={products.length} sub="All categories"    icon={Package}       bg="bg-coral-light"   ic="text-primary"   />
-          <StatCard index={1} label="In Stock"        value={inStockCount}    sub="Available"          icon={CheckCircle}   bg="bg-mint-light"  ic="text-success"  />
-          <StatCard index={2} label="Low / Out"       value={`${lowCount} / ${outCount}`} sub="Need attention" icon={AlertTriangle} bg="bg-warning/10"  ic="text-warning"  highlight={lowCount + outCount > 0} />
-          <StatCard index={3} label="Inventory Value" value={fmt(totalValue)} sub="At purchase price" icon={BarChart3}      bg="bg-purple-50" ic="text-purple-600" />
+          <StatCard index={0} label="Total Products" value={products.length} sub="All categories" icon={Package} bg="bg-coral-light" ic="text-primary" />
+          <StatCard index={1} label="In Stock" value={inStockCount} sub="Available" icon={CheckCircle} bg="bg-mint-light" ic="text-success" />
+          <StatCard index={2} label="Low / Out" value={`${lowCount} / ${outCount}`} sub="Need attention" icon={AlertTriangle} bg="bg-warning/10" ic="text-warning" highlight={lowCount + outCount > 0} />
+          <StatCard index={3} label="Inventory Value" value={fmt(totalValue)} sub="At purchase price" icon={BarChart3} bg="bg-purple-50" ic="text-purple-600" />
         </div>
 
         {(lowCount > 0 || outCount > 0) && (
@@ -1740,8 +1769,8 @@ export default function ProductsPage() {
                   ) : (
                     filtered.map((p) => {
                       const badge = getStockBadge(p);
-                      const m     = marginPct(p);
-                      const tot   = totalStock(p);
+                      const m = marginPct(p);
+                      const tot = totalStock(p);
                       return (
                         <tr key={p.id} className="border-b border-slate-50 hover:bg-background transition-colors group">
                           <td className="px-4 py-3">
@@ -1813,11 +1842,10 @@ export default function ProductsPage() {
                                 {p.sizes?.slice(0, 4).map((s) => (
                                   <span
                                     key={s.size}
-                                    className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
-                                      s.qty === 0
+                                    className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${s.qty === 0
                                         ? "bg-coral-light text-coral border-coral"
                                         : "bg-background text-text-primary border-border"
-                                    }`}
+                                      }`}
                                   >
                                     {s.size}
                                   </span>
@@ -1899,8 +1927,8 @@ export default function ProductsPage() {
               <div className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
                 {filtered.map((p) => {
                   const badge = getStockBadge(p);
-                  const m     = marginPct(p);
-                  const tot   = totalStock(p);
+                  const m = marginPct(p);
+                  const tot = totalStock(p);
                   return (
                     <div
                       key={p.id}
@@ -1948,11 +1976,10 @@ export default function ProductsPage() {
                             {p.sizes.map((s) => (
                               <span
                                 key={s.size}
-                                className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
-                                  s.qty === 0
+                                className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${s.qty === 0
                                     ? "bg-coral-light text-coral border-coral"
                                     : "bg-background text-text-primary border-border"
-                                }`}
+                                  }`}
                               >
                                 {s.size}
                               </span>
