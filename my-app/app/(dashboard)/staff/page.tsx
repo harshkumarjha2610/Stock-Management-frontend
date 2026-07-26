@@ -364,7 +364,7 @@ export default function StaffManagementPage() {
     if (!staffForm.name.trim() || !staffForm.phone.trim()) return;
     setSaving(true);
     try {
-      const payload = {
+      const payload: any = {
         name: staffForm.name,
         phone: staffForm.phone,
         address: staffForm.address,
@@ -374,8 +374,12 @@ export default function StaffManagementPage() {
         joining_date: staffForm.joiningDate,
         base_salary: staffForm.salary,
         status: staffForm.status,
-        password: staffForm.password
       };
+
+      // Only send password when adding new staff, or when admin explicitly sets one during edit
+      if (!editingStaff || staffForm.password?.trim()) {
+        payload.password = staffForm.password;
+      }
 
       if (editingStaff) {
         await api.put(`/staff/${editingStaff.id}`, payload);
@@ -666,8 +670,8 @@ export default function StaffManagementPage() {
             key={tab}
             onClick={() => setMainTab(tab)}
             className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all capitalize ${mainTab === tab
-                ? "bg-surface text-primary shadow-sm"
-                : "text-text-secondary hover:text-text-primary"
+              ? "bg-surface text-primary shadow-sm"
+              : "text-text-secondary hover:text-text-primary"
               }`}
           >
             {tab === "staff" ? "👤 Staff" : tab === "attendance" ? "🕐 Attendance" : "💰 Salary"}
@@ -1194,24 +1198,24 @@ export default function StaffManagementPage() {
                 </Field>
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="Phone Number *">
-                   <input
-                     type="text"
-                     inputMode="numeric"
-                     pattern="[0-9]*"
-                     placeholder="e.g. 9876543210"
-                     value={staffForm.phone}
-                     maxLength={10}
-                     onChange={(e) => {
-                       const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-                       setStaffForm((p) => ({ ...p, phone: val }));
-                     }}
-                     onKeyDown={(e) => {
-                       if (e.key.length === 1 && !/\d/.test(e.key) && !e.ctrlKey && !e.metaKey) {
-                         e.preventDefault();
-                       }
-                     }}
-                     className={inputCls}
-                   />
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      placeholder="e.g. 9876543210"
+                      value={staffForm.phone}
+                      maxLength={10}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        setStaffForm((p) => ({ ...p, phone: val }));
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key.length === 1 && !/\d/.test(e.key) && !e.ctrlKey && !e.metaKey) {
+                          e.preventDefault();
+                        }
+                      }}
+                      className={inputCls}
+                    />
                   </Field>
                   <Field label="Email ID *">
                     <input
@@ -1253,7 +1257,7 @@ export default function StaffManagementPage() {
                     </div>
                   </Field>
                 </div>
-                {!editingStaff && (
+                {/* {!editingStaff && (
                   <Field label="Password *">
                     <div className="relative">
                       <input
@@ -1272,7 +1276,41 @@ export default function StaffManagementPage() {
                       </button>
                     </div>
                   </Field>
-                )}
+                )} */}
+                <Field
+                  label={
+                    editingStaff
+                      ? "New Password (leave blank to keep current)"
+                      : "Password *"
+                  }
+                >
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder={
+                        editingStaff
+                          ? "Leave blank to keep current password"
+                          : "Set login password for staff"
+                      }
+                      value={staffForm.password || ""}
+                      onChange={(e) =>
+                        setStaffForm((p) => ({
+                          ...p,
+                          password: e.target.value,
+                        }))
+                      }
+                      className={inputCls + " pr-10"}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </Field>
                 <Field label="Address">
                   <textarea placeholder="e.g. 22, Rajouri Garden, Delhi" value={staffForm.address}
                     onChange={(e) => setStaffForm((p) => ({ ...p, address: e.target.value }))}
@@ -1556,8 +1594,8 @@ export default function StaffManagementPage() {
                   key={s.value}
                   onClick={() => updateStatus(markModal.staffId, s.value)}
                   className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${markModal.status === s.value
-                      ? "border-red-500 bg-coral-light shadow-sm"
-                      : "border-border hover:border-border hover:bg-background"
+                    ? "border-red-500 bg-coral-light shadow-sm"
+                    : "border-border hover:border-border hover:bg-background"
                     }`}
                 >
                   <div className="flex items-center gap-3">
@@ -1646,10 +1684,10 @@ export default function StaffManagementPage() {
                     key={st}
                     onClick={() => setMarkForm(p => ({ ...p, status: st }))}
                     className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${markForm.status === st
-                        ? st === "PRESENT" ? "bg-green-600 text-white shadow-sm" :
-                          st === "ABSENT" ? "bg-primary text-white shadow-sm" :
-                            "bg-warning/100 text-white shadow-sm"
-                        : "text-text-secondary hover:bg-slate-200"
+                      ? st === "PRESENT" ? "bg-green-600 text-white shadow-sm" :
+                        st === "ABSENT" ? "bg-primary text-white shadow-sm" :
+                          "bg-warning/100 text-white shadow-sm"
+                      : "text-text-secondary hover:bg-slate-200"
                       }`}
                   >
                     {st}
@@ -1768,8 +1806,8 @@ function ImageUploader({
             if (f) handleFile(f);
           }}
           className={`flex flex-col items-center justify-center gap-3 w-full aspect-square rounded-xl border-2 border-dashed cursor-pointer transition-all ${dragging
-              ? "border-red-400 bg-coral-light"
-              : "border-border bg-background hover:border-primary hover:bg-primary-light/50"
+            ? "border-red-400 bg-coral-light"
+            : "border-border bg-background hover:border-primary hover:bg-primary-light/50"
             }`}
         >
           <div className="w-10 h-10 rounded-xl bg-surface border border-border flex items-center justify-center shadow-sm">

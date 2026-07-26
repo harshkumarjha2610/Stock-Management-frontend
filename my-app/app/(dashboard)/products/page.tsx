@@ -98,54 +98,6 @@ const UNITS = ["kg", "g", "liter", "ml", "pcs", "packet", "bottle", "box"];
 const GST_OPTIONS = [0, 5, 12, 18];
 
 // ═══════════════════════════════════════════════════════════════
-// SUGGESTION DATA
-// ═══════════════════════════════════════════════════════════════
-
-const PRODUCT_NAME_SUGGESTIONS = [
-  "Classic White Formal Shirt",
-  "Slim Fit Denim Jeans",
-  "Cotton Crew Neck T-Shirt",
-  "Floral Print Summer Dress",
-  "Running Sports Shoes",
-  "Leather Formal Belt",
-  "Woolen Winter Sweater",
-  "Printed Casual Kurti",
-  "Silk Embroidered Saree",
-  "Hooded Zip-Up Jacket",
-  "Chino Stretchable Pants",
-  "Linen Blend Kurta Set",
-  "Padded Push-Up Bra",
-  "Athletic Jogger Shorts",
-  "Velvet Party Wear Lehenga",
-];
-
-const BRAND_SUGGESTIONS = [
-  "Nike",
-  "Adidas",
-  "Levi's",
-  "Zara",
-  "H&M",
-  "Puma",
-  "Tommy Hilfiger",
-  "Calvin Klein",
-  "Raymond",
-  "Biba",
-];
-
-const COLOR_SUGGESTIONS = [
-  "Navy Blue",
-  "Black",
-  "White",
-  "Maroon",
-  "Olive Green",
-  "Charcoal Grey",
-  "Beige",
-  "Burgundy",
-  "Teal",
-  "Mustard Yellow",
-];
-
-// ═══════════════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════════════
 
@@ -483,8 +435,8 @@ function SizeStockEditor({
               type="button"
               onClick={() => toggleSize(size)}
               className={`h-8 min-w-[2.5rem] px-2.5 rounded-lg text-xs font-bold border transition-all ${isActive
-                  ? "bg-primary text-white border-primary shadow-sm"
-                  : "bg-background text-text-secondary border-border hover:border-primary hover:text-primary"
+                ? "bg-primary text-white border-primary shadow-sm"
+                : "bg-background text-text-secondary border-border hover:border-primary hover:text-primary"
                 }`}
             >
               {size}
@@ -595,8 +547,8 @@ function ImageUploader({
             if (f) handleFile(f);
           }}
           className={`flex flex-col items-center justify-center gap-3 w-full aspect-[3/4] rounded-xl border-2 border-dashed cursor-pointer transition-all ${dragging
-              ? "border-red-400 bg-coral-light"
-              : "border-border bg-background hover:border-primary hover:bg-primary-light/50"
+            ? "border-red-400 bg-coral-light"
+            : "border-border bg-background hover:border-primary hover:bg-primary-light/50"
             }`}
         >
           <div className="w-10 h-10 rounded-xl bg-surface border border-border flex items-center justify-center shadow-sm">
@@ -696,6 +648,14 @@ function ProductModal({
   onClose,
   storeCategory,
   store,
+  nameSuggestions,
+  categorySuggestions,
+  genderSuggestions,
+  brandSuggestions,
+  fabricSuggestions,
+  colorSuggestions,
+  invoiceSuggestions,
+  purchaseDateSuggestions,
 }: {
   mode: "add" | "edit" | "view";
   product: Product | null;
@@ -703,6 +663,14 @@ function ProductModal({
   onClose: () => void;
   storeCategory: "GARMENTS" | "GROCERY";
   store?: any;
+  nameSuggestions: string[];
+  categorySuggestions: string[];
+  genderSuggestions: string[];
+  brandSuggestions: string[];
+  fabricSuggestions: string[];
+  colorSuggestions: string[];
+  invoiceSuggestions: string[];
+  purchaseDateSuggestions: string[];
 }) {
   const isView = mode === "view";
   const isGrocery = storeCategory === "GROCERY";
@@ -1135,7 +1103,7 @@ function ProductModal({
                     label="Product Name *"
                     value={form.name}
                     onChange={(v) => set("name", v)}
-                    suggestions={PRODUCT_NAME_SUGGESTIONS}
+                    suggestions={nameSuggestions}
                     placeholder="e.g. Classic White Formal Shirt"
                     error={errors.name}
                     span={2}
@@ -1148,7 +1116,7 @@ function ProductModal({
                       set("category", v);
                       if (!isGrocery) set("sizes", []);
                     }}
-                    suggestions={isGrocery ? GROCERY_CATEGORIES : CLOTHING_CATEGORIES}
+                    suggestions={categorySuggestions}
                     placeholder="e.g. T-Shirt, Shirt, Pant"
                   />
 
@@ -1161,7 +1129,7 @@ function ProductModal({
                           set("gender", v);
                           set("sizes", []);
                         }}
-                        suggestions={GENDERS}
+                        suggestions={genderSuggestions}
                         placeholder="e.g. Men, Women, Kids"
                       />
                       {/* Brand with Suggestions */}
@@ -1169,14 +1137,14 @@ function ProductModal({
                         label="Brand"
                         value={form.brand || ""}
                         onChange={(v) => set("brand", v)}
-                        suggestions={BRAND_SUGGESTIONS}
+                        suggestions={brandSuggestions}
                         placeholder="e.g. Levis, Zara, Biba"
                       />
                       <SuggestionInput
                         label="Fabric *"
                         value={form.fabric || "Cotton"}
                         onChange={(v) => set("fabric", v)}
-                        suggestions={FABRICS}
+                        suggestions={fabricSuggestions}
                         placeholder="e.g. Cotton, Denim"
                       />
                       {/* Color with Suggestions */}
@@ -1184,7 +1152,7 @@ function ProductModal({
                         label="Color *"
                         value={form.color || ""}
                         onChange={(v) => set("color", v)}
-                        suggestions={COLOR_SUGGESTIONS}
+                        suggestions={colorSuggestions}
                         placeholder="e.g. Navy Blue, Floral Pink"
                         error={errors.color}
                       />
@@ -1227,22 +1195,20 @@ function ProductModal({
                         label="Brand"
                         value={form.brand || ""}
                         onChange={(v) => set("brand", v)}
-                        suggestions={BRAND_SUGGESTIONS}
+                        suggestions={brandSuggestions}
                         placeholder="e.g. Nestle, Amul"
                       />
                     </>
                   )}
 
                   {/* Purchase Details — shown for both Grocery & Garments */}
-                  <Field label="Invoice Number">
-                    <input
-                      type="text"
-                      placeholder="e.g. INV-2024-001"
-                      value={form.invoiceNumber}
-                      onChange={(e) => set("invoiceNumber", e.target.value)}
-                      className={inputCls}
-                    />
-                  </Field>
+                  <SuggestionInput
+                    label="Invoice Number"
+                    value={form.invoiceNumber}
+                    onChange={(v) => set("invoiceNumber", v)}
+                    suggestions={invoiceSuggestions}
+                    placeholder="e.g. INV-001"
+                  />
                   <Field label="Purchase Date">
                     <input
                       type="date"
@@ -1524,6 +1490,55 @@ export default function ProductsPage() {
 
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(products.map((p) => p.category)))],
+    [products]
+  );
+
+  // Dynamic suggestions derived from existing products
+  const nameSuggestions = useMemo(() =>
+    Array.from(new Set(products.map((p) => p.name).filter(Boolean))),
+    [products]);
+
+  const categorySuggestions = useMemo(() =>
+    Array.from(new Set(products.map((p) => p.category).filter(Boolean))),
+    [products]);
+
+  const genderSuggestions = useMemo(() =>
+    Array.from(new Set(products.map((p) => p.gender).filter(Boolean))),
+    [products]);
+
+  const brandSuggestions = useMemo(() =>
+    Array.from(new Set(products.map((p) => p.brand).filter(Boolean))),
+    [products]);
+
+  const fabricSuggestions = useMemo(() =>
+    Array.from(new Set(products.map((p) => p.fabric).filter(Boolean))),
+    [products]);
+
+  const colorSuggestions = useMemo(() =>
+    Array.from(new Set(products.map((p) => p.color).filter(Boolean))),
+    [products]);
+
+  const invoiceSuggestions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          products
+            .map((p) => p.invoiceNumber)
+            .filter(Boolean)
+        )
+      ),
+    [products]
+  );
+
+  const purchaseDateSuggestions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          products
+            .map((p) => p.purchaseDate)
+            .filter(Boolean)
+        )
+      ),
     [products]
   );
 
@@ -1843,8 +1858,8 @@ export default function ProductsPage() {
                                   <span
                                     key={s.size}
                                     className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${s.qty === 0
-                                        ? "bg-coral-light text-coral border-coral"
-                                        : "bg-background text-text-primary border-border"
+                                      ? "bg-coral-light text-coral border-coral"
+                                      : "bg-background text-text-primary border-border"
                                       }`}
                                   >
                                     {s.size}
@@ -1977,8 +1992,8 @@ export default function ProductsPage() {
                               <span
                                 key={s.size}
                                 className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${s.qty === 0
-                                    ? "bg-coral-light text-coral border-coral"
-                                    : "bg-background text-text-primary border-border"
+                                  ? "bg-coral-light text-coral border-coral"
+                                  : "bg-background text-text-primary border-border"
                                   }`}
                               >
                                 {s.size}
@@ -2065,9 +2080,20 @@ export default function ProductsPage() {
           mode={modal}
           product={selected}
           onSave={handleSave}
-          onClose={() => { setModal(null); setSelected(null); }}
+          onClose={() => {
+            setModal(null);
+            setSelected(null);
+          }}
           storeCategory={store?.category || "GARMENTS"}
           store={store}
+          nameSuggestions={nameSuggestions}
+          categorySuggestions={categorySuggestions}
+          genderSuggestions={genderSuggestions}
+          brandSuggestions={brandSuggestions}
+          fabricSuggestions={fabricSuggestions}
+          colorSuggestions={colorSuggestions}
+          invoiceSuggestions={invoiceSuggestions}
+          purchaseDateSuggestions={purchaseDateSuggestions}
         />
       )}
 
