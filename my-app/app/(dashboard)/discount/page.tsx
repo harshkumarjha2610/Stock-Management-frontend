@@ -38,7 +38,8 @@ type Product = {
     category: string;
     price: number;
     stock: number;
-    discounted_price: number | null;
+    discounted_price?: number | null;
+    bulk_offer?: string | null;
 };
 
 type CategoryRule = {
@@ -89,14 +90,14 @@ function uid(prefix: string) {
 // ═══════════════════════════════════════════════════════════
 
 const mockProducts: Product[] = [
-    { id: "P-101", name: "Premium T-Shirt", sku: "TEE-001", brand: "UrbanThread", category: "Apparel", price: 1299, stock: 40 },
-    { id: "P-102", name: "Denim Jeans", sku: "JNS-102", brand: "BlueForge", category: "Apparel", price: 2499, stock: 18 },
-    { id: "P-103", name: "Running Shoes", sku: "SHO-210", brand: "SprintX", category: "Footwear", price: 3999, stock: 26 },
-    { id: "P-104", name: "Sports Cap", sku: "CAP-088", brand: "UrbanThread", category: "Accessories", price: 699, stock: 60 },
-    { id: "P-105", name: "Leather Wallet", sku: "ACC-302", brand: "HideCraft", category: "Accessories", price: 1499, stock: 22 },
-    { id: "P-106", name: "Casual Shirt", sku: "SRT-411", brand: "UrbanThread", category: "Apparel", price: 1799, stock: 35 },
-    { id: "P-107", name: "Sneakers Pro", sku: "SHO-240", brand: "SprintX", category: "Footwear", price: 4599, stock: 12 },
-    { id: "P-108", name: "Analog Watch", sku: "WAT-710", brand: "TimeNest", category: "Accessories", price: 3299, stock: 9 },
+    { id: "P-101", name: "Premium T-Shirt", sku: "TEE-001", brand: "UrbanThread", category: "Apparel", price: 1299, stock: 40, discounted_price: null },
+    { id: "P-102", name: "Denim Jeans", sku: "JNS-102", brand: "BlueForge", category: "Apparel", price: 2499, stock: 18, discounted_price: null },
+    { id: "P-103", name: "Running Shoes", sku: "SHO-210", brand: "SprintX", category: "Footwear", price: 3999, stock: 26, discounted_price: null },
+    { id: "P-104", name: "Sports Cap", sku: "CAP-088", brand: "UrbanThread", category: "Accessories", price: 699, stock: 60, discounted_price: null },
+    { id: "P-105", name: "Leather Wallet", sku: "ACC-302", brand: "HideCraft", category: "Accessories", price: 1499, stock: 22, discounted_price: null },
+    { id: "P-106", name: "Casual Shirt", sku: "SRT-411", brand: "UrbanThread", category: "Apparel", price: 1799, stock: 35, discounted_price: null },
+    { id: "P-107", name: "Sneakers Pro", sku: "SHO-240", brand: "SprintX", category: "Footwear", price: 4599, stock: 12, discounted_price: null },
+    { id: "P-108", name: "Analog Watch", sku: "WAT-710", brand: "TimeNest", category: "Accessories", price: 3299, stock: 9, discounted_price: null },
 ];
 
 const mockCategoryRules: CategoryRule[] = [
@@ -185,6 +186,9 @@ export default function DiscountPage() {
     const [categoryRuleLoading, setCategoryRuleLoading] = useState(false);
     const [categoryRuleError, setCategoryRuleError] = useState<string | null>(null);
     const [categoryRuleSuccess, setCategoryRuleSuccess] = useState<string | null>(null);
+    const [brandRuleLoading, setBrandRuleLoading] = useState(false);
+    const [brandRuleError, setBrandRuleError] = useState<string | null>(null);
+    const [brandRuleSuccess, setBrandRuleSuccess] = useState<string | null>(null);
 
     const [products, setProducts] = useState<Product[]>([]);
     const [categoryRules, setCategoryRules] = useState<CategoryRule[]>([]);
@@ -222,7 +226,9 @@ export default function DiscountPage() {
 
     const fetchProducts = useCallback(async () => {
         try {
+            console.log("[API GET /products] Fetching products...");
             const res = await api.get("/products");
+            console.log("[API GET /products Success] Response:", res.data);
             const mapped = (res.data || []).map((p: any) => ({
                 id: String(p.id),
                 name: p.name,
@@ -234,14 +240,17 @@ export default function DiscountPage() {
                 discounted_price: p.discounted_price != null ? Number(p.discounted_price) : null,
             }));
             setProducts(mapped.length ? mapped : mockProducts);
-        } catch {
+        } catch (err) {
+            console.error("[API GET /products Error]:", err);
             setProducts(mockProducts);
         }
     }, []);
 
     const fetchCategoryRules = useCallback(async () => {
         try {
+            console.log("[API GET /discounts/category] Fetching category rules...");
             const res = await api.get("/discounts/category");
+            console.log("[API GET /discounts/category Success] Response:", res.data);
             const mapped = (res.data || []).map((r: any) => ({
                 id: String(r.id),
                 category: r.target,
@@ -251,8 +260,28 @@ export default function DiscountPage() {
                 status: r.status as RuleStatus,
             }));
             setCategoryRules(mapped);
-        } catch {
+        } catch (err) {
+            console.error("[API GET /discounts/category Error]:", err);
             setCategoryRules(mockCategoryRules);
+        }
+    }, []);
+
+    const fetchBrandRules = useCallback(async () => {
+        try {
+            console.log("[API GET /discounts/brand] Fetching brand rules...");
+            const res = await api.get("/discounts/brand");
+            console.log("[API GET /discounts/brand Success] Response:", res.data);
+            const mapped = (res.data || []).map((r: any) => ({
+                id: String(r.id),
+                brand: r.target,
+                discountType: r.discount_type as DiscountType,
+                value: Number(r.value),
+                status: r.status as RuleStatus,
+            }));
+            setBrandRules(mapped);
+        } catch (err) {
+            console.error("[API GET /discounts/brand Error]:", err);
+            setBrandRules(mockBrandRules);
         }
     }, []);
 
@@ -260,8 +289,7 @@ export default function DiscountPage() {
         async function fetchDiscountData() {
             try {
                 setLoading(true);
-                await Promise.all([fetchProducts(), fetchCategoryRules()]);
-                setBrandRules(mockBrandRules);
+                await Promise.all([fetchProducts(), fetchCategoryRules(), fetchBrandRules()]);
                 setBulkRules(mockBulkRules);
             } catch {
                 setProducts(mockProducts);
@@ -273,7 +301,7 @@ export default function DiscountPage() {
             }
         }
         fetchDiscountData();
-    }, [fetchProducts, fetchCategoryRules]);
+    }, [fetchProducts, fetchCategoryRules, fetchBrandRules]);
 
     const categories = useMemo(
         () => Array.from(new Set(products.map((p) => p.category))).sort(),
@@ -353,13 +381,16 @@ export default function DiscountPage() {
         setCategoryRuleSuccess(null);
 
         try {
-            const res = await api.post("/discounts/category", {
+            const payload = {
                 category: categoryForm.category,
                 discount_type: categoryForm.discountType,
                 value: Number(categoryForm.value),
                 status: categoryForm.status,
                 applies_to_all_brands: categoryForm.appliesToAllBrands,
-            });
+            };
+            console.log("[API POST /discounts/category] Request payload:", payload);
+            const res = await api.post("/discounts/category", payload);
+            console.log("[API POST /discounts/category Success] Response:", res.data);
 
             // Add the returned rule to the list
             const r = res.data.rule;
@@ -386,6 +417,7 @@ export default function DiscountPage() {
             // Auto-clear success toast
             setTimeout(() => setCategoryRuleSuccess(null), 4000);
         } catch (err: any) {
+            console.error("[API POST /discounts/category Error]:", err);
             setCategoryRuleError(err.message || "Failed to apply discount.");
             setTimeout(() => setCategoryRuleError(null), 5000);
         } finally {
@@ -393,35 +425,95 @@ export default function DiscountPage() {
         }
     }
 
-    function addBrandRule() {
+    async function addBrandRule() {
         if (!brandForm.brand || !brandForm.value) return;
 
-        const newRule: BrandRule = {
-            id: uid("BR"),
-            brand: brandForm.brand,
-            discountType: brandForm.discountType,
-            value: Number(brandForm.value),
-            status: brandForm.status,
-        };
+        setBrandRuleLoading(true);
+        setBrandRuleError(null);
+        setBrandRuleSuccess(null);
 
-        setBrandRules((prev) => [newRule, ...prev]);
-        resetBrandForm();
+        try {
+            const payload = {
+                brand: brandForm.brand,
+                discount_type: brandForm.discountType,
+                value: Number(brandForm.value),
+                status: brandForm.status,
+            };
+            console.log("[API POST /discounts/brand] Request payload:", payload);
+            const res = await api.post("/discounts/brand", payload);
+            console.log("[API POST /discounts/brand Success] Response:", res.data);
+
+            const r = res.data.rule;
+            const newRule: BrandRule = {
+                id: String(r.id),
+                brand: r.target,
+                discountType: r.discount_type as DiscountType,
+                value: Number(r.value),
+                status: r.status as RuleStatus,
+            };
+            setBrandRules((prev) => {
+                // Replace any existing rule for the same brand
+                const filtered = prev.filter((x) => x.brand !== newRule.brand);
+                return [newRule, ...filtered];
+            });
+
+            // Re-fetch products so discounted_price column updates
+            await fetchProducts();
+
+            setBrandRuleSuccess(`Discount applied to ${res.data.affectedCount} product(s) for brand "${brandForm.brand}".`);
+            resetBrandForm();
+
+            setTimeout(() => setBrandRuleSuccess(null), 4000);
+        } catch (err: any) {
+            console.error("[API POST /discounts/brand Error]:", err);
+            setBrandRuleError(err.message || "Failed to apply brand discount.");
+            setTimeout(() => setBrandRuleError(null), 5000);
+        } finally {
+            setBrandRuleLoading(false);
+        }
     }
 
     function addBulkRule() {
         if (!bulkForm.title.trim() || !bulkForm.value || selectedProducts.length === 0) return;
+
+        const val = Number(bulkForm.value);
+        const minQty = Number(bulkForm.minQty || 1);
+        const offerText = bulkForm.discountType === "percentage"
+            ? `Buy ${minQty} & get ${val}% off`
+            : `Buy ${minQty} & get ${money(val)} off`;
 
         const newRule: BulkRule = {
             id: uid("BK"),
             title: bulkForm.title.trim(),
             selectedProductIds: selectedProducts,
             discountType: bulkForm.discountType,
-            value: Number(bulkForm.value),
-            minQty: Number(bulkForm.minQty || 1),
+            value: val,
+            minQty: minQty,
             status: bulkForm.status,
         };
 
         setBulkRules((prev) => [newRule, ...prev]);
+
+        // Calculate single unit discounted price based on the bulk discount rate
+        setProducts((prevProducts) =>
+            prevProducts.map((p) => {
+                if (selectedProducts.includes(p.id)) {
+                    let calcPrice = p.price;
+                    if (bulkForm.discountType === "percentage") {
+                        calcPrice = Math.max(0, Math.round(p.price * (1 - val / 100)));
+                    } else {
+                        calcPrice = Math.max(0, p.price - val);
+                    }
+                    return {
+                        ...p,
+                        discounted_price: calcPrice,
+                        bulk_offer: offerText,
+                    } as any;
+                }
+                return p;
+            })
+        );
+
         resetBulkForm();
     }
 
@@ -587,7 +679,7 @@ export default function DiscountPage() {
                             className="w-full h-10 rounded-xl bg-primary hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
                         >
                             {categoryRuleLoading ? (
-                                <><Loader2 size={15} className="animate-spin" /> Applying...</>  
+                                <><Loader2 size={15} className="animate-spin" /> Applying...</>
                             ) : (
                                 <><Plus size={16} /> Add Category Rule</>
                             )}
@@ -660,12 +752,30 @@ export default function DiscountPage() {
                             </div>
                         </div>
 
+                        {brandRuleError && (
+                            <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs font-medium text-red-700 flex items-center gap-2">
+                                <X size={13} className="shrink-0" />
+                                {brandRuleError}
+                            </div>
+                        )}
+
+                        {brandRuleSuccess && (
+                            <div className="rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-xs font-medium text-green-700 flex items-center gap-2">
+                                <CheckCircle2 size={13} className="shrink-0" />
+                                {brandRuleSuccess}
+                            </div>
+                        )}
+
                         <button
                             onClick={addBrandRule}
-                            className="w-full h-10 rounded-xl bg-primary hover:bg-red-700 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                            disabled={brandRuleLoading || !brandForm.brand || !brandForm.value}
+                            className="w-full h-10 rounded-xl bg-primary hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
                         >
-                            <Plus size={16} />
-                            Add Brand Rule
+                            {brandRuleLoading ? (
+                                <><Loader2 size={15} className="animate-spin" /> Applying...</>
+                            ) : (
+                                <><Plus size={16} /> Add Brand Rule</>
+                            )}
                         </button>
                     </div>
                 </SectionCard>
@@ -876,7 +986,14 @@ export default function DiscountPage() {
                                         </td>
                                         <td className="px-4 py-3 tabular-nums">
                                             {p.discounted_price != null ? (
-                                                <span className="font-bold text-green-600">{money(p.discounted_price)}</span>
+                                                <div className="flex flex-col gap-0.5">
+                                                    <span className="font-bold text-green-600">{money(p.discounted_price)}</span>
+                                                    {p.bulk_offer && (
+                                                        <span className="inline-flex items-center text-[10px] font-semibold text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded">
+                                                            {p.bulk_offer}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             ) : (
                                                 <span className="text-text-secondary text-xs">No discount</span>
                                             )}
@@ -925,13 +1042,17 @@ export default function DiscountPage() {
                                     </div>
                                     <button
                                         onClick={() => {
-                                    api.delete(`/discounts/${rule.id}`)
-                                        .then(() => {
-                                            setCategoryRules((prev) => prev.filter((x) => x.id !== rule.id));
-                                            fetchProducts();
-                                        })
-                                        .catch(() => {});
-                                }}
+                                            console.log(`[API DELETE /discounts/${rule.id}] Deleting category rule...`);
+                                            api.delete(`/discounts/${rule.id}`)
+                                                .then((res) => {
+                                                    console.log(`[API DELETE /discounts/${rule.id} Success] Response:`, res.data);
+                                                    setCategoryRules((prev) => prev.filter((x) => x.id !== rule.id));
+                                                    fetchProducts();
+                                                })
+                                                .catch((err) => {
+                                                    console.error(`[API DELETE /discounts/${rule.id} Error]:`, err);
+                                                });
+                                        }}
                                         className="w-8 h-8 rounded-lg bg-coral-light hover:bg-red-100 text-coral flex items-center justify-center transition-colors"
                                         title="Delete rule"
                                     >
@@ -972,7 +1093,14 @@ export default function DiscountPage() {
                                         <DiscountValue type={rule.discountType} value={rule.value} />
                                     </div>
                                     <button
-                                        onClick={() => setBrandRules((prev) => prev.filter((x) => x.id !== rule.id))}
+                                        onClick={() => {
+                                            api.delete(`/discounts/${rule.id}`)
+                                                .then(() => {
+                                                    setBrandRules((prev) => prev.filter((x) => x.id !== rule.id));
+                                                    fetchProducts();
+                                                })
+                                                .catch(() => { });
+                                        }}
                                         className="w-8 h-8 rounded-lg bg-coral-light hover:bg-red-100 text-coral flex items-center justify-center transition-colors"
                                         title="Delete rule"
                                     >
